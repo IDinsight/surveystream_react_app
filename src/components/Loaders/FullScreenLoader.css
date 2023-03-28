@@ -1,0 +1,45 @@
+.loader {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  transition: 1s;
+  overflow: hidden;
+}
+
+.circle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  animation: jump 1.2s infinite;
+}
+
+.circle:not(:last-child) {
+  margin-right: 2rem;
+}
+
+.c1 {
+  background-color: #4285f4;
+}
+
+.c2 {
+  background-color: #0f9d58;
+  animation-delay: 250ms;
+}
+
+.c3 {
+  background-color: #f4b400;
+  animation-delay: 500ms;
+}
+
+.c4 {
+  background-color: #db4437;
+  animation-delay: 750ms;
+}
+
+@keyframes jump {
+  25% {
+    transform: translateY(-100%);
+  }
+}
