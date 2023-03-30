@@ -1,0 +1,44 @@
+import styled, { css } from "styled-components";
+import { FaArrowLeft } from "react-icons/fa";
+
+export const NavWrapper = styled.nav`
+  background-color: #f2f2f2;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 20px;
+  border-bottom: 2px solid rgb(255, 255, 255);
+  box-shadow: 0px -1px 0px rgba(0, 0, 0, 0.08);
+`;
+
+export const Title = styled.h1`
+  font-size: 20px;
+  margin: 0;
+
+  ${css`
+    font-family: "Inter", sans-serif;
+    font-weight: 200px;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000;
+  `}
+`;
+
+export const BackLink = styled.a`
+  color: #434343;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-right: 10px;
+`;
+
+export const BackArrow = styled(FaArrowLeft)`
+  margin-right: 5px;
+`;
+
+export const MainWrapper = styled.main`
+  flex: 1;
+  padding: 1rem;
+  background-color: #f2f2f2;
+`;
