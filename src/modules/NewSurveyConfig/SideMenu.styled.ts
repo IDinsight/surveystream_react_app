@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { FaInfoCircle, FaQuestionCircle } from "react-icons/fa";
+import { QuestionCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 export const SideMenuWrapper = styled.div`
   background-color: #fff;
@@ -50,12 +50,14 @@ export const IconWrapper = styled.div`
   background-color: transparent;
 `;
 
-export const InfoIcon = styled(FaInfoCircle)`
-  width: 1.25rem;
-  height: 1.25rem;
+export const InfoIcon = styled(InfoCircleOutlined)`
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.5rem;
 `;
 
-export const QuestionIcon = styled(FaQuestionCircle)`
-  width: 1.25rem;
-  height: 1.25rem;
+export const QuestionIcon = styled(QuestionCircleOutlined)`
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.5rem;
 `;

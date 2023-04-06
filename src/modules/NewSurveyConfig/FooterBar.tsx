@@ -5,20 +5,31 @@ function FooterBar() {
     <div
       style={{
         display: "flex",
-        width: "105%",
-        marginLeft: "-1.55%",
+        width: "100%",
         height: "60px",
         backgroundColor: "#fff",
-        paddingBottom: "20px",
+        paddingBottom: "10px",
         borderTop: "1px solid rgb(242, 242, 242)",
         zIndex: 9,
       }}
     >
-      <Button style={{ margin: 20, marginLeft: "25%", float: "left" }}>
+      <Button
+        style={{
+          marginTop: 20,
+          marginLeft: 315,
+          float: "left",
+          fontFamily: "Inter",
+        }}
+      >
         Save
       </Button>
       <Button
-        style={{ margin: 20, marginLeft: "45%", backgroundColor: "#597EF7" }}
+        style={{
+          margin: 20,
+          marginLeft: "55%",
+          backgroundColor: "#597EF7",
+          fontFamily: "Inter",
+        }}
         type="primary"
       >
         Continue

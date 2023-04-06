@@ -1,10 +1,14 @@
 import { Form } from "antd";
 import styled, { css } from "styled-components";
+import { Tooltip } from "antd";
 
 export const BasicInformationFormWrapper = styled.div`
   display: flex;
   align-items: left;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   margin-left: 30px;
   flex-direction: column;
@@ -28,6 +32,7 @@ export const StyledFormItem = styled(Form.Item)`
   .ant-input {
     width: 100%;
     display: block;
+    font-family: "Inter", sans-serif;
   }
 
   && {
@@ -43,6 +48,7 @@ export const StyledFormItem = styled(Form.Item)`
   && .ant-form-item-label > label {
     color: #4a4a4a;
     display: block;
+    font-family: "Inter", sans-serif;
   }
 
   && .ant-form-item-control {
@@ -55,4 +61,11 @@ export const TwoColumnForm = styled(Form)`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  & .ant-tooltip-inner {
+    background-color: #061178;
+    color: white;
+  }
 `;

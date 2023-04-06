@@ -1,10 +1,10 @@
 import React, { FC } from "react";
-import { Col, Input, Row, Select, Tooltip } from "antd";
-import { DatePicker } from "antd";
+import { Col, Input, Row, Select, DatePicker } from "antd";
 import {
   BasicInformationFormWrapper,
   StyledFormItem,
   TwoColumnForm,
+  StyledTooltip,
 } from "./BasicInformationForm.styled";
 import { FormInstance } from "antd/lib/form";
 
@@ -14,27 +14,29 @@ export interface BasicInformationFormProps {
 import { useForm } from "antd/es/form/Form";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
+import { Title } from "../index.styled";
 
 const BasicInformationForm: FC<BasicInformationFormProps> = () => {
   const [form] = useForm();
 
   return (
     <BasicInformationFormWrapper data-testid="BasicInformationForm">
-      <p style={{ fontSize: 16 }}>Basic Information</p>
+      <Title>Basic Information</Title>
+
       <p style={{ fontSize: 14 }}>
         Please fill out the basic information about your survey
       </p>
       <TwoColumnForm form={form}>
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={36}>
+          <Col span={10}>
             <StyledFormItem
               required
               label={
                 <span>
                   Survey name&nbsp;
-                  <Tooltip title="It will be used to refer to the survey in the web app and to create folders on Google Drive. Ex: Digital Green, ADP 2.0 R1. For multiple rounds of the surveys, you’ll have to create different survey names">
+                  <StyledTooltip title="It will be used to refer to the survey in the web app and to create folders on Google Drive. Ex: Digital Green, ADP 2.0 R1. For multiple rounds of the surveys, you’ll have to create different survey names">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               name="surveyName"
@@ -53,9 +55,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Project name (optional)&nbsp;
-                  <Tooltip title="It can be used to group together multiple rounds. Ex: ADP 2.0 would be the project name, ADP 2.0 R1 and ADP 2.0 R2 would be the survey names.">
+                  <StyledTooltip title="It can be used to group together multiple rounds. Ex: ADP 2.0 would be the project name, ADP 2.0 R1 and ADP 2.0 R2 would be the survey names.">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               labelCol={{ span: 24 }}
@@ -74,9 +76,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Survey method&nbsp;
-                  <Tooltip title="Survey method">
+                  <StyledTooltip title="Survey method">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               name="surveyMethod"
@@ -98,9 +100,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Systems readiness start date (YYYY-MM-DD)&nbsp;
-                  <Tooltip title="Systems readiness start date (YYYY-MM-DD)">
+                  <StyledTooltip title="Systems readiness start date (YYYY-MM-DD)">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
             >
@@ -112,7 +114,7 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
             </StyledFormItem>
           </Col>
 
-          <Col span={12}>
+          <Col span={10}>
             <StyledFormItem
               required
               labelCol={{ span: 24 }}
@@ -120,9 +122,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Survey ID&nbsp;
-                  <Tooltip title="It has to be a unique ID. Naming convention is ‘survey name + round name’. Ex: adp2.0_r1. It is used to name the prod tracker and dq tracker tables. Please limit the ID to 25 characters.">
+                  <StyledTooltip title="It has to be a unique ID. Naming convention is ‘survey name + round name’. Ex: adp2.0_r1. It is used to name the prod tracker and dq tracker tables. Please limit the ID to 25 characters.">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               name="surveyID"
@@ -140,9 +142,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Survey description&nbsp;
-                  <Tooltip title="Survey description">
+                  <StyledTooltip title="Survey description">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
             >
@@ -159,9 +161,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Have you received an IRB approval? (optional)&nbsp;
-                  <Tooltip title="IRB approval">
+                  <StyledTooltip title="IRB approval">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               style={{ display: "block" }}
@@ -180,9 +182,9 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               label={
                 <span>
                   Systems end date (YYYY-MM-DD)&nbsp;
-                  <Tooltip title="Systems end date (YYYY-MM-DD)">
+                  <StyledTooltip title="Systems end date (YYYY-MM-DD)">
                     <QuestionCircleOutlined />
-                  </Tooltip>
+                  </StyledTooltip>
                 </span>
               }
               name="systemsEndDate"
