@@ -7,12 +7,12 @@ import Footer from "../../components/Footer";
 import CustomerSurvey from "./../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
 
-
 function Login() {
-  const [ form ] = useForm();
+  const [form] = useForm();
 
   const onFinish = async (values: any) => {
     // TODO: Add the dispatch to make login work
+    console.log(values);
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -36,7 +36,8 @@ function Login() {
           <div className="ml-[54px]">
             <img className="w-[739px] h-[361px]" src={CustomerSurvey} />
           </div>
-          <div className="ml-[111px] w-[400px] h-[300px] px-[24px] py-[22px] bg-gray-2 
+          <div
+            className="ml-[111px] w-[400px] h-[300px] px-[24px] py-[22px] bg-gray-2 
             border-solid border border-[#F0F0F0] rounded-lg shadow-[0px_4px_4px_rgba(0,0,0,0.08)]"
           >
             <Form
@@ -58,7 +59,6 @@ function Login() {
                 label="Password"
                 name="password"
                 rules={[{ required: true, message: "Please enter password" }]}
-
               >
                 <Input.Password />
               </Form.Item>
@@ -72,8 +72,9 @@ function Login() {
                     // TODO: Add loading
                     disabled={
                       !form.isFieldsTouched(true) ||
-                      !!form.getFieldsError().filter(({ errors }) => errors.length)
-                        .length
+                      !!form
+                        .getFieldsError()
+                        .filter(({ errors }) => errors.length).length
                     }
                   >
                     Login
@@ -81,7 +82,10 @@ function Login() {
                 )}
               </Form.Item>
             </Form>
-            <Link to="/reset-password" className="font-inter font-normal font-medium text-[12px] leading-[20px] text-gray-9 float-right no-underline">
+            <Link
+              to="/reset-password"
+              className="font-inter font-normal font-medium text-[12px] leading-[20px] text-gray-9 float-right no-underline"
+            >
               Forgot password?
             </Link>
           </div>

@@ -1,5 +1,5 @@
-import { Button } from 'antd';
-import { Link } from 'react-router-dom';
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 import {
   AppstoreAddOutlined,
@@ -11,11 +11,11 @@ import {
   RightSquareOutlined,
   RocketOutlined,
   ScheduleOutlined,
-  UsergroupAddOutlined
-} from '@ant-design/icons';
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 import CreditImg from "./../../assets/credit.svg";
 import CostReductionImg from "./../../assets/cost-reduction.svg";
@@ -33,24 +33,42 @@ const NavItems = () => {
       <div className="min-w-32">
         <BookFilled className="flex items-center !text-[16px]" />
         <span>
-          <a target="_blank" href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home">Documentation</a>
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
+          >
+            Documentation
+          </a>
         </span>
       </div>
       <div className="min-w-32">
         <MailOutlined className="flex items-center !text-[16px]" />
         <span>
-          <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform">Contact Us</a>
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform"
+          >
+            Contact Us
+          </a>
         </span>
       </div>
       <div className="min-w-32">
         <AppstoreAddOutlined className="flex items-center !text-[16px]" />
         <span>
-          <a target="_blank" href="https://docs.google.com/spreadsheets/d/1WbmebjDLrbo6c15KZzbu1rkvNHlnBAy_p-nREz3OjNE/">Roadmap</a>
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://docs.google.com/spreadsheets/d/1WbmebjDLrbo6c15KZzbu1rkvNHlnBAy_p-nREz3OjNE/"
+          >
+            Roadmap
+          </a>
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
 function LandingPage() {
   return (
@@ -62,21 +80,24 @@ function LandingPage() {
             Power your survey ops with SurveyStream
           </p>
           <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-            One stop solution for configuring, running, and managing survey operations by DoD
+            One stop solution for configuring, running, and managing survey
+            operations by DoD
           </p>
           <div className="mt-[40px]">
             <Link to="/login">
-              <Button 
+              <Button
                 type="primary"
                 size="large"
                 className="bg-geekblue-5 !rounded-sm w-[74px]"
-              >Login</Button>
+              >
+                Login
+              </Button>
             </Link>
             <Button
               className="ml-[25px] text-[20px] !rounded-sm"
               type="default"
               target="_blank"
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform" 
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform"
               size="large"
             >
               Contact Us
@@ -122,10 +143,10 @@ function LandingPage() {
                 Assignments
               </p>
               <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-                Assign targets to enumerators and share assignment information via automated emails
+                Assign targets to enumerators and share assignment information
+                via automated emails
               </p>
             </div>
-
           </div>
           <div className="flex justify-between">
             <div className="w-[328px]">

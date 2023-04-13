@@ -1,6 +1,6 @@
-import Logo from './../../assets/logo.svg';
+import Logo from "./../../assets/logo.svg";
 
-function Header( { items }: { items?: any} ) {
+function Header({ items }: { items?: any }) {
   const NavItems: any = items;
 
   return (
@@ -8,7 +8,7 @@ function Header( { items }: { items?: any} ) {
       <div className="flex items-center">
         <img className="pl-6 pr-12" src={Logo} alt="SurveyStream Logo" />
       </div>
-      { items ? <NavItems /> : null}
+      {items ? <NavItems /> : null}
     </header>
   );
 }
