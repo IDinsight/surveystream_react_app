@@ -30,8 +30,8 @@ export const MenuItem = styled.a`
   `}
 
   &:hover {
-    background-color: #f0f5ff;
-    color: #2f54eb;
+    background-color: rgba(0, 0, 0, 0.04);
+    color: #262626;
   }
 
   &.active {

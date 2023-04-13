@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { FaArrowLeft } from "react-icons/fa";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export const NavWrapper = styled.nav`
   background-color: #fff;
@@ -33,7 +33,7 @@ export const BackLink = styled.a`
   margin-right: 10px;
 `;
 
-export const BackArrow = styled(FaArrowLeft)`
+export const BackArrow = styled(ArrowLeftOutlined)`
   margin-right: 5px;
 `;
 
