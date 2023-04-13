@@ -28,7 +28,7 @@ function Login() {
           <p className="font-inter font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
             Login to DoD SurveyStream
           </p>
-          <p className="font-inter font-normal font-medium text-[14px] leading-[22px] text-gray-9 text-center">
+          <p className="font-inter font-normal font-medium text-sm leading-[22px] text-gray-9 text-center">
             One stop shop for survey operations management
           </p>
         </div>
@@ -84,7 +84,7 @@ function Login() {
             </Form>
             <Link
               to="/reset-password"
-              className="font-inter font-normal font-medium text-[12px] leading-[20px] text-gray-9 float-right no-underline"
+              className="font-inter font-normal font-medium text-xs leading-[20px] text-gray-9 float-right no-underline"
             >
               Forgot password?
             </Link>

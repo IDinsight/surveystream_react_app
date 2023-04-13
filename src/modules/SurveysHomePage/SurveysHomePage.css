@@ -1,0 +1,25 @@
+.nav-menu > div {
+    display: flex;
+    align-items: center;
+}
+
+.nav-menu span[role="img"] {
+    padding-left: 22px;
+    padding-right: 10px;
+}
+
+.nav-menu span, 
+.nav-menu a {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    color: #FFFFFF;
+    padding-right: 20px;
+    text-decoration: none;
+}
+
+#surveys-past-items a{
+    color: #8C8C8C;
+}
