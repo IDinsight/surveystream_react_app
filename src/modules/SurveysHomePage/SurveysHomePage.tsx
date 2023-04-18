@@ -37,7 +37,7 @@ function SurveysHomePage() {
   return (
     <>
       <Header items={NavItems} />
-      <div className="ml-[80px] mt-[40px]">
+      <div className="pl-20 py-10 bg-gray-2">
         <div id="surveys-active" className="mb-10">
           <p className="font-inter font-medium text-base text-gray-7">
             Active surveys
@@ -73,7 +73,7 @@ function SurveysHomePage() {
                   >
                     ADP 2.0 R1 Health Ben PLW main survey form
                   </Link>
-                  <p className="m-0 mt-2 font-inter font-normal text-xs leading-[20px] text-gray-7">
+                  <p className="m-0 mt-2 font-inter font-normal text-xs leading-5 text-gray-7">
                     Last edited on {survey.last_updated_at}
                   </p>
                 </div>
@@ -89,7 +89,7 @@ function SurveysHomePage() {
             </div>
           </div>
         </div>
-        <div id="surveys-past" className="mb-10">
+        <div id="surveys-past">
           <p className="font-inter font-medium text-base text-gray-7">
             Past surveys
           </p>

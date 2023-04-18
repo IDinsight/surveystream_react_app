@@ -19,11 +19,11 @@ function SurveyCard({
       >
         {title}
       </Link>
-      <div className="mt-1 flex justify-between font-inter text-xs leading-[20px] text-gray-7">
+      <div className="mt-1 flex justify-between font-inter text-xs leading-5 text-gray-7">
         <p className="mb-0">Started on</p>
         <p className="mb-0">{start}</p>
       </div>
-      <div className="flex justify-between font-inter text-xs leading-[20px] text-gray-7">
+      <div className="flex justify-between font-inter text-xs leading-5 text-gray-7">
         <p className="mb-0">Ending on</p>
         <p className="mb-0">{end}</p>
       </div>
