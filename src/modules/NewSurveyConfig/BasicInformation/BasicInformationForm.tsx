@@ -14,7 +14,7 @@ export interface BasicInformationFormProps {
 import { useForm } from "antd/es/form/Form";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
-import { Title } from "../NewSurveyConfig.styled";
+import { Title } from "../../../shared/Nav.styled";
 
 const BasicInformationForm: FC<BasicInformationFormProps> = () => {
   const [form] = useForm();

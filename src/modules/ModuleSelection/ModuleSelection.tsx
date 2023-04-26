@@ -7,11 +7,11 @@ import {
   MainWrapper,
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
-import BasicInformationForm from "./BasicInformation/BasicInformationForm";
 import { Form } from "antd";
 import FooterBar from "./FooterBar";
+import ModuleSelectionForm from "./ModuleSelectionForm";
 
-function NewSurveyConfig() {
+function ModuleSelection() {
   const [form] = Form.useForm();
 
   return (
@@ -21,12 +21,12 @@ function NewSurveyConfig() {
         <BackLink href="#">
           <BackArrow />
         </BackLink>
-        <Title>New survey config</Title>
+        <Title> TSDPS </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />
         <MainWrapper>
-          <BasicInformationForm form={form} />
+          <ModuleSelectionForm form={form} />
         </MainWrapper>
       </div>
       <FooterBar />
@@ -34,4 +34,4 @@ function NewSurveyConfig() {
   );
 }
 
-export default NewSurveyConfig;
+export default ModuleSelection;

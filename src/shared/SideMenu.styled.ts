@@ -1,5 +1,9 @@
 import styled, { css } from "styled-components";
-import { QuestionCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  QuestionCircleOutlined,
+  InfoCircleOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 
 export const SideMenuWrapper = styled.div`
   background-color: #fff;
@@ -57,6 +61,12 @@ export const InfoIcon = styled(InfoCircleOutlined)`
 `;
 
 export const QuestionIcon = styled(QuestionCircleOutlined)`
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.5rem;
+`;
+
+export const ListIcon = styled(UnorderedListOutlined)`
   width: 1.5rem;
   height: 1.5rem;
   margin-top: 0.5rem;

@@ -2,8 +2,7 @@ import {
   SideMenuWrapper,
   MenuItem,
   IconWrapper,
-  InfoIcon,
-  QuestionIcon,
+  ListIcon,
 } from "../../shared/SideMenu.styled";
 
 function SideMenu() {
@@ -12,15 +11,9 @@ function SideMenu() {
       <SideMenuWrapper>
         <MenuItem href="#" className="active">
           <IconWrapper>
-            <InfoIcon />
+            <ListIcon />
           </IconWrapper>
-          Basic Information
-        </MenuItem>
-        <MenuItem href="#">
-          <IconWrapper>
-            <QuestionIcon />
-          </IconWrapper>
-          Module questionnaire
+          Module Selection
         </MenuItem>
       </SideMenuWrapper>
     </div>
