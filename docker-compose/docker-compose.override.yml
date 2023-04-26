@@ -1,0 +1,20 @@
+version: "2"
+networks:
+    # This special network is configured so that the local metadata
+    # service can bind to the specific IP address that ECS uses
+    # in production
+    credentials_network:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: "169.254.170.0/24"
+                  gateway: 169.254.170.1
+services:
+    client:
+        networks:
+            credentials_network:
+                # define an alias for service discovery
+                aliases:
+                    - client
+                ipv4_address: "169.254.170.4"
+    

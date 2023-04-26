@@ -7,14 +7,15 @@ import {
   StyledTooltip,
 } from "./BasicInformationForm.styled";
 import { FormInstance } from "antd/lib/form";
-
-export interface BasicInformationFormProps {
-  form: FormInstance;
-}
 import { useForm } from "antd/es/form/Form";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import { Title } from "../NewSurveyConfig.styled";
+
+export interface BasicInformationFormProps {
+  form: FormInstance;
+}
+
 
 const BasicInformationForm: FC<BasicInformationFormProps> = () => {
   const [form] = useForm();
