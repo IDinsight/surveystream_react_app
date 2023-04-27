@@ -1,0 +1,23 @@
+# Ignore development-related files and directories
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignore build output
+build
+
+# Ignore version control files and directories
+.git
+.gitignore
+
+# Ignore editor-specific files and directories
+.vscode
+.idea
+
+# Ignore test-related files and directories
+coverage
+
+# Ignore other files and directories
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+version: '2.1'
+services:
+    client:
+      image: ${FRONTEND_NAME}:${VERSION}
+      ports:
+        - "3000:80"
