@@ -15,12 +15,12 @@ container-up:
 	# Start a local version of the web app that uses the DoD dev database
 	FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
-	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml -f docker-compose/docker-compose.override.yml up -d
+	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml up -d
 
 container-down:
 	FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
-	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml -f docker-compose/docker-compose.override.yml down
+	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml down
 
 image-stg:
 	@docker build -f Dockerfile.client --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
