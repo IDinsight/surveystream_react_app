@@ -1,0 +1,17 @@
+version: '2'
+services:
+  client:
+    image: ${STAGING_ACCOUNT}.dkr.ecr.ap-south-1.amazonaws.com/web-ecr-repository:frontend
+    cpu_shares: 300
+    mem_limit: 500000000
+    depends_on:
+      - api
+    ports:
+      - "443:80"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: dod_surveystream_webapp
+        awslogs-region: ap-south-1
+        awslogs-stream-prefix: dod_surveystream_frontend
+    

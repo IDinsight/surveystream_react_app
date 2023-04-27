@@ -7,6 +7,8 @@ import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
 import "./SurveysHomePage.css";
+import MockData from "./MockData";
+
 const NavItems = () => {
   return (
     <div className="nav-menu flex">
@@ -19,7 +21,6 @@ const NavItems = () => {
 };
 
 // TODO: Remove this
-import MockData from "./MockData";
 
 function SurveysHomePage() {
   const activeSurvey = MockData?.data?.filter(
