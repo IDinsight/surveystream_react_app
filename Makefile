@@ -9,21 +9,21 @@ $(eval DEV_ACCOUNT=453207568606)
 
 
 image:
-	@docker build -f Dockerfile.client --rm -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.client --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 
 container-up:
 	# Start a local version of the web app that uses the DoD dev database
-	FRONTEND_NAME=${FRONTEND_NAME} \
+	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
 	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml up -d
 
 container-down:
-	FRONTEND_NAME=${FRONTEND_NAME} \
+	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
 	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml down
 
 image-stg:
-	@docker build -f Dockerfile.client --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.client --build-arg BUILD_ENV="staging" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 	@docker tag $(FRONTEND_NAME):$(VERSION) $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-ecr-repository:frontend
 	@aws ecr get-login-password \
     --region ap-south-1 \
@@ -64,7 +64,7 @@ container-down-stg:
 	service down --timeout 10
 
 image-prod-new:
-	@docker build -f Dockerfile.client --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.client --build-arg BUILD_ENV="staging" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 	@docker tag $(FRONTEND_NAME):$(VERSION) $(PROD_NEW_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-ecr-repository:frontend
 	@aws ecr get-login-password \
     --region ap-south-1 \
