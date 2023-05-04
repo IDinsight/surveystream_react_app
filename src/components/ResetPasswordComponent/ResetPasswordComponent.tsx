@@ -114,7 +114,7 @@ function ResetPasswordComponent({
                 success={passwordIndicator.special}
               />
               <PasswordStatusIndicator
-                text="8 character minimum"
+                text="8 characters minimum"
                 success={passwordIndicator.minimum}
               />
             </div>
@@ -134,7 +134,7 @@ function ResetPasswordComponent({
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Passwords not matching"));
+                  return Promise.reject(new Error("Passwords don't match"));
                 },
               }),
             ]}
