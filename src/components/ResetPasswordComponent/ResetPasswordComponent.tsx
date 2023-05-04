@@ -64,8 +64,6 @@ function ResetPasswordComponent({
     } else {
       setPasswordIndicator((prev) => ({ ...prev, special: false }));
     }
-
-    console.log(Object.values(passwordIndicator).every(Boolean));
   };
 
   return (
