@@ -24,18 +24,18 @@ container-down:
 
 image-stg:
 	@docker build -f Dockerfile.client --build-arg BUILD_ENV="staging" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
-	@docker tag $(FRONTEND_NAME):$(VERSION) $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web2-ecr-repository:frontend
+	@docker tag $(FRONTEND_NAME):$(VERSION) $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
 	@aws ecr get-login-password \
     --region ap-south-1 \
 	--profile surveystream_staging | \
 	docker login \
     --username AWS \
     --password-stdin $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com
-	@docker push $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web2-ecr-repository:frontend
+	@docker push $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
 
 container-up-stg:
 	# Configure ecs-cli options
-	@ecs-cli configure --cluster web2-cluster \
+	@ecs-cli configure --cluster web-callisto-cluster \
 	--default-launch-type EC2 \
 	--region ap-south-1 \
 	--config-name dod-surveystream-web-app-config-frontend
@@ -46,9 +46,9 @@ container-up-stg:
 	--aws-profile surveystream_staging \
 	--project-name app \
 	--cluster-config dod-surveystream-web-app-config-frontend \
-	--task-role-arn arn:aws:iam::$(STAGING_ACCOUNT):role/web2-task-role \
+	--task-role-arn arn:aws:iam::$(STAGING_ACCOUNT):role/web-callisto-task-role \
 	service up \
-	--target-group-arn arn:aws:elasticloadbalancing:ap-south-1:$(STAGING_ACCOUNT):targetgroup/surveystream2-lb-tg-443/f12616287c02096c \
+	--target-group-arn arn:aws:elasticloadbalancing:ap-south-1:$(STAGING_ACCOUNT):targetgroup/surveystream-callisto-lb-tg-443/a2fc23d27adbdc2d \
 	--container-name app \
 	--container-port 80 \
 	--create-log-groups \
@@ -60,7 +60,7 @@ container-down-stg:
 	--region ap-south-1 \
 	--project-name app \
 	--cluster-config dod-surveystream-web-app-config-frontend \
-	--cluster web2-cluster \
+	--cluster web-callisto-cluster \
 	service down --timeout 10
 
 image-prod-new:

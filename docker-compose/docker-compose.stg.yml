@@ -1,7 +1,7 @@
 version: '2'
 services:
   app:
-    image: ${STAGING_ACCOUNT}.dkr.ecr.ap-south-1.amazonaws.com/web2-ecr-repository:frontend
+    image: ${STAGING_ACCOUNT}.dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
     cpu_shares: 300
     mem_limit: 200m
     ports:
@@ -9,7 +9,6 @@ services:
     logging:
       driver: awslogs
       options:
-        awslogs-group: dod_surveystream_webapp
+        awslogs-group: dod_surveystream_webapp_callisto
         awslogs-region: ap-south-1
         awslogs-stream-prefix: dod_surveystream_frontend
-    
