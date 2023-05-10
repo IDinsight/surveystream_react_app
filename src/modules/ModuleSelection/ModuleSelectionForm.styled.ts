@@ -36,6 +36,10 @@ export const SelectionCard = styled(Card)`
     font-family: "Inter", sans-serif;
     .ant-card-body {
       padding: 0px !important;
+      color: #f5f5f5;
+    }
+    .ant-card-meta-title {
+      background: #bfbfbf;
     }
     margin-top: 15px;
     width: 86.5%;
@@ -54,6 +58,10 @@ export const CustomizationCard = styled(Card)`
     font-family: "Inter", sans-serif;
     .ant-card-body {
       padding: 0px !important;
+      background: #ffffff;
+    }
+    .ant-card-meta-title {
+      color: #2f54eb !important;
     }
     margin-top: 15px;
     width: 86.5%;
@@ -61,7 +69,6 @@ export const CustomizationCard = styled(Card)`
     & .description {
       padding: 5px;
       font-size: 12px;
-      color: #595959;
     }
   `}
   font-size: 12px;
@@ -71,7 +78,6 @@ export const TitleContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #bfbfbf;
   color: #ffffff;
   padding: 8px;
   font-size: 14px;

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import {
   ModuleSelectionFormWrapper,
   InfoCard,
@@ -8,6 +8,7 @@ import {
   LearnMoreLink,
   CardTitle,
   CheckboxContainer,
+  CustomizationCard,
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
 
@@ -31,6 +32,24 @@ const { Meta } = Card;
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const [form] = useForm();
+  const [selectedCards, setSelectedCards] = useState<string[]>([]);
+  const [cardTitles, setCardTitles] = useState<string[]>([]);
+  const [cardDescriptions, setCardDescriptions] = useState<{ [key: string]: string }>({});
+
+
+  const handleCheckboxChange = (cardTitle: string) => {
+    setSelectedCards((prevSelectedCards: string[]) => {
+      if (prevSelectedCards.includes(cardTitle)) {
+        return prevSelectedCards.filter((title) => title !== cardTitle);
+      } else {
+        return [...prevSelectedCards, cardTitle];
+      }
+    });
+  };
+
+  const isCardSelected = (cardTitle: string) => {
+    return selectedCards.includes(cardTitle);
+  };
 
   return (
     <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
@@ -47,8 +66,8 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             <>
               <div>New to SurveyStream?</div>
               <div>
-                <a> Click here </a> to visit documentation before configuring
-                your first survey
+                <a style={{ color: "#1D39C4" }}> Click here </a> to visit
+                documentation before configuring your first survey
               </div>
             </>
           }
@@ -59,7 +78,13 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
         <SelectionCard>
           <Meta
             title={
-              <TitleContainer>
+              <TitleContainer
+                style={{
+                  backgroundColor: isCardSelected("Hire Enumerators")
+                    ? "#1d39c4"
+                    : "#BFBFBF",
+                }}
+              >
                 <CardTitle>
                   <UsergroupAddOutlined style={{ marginRight: 8 }} />
                   <div>Hire Enumerators</div>
@@ -80,10 +105,17 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             }
           />
           <CheckboxContainer>
-            <Checkbox>I need this module in my survey</Checkbox>
+            <Checkbox
+              onChange={() => handleCheckboxChange("Hire Enumerators")}
+              checked={isCardSelected("Hire Enumerators")}
+            >
+              I need this module in my survey
+            </Checkbox>
           </CheckboxContainer>
         </SelectionCard>
-        <SelectionCard>
+            
+
+        {/* <SelectionCard>
           <Meta
             title={
               <TitleContainer>
@@ -217,7 +249,25 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
           <CheckboxContainer>
             <Checkbox>I need this module in my survey</Checkbox>
           </CheckboxContainer>
-        </SelectionCard>
+        </SelectionCard> */}
+
+        <CustomizationCard>
+          <Meta
+            title={
+              <TitleContainer style={{ color: "#2f54eb" }}>
+                <CardTitle style={{ color: "#2f54eb" }}>
+                  <FileSearchOutlined
+                    style={{ marginRight: 8, color: "#434343" }}
+                  />
+                  <div> Request customization support</div>
+                </CardTitle>
+                <LearnMoreLink>
+                  Learn more <ArrowRightOutlined style={{ marginLeft: 4 }} />
+                </LearnMoreLink>
+              </TitleContainer>
+            }
+          />
+        </CustomizationCard>
       </SelectionForm>
     </ModuleSelectionFormWrapper>
   );

@@ -12,9 +12,9 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/surveys" element={<SurveysHomePage />} />
       {/* this will default to the basic form if path is not defined */}
-      <Route path="/new_survey_config/:path?" element={<NewSurveyConfig />} />
+      <Route path="/new-survey-config/:path?" element={<NewSurveyConfig />} />
       <Route
-        path="/module_selection/:survey_uid?"
+        path="/module-selection/:survey_uid?"
         element={<ModuleSelection />}
       />
     </Routes>

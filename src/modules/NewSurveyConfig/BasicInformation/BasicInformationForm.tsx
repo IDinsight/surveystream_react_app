@@ -16,7 +16,6 @@ export interface BasicInformationFormProps {
   form: FormInstance;
 }
 
-
 const BasicInformationForm: FC<BasicInformationFormProps> = () => {
   const [form] = useForm();
 
