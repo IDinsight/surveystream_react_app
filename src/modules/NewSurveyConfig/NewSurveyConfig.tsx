@@ -10,6 +10,11 @@ import SideMenu from "./SideMenu";
 import BasicInformationForm from "./BasicInformation/BasicInformationForm";
 import { Form } from "antd";
 import FooterBar from "./FooterBar";
+import {
+  FooterWrapper,
+  SaveButton,
+  ContinueButton,
+} from "../../shared/FooterBar.styled";
 
 function NewSurveyConfig() {
   const [form] = Form.useForm();
@@ -29,7 +34,10 @@ function NewSurveyConfig() {
           <BasicInformationForm form={form} />
         </MainWrapper>
       </div>
-      <FooterBar />
+      <FooterWrapper>
+        <SaveButton>Save</SaveButton>
+        <ContinueButton>Continue</ContinueButton>
+      </FooterWrapper>
     </>
   );
 }

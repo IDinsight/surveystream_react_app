@@ -10,6 +10,11 @@ import SideMenu from "./SideMenu";
 import { Form } from "antd";
 import FooterBar from "./FooterBar";
 import ModuleSelectionForm from "./ModuleSelectionForm";
+import {
+  FooterWrapper,
+  SaveButton,
+  ContinueButton,
+} from "../../shared/FooterBar.styled";
 
 function ModuleSelection() {
   const [form] = Form.useForm();
@@ -29,7 +34,10 @@ function ModuleSelection() {
           <ModuleSelectionForm form={form} />
         </MainWrapper>
       </div>
-      <FooterBar />
+      <FooterWrapper>
+        <SaveButton>Save</SaveButton>
+        <ContinueButton>Continue</ContinueButton>
+      </FooterWrapper>
     </>
   );
 }
