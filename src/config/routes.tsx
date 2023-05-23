@@ -20,7 +20,7 @@ const AppRoutes = () => {
         path="/module-selection/:survey_uid?"
         element={<ModuleSelection />}
       />
-    </Routes>
+    </SentryRoutes>
   );
 };
 

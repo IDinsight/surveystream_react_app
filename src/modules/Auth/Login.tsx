@@ -6,18 +6,44 @@ import Footer from "../../components/Footer";
 
 import CustomerSurvey from "./../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
+import { useAppDispatch } from "../../redux/hooks";
+import { performLogin } from "../../redux/auth/authActions";
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [form] = useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
 
   const onFinish = async (values: any) => {
-    // TODO: Add the dispatch to make login work
-    console.log(values);
+    try {
+      const loginResponse = await dispatch(performLogin(values));
+      messageApi.open({
+        type: "success",
+        content: loginResponse.payload.message,
+      });
+      // Redirect to /surveys after successful login
+      navigate("/surveys");
+    } catch (error) {
+      // Handle any error
+      console.error("Login error:", error);
+      messageApi.open({
+        type: "error",
+        content: "Login failed, kindly check your credentials and try again",
+      });
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
-    alert(errorInfo.errorFields[0].errors[0]);
+    // alert(errorInfo.errorFields[0].errors[0]);
+    messageApi.open({
+      type: "error",
+      content: "Login failed, kindly check your credentials and try again",
+    });
   };
 
   return (
@@ -40,6 +66,8 @@ function Login() {
             className="ml-[111px] w-[400px] h-[300px] px-[24px] py-[22px] bg-gray-2 
             border-solid border border-[#F0F0F0] rounded-lg shadow-[0px_4px_4px_rgba(0,0,0,0.08)]"
           >
+            {contextHolder}
+
             <Form
               name="loginForm"
               layout="vertical"

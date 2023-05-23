@@ -1,4 +1,5 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
+
 import {
   ModuleSelectionFormWrapper,
   InfoCard,
@@ -27,15 +28,25 @@ import {
   UnorderedListOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { fetchModules } from "../../redux/moduleSelection/modulesActions";
+import { RootState } from "../../redux/store";
 
 const { Meta } = Card;
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
+  const dispatch = useAppDispatch();
+  const modules = useAppSelector((state: RootState) => state);
+
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
-  const [cardTitles, setCardTitles] = useState<string[]>([]);
-  const [cardDescriptions, setCardDescriptions] = useState<{ [key: string]: string }>({});
+  // const [cardTitles, setCardTitles] = useState<string[]>([]);
+  // const [cardDescriptions, setCardDescriptions] = useState<{ [key: string]: string }>({});
 
+  useEffect(() => {
+    dispatch(fetchModules());
+    console.log("modules", modules);
+  }, [dispatch]);
 
   const handleCheckboxChange = (cardTitle: string) => {
     setSelectedCards((prevSelectedCards: string[]) => {
@@ -73,6 +84,11 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
           }
         />
       </InfoCard>
+      {/* <div>
+      {modules.map((module: boolean | React.Key | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | null | undefined) => (
+        <div key={module}>{module}</div>
+      ))}
+    </div> */}
 
       <SelectionForm form={form}>
         <SelectionCard>
@@ -113,9 +129,8 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             </Checkbox>
           </CheckboxContainer>
         </SelectionCard>
-            
 
-        {/* <SelectionCard>
+        <SelectionCard>
           <Meta
             title={
               <TitleContainer>
@@ -249,7 +264,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
           <CheckboxContainer>
             <Checkbox>I need this module in my survey</Checkbox>
           </CheckboxContainer>
-        </SelectionCard> */}
+        </SelectionCard>
 
         <CustomizationCard>
           <Meta

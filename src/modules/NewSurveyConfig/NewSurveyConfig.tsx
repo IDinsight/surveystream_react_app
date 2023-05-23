@@ -9,7 +9,6 @@ import {
 import SideMenu from "./SideMenu";
 import BasicInformationForm from "./BasicInformation/BasicInformationForm";
 import { Form } from "antd";
-import FooterBar from "./FooterBar";
 import {
   FooterWrapper,
   SaveButton,

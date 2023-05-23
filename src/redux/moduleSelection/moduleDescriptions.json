@@ -1,0 +1,66 @@
+[
+    {
+    "module_id": 1,
+    "description":"<ul>
+        <li>Google sheet based</li>
+        <li>Track candidates [by geography, gender etc]</li>
+        <li>Generate offer letters</li>
+      </ul>",
+      "icon": "UsergroupAddOutlined"
+},
+{
+    "module_id": 2,
+    "name": "Module selection",
+    "optional": true
+},
+{
+    "module_id": 3,
+    "name": "SurveyCTO information",
+    "optional": true
+},
+{
+    "module_id": 4,
+    "name": "Field supervisor roles",
+    "optional": true
+},
+{
+    "module_id": 5,
+    "name": "Survey locations",
+    "optional": true
+},
+{
+    "module_id": 6,
+    "name": "SurveyStream users",
+    "optional": true
+},
+{
+    "module_id": 7,
+    "name": "Enumerators",
+    "optional": true
+},
+{
+    "module_id": 8,
+    "name": "Targets",
+    "optional": true
+},
+{
+    "module_id": 9,
+    "name": "Assignments",
+    "optional": false
+},
+{
+    "module_id": 10,
+    "name": "Productivity tracker",
+    "optional": false
+},
+{
+    "module_id": 11,
+    "name": "Data quality",
+    "optional": false
+},
+{
+    "module_id": 12,
+    "name": "Audio audits",
+    "optional": false
+}
+]

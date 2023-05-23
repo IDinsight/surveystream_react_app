@@ -8,7 +8,6 @@ import {
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
 import { Form } from "antd";
-import FooterBar from "./FooterBar";
 import ModuleSelectionForm from "./ModuleSelectionForm";
 import {
   FooterWrapper,
