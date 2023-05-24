@@ -21,7 +21,7 @@ function ForgotPassword() {
     <>
       <Header />
       <div className="bg-[#F5F5F5] flex justify-center items-center min-h-[calc(100vh-114px)]">
-        {actionDone !== true ? (
+        {!actionDone ? (
           <ForgotPasswordComponent
             handleForgotSubmit={handleForgotSubmit}
             handleForgotFailure={handleForgotFailure}

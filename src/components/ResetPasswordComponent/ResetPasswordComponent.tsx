@@ -1,11 +1,14 @@
+import { ChangeEvent, useState } from "react";
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
+import PasswordStrengthBar from "react-password-strength-bar";
+
 import PasswordStatusIndicator from "../PasswordStatusIndicator";
-import { ChangeEvent, useState } from "react";
+import "./ResetPasswordComponent.css";
 
 type ResetParams = {
-  new_password: string;
-  confirm: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 interface IResetPasswordProps {
@@ -18,12 +21,9 @@ function ResetPasswordComponent({
   handleResetFailure,
 }: IResetPasswordProps) {
   const [form] = useForm();
+  const password = Form.useWatch("password", form);
 
   const [passwordIndicator, setPasswordIndicator] = useState({
-    lower: false,
-    upper: false,
-    number: false,
-    special: false,
     minimum: false,
   });
 
@@ -35,34 +35,6 @@ function ResetPasswordComponent({
       setPasswordIndicator((prev) => ({ ...prev, minimum: true }));
     } else {
       setPasswordIndicator((prev) => ({ ...prev, minimum: false }));
-    }
-
-    // Should have lower case character
-    if (val.search(/[a-z]/) > -1) {
-      setPasswordIndicator((prev) => ({ ...prev, lower: true }));
-    } else {
-      setPasswordIndicator((prev) => ({ ...prev, lower: false }));
-    }
-
-    // Should have upper case character
-    if (val.search(/[A-Z]/) > -1) {
-      setPasswordIndicator((prev) => ({ ...prev, upper: true }));
-    } else {
-      setPasswordIndicator((prev) => ({ ...prev, upper: false }));
-    }
-
-    // Should have digit
-    if (val.search(/[0-9]/) > 0) {
-      setPasswordIndicator((prev) => ({ ...prev, number: true }));
-    } else {
-      setPasswordIndicator((prev) => ({ ...prev, number: false }));
-    }
-
-    // Should have special character
-    if (val.search(/[!@#$%^&*]/) > 0) {
-      setPasswordIndicator((prev) => ({ ...prev, special: true }));
-    } else {
-      setPasswordIndicator((prev) => ({ ...prev, special: false }));
     }
   };
 
@@ -88,36 +60,36 @@ function ResetPasswordComponent({
               </span>
             }
             name="password"
-            className=""
             rules={[{ required: true, message: "Please input new password!" }]}
           >
             <Input.Password onChange={handlePasswordValue} />
           </Form.Item>
-          <div id="passwordindicators" className="flex">
-            <div>
-              <PasswordStatusIndicator
-                text="one lowercase character"
-                success={passwordIndicator.lower}
-              />
-              <PasswordStatusIndicator
-                text="one uppercase character"
-                success={passwordIndicator.upper}
-              />
-              <PasswordStatusIndicator
-                text="one number"
-                success={passwordIndicator.number}
-              />
-            </div>
-            <div className="ml-5">
-              <PasswordStatusIndicator
-                text="one special character"
-                success={passwordIndicator.special}
-              />
-              <PasswordStatusIndicator
-                text="8 characters minimum"
-                success={passwordIndicator.minimum}
-              />
-            </div>
+          <PasswordStrengthBar
+            className="passwordStrengthBar"
+            password={password}
+            scoreWords={[
+              "Very weak",
+              "Very weak",
+              "Weak",
+              "Moderate",
+              "Strong",
+            ].map((word) => `Password strength: ${word}`)}
+            barColors={["#F5F5F5", "#FA541C", "#FA8C16", "#FADB14", "#52C41A"]}
+            shortScoreWord={"Password strength:"}
+            scoreWordStyle={{
+              textAlign: "left",
+              marginTop: "16px",
+              fontFamily: "Inter",
+              fontSize: "12px",
+              lineHeight: "22px",
+              color: "rgba(0, 0, 0, 0.25)",
+            }}
+          />
+          <div style={{ marginTop: "12px" }}>
+            <PasswordStatusIndicator
+              text="8 characters minimum"
+              success={passwordIndicator.minimum}
+            />
           </div>
           <Form.Item
             className="mt-6"
@@ -126,7 +98,7 @@ function ResetPasswordComponent({
                 Confirm password
               </span>
             }
-            name="confirm_password"
+            name="confirmPassword"
             rules={[
               { required: true, message: "Please input new confirm password!" },
               ({ getFieldValue }) => ({

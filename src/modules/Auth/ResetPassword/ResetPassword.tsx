@@ -8,13 +8,13 @@ import SuccessCard from "../../../components/SuccessCard";
 type ResetPasswordData = {
   rpt_id: string;
   rpt_token: string;
-  new_password: string;
-  confirm: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 type ResetParams = {
-  new_password: string;
-  confirm: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 function ResetPassword() {
@@ -22,17 +22,19 @@ function ResetPassword() {
   const [actionDone, setActionDone] = useState<boolean>(false);
 
   const handleResetSubmit = (values: ResetParams) => {
-    if (urlArr && urlArr?.length >= 2) {
-      const requestData: ResetPasswordData = {
-        ...values,
-        rpt_id: urlArr[2],
-        rpt_token: urlArr[3],
-      };
-      // TODO: Add Dispatch here
-      console.log(requestData);
-      setActionDone(true);
+    if (!urlArr || urlArr.length < 2) {
       return;
     }
+
+    const requestData: ResetPasswordData = {
+      ...values,
+      rpt_id: urlArr[2],
+      rpt_token: urlArr[3],
+    };
+    // TODO: Add Dispatch here
+    console.log(requestData);
+    setActionDone(true);
+    return;
   };
 
   const handleResetFailure = (errorInfo: any) => {

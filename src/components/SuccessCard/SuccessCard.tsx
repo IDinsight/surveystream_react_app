@@ -1,19 +1,21 @@
+import React from "react";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import React from "react";
 import { Link } from "react-router-dom";
+
+interface SuccessCardProps {
+  heading: string;
+  subheading: string;
+  link: string;
+  linktext: string;
+}
 
 function SuccessCard({
   heading,
   subheading,
   link,
   linktext,
-}: {
-  heading: string;
-  subheading: string;
-  link: string;
-  linktext: string;
-}) {
+}: SuccessCardProps) {
   return (
     <div
       className="flex flex-col items-center w-[400px] h-[362px]
@@ -32,7 +34,7 @@ function SuccessCard({
       >
         {subheading}
       </p>
-      <Link to={link}>
+      <Link to={link || "/"}>
         <Button
           type="primary"
           size="large"
