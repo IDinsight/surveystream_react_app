@@ -1,4 +1,6 @@
 import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
 
 import Header from "../../components/Header";
@@ -18,8 +20,12 @@ function Login() {
 
   const dispatch = useAppDispatch();
 
+  const [loading, setLoading] = useState(false);
+
   const onFinish = async (values: any) => {
     try {
+      setLoading(true);
+
       const loginResponse = await dispatch(performLogin(values));
       messageApi.open({
         type: "success",
@@ -34,6 +40,8 @@ function Login() {
         type: "error",
         content: "Login failed, kindly check your credentials and try again",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,7 +105,7 @@ function Login() {
                     htmlType="submit"
                     block
                     className="w-full bg-geekblue-5 h-[40px]"
-                    // TODO: Add loading
+                    loading={loading}
                     disabled={
                       !form.isFieldsTouched(true) ||
                       !!form
