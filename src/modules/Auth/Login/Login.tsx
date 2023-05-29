@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
 
-import CustomerSurvey from "./../../assets/customer-survey.svg";
+import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
 import { useAppDispatch } from "../../redux/hooks";
 import { performLogin } from "../../redux/auth/authActions";

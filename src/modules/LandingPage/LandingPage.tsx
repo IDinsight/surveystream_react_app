@@ -97,6 +97,7 @@ function LandingPage() {
               className="ml-[25px] text-[20px] !rounded-sm"
               type="default"
               target="_blank"
+              rel="noreferrer"
               href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform"
               size="large"
             >
@@ -105,7 +106,7 @@ function LandingPage() {
           </div>
         </div>
         <div className="flex w-1/2 flex justify-center">
-          <img src={CreditImg} className="h-[336px] w-[527px]" />
+          <img src={CreditImg} className="h-[336px] w-[527px]" alt="Credit" />
         </div>
       </div>
       <div className="flex flex-col h-[745px] pl-[180px] pr-[180px] bg-gray-2">
@@ -185,19 +186,31 @@ function LandingPage() {
         </p>
         <div className="flex justify-between mt-[75px]">
           <div>
-            <img className="h-[284px] w-[328px]" src={CostReductionImg}></img>
+            <img
+              className="h-[284px] w-[328px]"
+              src={CostReductionImg}
+              alt="Cost Reduction"
+            />
             <p className="font-inter font-medium text-[20px] leading-[28px] text-gray-10">
               Cost reduction
             </p>
           </div>
           <div>
-            <img className="h-[284px] w-[328px]" src={BetterQualityImg}></img>
+            <img
+              className="h-[284px] w-[328px]"
+              src={BetterQualityImg}
+              alt="Better Quality"
+            />
             <p className="font-inter font-medium text-[20px] leading-[28px] text-gray-10">
               Better data quality
             </p>
           </div>
           <div>
-            <img className="h-[284px] w-[328px]" src={FasterResponsesImg}></img>
+            <img
+              className="h-[284px] w-[328px]"
+              src={FasterResponsesImg}
+              alt="Faster Responses"
+            />
             <p className="font-inter font-medium text-[20px] leading-[28px] text-gray-10">
               Faster responses
             </p>
