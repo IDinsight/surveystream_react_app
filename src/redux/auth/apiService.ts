@@ -10,7 +10,7 @@ export const performLoginRequest = async (formData: LoginFormData) => {
   try {
     await getCSRFToken();
 
-    const csrfToken = await getCookie("CSRF-TOKEN");
+    const csrfToken = getCookie("CSRF-TOKEN");
 
     const headers = {
       "X-CSRF-Token": csrfToken,
@@ -23,10 +23,15 @@ export const performLoginRequest = async (formData: LoginFormData) => {
     });
     return data;
   } catch (err: any) {
-    if (err?.response) {
-      throw new Error(err.response?.data?.message);
+    let errorMessage = "An error occurred";
+
+    if (err?.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err?.message) {
+      errorMessage = err.message;
     }
-    throw new Error(err.message);
+
+    throw new Error(errorMessage);
   }
 };
 

@@ -1,7 +1,7 @@
 import { Button, Form, Input } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -13,12 +13,13 @@ import { performLogin } from "../../redux/auth/authActions";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+const Login = () => {
   const [form] = useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-
+  // const location = useLocation();
   const dispatch = useAppDispatch();
+  const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
 
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +54,17 @@ function Login() {
       content: "Login failed, kindly check your credentials and try again",
     });
   };
+
+  useEffect(() => {
+    //  TODO: check issue with displaying message twice
+    if (redirectedFrom) {
+      messageApi.open({
+        type: "info",
+        content:
+          "Because you are not logged in, you have been redirected to the login page.",
+      });
+    }
+  }, [redirectedFrom]);
 
   return (
     <>
@@ -130,6 +142,6 @@ function Login() {
       <Footer />
     </>
   );
-}
+};
 
 export default Login;

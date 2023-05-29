@@ -81,7 +81,7 @@ function SurveysHomePage() {
               );
             })}
             <div className="flex justify-center items-center mt-4 w-[270px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
-              <Link to="/new_survey_config" className="no-underline">
+              <Link to="/new-survey-config" className="no-underline">
                 <PlusOutlined className="!text-base text-gray-9" />
                 <span className="ml-3 font-inter font-medium text-base text-gray-10">
                   Configure new survey
