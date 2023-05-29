@@ -1,3 +1,4 @@
+
 // types.ts
 export interface ModuleStatus {
   survey_uid: number;
@@ -13,6 +14,9 @@ export interface ModuleStatusesState {
 
 export interface Module {
   module_id: number;
-  name: string;
-  optional: boolean;
+  name?: string;
+  title: string;
+  description?: string;
+  icon?: any;
+  optional?: boolean;
 }

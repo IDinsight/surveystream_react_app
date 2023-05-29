@@ -1,15 +1,21 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { performLoginRequest, performLogoutRequest } from "./apiService";
 import { LoginFormData } from "./types";
+import { loginFailure, loginRequest, loginSuccess } from "./authSlice";
 
 export const performLogin = createAsyncThunk(
   "auth/performLogin",
-  async (loginFormData: LoginFormData, { rejectWithValue }) => {
+  async (loginFormData: LoginFormData, { dispatch, rejectWithValue }) => {
     try {
+      dispatch(loginRequest());
       const response = await performLoginRequest(loginFormData);
+      dispatch(loginSuccess(response));
+
       return response;
     } catch (error) {
-      return rejectWithValue(error as string);
+      const errorMessage = error || "Login failed";
+      dispatch(loginFailure(errorMessage as string));
+      return rejectWithValue(errorMessage as string);
     }
   }
 );
