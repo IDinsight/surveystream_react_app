@@ -9,7 +9,7 @@ interface SurveyState {
 
 const initialState: SurveyState = {
   loading: false,
-  error: {},
+  error: null,
   surveys: [],
 };
 
