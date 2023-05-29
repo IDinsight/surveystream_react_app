@@ -35,6 +35,28 @@ export const performLoginRequest = async (formData: LoginFormData) => {
   }
 };
 
+export const getUserProfile = async () => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const { data } = await axios.get(`${API_BASE_URL}/profile`, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return data;
+  } catch (err: any) {
+    if (err?.response?.status === 401) {
+      deleteAllCookies();
+      window.location.href = "/login";
+    }
+    throw err;
+  }
+};
+
 export const performLogoutRequest = async () => {
   try {
     await getCSRFToken();
