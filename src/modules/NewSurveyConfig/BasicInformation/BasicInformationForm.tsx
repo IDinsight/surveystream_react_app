@@ -1,23 +1,57 @@
-import React, { FC } from "react";
-import { Col, Input, Row, Select, DatePicker } from "antd";
+import React, { useEffect, useState } from "react";
+// import moment from "moment";
+import { Col, Input, Row, Select, DatePicker, Form } from "antd";
 import {
   BasicInformationFormWrapper,
   StyledFormItem,
   TwoColumnForm,
   StyledTooltip,
 } from "./BasicInformationForm.styled";
-import { FormInstance } from "antd/lib/form";
-import { useForm } from "antd/es/form/Form";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import { Title } from "../../../shared/Nav.styled";
+import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
+import { performGetUserProfile } from "../../../redux/auth/authActions";
+import { useAppDispatch } from "../../../redux/hooks";
 
 export interface BasicInformationFormProps {
-  form: FormInstance;
+  setFormData: (formData: SurveyBasicInformationData) => void;
 }
 
-const BasicInformationForm: FC<BasicInformationFormProps> = () => {
-  const [form] = useForm();
+const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
+  setFormData,
+}) => {
+  const [form] = Form.useForm();
+  const [userUId, setUserUId] = useState<any>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const profile = await dispatch(performGetUserProfile());
+      const { user_uid } = profile.payload;
+      setUserUId(user_uid);
+    };
+
+    fetchUserProfile();
+  }, [dispatch]);
+
+  const handleFormValuesChange = (changedValues: any, allValues: any) => {
+    const formValues: SurveyBasicInformationData = {
+      survey_id: allValues.surveyID,
+      survey_name: allValues.surveyName,
+      project_name: allValues.projectName,
+      description: allValues.surveyDescription,
+      surveying_method: allValues.surveyMethod,
+      irb_approval: allValues.irbApproval,
+      planned_start_date: allValues.systemsReadinessStartDate,
+      planned_end_date: allValues.systemsEndDate,
+      config_status: "In Progress - Configuration",
+      state: "Draft",
+      created_by_user_uid: userUId,
+    };
+
+    setFormData(formValues); // Update form data in the parent component
+  };
 
   return (
     <BasicInformationFormWrapper data-testid="BasicInformationForm">
@@ -26,7 +60,7 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
       <p style={{ fontSize: 14 }}>
         Please fill out the basic information about your survey
       </p>
-      <TwoColumnForm form={form}>
+      <TwoColumnForm form={form} onValuesChange={handleFormValuesChange}>
         <Row gutter={36}>
           <Col span={10}>
             <StyledFormItem
@@ -85,10 +119,13 @@ const BasicInformationForm: FC<BasicInformationFormProps> = () => {
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
             >
-              <Input
+              <Select
                 placeholder="Choose survey method"
                 style={{ width: "100%" }}
-              />
+              >
+                <Select.Option value="in-person">In-person</Select.Option>
+                <Select.Option value="phone">Phone</Select.Option>
+              </Select>
             </StyledFormItem>
 
             <StyledFormItem

@@ -43,9 +43,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
 
-  // const [cardTitles, setCardTitles] = useState<string[]>([]);
-  // const [cardDescriptions, setCardDescriptions] = useState<{ [key: string]: string }>({});
-
   useEffect(() => {
     dispatch(fetchModules());
   }, [dispatch]);

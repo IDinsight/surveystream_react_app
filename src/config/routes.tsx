@@ -53,7 +53,6 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
-      {/* this will default to the basic form if path is not defined */}
       <Route path="/surveys" element={requireAuth(SurveysHomePage)} />
       <Route
         path="/new-survey-config/:path?"
