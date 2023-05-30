@@ -13,7 +13,7 @@ import SurveyCard from "../../components/SurveyCard";
 import "./SurveysHomePage.css";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { performGetUserProfile } from "../../redux/auth/authActions";
-import { Result } from "antd";
+import { Button, Result } from "antd";
 
 const NavItems = () => {
   return (
@@ -38,16 +38,15 @@ function SurveysHomePage() {
   const showError = useAppSelector(
     (state: RootState) => state.reducer.surveys.error
   );
+  const fetchData = async () => {
+    const profile = await dispatch(performGetUserProfile());
+    // get user_id here use it to load surveys
+    const { user_uid } = profile.payload;
+
+    await dispatch(fetchSurveys({ user_uid: user_uid }));
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const profile = await dispatch(performGetUserProfile());
-      // get user_id here use it to load surveys
-      const { user_uid } = profile.payload;
-
-      await dispatch(fetchSurveys({ user_uid: user_uid }));
-    };
-
     fetchData();
   }, [dispatch]);
 
@@ -70,12 +69,14 @@ function SurveysHomePage() {
               title={showError.code}
               subTitle={showError.error}
               extra={
-                <Link to="/new-survey-config" className="no-underline">
-                  <PlusOutlined className="!text-base text-gray-9" />
-                  <span className="ml-3 font-inter font-medium text-base text-gray-10">
-                    Configure new survey
-                  </span>
-                </Link>
+                <Button
+                  onClick={fetchData}
+                  type="primary"
+                  className="bg-geekblue-5 h-[40px]"
+                  size="large"
+                >
+                  Reload Surveys
+                </Button>
               }
             />
           )}
