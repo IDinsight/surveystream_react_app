@@ -91,7 +91,6 @@ function NewSurveyConfig() {
 
       const response = await dispatch(postBasicInformation(formData));
 
-
       if (response.payload.success) {
         messageApi.open({
           type: "success",
@@ -105,7 +104,6 @@ function NewSurveyConfig() {
             : response.payload.message,
         });
       }
-
     } catch (error) {
       // Handle any error
       console.error("post error", error);
