@@ -1,18 +1,41 @@
-import "./FullScreenLoader.css";
+import { Spin } from "antd";
+import { createGlobalStyle } from "styled-components";
+import { Loader, LoaderText, LoaderWrap } from "./FullScreenLoader.styled";
+
+const GlobalStyle = createGlobalStyle`
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-lg .ant-spin-dot i {
+    width: 35px;
+    height: 35px;
+  }
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-lg .ant-spin-dot {
+    font-size: 70px;
+  }
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-spinning .ant-spin-dot-item {
+    background-color: rgba(47, 84, 235, 0.5);
+  }
+  
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-spinning .ant-spin-dot-item:nth-child(1) {
+    background-color: rgba(47, 84, 235, 0.3);
+  }
+  
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-spinning .ant-spin-dot-item:nth-child(2) {
+    background-color: rgba(47, 84, 235, 0.6);
+  }
+  
+  :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-spinning .ant-spin-dot-item:nth-child(3) {
+    background-color: rgba(47, 84, 235, 1.0);
+  }
+`;
 
 const FullScreenLoader = () => {
   return (
-    <div
-      className="flex justify-center items-center absolute inset-0 "
-      style={{ backgroundColor: "#0003" }}
-    >
-      <div className="loader">
-        <div className="circle c1"></div>
-        <div className="circle c2"></div>
-        <div className="circle c3"></div>
-        <div className="circle c4"></div>
-      </div>
-    </div>
+    <LoaderWrap>
+      <Loader>
+        <GlobalStyle />
+        <Spin size="large" />
+      </Loader>
+      <LoaderText>Loading</LoaderText>
+    </LoaderWrap>
   );
 };
 
