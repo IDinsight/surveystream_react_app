@@ -9,7 +9,7 @@ import {
 // Assuming the module descriptions are stored in the `moduleDescriptions` array
 export const moduleDescriptions: Module[] = [
   {
-    module_id: 7, //:TODO add correct id
+    module_id: 13,
     title: "Hire Enumerators",
     description:
       "<ul><li>This feature runs on Google sheets</li><li>Track candidates [by geography, gender etc]</li><li>Generate offer letters</li></ul>",
@@ -44,7 +44,7 @@ export const moduleDescriptions: Module[] = [
     icon: FileSearchOutlined,
   },
   {
-    module_id: 12, //TODO: also add correct id
+    module_id: 14,
     title: "Audit photo",
     description:
       "<ul><li>Assign photos for audits </li><li>Google sheets based feature</li></ul>",
