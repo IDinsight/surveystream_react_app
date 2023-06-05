@@ -17,7 +17,6 @@ const Login = () => {
   const [form] = useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-  // const location = useLocation();
   const dispatch = useAppDispatch();
   const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
 
@@ -32,10 +31,8 @@ const Login = () => {
         type: "success",
         content: loginResponse.payload.message,
       });
-      // Redirect to /surveys after successful login
       navigate("/surveys");
     } catch (error) {
-      // Handle any error
       console.error("Login error:", error);
       messageApi.open({
         type: "error",
@@ -56,7 +53,6 @@ const Login = () => {
   };
 
   useEffect(() => {
-    //  TODO: check issue with displaying message twice
     if (redirectedFrom) {
       messageApi.open({
         type: "info",

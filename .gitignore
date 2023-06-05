@@ -25,3 +25,5 @@ yarn-error.log*
 
 # typescript report
 /coverage-ts
+
+.idea/*
