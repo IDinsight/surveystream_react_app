@@ -61,7 +61,7 @@ export const CustomizationCard = styled(Card)`
       background: #ffffff;
     }
     .ant-card-meta-title {
-      color: #2f54eb !important;
+      color: #061178 !important;
     }
     margin-top: 15px;
     width: 86.5%;
