@@ -90,7 +90,7 @@ function SurveysHomePage() {
                   {activeSurveys.map((survey) => (
                     <SurveyCard
                       key={survey.survey_uid}
-                      link={survey.survey_uid.toString()}
+                      link={`/survey-configuration/${survey.survey_uid}`}
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}
@@ -109,7 +109,7 @@ function SurveysHomePage() {
                       className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
                     >
                       <Link
-                        to={survey.survey_uid.toString()}
+                        to={`/survey-configuration/${survey.survey_uid}`}
                         className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
                       >
                         {survey.survey_name}
@@ -137,7 +137,7 @@ function SurveysHomePage() {
                   {pastSurveys.map((survey) => (
                     <SurveyCard
                       key={survey.survey_uid}
-                      link={survey.survey_uid.toString()}
+                      link={`/survey-configuration/${survey.survey_uid}`}
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}

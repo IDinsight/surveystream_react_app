@@ -10,6 +10,7 @@ import { ComponentType, ReactNode, useEffect, useState } from "react";
 import { deleteAllCookies, getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
+import SurveyConfiguration from "../modules/SurveyConfiguration";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -54,6 +55,11 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
       <Route path="/surveys" element={requireAuth(SurveysHomePage)} />
+      <Route
+        path="/survey-configuration/:survey_uid?"
+        element={requireAuth(SurveyConfiguration)}
+      />
+
       <Route
         path="/new-survey-config/:path?"
         element={requireAuth(NewSurveyConfig)}
