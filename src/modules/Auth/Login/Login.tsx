@@ -18,7 +18,7 @@ const Login = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
+  // const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
 
   const [loading, setLoading] = useState(false);
 
@@ -27,13 +27,16 @@ const Login = () => {
       setLoading(true);
 
       const loginResponse = await dispatch(performLogin(values));
-      messageApi.open({
-        type: "success",
-        content: loginResponse.payload.message,
-      });
+
+      if (loginResponse.payload == false) {
+        messageApi.open({
+          type: "error",
+          content: "Login failed, kindly check your credentials and try again",
+        });
+        return false;
+      }
       navigate("/surveys");
     } catch (error) {
-      console.error("Login error:", error);
       messageApi.open({
         type: "error",
         content: "Login failed, kindly check your credentials and try again",
@@ -43,24 +46,16 @@ const Login = () => {
     }
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-    // alert(errorInfo.errorFields[0].errors[0]);
-    messageApi.open({
-      type: "error",
-      content: "Login failed, kindly check your credentials and try again",
-    });
-  };
-
-  useEffect(() => {
-    if (redirectedFrom) {
-      messageApi.open({
-        type: "info",
-        content:
-          "Because you are not logged in, you have been redirected to the login page.",
-      });
-    }
-  }, [redirectedFrom]);
+  //TODO: Finish redirected from and to feature
+  // useEffect(() => {
+  //   if (redirectedFrom) {
+  //     messageApi.open({
+  //       type: "info",
+  //       content:
+  //         "Because you are not logged in, you have been redirected to the login page.",
+  //     });
+  //   }
+  // }, [redirectedFrom]);
 
   return (
     <>
@@ -90,7 +85,6 @@ const Login = () => {
               autoComplete="off"
               form={form}
               onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
             >
               <Form.Item
                 label="Email"
