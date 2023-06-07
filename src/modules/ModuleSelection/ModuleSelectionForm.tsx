@@ -28,8 +28,17 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchModules } from "../../redux/moduleSelection/modulesActions";
 import { RootState } from "../../redux/store";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { createGlobalStyle } from "styled-components";
 
 const { Meta } = Card;
+
+// Create a global style component
+const CheckboxStyle = createGlobalStyle`
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #061178 !important;
+    border-color: #061178 !important;
+  }
+`;
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const dispatch = useAppDispatch();
@@ -42,9 +51,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
 
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
-
-  // const [cardTitles, setCardTitles] = useState<string[]>([]);
-  // const [cardDescriptions, setCardDescriptions] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     dispatch(fetchModules());
@@ -95,13 +101,20 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
           <>
             <SelectionForm form={form}>
               {modules.map((module) => (
-                <SelectionCard key={module.module_id}>
+                <SelectionCard
+                  key={module.module_id}
+                  style={{
+                    borderColor: isCardSelected(module.module_id)
+                      ? "#061178"
+                      : "#BFBFBF",
+                  }}
+                >
                   <Meta
                     title={
                       <TitleContainer
                         style={{
                           backgroundColor: isCardSelected(module.module_id)
-                            ? "#1d39c4"
+                            ? "#061178"
                             : "#BFBFBF",
                         }}
                       >
@@ -128,6 +141,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                     }
                   />
                   <CheckboxContainer>
+                    <CheckboxStyle />{" "}
                     <Checkbox
                       onChange={() => handleCheckboxChange(module.module_id)}
                       checked={isCardSelected(module.module_id)}

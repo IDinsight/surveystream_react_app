@@ -2,12 +2,19 @@ import { Button, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+
+import { Link, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
 import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { performLogin } from "../../../redux/auth/authActions";
+import { useAppDispatch } from "../../../redux/hooks";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { performLogin } from "../../../redux/auth/authActions";
@@ -28,15 +35,16 @@ const Login = () => {
       setLoading(true);
 
       const loginResponse = await dispatch(performLogin(values));
-      messageApi.open({
-        type: "success",
-        content: loginResponse.payload.message,
-      });
-      // Redirect to /surveys after successful login
+
+      if (loginResponse.payload == false) {
+        messageApi.open({
+          type: "error",
+          content: "Login failed, kindly check your credentials and try again",
+        });
+        return false;
+      }
       navigate("/surveys");
     } catch (error) {
-      // Handle any error
-      console.error("Login error:", error);
       messageApi.open({
         type: "error",
         content: "Login failed, kindly check your credentials and try again",
@@ -46,14 +54,16 @@ const Login = () => {
     }
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-    // alert(errorInfo.errorFields[0].errors[0]);
-    messageApi.open({
-      type: "error",
-      content: "Login failed, kindly check your credentials and try again",
-    });
-  };
+  //TODO: Finish redirected from and to feature
+  // useEffect(() => {
+  //   if (redirectedFrom) {
+  //     messageApi.open({
+  //       type: "info",
+  //       content:
+  //         "Because you are not logged in, you have been redirected to the login page.",
+  //     });
+  //   }
+  // }, [redirectedFrom]);
 
   useEffect(() => {
     //  TODO: check issue with displaying message twice
@@ -88,13 +98,14 @@ const Login = () => {
           >
             {contextHolder}
 
+            {contextHolder}
+
             <Form
               name="loginForm"
               layout="vertical"
               autoComplete="off"
               form={form}
               onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
             >
               <Form.Item
                 label="Email"
@@ -117,6 +128,7 @@ const Login = () => {
                     htmlType="submit"
                     block
                     className="w-full bg-geekblue-5 h-[40px]"
+                    loading={loading}
                     loading={loading}
                     disabled={
                       !form.isFieldsTouched(true) ||
@@ -142,6 +154,7 @@ const Login = () => {
       <Footer />
     </>
   );
+};
 };
 
 export default Login;
