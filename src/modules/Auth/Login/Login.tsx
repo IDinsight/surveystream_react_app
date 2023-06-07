@@ -17,9 +17,8 @@ const Login = () => {
   const [form] = useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-  // const location = useLocation();
   const dispatch = useAppDispatch();
-  const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
+  // const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
 
   const [loading, setLoading] = useState(false);
 
@@ -58,16 +57,6 @@ const Login = () => {
   //   }
   // }, [redirectedFrom]);
 
-  useEffect(() => {
-    //  TODO: check issue with displaying message twice
-    if (redirectedFrom) {
-      messageApi.open({
-        type: "info",
-        content:
-          "Because you are not logged in, you have been redirected to the login page.",
-      });
-    }
-  }, [redirectedFrom]);
 
   return (
     <>
