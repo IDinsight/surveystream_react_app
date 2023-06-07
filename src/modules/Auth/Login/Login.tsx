@@ -2,19 +2,12 @@ import { Button, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-
-import { Link, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
 import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-import { performLogin } from "../../../redux/auth/authActions";
-import { useAppDispatch } from "../../../redux/hooks";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { performLogin } from "../../../redux/auth/authActions";
@@ -98,8 +91,6 @@ const Login = () => {
           >
             {contextHolder}
 
-            {contextHolder}
-
             <Form
               name="loginForm"
               layout="vertical"
@@ -129,7 +120,6 @@ const Login = () => {
                     block
                     className="w-full bg-geekblue-5 h-[40px]"
                     loading={loading}
-                    loading={loading}
                     disabled={
                       !form.isFieldsTouched(true) ||
                       !!form
@@ -154,7 +144,6 @@ const Login = () => {
       <Footer />
     </>
   );
-};
 };
 
 export default Login;

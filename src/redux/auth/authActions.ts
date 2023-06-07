@@ -1,7 +1,18 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { performLoginRequest, performLogoutRequest } from "./apiService";
+import {
+  getUserProfile,
+  performLoginRequest,
+  performLogoutRequest,
+} from "./apiService";
 import { LoginFormData } from "./types";
-import { loginFailure, loginRequest, loginSuccess } from "./authSlice";
+import {
+  loginFailure,
+  loginRequest,
+  loginSuccess,
+  profileFailure,
+  profileRequest,
+  profileSuccess,
+} from "./authSlice";
 
 export const performLogin = createAsyncThunk(
   "auth/performLogin",
@@ -35,6 +46,24 @@ export const performLogout = createAsyncThunk(
       return null;
     } catch (error) {
       return rejectWithValue(error as string);
+    }
+  }
+);
+
+export const performGetUserProfile = createAsyncThunk(
+  "auth/performGetUserProfile",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(profileRequest());
+      const response = await getUserProfile();
+      console.log("user profile", response);
+      dispatch(profileSuccess(response));
+
+      return response;
+    } catch (error) {
+      const errorMessage = error || "Login failed";
+      dispatch(profileFailure(errorMessage as string));
+      return rejectWithValue(errorMessage as string);
     }
   }
 );
