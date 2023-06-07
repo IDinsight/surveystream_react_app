@@ -10,7 +10,7 @@ import { FormInstance } from "antd/lib/form";
 import { useForm } from "antd/es/form/Form";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
-import { Title } from "../NewSurveyConfig.styled";
+import { Title } from "../../../shared/Nav.styled";
 
 export interface BasicInformationFormProps {
   form: FormInstance;

@@ -1,24 +1,61 @@
 import { Button, Form, Input } from "antd";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+
+import { Link, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
 import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { performLogin } from "../../../redux/auth/authActions";
+import { useAppDispatch } from "../../../redux/hooks";
 
-function Login() {
+const Login = () => {
   const [form] = useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  // const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
+
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: any) => {
-    // TODO: Add the dispatch to make login work
-    console.log(values);
+    try {
+      setLoading(true);
+
+      const loginResponse = await dispatch(performLogin(values));
+
+      if (loginResponse.payload == false) {
+        messageApi.open({
+          type: "error",
+          content: "Login failed, kindly check your credentials and try again",
+        });
+        return false;
+      }
+      navigate("/surveys");
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "Login failed, kindly check your credentials and try again",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-    alert(errorInfo.errorFields[0].errors[0]);
-  };
+  //TODO: Finish redirected from and to feature
+  // useEffect(() => {
+  //   if (redirectedFrom) {
+  //     messageApi.open({
+  //       type: "info",
+  //       content:
+  //         "Because you are not logged in, you have been redirected to the login page.",
+  //     });
+  //   }
+  // }, [redirectedFrom]);
 
   return (
     <>
@@ -40,13 +77,14 @@ function Login() {
             className="ml-[111px] w-[400px] h-[300px] px-[24px] py-[22px] bg-gray-2 
             border-solid border border-[#F0F0F0] rounded-lg shadow-[0px_4px_4px_rgba(0,0,0,0.08)]"
           >
+            {contextHolder}
+
             <Form
               name="loginForm"
               layout="vertical"
               autoComplete="off"
               form={form}
               onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
             >
               <Form.Item
                 label="Email"
@@ -69,7 +107,7 @@ function Login() {
                     htmlType="submit"
                     block
                     className="w-full bg-geekblue-5 h-[40px]"
-                    // TODO: Add loading
+                    loading={loading}
                     disabled={
                       !form.isFieldsTouched(true) ||
                       !!form
@@ -94,6 +132,6 @@ function Login() {
       <Footer />
     </>
   );
-}
+};
 
 export default Login;

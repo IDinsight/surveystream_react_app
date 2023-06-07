@@ -8,8 +8,10 @@ import {
   createRoutesFromChildren,
   matchRoutes,
 } from "react-router-dom";
+import { Provider } from "react-redux";
 import ReactGA from "react-ga4";
 import * as Sentry from "@sentry/react";
+import store from "./redux/store";
 
 // Initialize Google Analytics tracking if defined in the .env file
 if (process.env.REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID) {
@@ -46,7 +48,9 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <Provider store={store}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </Provider>
 );

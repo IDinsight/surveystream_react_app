@@ -7,36 +7,30 @@ import {
   MainWrapper,
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
-import BasicInformationForm from "./BasicInformation/BasicInformationForm";
 import { Form } from "antd";
+import ModuleSelectionForm from "./ModuleSelectionForm";
 import {
   FooterWrapper,
   SaveButton,
   ContinueButton,
 } from "../../shared/FooterBar.styled";
-import { useNavigate } from "react-router-dom";
 
-function NewSurveyConfig() {
+function ModuleSelection() {
   const [form] = Form.useForm();
-  const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
-  };
 
   return (
     <>
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
+        <BackLink href="#">
           <BackArrow />
         </BackLink>
-        <Title>New survey config</Title>
+        <Title> TSDPS </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />
         <MainWrapper>
-          <BasicInformationForm form={form} />
+          <ModuleSelectionForm form={form} />
         </MainWrapper>
       </div>
       <FooterWrapper>
@@ -47,4 +41,4 @@ function NewSurveyConfig() {
   );
 }
 
-export default NewSurveyConfig;
+export default ModuleSelection;
