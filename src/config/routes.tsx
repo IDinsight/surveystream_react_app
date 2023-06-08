@@ -10,6 +10,7 @@ import { ComponentType, ReactNode, useEffect, useState } from "react";
 import { deleteAllCookies, getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
+import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -62,6 +63,10 @@ const AppRoutes = () => {
       <Route
         path="/module-selection/:survey_uid?"
         element={requireAuth(ModuleSelection)}
+      />
+      <Route
+        path="/survey-information/survey-cto-questions"
+        element={requireAuth(SurveyCTOQuestions)}
       />
     </SentryRoutes>
   );
