@@ -14,15 +14,21 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../shared/FooterBar.styled";
+import { useNavigate } from "react-router-dom";
 
 function ModuleSelection() {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate(-1); // Navigate back one step in the history stack
+  };
 
   return (
     <>
       <Header />
       <NavWrapper>
-        <BackLink href="#">
+        <BackLink href="#" onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
         <Title> TSDPS </Title>
