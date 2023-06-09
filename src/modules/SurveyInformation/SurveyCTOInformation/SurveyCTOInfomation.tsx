@@ -169,4 +169,4 @@ function SurveyCTOInfomation() {
   );
 }
 
-export default SurveyCTOQuestions;
+export default SurveyCTOInfomation;
