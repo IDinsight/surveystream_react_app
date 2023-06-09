@@ -11,7 +11,7 @@ import {
 import {
   SideMenuWrapper,
   MenuItem,
-  IconWrapper
+  IconWrapper,
 } from "../../shared/SideMenu.styled";
 
 function SideMenu() {
