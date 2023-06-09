@@ -53,14 +53,7 @@ export const getUserProfile = async () => {
       deleteAllCookies();
       window.location.href = "/login";
     }
-    let errorMessage = "An error occurred";
-
-    if (err?.response?.data?.message) {
-      errorMessage = err.response.data.message;
-    } else if (err?.message) {
-      errorMessage = err.message;
-      return { status: false, error: errorMessage };
-    }
+    return err;
   }
 };
 
@@ -82,7 +75,7 @@ export const performLogoutRequest = async () => {
       deleteAllCookies();
       window.location.href = "/login";
     }
-    throw err;
+    return err;
   }
 };
 
@@ -101,11 +94,7 @@ export const forgotPasswordAction = async (formData: { email: string }) => {
     );
     message.success(`Success! Please check your email to reset your password`);
   } catch (err: any) {
-    if (err?.response) {
-      message.error(err.response?.data?.message);
-    } else {
-      message.error(err?.message);
-    }
+    return err;
   }
 };
 
@@ -123,6 +112,6 @@ export const resetPasswordAction = async (formData: ResetPasswordData) => {
     });
     message.success("Password reset success");
   } catch (err: any) {
-    message.error(err?.message);
+    return err;
   }
 };
