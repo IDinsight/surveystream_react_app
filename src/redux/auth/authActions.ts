@@ -9,10 +9,14 @@ import {
   loginFailure,
   loginRequest,
   loginSuccess,
+  logoutFailure,
+  logoutRequest,
+  logoutSuccess,
   profileFailure,
   profileRequest,
   profileSuccess,
 } from "./authSlice";
+import { deleteAllCookies } from "../../utils/helper";
 
 export const performLogin = createAsyncThunk(
   "auth/performLogin",
@@ -39,12 +43,17 @@ export const performLogin = createAsyncThunk(
 
 export const performLogout = createAsyncThunk(
   "auth/performLogout",
-  async (_, { rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
+      dispatch(logoutRequest());
       const response = await performLogoutRequest();
-      console.log("logout response", response);
-      return null;
+      response.status = true;
+      dispatch(logoutSuccess(response));
+      deleteAllCookies();
+      return response;
     } catch (error) {
+      const errorMessage = error || "logout failed";
+      dispatch(logoutFailure(errorMessage as string));
       return rejectWithValue(error as string);
     }
   }
@@ -60,7 +69,7 @@ export const performGetUserProfile = createAsyncThunk(
 
       return response;
     } catch (error) {
-      const errorMessage = error || "Login failed";
+      const errorMessage = error || "fetching profile failed";
       dispatch(profileFailure(errorMessage as string));
       return rejectWithValue(errorMessage as string);
     }

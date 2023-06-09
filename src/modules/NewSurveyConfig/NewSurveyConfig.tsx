@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { message } from "antd";
 import Header from "../../components/Header";
 import {
   NavWrapper,
@@ -14,9 +16,13 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../shared/FooterBar.styled";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import ModuleQuestionnaire from "./ModuleQuestionnaire";
+import { useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
+import { useAppDispatch } from "../../redux/hooks";
+import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
+import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
+import { useNavigate } from "react-router-dom";
 
 export interface IStepIndex {
   sidebar: number;
@@ -24,37 +30,117 @@ export interface IStepIndex {
 }
 
 function NewSurveyConfig() {
+  const [messageApi, contextHolder] = message.useMessage();
   const [stepIndex, setStepIndex] = useState<IStepIndex>({
     sidebar: 0,
     mqIndex: 0,
   });
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [formData, setFormData] = useState<SurveyBasicInformationData | null>(
+    null
+  );
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.surveyConfig.loading
+  );
+  const showError = useAppSelector(
+    (state: RootState) => state.reducer.surveyConfig.error
+  );
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
   };
 
-  const handleContinue = () => {
-    // Ensure to not go ahead after second index
-    if (stepIndex["sidebar"] < 1) {
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        sidebar: prev["sidebar"] + 1,
-      }));
-    }
+  const handleContinue = async () => {
+    try {
+      if (formData === null) {
+        messageApi.open({
+          type: "error",
+          content: "Kindly fill in form to continue",
+        });
+        return;
+      }
+      const validationRules = [
+        { key: "survey_name", message: "Please fill in the Survey name" },
+        { key: "survey_id", message: "Please fill in the Survey ID" },
 
-    /*
-      If we are on second index in sidebar then 
-      increament only module questionnaire step's index
-    */
-    if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] >= 2) return;
+        {
+          key: "survey_description",
+          message: "Please fill in the Survey description",
+        },
+        { key: "irb_approval", message: "Please fill in the IRB approval" },
+        {
+          key: "surveying_method",
+          message: "Please fill in the Survey method",
+        },
+        {
+          key: "planned_start_date",
+          message: "Please fill in the System readiness start date",
+        },
+        {
+          key: "planned_end_date",
+          message: "Please fill in the Systems end date",
+        },
+      ];
 
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        mqIndex: prev["mqIndex"] + 1,
-      }));
+      const hasValidationErrors = !validationRules.every((rule) => {
+        if (!formData?.[rule.key]) {
+          messageApi.open({
+            type: "error",
+            content: rule.message,
+          });
+          return false;
+        }
+        return true;
+      });
+
+      if (hasValidationErrors) {
+        return;
+      }
+
+      const response = await dispatch(postBasicInformation(formData));
+
+      if (response.payload.success) {
+        messageApi.open({
+          type: "success",
+          content: 'Your draft survey has been created successfully.',
+        });
+
+        if (stepIndex["sidebar"] < 1) {
+          setStepIndex((prev: IStepIndex) => ({
+            ...prev,
+            sidebar: prev["sidebar"] + 1,
+          }));
+        }
+
+        /*
+        If we are on second index in sidebar then 
+        increament only module questionnaire step's index
+      */
+        if (stepIndex["sidebar"] == 1) {
+          if (stepIndex["mqIndex"] >= 2) return;
+
+          setStepIndex((prev: IStepIndex) => ({
+            ...prev,
+            mqIndex: prev["mqIndex"] + 1,
+          }));
+        }
+      } else {
+        messageApi.open({
+          type: "error",
+          content: response.payload.error
+            ? response.payload.error
+            : response.payload.message,
+        });
+      }
+    } catch (error) {
+      // Handle any error
+      console.error("post error", error);
+      messageApi.open({
+        type: "error",
+        content: showError.payload.message,
+      });
     }
   };
 
@@ -70,16 +156,22 @@ function NewSurveyConfig() {
       <div style={{ display: "flex" }}>
         <SideMenu stepIndex={stepIndex} setStepIndexHandler={setStepIndex} />
         <MainWrapper>
+          {contextHolder}
           {stepIndex["sidebar"] === 0 ? (
-            <BasicInformationForm form={form} />
+            <BasicInformationForm setFormData={setFormData} />
           ) : (
             <ModuleQuestionnaire stepIndex={stepIndex["mqIndex"]} />
           )}
         </MainWrapper>
       </div>
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
-        <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
+        <ContinueButton
+          onClick={handleContinue}
+          loading={isLoading}
+          disabled={formData === null}
+        >
+          Continue
+        </ContinueButton>
       </FooterWrapper>
     </>
   );
