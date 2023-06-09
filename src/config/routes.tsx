@@ -25,7 +25,6 @@ const requireAuth = (Component: ComponentType<any>): ReactNode => {
 };
 
 const AppRoutes = () => {
-
   return (
     <SentryRoutes>
       <Route path="/" element={<LandingPage />} />

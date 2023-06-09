@@ -63,8 +63,6 @@ const Login = () => {
   //   }
   // }, [redirectedFrom]);
 
-
-
   return (
     <>
       <Header />
