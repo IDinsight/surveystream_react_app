@@ -23,7 +23,7 @@ container-down:
 	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml down
 
 image-stg:
-	@docker build -f Dockerfile.client --no-cache --build-arg BUILD_ENV="staging" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.client --build-arg BUILD_ENV="staging" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 	@docker tag $(FRONTEND_NAME):$(VERSION) $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
 	@aws ecr get-login-password \
     --region ap-south-1 \
