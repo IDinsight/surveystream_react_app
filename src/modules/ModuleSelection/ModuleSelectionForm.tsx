@@ -12,10 +12,6 @@ import {
   CustomizationCard,
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
-
-export interface ModuleSelectionFormProps {
-  form: FormInstance;
-}
 import { useForm } from "antd/es/form/Form";
 import { Title } from "../../shared/Nav.styled";
 import { Card, Checkbox } from "antd";
@@ -39,6 +35,10 @@ const CheckboxStyle = createGlobalStyle`
     border-color: #061178 !important;
   }
 `;
+
+export interface ModuleSelectionFormProps {
+  form: FormInstance;
+}
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const dispatch = useAppDispatch();
