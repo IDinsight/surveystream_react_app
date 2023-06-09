@@ -68,7 +68,7 @@ function NewSurveyConfig() {
         { key: "survey_id", message: "Please fill in the Survey ID" },
 
         {
-          key: "description",
+          key: "survey_description",
           message: "Please fill in the Survey description",
         },
         { key: "irb_approval", message: "Please fill in the IRB approval" },

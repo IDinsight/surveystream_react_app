@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import moment from "moment";
 import { Col, Input, Row, Select, DatePicker, Form } from "antd";
 import {
   BasicInformationFormWrapper,
@@ -40,7 +39,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
       survey_id: allValues.surveyID,
       survey_name: allValues.surveyName,
       project_name: allValues.projectName,
-      description: allValues.surveyDescription,
+      survey_description: allValues.surveyDescription,
       surveying_method: allValues.surveyMethod,
       irb_approval: allValues.irbApproval,
       planned_start_date: allValues.systemsReadinessStartDate,

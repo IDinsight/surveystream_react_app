@@ -2,7 +2,7 @@ export type SurveyBasicInformationData = {
   survey_id: string;
   survey_name: string;
   project_name: string;
-  description: string;
+  survey_description: string;
   surveying_method: string;
   irb_approval: string;
   planned_start_date: string;
