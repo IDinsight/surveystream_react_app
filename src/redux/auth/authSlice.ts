@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
   loading: boolean;
-  data: any;
   profile: any;
   err: string | null;
   updateLoading: boolean;
@@ -12,7 +11,6 @@ interface AuthState {
 
 const initialState: AuthState = {
   loading: false,
-  data: null,
   err: null,
   profile: {},
   updateLoading: false,
@@ -52,15 +50,15 @@ const authSlice = createSlice({
     logoutRequest(state) {
       state.loading = true;
     },
-    logoutSuccess(state) {
+    logoutSuccess(state, action: PayloadAction<string>) {
       state.loading = false;
-      state.data = true;
+      state.updateRes = action.payload;
       state.err = null;
-      state.profile = null;
+      state.profile = {};
     },
     logoutFailure(state, action: PayloadAction<string>) {
       state.loading = false;
-      state.data = false;
+      state.updateRes = false;
       state.err = action.payload;
     },
     loginDefault(state) {
