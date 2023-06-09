@@ -25,7 +25,7 @@ import {
   TwoColumnForm,
 } from "./SurveyCTOInformation.styled";
 
-function SurveyCTOQuestions() {
+function SurveyCTOInfomation() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
