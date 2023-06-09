@@ -12,8 +12,8 @@ import SurveyCard from "../../components/SurveyCard";
 
 import "./SurveysHomePage.css";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { performGetUserProfile } from "../../redux/auth/authActions";
 import { Button, Result } from "antd";
+import { performGetUserProfile } from "../../redux/auth/authActions";
 
 const NavItems = () => {
   return (
@@ -35,13 +35,20 @@ function SurveysHomePage() {
     (state: RootState) => state.reducer.surveys.loading
   );
 
+  const userProfile = useAppSelector(
+    (state: RootState) => state.reducer.auth.profile
+  );
+
   const showError = useAppSelector(
     (state: RootState) => state.reducer.surveys.error
   );
   const fetchData = async () => {
-    const profile = await dispatch(performGetUserProfile());
-    // get user_id here use it to load surveys
-    const { user_uid } = profile.payload;
+    let { user_uid } = userProfile;
+
+    if (!user_uid) {
+      const profile = await dispatch(performGetUserProfile());
+      user_uid = profile.payload.user_uid;
+    }
 
     await dispatch(fetchSurveys({ user_uid: user_uid }));
   };

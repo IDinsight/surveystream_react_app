@@ -10,16 +10,18 @@ import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { performLogin } from "../../../redux/auth/authActions";
+import {
+  performGetUserProfile,
+  performLogin,
+} from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 
 const Login = () => {
   const [form] = useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-  // const location = useLocation();
   const dispatch = useAppDispatch();
-  const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
+  // const { redirectedFrom } = useParams<{ redirectedFrom?: string }>();
 
   const [loading, setLoading] = useState(false);
 
@@ -28,15 +30,19 @@ const Login = () => {
       setLoading(true);
 
       const loginResponse = await dispatch(performLogin(values));
-      messageApi.open({
-        type: "success",
-        content: loginResponse.payload.message,
-      });
-      // Redirect to /surveys after successful login
+
+      if (loginResponse.payload == false) {
+        messageApi.open({
+          type: "error",
+          content: "Login failed, kindly check your credentials and try again",
+        });
+        return false;
+      }
+
+      await dispatch(performGetUserProfile());
+
       navigate("/surveys");
     } catch (error) {
-      // Handle any error
-      console.error("Login error:", error);
       messageApi.open({
         type: "error",
         content: "Login failed, kindly check your credentials and try again",
@@ -46,25 +52,18 @@ const Login = () => {
     }
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-    // alert(errorInfo.errorFields[0].errors[0]);
-    messageApi.open({
-      type: "error",
-      content: "Login failed, kindly check your credentials and try again",
-    });
-  };
+  //TODO: Finish redirected from and to feature
+  // useEffect(() => {
+  //   if (redirectedFrom) {
+  //     messageApi.open({
+  //       type: "info",
+  //       content:
+  //         "Because you are not logged in, you have been redirected to the login page.",
+  //     });
+  //   }
+  // }, [redirectedFrom]);
 
-  useEffect(() => {
-    //  TODO: check issue with displaying message twice
-    if (redirectedFrom) {
-      messageApi.open({
-        type: "info",
-        content:
-          "Because you are not logged in, you have been redirected to the login page.",
-      });
-    }
-  }, [redirectedFrom]);
+
 
   return (
     <>
@@ -94,7 +93,6 @@ const Login = () => {
               autoComplete="off"
               form={form}
               onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
             >
               <Form.Item
                 label="Email"
