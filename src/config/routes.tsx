@@ -17,7 +17,7 @@ const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 const isAuthenticated = () => {
   // Return true if authenticated, false otherwise
   const rememberToken = getCookie("remember_token");
-  return true;
+  return rememberToken !== "";
 };
 
 const requireAuth = (Component: ComponentType<any>): ReactNode => {
