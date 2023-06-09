@@ -56,7 +56,6 @@ export const performGetUserProfile = createAsyncThunk(
     try {
       dispatch(profileRequest());
       const response = await getUserProfile();
-      console.log("user profile", response);
       dispatch(profileSuccess(response));
 
       return response;

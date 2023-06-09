@@ -10,7 +10,6 @@ export const fetchSurveys = async (user_uid?: number) => {
     }
 
     const response = await axios.get(url);
-    console.log("response", response);
     return response.data;
   } catch (error) {
     return error;

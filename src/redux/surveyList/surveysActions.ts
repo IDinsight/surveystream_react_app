@@ -20,8 +20,6 @@ export const fetchSurveys = createAsyncThunk(
       dispatch(fetchSurveysFailure(error));
       return surveys.response.data;
     } catch (error) {
-      console.log("rrror", error);
-
       const errorMessage = error || "Failed to fetch surveys";
       dispatch(fetchSurveysFailure(errorMessage as string));
       return rejectWithValue(errorMessage);

@@ -28,7 +28,6 @@ export const createModuleStatus = async (moduleStatusData: ModuleStatus) => {
 export const fetchModules = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/modules`);
-    console.log("response", response);
     return response.data;
   } catch (error) {
     throw new Error("Failed to fetch modules");
