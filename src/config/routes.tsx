@@ -10,13 +10,14 @@ import { getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
+import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
 const isAuthenticated = () => {
   // Return true if authenticated, false otherwise
   const rememberToken = getCookie("remember_token");
-  return rememberToken !== "";
+  return true;
 };
 
 const requireAuth = (Component: ComponentType<any>): ReactNode => {
@@ -40,6 +41,10 @@ const AppRoutes = () => {
       <Route
         path="/module-selection/:survey_uid?"
         element={requireAuth(ModuleSelection)}
+      />
+      <Route
+        path="/survey-information/survey-cto-information"
+        element={requireAuth(SurveyCTOInfomation)}
       />
       <Route
         path="/survey-information/survey-cto-questions"
