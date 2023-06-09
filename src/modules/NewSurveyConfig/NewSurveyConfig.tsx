@@ -61,8 +61,6 @@ function NewSurveyConfig() {
         });
         return;
       }
-      console.log("formData", formData);
-
       const validationRules = [
         { key: "survey_name", message: "Please fill in the Survey name" },
         { key: "survey_id", message: "Please fill in the Survey ID" },
@@ -106,7 +104,7 @@ function NewSurveyConfig() {
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: response.payload.data.message,
+          content: 'Your draft survey has been created successfully.',
         });
 
         if (stepIndex["sidebar"] < 1) {
