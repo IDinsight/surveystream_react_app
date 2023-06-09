@@ -1,0 +1,15 @@
+applicationName: 'frontend-deploy'
+deploymentGroupName: 'frontend-deploy-group'
+revision:
+  revisionType: AppSpecContent
+  appSpecContent:
+    content: |
+      version: 0.0
+      Resources:
+        - TargetService:
+            Type: AWS::ECS::Service
+            Properties:
+              TaskDefinition: "arn:aws:ecs:ap-south-1:210688620213:task-definition/frontend-task:2"
+              LoadBalancerInfo:
+                ContainerName: "app"
+                ContainerPort: 80

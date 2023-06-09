@@ -1,0 +1,51 @@
+
+
+
+
+
+
+
+- name: Task definition download
+  id: download-task-def
+  env:
+    ecs_task_def_name: example_codedeploy_ecs_task_def
+  run: |
+    aws ecs describe-task-definition --task-definition "$ecs_task_def_name" --query taskDefinition > task-definition.json    
+
+- name: Fill in the new image ID in the Amazon ECS task definition
+  id: update-task-def-image
+  uses: aws-actions/amazon-ecs-render-task-definition@v1
+  with:
+    task-definition: task-definition.json
+    container-name: container_name
+    image: ${{ steps.build.outputs.image }}
+
+- name: Set appspec.json values
+  id: set-appspec-values
+  env:
+    container_port: 5000
+    container_name: example_container
+    cluster: example_codedeploy_ecs_cluster
+    service: example_codedeploy_ecs_svc
+    codedeploy-application: example_codedeploy_ecs_app
+    codedeploy-deployment-group: example_codedeploy_ecs_dg
+  run: |
+    export TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition="$container_name" | jq '.taskDefinition.taskDefinitionArn')
+      cat ./.github/workflows/appspec.json | jq --arg key "$TASK_DEF_ARN" '.Resources[].TargetService.Properties.TaskDefinition=$key' \
+      | jq --arg key "$container_port" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerPort=$key' \
+      | jq --arg key "$container_name" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerName=$key' > .aws/appspec.json
+      sed -i 's#\\"##g' appspec.json    
+
+  
+- name: ECS task deployment using CodeDeploy
+  uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+  env:
+    ACTIONS_STEP_DEBUG: true #enable step debug logging
+  with:
+    task-definition: task-definition.json
+    service: example_codedeploy_ecs_svc
+    cluster: example_codedeploy_ecs_cluster
+    wait-for-service-stability: true
+    codedeploy-appspec: appspec.json
+    codedeploy-application: example_codedeploy_ecs_app
+    codedeploy-deployment-group: example_codedeploy_ecs_dg
