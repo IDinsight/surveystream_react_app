@@ -10,7 +10,10 @@ import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { performLogin } from "../../../redux/auth/authActions";
+import {
+  performGetUserProfile,
+  performLogin,
+} from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 
 const Login = () => {
@@ -35,6 +38,9 @@ const Login = () => {
         });
         return false;
       }
+
+      await dispatch(performGetUserProfile());
+
       navigate("/surveys");
     } catch (error) {
       messageApi.open({
@@ -56,7 +62,6 @@ const Login = () => {
   //     });
   //   }
   // }, [redirectedFrom]);
-
 
   return (
     <>
