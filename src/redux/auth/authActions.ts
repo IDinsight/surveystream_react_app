@@ -47,6 +47,7 @@ export const performLogout = createAsyncThunk(
     try {
       dispatch(logoutRequest());
       const response = await performLogoutRequest();
+      response.status = true;
       dispatch(logoutSuccess(response));
       deleteAllCookies();
       return response;

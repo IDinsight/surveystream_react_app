@@ -38,7 +38,7 @@ function Header({ items }: { items?: any }) {
 
   const logoutUser = async () => {
     const logoutRes = await dispatch(performLogout());
-    if (logoutRes.payload.message) {
+    if (logoutRes.payload.status) {
       navigate("/login");
     }
     return true;

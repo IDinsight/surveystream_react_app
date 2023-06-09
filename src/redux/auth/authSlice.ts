@@ -50,7 +50,7 @@ const authSlice = createSlice({
     logoutRequest(state) {
       state.loading = true;
     },
-    logoutSuccess(state, action: PayloadAction<string>) {
+    logoutSuccess(state, action: PayloadAction<any>) {
       state.loading = false;
       state.updateRes = action.payload;
       state.err = null;
