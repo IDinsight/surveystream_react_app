@@ -45,6 +45,10 @@ const AppRoutes = () => {
         path="/survey-information/survey-cto-questions"
         element={requireAuth(SurveyCTOQuestions)}
       />
+      <Route
+        path="/survey-information/field-supervisor-roles/:path?"
+        element={requireAuth(SurveyCTOQuestions)}
+      />
     </SentryRoutes>
   );
 };

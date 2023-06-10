@@ -7,7 +7,7 @@ import {
 
 export const SideMenuWrapper = styled.div`
   background-color: #fff;
-  width: 250px;
+  width: 270px;
   height: 75vh;
   position: relative;
   left: 0;
