@@ -104,7 +104,7 @@ function NewSurveyConfig() {
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: 'Your draft survey has been created successfully.',
+          content: "Your draft survey has been created successfully.",
         });
 
         if (stepIndex["sidebar"] < 1) {

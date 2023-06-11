@@ -3,7 +3,6 @@ import {
   ApartmentOutlined,
   CalendarOutlined,
   CompassOutlined,
-  DownOutlined,
   NumberOutlined,
   ProfileOutlined,
   ShareAltOutlined,
@@ -16,107 +15,175 @@ import {
   MenuItem,
   IconWrapper,
 } from "../../shared/SideMenu.styled";
+import { Menu, MenuProps } from "antd";
+
 import { useState } from "react";
 
 function SideMenu() {
   const location = useLocation();
-  const [openSubMenu, setOpenSubMenu] = useState("");
 
   const isActive = (path: string) => {
     return location.pathname === path ? "active" : "";
   };
-  const toggleSubMenu = (submenu: string) => {
-    if (openSubMenu === submenu) {
-      setOpenSubMenu("");
-    } else {
-      setOpenSubMenu(submenu);
-    }
-  };
 
-  const isSubMenuOpen = (submenu: string) => {
-    return openSubMenu === submenu ? "open" : "";
+  const items: MenuProps["items"] = [
+    {
+      label: (
+        <MenuItem
+          href="/survey-information/survey-cto-information"
+          className={
+            isActive("/survey-information/survey-cto-information") ||
+            isActive("/survey-information/")
+          }
+        >
+          <IconWrapper>
+            <UnorderedListOutlined />
+          </IconWrapper>
+          SurveyCTO information
+        </MenuItem>
+      ),
+      key: "surveyInformation",
+    },
+
+    {
+      label: (
+        <MenuItem
+          className={`${
+            isActive("/survey-information/field-supervisor-roles") ||
+            isActive("/survey-information/field-supervisor-roles/add") ||
+            isActive("/survey-information/field-supervisor-roles/hierarchy")
+          }`}
+          href="/survey-information/field-supervisor-roles"
+        >
+          <IconWrapper>
+            <CalendarOutlined />
+          </IconWrapper>
+          Field supervisor roles
+        </MenuItem>
+      ),
+      key: "surveyFieldSupervisorRoles",
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                "/survey-information/field-supervisor-roles/add-roles"
+              )}
+              href="/survey-information/field-supervisor-roles/add"
+            >
+              <IconWrapper>
+                <UsergroupAddOutlined />
+              </IconWrapper>
+              Roles
+            </MenuItem>
+          ),
+          key: "surveyFieldSupervisorRolesAdd",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                "/survey-information/field-supervisor-roles/hierarchy"
+              )}
+              href="/survey-information/field-supervisor-roles/hierarchy"
+            >
+              <IconWrapper>
+                <ApartmentOutlined />
+              </IconWrapper>
+              Role Hierarchy
+            </MenuItem>
+          ),
+          key: "surveyFieldSupervisorRolesHierarchy",
+        },
+      ],
+    },
+    {
+      label: (
+        <MenuItem
+          className={isActive("/survey-information/survey-location")}
+          href="#"
+        >
+          <IconWrapper>
+            <CompassOutlined />
+          </IconWrapper>
+          Survey location
+        </MenuItem>
+      ),
+      key: "surveyLocation",
+      disabled: true,
+    },
+    {
+      label: (
+        <MenuItem
+          className={isActive("/survey-information/webapp-users")}
+          href="#"
+        >
+          <IconWrapper>
+            <UserOutlined />
+          </IconWrapper>
+          WebApp Users
+        </MenuItem>
+      ),
+      key: "surveyWebAppUsers",
+      disabled: true,
+    },
+    {
+      label: (
+        <MenuItem
+          className={isActive("/survey-information/enumerators")}
+          href="#"
+        >
+          <IconWrapper>
+            <ProfileOutlined />
+          </IconWrapper>
+          Enumerators
+        </MenuItem>
+      ),
+      key: "surveyEnumerators",
+      disabled: true,
+    },
+    {
+      label: (
+        <MenuItem className={isActive("/survey-information/targets")} href="#">
+          <IconWrapper>
+            <NumberOutlined />
+          </IconWrapper>
+          Targets
+        </MenuItem>
+      ),
+      key: "surveyTargets",
+      disabled: true,
+    },
+    {
+      label: (
+        <MenuItem
+          href="/survey-information/survey-cto-questions"
+          className={isActive("/survey-information/survey-cto-questions")}
+        >
+          <IconWrapper>
+            <ShareAltOutlined />
+          </IconWrapper>
+          SurveyCTO Questions
+        </MenuItem>
+      ),
+      key: "surveyCTOQuestions",
+    },
+  ];
+  const [current, setCurrent] = useState("mail");
+
+  const onClick: MenuProps["onClick"] = (e) => {
+    console.log("click ", e);
+    setCurrent(e.key);
   };
 
   return (
     <SideMenuWrapper>
-      <MenuItem className={isActive("/survey-information/")}>
-        <IconWrapper>
-          <UnorderedListOutlined />
-        </IconWrapper>
-        SurveyCTO information
-      </MenuItem>
-
-      <MenuItem
-        className={`${isActive(
-          "/survey-information/field-supervisor-roles"
-        )} ${isSubMenuOpen("field-supervisor-roles")}`}
-        onClick={() => toggleSubMenu("field-supervisor-roles")}
-      >
-        <IconWrapper>
-          <CalendarOutlined />
-        </IconWrapper>
-        Field supervisor roles
-        <IconWrapper>
-          <DownOutlined />
-        </IconWrapper>
-      </MenuItem>
-      {openSubMenu === "field-supervisor-roles" && (
-        <div style={{ marginLeft: "15px" }}>
-          <MenuItem
-            className={isActive(
-              "/survey-information/field-supervisor-roles/add-roles"
-            )}
-          >
-            <IconWrapper>
-              <UsergroupAddOutlined />
-            </IconWrapper>
-            Roles
-          </MenuItem>
-          <MenuItem
-            className={isActive(
-              "/survey-information/field-supervisor-roles/role-hierarchy"
-            )}
-          >
-            <IconWrapper>
-              <ApartmentOutlined />
-            </IconWrapper>
-            Role Hierarchy
-          </MenuItem>
-        </div>
-      )}
-
-      <MenuItem className={isActive("/survey-information/survey-location")}>
-        <IconWrapper>
-          <CompassOutlined />
-        </IconWrapper>
-        Survey location
-      </MenuItem>
-      <MenuItem className={isActive("/survey-information/webapp-users")}>
-        <IconWrapper>
-          <UserOutlined />
-        </IconWrapper>
-        WebApp Users
-      </MenuItem>
-      <MenuItem className={isActive("/survey-information/enumerators")}>
-        <IconWrapper>
-          <ProfileOutlined />
-        </IconWrapper>
-        Enumerators
-      </MenuItem>
-      <MenuItem className={isActive("/survey-information/targets")}>
-        <IconWrapper>
-          <NumberOutlined />
-        </IconWrapper>
-        Targets
-      </MenuItem>
-      <MenuItem
-        className={isActive("/survey-information/survey-cto-questions")}
-      >
-        <IconWrapper>
-          <ShareAltOutlined />
-        </IconWrapper>
-        SurveyCTO Questions
-      </MenuItem>
+      <Menu
+        onClick={onClick}
+        selectedKeys={[current]}
+        mode="inline"
+        items={items}
+      />
     </SideMenuWrapper>
   );
 }
