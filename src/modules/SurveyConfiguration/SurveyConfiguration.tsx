@@ -121,13 +121,7 @@ const SurveyConfiguration: React.FC = () => {
   };
 
   const generateLink = (sectionTitle: string, itemName: string) => {
-    console.log("sectionTitle", sectionTitle);
-
-    console.log("itemName", itemName);
-
     const sectionRoute = sectionRoutes[sectionTitle];
-
-    console.log("sectionRoute", sectionRoute);
 
     if (sectionRoute) {
       const itemRoute = itemRoutes[sectionTitle]?.[itemName];

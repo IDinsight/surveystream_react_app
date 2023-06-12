@@ -16,13 +16,13 @@ const initialState: SurveyConfigState = {
   error: null,
   basicInfo: null,
   surveyConfigs: {
-    "Basic Information": {
+    "Basic information": {
       status: "Not Started",
     },
-    "Module Selection": {
+    "Module selection": {
       status: "Not Started",
     },
-    "Survey Information": [
+    "Survey information": [
       {
         name: "SurveyCTO information",
         status: "Not Started",
@@ -45,7 +45,7 @@ const initialState: SurveyConfigState = {
         status: "Not Started",
       },
     ],
-    "Module Configuration": [
+    "Module configuration": [
       {
         module_id: 1,
         name: "Assignments",
