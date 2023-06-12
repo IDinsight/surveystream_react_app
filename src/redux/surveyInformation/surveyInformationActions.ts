@@ -11,12 +11,18 @@ import {
 export const postSupervisorRoles = createAsyncThunk(
   "survey/postSupervisorRoles",
   async (
-    supervisorRolesData: SupervisorRole[],
+    {
+      supervisorRolesData,
+      surveyUid,
+    }: { supervisorRolesData: SupervisorRole[]; surveyUid: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(postSupervisorRolesRequest());
-      const response = await api.postSupervisorRoles(supervisorRolesData);
+      const response = await api.postSupervisorRoles(
+        supervisorRolesData,
+        surveyUid
+      );
       if (response.data && response.success) {
         dispatch(postSupervisorRolesSuccess(response.data));
         return response;

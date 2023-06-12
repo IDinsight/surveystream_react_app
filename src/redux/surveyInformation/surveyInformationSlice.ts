@@ -17,6 +17,12 @@ const surveyInformationSlice = createSlice({
   name: "surveyInformation",
   initialState,
   reducers: {
+    addSupervisorRole: (state, action) => {
+      state.supervisorRoles.push(action.payload);
+    },
+    setSupervisorRoles: (state, action: PayloadAction<SupervisorRole[]>) => {
+      state.supervisorRoles = action.payload;
+    },
     postSupervisorRolesRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -36,6 +42,8 @@ export const {
   postSupervisorRolesRequest,
   postSupervisorRolesSuccess,
   postSupervisorRolesFailure,
+  addSupervisorRole,
+  setSupervisorRoles,
 } = surveyInformationSlice.actions;
 
 export default surveyInformationSlice.reducer;

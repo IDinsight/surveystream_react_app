@@ -4,14 +4,17 @@ import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 import { SupervisorRole } from "./types";
 
-export const postSupervisorRoles = async (formData: SupervisorRole[]) => {
+export const postSupervisorRoles = async (
+  formData: SupervisorRole[],
+  survey_uid: string
+) => {
   try {
     await getCSRFToken();
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
     const { data } = await axios.put(
-      `${API_BASE_URL}/roles?survey_uid`,
+      `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
       formData,
       {
         headers: {
@@ -26,6 +29,7 @@ export const postSupervisorRoles = async (formData: SupervisorRole[]) => {
     return err;
   }
 };
+
 export const api = {
   postSupervisorRoles,
 };

@@ -23,14 +23,18 @@ function SideMenu() {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    return location.pathname === path ? "active" : "";
+    const currentPath = location.pathname;
+    const pathParts = currentPath.split("/");
+    const middlePart =
+      pathParts.length > 3 ? pathParts[3] : pathParts[pathParts.length - 1];
+    return path.includes(middlePart) ? "active" : "";
   };
 
   const items: MenuProps["items"] = [
     {
       label: (
         <MenuItem
-          href="/survey-information/survey-cto-information"
+          to="/survey-information/survey-cto-information"
           className={
             isActive("/survey-information/survey-cto-information") ||
             isActive("/survey-information/")
@@ -53,7 +57,7 @@ function SideMenu() {
             isActive("/survey-information/field-supervisor-roles/add") ||
             isActive("/survey-information/field-supervisor-roles/hierarchy")
           }`}
-          href="/survey-information/field-supervisor-roles"
+          to="/survey-information/field-supervisor-roles"
         >
           <IconWrapper>
             <CalendarOutlined />
@@ -69,7 +73,7 @@ function SideMenu() {
               className={isActive(
                 "/survey-information/field-supervisor-roles/add"
               )}
-              href="/survey-information/field-supervisor-roles/add"
+              to="/survey-information/field-supervisor-roles/add"
             >
               <IconWrapper>
                 <UsergroupAddOutlined />
@@ -85,7 +89,7 @@ function SideMenu() {
               className={isActive(
                 "/survey-information/field-supervisor-roles/hierarchy"
               )}
-              href="/survey-information/field-supervisor-roles/hierarchy"
+              to="/survey-information/field-supervisor-roles/hierarchy"
             >
               <IconWrapper>
                 <ApartmentOutlined />
@@ -101,7 +105,7 @@ function SideMenu() {
       label: (
         <MenuItem
           className={isActive("/survey-information/survey-location")}
-          href="#"
+          to="#"
         >
           <IconWrapper>
             <CompassOutlined />
@@ -116,7 +120,7 @@ function SideMenu() {
       label: (
         <MenuItem
           className={isActive("/survey-information/webapp-users")}
-          href="#"
+          to="#"
         >
           <IconWrapper>
             <UserOutlined />
@@ -131,7 +135,7 @@ function SideMenu() {
       label: (
         <MenuItem
           className={isActive("/survey-information/enumerators")}
-          href="#"
+          to="#"
         >
           <IconWrapper>
             <ProfileOutlined />
@@ -144,7 +148,7 @@ function SideMenu() {
     },
     {
       label: (
-        <MenuItem className={isActive("/survey-information/targets")} href="#">
+        <MenuItem className={isActive("/survey-information/targets")} to="#">
           <IconWrapper>
             <NumberOutlined />
           </IconWrapper>
@@ -157,7 +161,7 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          href="/survey-information/survey-cto-questions"
+          to="/survey-information/survey-cto-questions"
           className={isActive("/survey-information/survey-cto-questions")}
         >
           <IconWrapper>
