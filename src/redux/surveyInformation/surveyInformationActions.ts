@@ -26,8 +26,6 @@ export const postSupervisorRoles = createAsyncThunk(
         supervisorRolesData,
         surveyUid
       );
-      console.log("postSupervisorRoles", response);
-
       if (response.status == 200) {
         dispatch(postSupervisorRolesSuccess(response.data));
         return response;

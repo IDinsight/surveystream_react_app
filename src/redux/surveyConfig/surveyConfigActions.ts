@@ -28,8 +28,6 @@ export const fetchSurveyConfig = createAsyncThunk(
       dispatch(fetchSurveysConfigFailure(error));
       return surveyConfig.response.data;
     } catch (error) {
-      console.log("rrror", error);
-
       const errorMessage = error || "Failed to fetch survey configuration";
       dispatch(fetchSurveysConfigFailure(errorMessage as string));
       return rejectWithValue(errorMessage);

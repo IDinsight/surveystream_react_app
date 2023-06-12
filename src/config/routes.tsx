@@ -49,10 +49,6 @@ const AppRoutes = () => {
         element={requireAuth(ModuleSelection)}
       />
       <Route
-        path="/survey-information/"
-        element={requireAuth(SurveyCTOInfomation)}
-      />
-      <Route
         path="/survey-information/survey-cto-information"
         element={requireAuth(SurveyCTOInfomation)}
       />

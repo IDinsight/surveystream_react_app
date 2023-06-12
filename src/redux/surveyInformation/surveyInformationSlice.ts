@@ -32,8 +32,6 @@ const surveyInformationSlice = createSlice({
       state,
       action: PayloadAction<SupervisorRole[]>
     ) => {
-      console.log("action.payload.length", action.payload);
-
       if (action.payload.length !== 0) {
         state.supervisorRoles = action.payload;
       }
