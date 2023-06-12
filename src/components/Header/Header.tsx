@@ -1,5 +1,5 @@
 import { BellOutlined, DownOutlined } from "@ant-design/icons";
-import { Dropdown, Menu, message } from "antd";
+import { Dropdown, Menu, MenuProps, message } from "antd";
 import Logo from "./../../assets/logo.svg";
 import UserAvatar from "./UserAvatar";
 import styled from "styled-components";
@@ -50,20 +50,29 @@ function Header({ items }: { items?: any }) {
     }
   }, [dispatch]);
 
-  const avatarMenu = (
-    <Menu>
-      <Menu.Item key="profile">
-        {`${userProfile?.first_name} ${userProfile?.last_name}`}
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout">
-        <a onClick={logoutUser}>Logout</a>
-      </Menu.Item>
-    </Menu>
-  );
+  const avatarMenu: MenuProps["items"] = [
+    {
+      label: (
+        <Menu.Item key="profile">
+          {`${userProfile?.first_name} ${userProfile?.last_name}`}
+        </Menu.Item>
+      ),
+      key: "1",
+    },
+    {
+      type: "divider",
+    },
+    {
+      label: (
+        <Menu.Item key="logout" onClick={logoutUser}>
+          Logout
+        </Menu.Item>
+      ),
+      key: "3",
+    },
+  ];
 
-  const helpMenu = <Menu>{/* TODO: add help menu */}</Menu>;
-
+  const helpMenu: MenuProps["items"] = [];
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
@@ -73,7 +82,7 @@ function Header({ items }: { items?: any }) {
 
       {userProfile?.first_name && (
         <ProfileWrapper className="flex items-center ml-auto mr-6">
-          <Dropdown overlay={helpMenu} trigger={["click"]}>
+          <Dropdown menu={{ items: helpMenu }} trigger={["hover", "click"]}>
             <div className="mr-4">
               <span>Help</span>
               <DownOutlined style={{ marginLeft: "4px" }} />
@@ -84,7 +93,7 @@ function Header({ items }: { items?: any }) {
             <BellOutlined style={{ color: "white" }} />
           </div>
 
-          <Dropdown overlay={avatarMenu} trigger={["click"]}>
+          <Dropdown menu={{ items: avatarMenu }} trigger={["hover", "click"]}>
             <a>
               <UserAvatar
                 name={`${userProfile?.first_name} ${userProfile?.last_name}`}

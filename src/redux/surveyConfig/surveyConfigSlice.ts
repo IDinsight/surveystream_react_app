@@ -4,18 +4,88 @@ interface SurveyConfigState {
   loading: boolean;
   error: any;
   basicInfo: any;
+  surveyUId: string;
+  surveyConfigs:
+    | {
+        [key: string]: any;
+      }
+    | Record<string, unknown[]>;
 }
 
 const initialState: SurveyConfigState = {
   loading: false,
   error: null,
   basicInfo: null,
+  surveyUId: "",
+  surveyConfigs: {
+    "Basic Information": {
+      status: "Done",
+    },
+    "Module Selection": {
+      status: "Done",
+    },
+    "Survey Information": [
+      {
+        name: "SurveyCTO information",
+        status: "Done",
+      },
+      { name: "Field supervisor roles", status: "In Progress" },
+      {
+        name: "Survey locations",
+        status: "Not Started",
+      },
+      {
+        name: "SurveyStream users",
+        status: "Not Started",
+      },
+      {
+        name: "Enumerators",
+        status: "Not Started",
+      },
+      {
+        name: "Targets",
+        status: "Not Started",
+      },
+    ],
+    "Module Configuration": [
+      {
+        module_id: 1,
+        name: "Assignments",
+        status: "Not Started",
+      },
+      {
+        module_id: 2,
+        name: "Productivity tracker",
+        status: "Not Started",
+      },
+      {
+        module_id: 3,
+        name: "Data quality",
+        status: "Not Started",
+      },
+    ],
+  },
 };
 
 const surveyConfigSlice = createSlice({
   name: "surveyConfig",
   initialState,
   reducers: {
+    fetchSurveyConfigRequest: (state, action: PayloadAction<string>) => {
+      state.loading = true;
+      state.error = null;
+      state.surveyUId = action.payload;
+    },
+    fetchSurveysConfigSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.surveyConfigs = action.payload;
+      state.error = null;
+    },
+    fetchSurveysConfigFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.surveyUId = "";
+      state.error = action.payload;
+    },
     postSurveyBasicInformationRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -34,6 +104,9 @@ const surveyConfigSlice = createSlice({
 });
 
 export const {
+  fetchSurveyConfigRequest,
+  fetchSurveysConfigSuccess,
+  fetchSurveysConfigFailure,
   postSurveyBasicInformationRequest,
   postSurveyBasicInformationSuccess,
   postSurveyBasicInformationFailure,

@@ -1,23 +1,32 @@
-import { Checkbox, Form, Tooltip } from "antd";
-import styled, { css } from "styled-components";
+import { Tooltip } from "antd";
+import { Form } from "antd";
+import styled from "styled-components";
 
-export const SCTOInformationFormWrapper = styled.div`
-  flex: 1;
-  background-color: #f5f5f5;
-  padding-left: 80px;
-  padding-top: 23px;
+export const DescriptionWrap = styled.div`
   font-family: "Inter", sans-serif;
 `;
 
-export const TwoColumnForm = styled(Form)`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+export const DescriptionTitle = styled.h2`
+  margin: 0px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgb(38, 38, 38);
+`;
+
+export const DescriptionText = styled.p`
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #8c8c8c;
 `;
 
 export const StyledFormItem = styled(Form.Item)`
-  display: flex;
   flex-direction: column;
+  display: flex;
   width: 100%;
   margin-bottom: 15px;
 
@@ -59,10 +68,4 @@ export const StyledTooltip = styled(Tooltip)`
     background-color: #061178;
     color: white;
   }
-`;
-
-export const CheckboxSCTO = styled(Checkbox)`
-  margin-inline-start: 0 !important;
-  font-family: "Inter", sans-serif;
-  color: #434343;
 `;

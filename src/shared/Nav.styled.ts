@@ -40,5 +40,6 @@ export const BackArrow = styled(ArrowLeftOutlined)`
 export const MainWrapper = styled.main`
   flex: 1;
   padding: 1rem;
+  padding-left: 5rem;
   background-color: #f5f5f5;
 `;

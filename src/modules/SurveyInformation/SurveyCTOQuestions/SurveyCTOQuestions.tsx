@@ -15,19 +15,19 @@ import {
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
-  DescriptionText,
-  DescriptionTitle,
-  DescriptionWrap,
   QuestionsForm,
   QuestionsFormTitle,
   SCTOQuestionsButton,
 } from "./SurveyCTOQuestions.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import {
+  DescriptionWrap,
+  DescriptionTitle,
+  DescriptionText,
   StyledFormItem,
   StyledTooltip,
-} from "../../NewSurveyConfig/BasicInformation/BasicInformationForm.styled";
-import { useNavigate } from "react-router-dom";
+} from "../SurveyInformation.styled";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();

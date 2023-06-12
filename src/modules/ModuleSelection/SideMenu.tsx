@@ -9,7 +9,7 @@ function SideMenu() {
   return (
     <div>
       <SideMenuWrapper>
-        <MenuItem href="#" className="active">
+        <MenuItem to="#" className="active">
           <IconWrapper>
             <ListIcon />
           </IconWrapper>

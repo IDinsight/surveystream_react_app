@@ -1,4 +1,6 @@
 import styled, { css } from "styled-components";
+import { Link } from "react-router-dom";
+
 import {
   QuestionCircleOutlined,
   InfoCircleOutlined,
@@ -7,7 +9,7 @@ import {
 
 export const SideMenuWrapper = styled.div`
   background-color: #fff;
-  width: 250px;
+  width: 270px;
   height: 75vh;
   position: relative;
   left: 0;
@@ -19,7 +21,31 @@ export const SideMenuWrapper = styled.div`
   z-index: 10;
 `;
 
-export const MenuItem = styled.a`
+export const MenuAItem = styled.a`
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #4f46e5;
+  ${css`
+    font-family: "Inter", sans-serif;
+    font-weight: 200px;
+    font-size: 14px;
+    line-height: 22px;
+    color: #262626;
+  `}
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: #262626;
+  }
+
+  &.active {
+    background-color: #f0f5ff;
+    color: #2f54eb;
+  }
+`;
+export const MenuItem = styled(Link)`
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
