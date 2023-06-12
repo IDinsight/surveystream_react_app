@@ -23,6 +23,29 @@ const surveyInformationSlice = createSlice({
     setSupervisorRoles: (state, action: PayloadAction<SupervisorRole[]>) => {
       state.supervisorRoles = action.payload;
     },
+
+    getSupervisorRolesRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getSupervisorRolesSuccess: (
+      state,
+      action: PayloadAction<SupervisorRole[]>
+    ) => {
+      console.log("action.payload.length", action.payload);
+
+      if (action.payload.length !== 0) {
+        state.supervisorRoles = action.payload;
+      }
+      state.loading = false;
+      state.error = null;
+    },
+    getSupervisorRolesFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.supervisorRoles = [];
+      state.error = action.payload;
+    },
+
     postSupervisorRolesRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -39,6 +62,9 @@ const surveyInformationSlice = createSlice({
 });
 
 export const {
+  getSupervisorRolesRequest,
+  getSupervisorRolesFailure,
+  getSupervisorRolesSuccess,
   postSupervisorRolesRequest,
   postSupervisorRolesSuccess,
   postSupervisorRolesFailure,

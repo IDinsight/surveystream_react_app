@@ -16,8 +16,11 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { setSupervisorRoles } from "../../../redux/surveyInformation/surveyInformationSlice";
 import { MainWrapper } from "../../../shared/Nav.styled";
-import { postSupervisorRoles } from "../../../redux/surveyInformation/surveyInformationActions";
-import { useState } from "react";
+import {
+  getSupervisorRoles,
+  postSupervisorRoles,
+} from "../../../redux/surveyInformation/surveyInformationActions";
+import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesHierarchy() {
   const dispatch = useAppDispatch();
@@ -33,13 +36,21 @@ function FieldSupervisorRolesHierarchy() {
     survey_uid: "",
   };
 
+  const fetchSupervisorRoles = async () => {
+    await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
+  };
+
+  useEffect(() => {
+    fetchSupervisorRoles();
+  }, [dispatch]);
+
   const renderReportingRolesField = () => {
     const numRoles = supervisorRoles.length;
 
     const fields = Array.from({ length: numRoles }, (_, index) => {
       const role: {
         role_name?: string;
-        reporting_role?: string;
+        reporting_role_uid?: string;
         role_uid?: string;
       } = supervisorRoles[index];
 
@@ -51,7 +62,7 @@ function FieldSupervisorRolesHierarchy() {
           wrapperCol={{ span: 11 }}
           name={`role_${index}`}
           label={role.role_name ? role.role_name : ""}
-          initialValue={role.reporting_role ? role.reporting_role : ""}
+          initialValue={role.reporting_role_uid ? role.reporting_role_uid : ""}
           rules={[
             {
               required: true,
@@ -76,7 +87,7 @@ function FieldSupervisorRolesHierarchy() {
               No reporting role
             </Select.Option>
             {supervisorRoles.map((r, i) => (
-              <Select.Option key={i} value={r.role_name}>
+              <Select.Option key={i} value={r.reporting_role_uid}>
                 {r.role_name}
               </Select.Option>
             ))}
@@ -108,16 +119,18 @@ function FieldSupervisorRolesHierarchy() {
       const supervisorRolesData = supervisorRoles;
       const surveyUid = survey_uid ? survey_uid : "168";
 
-      const rolesRes = await dispatch(
-        postSupervisorRoles({ supervisorRolesData, surveyUid })
-      );
+      for (const roleData of supervisorRolesData) {
+        const rolesRes = await dispatch(
+          postSupervisorRoles({ supervisorRolesData: roleData, surveyUid })
+        );
 
-      console.log("rolesRes", rolesRes);
-
-      if (rolesRes.payload === false) {
-        message.error("Failed to save roles");
-        return;
+        if (rolesRes.payload.status === false) {
+          message.error("Failed to save roles");
+          return;
+        }
       }
+      message.success("Roles updated successfully");
+
       // Save successful, navigate to the next step
     } catch (error) {
       message.error("Please fill in all required fields.");

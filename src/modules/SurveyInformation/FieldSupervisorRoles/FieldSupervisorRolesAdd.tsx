@@ -20,10 +20,17 @@ import {
   addSupervisorRole,
   setSupervisorRoles,
 } from "../../../redux/surveyInformation/surveyInformationSlice";
+import {
+  getSupervisorRoles,
+  postSupervisorRoles,
+} from "../../../redux/surveyInformation/surveyInformationActions";
+import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesAdd() {
-  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? { survey_uid: "" };
-
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: "",
+  };
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
   const supervisorRoles = useAppSelector(
@@ -32,6 +39,14 @@ function FieldSupervisorRolesAdd() {
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const fetchSupervisorRoles = async () => {
+    await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
+  };
+
+  useEffect(() => {
+    fetchSupervisorRoles();
+  }, [dispatch]);
 
   const renderRolesField = () => {
     const numRoles = supervisorRoles.length;
@@ -90,8 +105,6 @@ function FieldSupervisorRolesAdd() {
       if (!isDuplicateRole) {
         const role = {
           role_name: newRole,
-          role_uid: null,
-          reporting_role_uid: null,
         };
 
         dispatch(addSupervisorRole(role));
@@ -100,16 +113,41 @@ function FieldSupervisorRolesAdd() {
       }
     });
   };
-  const handleContinue = () => {
-    const filteredRoles = supervisorRoles.filter((role) => role.role_name);
+  const handleContinue = async () => {
+    try {
+      const filteredRoles = supervisorRoles.filter((role) => role.role_name);
 
-    if (filteredRoles.length === 0) {
-      message.error("Please fill in at least one role name!");
-    } else {
-      // Update the supervisorRoles state with the filtered roles
-      dispatch(setSupervisorRoles(filteredRoles));
+      if (filteredRoles.length === 0) {
+        message.error("Please fill in at least one role name!");
+      } else {
+        // Update the supervisorRoles state with the filtered roles
+        dispatch(setSupervisorRoles(filteredRoles));
+      }
+
+      setLoading(true);
+
+      const supervisorRolesData = supervisorRoles;
+      const surveyUid = survey_uid ? survey_uid : "168";
+
+      for (const roleData of supervisorRolesData) {
+        const rolesRes = await dispatch(
+          postSupervisorRoles({ supervisorRolesData: roleData, surveyUid })
+        );
+
+        if (rolesRes.payload.status === false) {
+          message.error("Failed to save roles");
+          return;
+        }
+      }
+      message.success("Roles updated successfully");
+      navigate(
+        `/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`
+      );
+    } catch (error) {
+      message.error("Please fill in all required fields.");
+    } finally {
+      setLoading(false);
     }
-    navigate(`/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`);
   };
 
   return (
@@ -145,6 +183,7 @@ function FieldSupervisorRolesAdd() {
       <FooterWrapper style={{ flexBasis: "auto" }}>
         <SaveButton>Save</SaveButton>
         <ContinueButton
+          loading={loading}
           onClick={handleContinue}
           disabled={supervisorRoles.length === 0}
         >

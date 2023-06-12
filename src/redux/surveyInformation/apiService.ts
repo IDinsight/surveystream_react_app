@@ -4,8 +4,27 @@ import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 import { SupervisorRole } from "./types";
 
+export const fetchSupervisorRoles = async (survey_uid?: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/roles?survey_uid=${survey_uid}`;
+
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const postSupervisorRoles = async (
-  formData: SupervisorRole[],
+  formData: SupervisorRole,
   survey_uid: string
 ) => {
   try {
@@ -13,7 +32,7 @@ export const postSupervisorRoles = async (
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
-    const { data } = await axios.put(
+    const res = await axios.put(
       `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
       formData,
       {
@@ -24,7 +43,7 @@ export const postSupervisorRoles = async (
         withCredentials: true,
       }
     );
-    return data;
+    return res;
   } catch (err: any) {
     return err;
   }
@@ -32,4 +51,5 @@ export const postSupervisorRoles = async (
 
 export const api = {
   postSupervisorRoles,
+  fetchSupervisorRoles,
 };
