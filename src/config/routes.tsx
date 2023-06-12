@@ -11,6 +11,7 @@ import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
+import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRoles";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -56,7 +57,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/survey-information/field-supervisor-roles/:path?"
-        element={requireAuth(SurveyCTOQuestions)}
+        element={requireAuth(FieldSupervisorRoles)}
       />
     </SentryRoutes>
   );

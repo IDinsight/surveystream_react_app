@@ -67,14 +67,14 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                "/survey-information/field-supervisor-roles/add-roles"
+                "/survey-information/field-supervisor-roles/add"
               )}
               href="/survey-information/field-supervisor-roles/add"
             >
               <IconWrapper>
                 <UsergroupAddOutlined />
               </IconWrapper>
-              Roles
+              Add Roles
             </MenuItem>
           ),
           key: "surveyFieldSupervisorRolesAdd",
@@ -90,7 +90,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Role Hierarchy
+              Define role Hierarchy
             </MenuItem>
           ),
           key: "surveyFieldSupervisorRolesHierarchy",
@@ -172,7 +172,6 @@ function SideMenu() {
   const [current, setCurrent] = useState("mail");
 
   const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
     setCurrent(e.key);
   };
 

@@ -18,12 +18,12 @@ import {
 import SideMenu from "../SideMenu";
 import {
   CheckboxSCTO,
-  DescriptionText,
   SCTOInformationFormWrapper,
   StyledFormItem,
   StyledTooltip,
   TwoColumnForm,
 } from "./SurveyCTOInformation.styled";
+import { DescriptionText } from "../SurveyInformation.styled";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
