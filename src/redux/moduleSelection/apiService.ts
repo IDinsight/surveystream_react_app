@@ -20,18 +20,17 @@ export const createModuleStatus = async (moduleStatusData: ModuleStatus) => {
       moduleStatusData
     );
     return response.data;
-  } catch (err: any) {
-    return err;
+  } catch (error) {
+    throw new Error("Failed to create module status");
   }
 };
 
 export const fetchModules = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/modules`);
-    console.log("response", response);
     return response.data;
-  } catch (err: any) {
-    return err;
+  } catch (error) {
+    throw new Error("Failed to fetch modules");
   }
 };
 

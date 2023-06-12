@@ -9,7 +9,6 @@ import {
 import SideMenu from "./SideMenu";
 import { Form } from "antd";
 import ModuleSelectionForm from "./ModuleSelectionForm";
-
 import {
   FooterWrapper,
   SaveButton,
@@ -29,7 +28,7 @@ function ModuleSelection() {
     <>
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
+        <BackLink href="#" onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
         <Title> TSDPS </Title>

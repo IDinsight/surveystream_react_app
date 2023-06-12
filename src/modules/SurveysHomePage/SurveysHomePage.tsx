@@ -12,8 +12,8 @@ import SurveyCard from "../../components/SurveyCard";
 
 import "./SurveysHomePage.css";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { performGetUserProfile } from "../../redux/auth/authActions";
 import { Button, Result } from "antd";
+import { performGetUserProfile } from "../../redux/auth/authActions";
 
 const NavItems = () => {
   return (
@@ -35,13 +35,20 @@ function SurveysHomePage() {
     (state: RootState) => state.reducer.surveys.loading
   );
 
+  const userProfile = useAppSelector(
+    (state: RootState) => state.reducer.auth.profile
+  );
+
   const showError = useAppSelector(
     (state: RootState) => state.reducer.surveys.error
   );
   const fetchData = async () => {
-    const profile = await dispatch(performGetUserProfile());
-    // get user_id here use it to load surveys
-    const { user_uid } = profile.payload;
+    let { user_uid } = userProfile;
+
+    if (!user_uid) {
+      const profile = await dispatch(performGetUserProfile());
+      user_uid = profile.payload.user_uid;
+    }
 
     await dispatch(fetchSurveys({ user_uid: user_uid }));
   };
@@ -90,7 +97,7 @@ function SurveysHomePage() {
                   {activeSurveys.map((survey) => (
                     <SurveyCard
                       key={survey.survey_uid}
-                      link={`/survey-configuration/${survey.survey_uid}`}
+                      link={survey.survey_uid.toString()}
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}
@@ -109,7 +116,7 @@ function SurveysHomePage() {
                       className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
                     >
                       <Link
-                        to={`/survey-configuration/${survey.survey_uid}`}
+                        to={survey.survey_uid.toString()}
                         className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
                       >
                         {survey.survey_name}
@@ -137,7 +144,7 @@ function SurveysHomePage() {
                   {pastSurveys.map((survey) => (
                     <SurveyCard
                       key={survey.survey_uid}
-                      link={`/survey-configuration/${survey.survey_uid}`}
+                      link={survey.survey_uid.toString()}
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}

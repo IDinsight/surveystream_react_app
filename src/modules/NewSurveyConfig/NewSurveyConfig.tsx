@@ -9,26 +9,28 @@ import {
   Title,
   MainWrapper,
 } from "../../shared/Nav.styled";
-import SideMenu from "./SideMenu";
-import BasicInformationForm from "./BasicInformation/BasicInformationForm";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../shared/FooterBar.styled";
+import ModuleQuestionnaire from "./ModuleQuestionnaire";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
 import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
+import SideMenu from "./SideMenu";
+import BasicInformationForm from "./BasicInformation/BasicInformationForm";
+import { Form } from "antd";
 
 function NewSurveyConfig() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const [stepIndex, setStepIndex] = useState<IStepIndex>({
+    sidebar: 0,
+    mqIndex: 0,
+  });
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<SurveyBasicInformationData | null>(
     null
   );
-  const [messageApi, contextHolder] = message.useMessage();
   const isLoading = useAppSelector(
     (state: RootState) => state.reducer.surveyConfig.loading
   );
@@ -49,14 +51,12 @@ function NewSurveyConfig() {
         });
         return;
       }
-      console.log("formData", formData);
-
       const validationRules = [
         { key: "survey_name", message: "Please fill in the Survey name" },
         { key: "survey_id", message: "Please fill in the Survey ID" },
 
         {
-          key: "description",
+          key: "survey_description",
           message: "Please fill in the Survey description",
         },
         { key: "irb_approval", message: "Please fill in the IRB approval" },
@@ -94,8 +94,28 @@ function NewSurveyConfig() {
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: response.payload.data.message,
+          content: 'Your draft survey has been created successfully.',
         });
+
+        if (stepIndex["sidebar"] < 1) {
+          setStepIndex((prev: IStepIndex) => ({
+            ...prev,
+            sidebar: prev["sidebar"] + 1,
+          }));
+        }
+
+        /*
+        If we are on second index in sidebar then 
+        increament only module questionnaire step's index
+      */
+        if (stepIndex["sidebar"] == 1) {
+          if (stepIndex["mqIndex"] >= 2) return;
+
+          setStepIndex((prev: IStepIndex) => ({
+            ...prev,
+            mqIndex: prev["mqIndex"] + 1,
+          }));
+        }
       } else {
         messageApi.open({
           type: "error",
@@ -114,14 +134,6 @@ function NewSurveyConfig() {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      console.log("formData", formData);
-    } catch (error) {
-      console.error("error", error);
-    }
-  };
-
   return (
     <>
       <Header />
@@ -132,20 +144,17 @@ function NewSurveyConfig() {
         <Title>New survey config</Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
-        <SideMenu />
+        <SideMenu stepIndex={stepIndex} setStepIndexHandler={setStepIndex} />
         <MainWrapper>
           {contextHolder}
-          <BasicInformationForm setFormData={setFormData} />
+          {stepIndex["sidebar"] === 0 ? (
+            <BasicInformationForm setFormData={setFormData} />
+          ) : (
+            <ModuleQuestionnaire stepIndex={stepIndex["mqIndex"]} />
+          )}
         </MainWrapper>
       </div>
       <FooterWrapper>
-        <SaveButton
-          onClick={handleSave}
-          loading={isLoading}
-          disabled={formData === null}
-        >
-          Save
-        </SaveButton>
         <ContinueButton
           onClick={handleContinue}
           loading={isLoading}

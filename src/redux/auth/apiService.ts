@@ -31,7 +31,7 @@ export const performLoginRequest = async (formData: LoginFormData) => {
       errorMessage = err.message;
     }
 
-    throw new Error(errorMessage);
+    return { status: false, error: errorMessage };
   }
 };
 

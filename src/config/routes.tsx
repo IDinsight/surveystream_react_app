@@ -10,6 +10,8 @@ import { ComponentType, ReactNode, useEffect, useState } from "react";
 import { deleteAllCookies, getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
+import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
+import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -22,17 +24,7 @@ const isAuthenticated = () => {
 
 const requireAuth = (Component: ComponentType<any>): ReactNode => {
   const isAuthorized = isAuthenticated();
-  const [redirectedFrom, setRedirectedFrom] = useState<string | null>(null);
-
-  useEffect(() => {
-    setRedirectedFrom(window.location.pathname);
-  }, []);
-
-  return isAuthorized ? (
-    <Component />
-  ) : (
-    <Navigate to="/login" state={{ redirectedFrom }} replace />
-  );
+  return isAuthorized ? <Component /> : <Navigate to="/login" replace />;
 };
 
 const AppRoutes = () => {

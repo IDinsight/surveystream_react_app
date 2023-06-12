@@ -12,10 +12,6 @@ import {
   CustomizationCard,
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
-
-export interface ModuleSelectionFormProps {
-  form: FormInstance;
-}
 import { useForm } from "antd/es/form/Form";
 import { Title } from "../../shared/Nav.styled";
 import { Card, Checkbox } from "antd";
@@ -28,8 +24,21 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchModules } from "../../redux/moduleSelection/modulesActions";
 import { RootState } from "../../redux/store";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { createGlobalStyle } from "styled-components";
 
 const { Meta } = Card;
+
+// Create a global style component
+const CheckboxStyle = createGlobalStyle`
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #061178 !important;
+    border-color: #061178 !important;
+  }
+`;
+
+export interface ModuleSelectionFormProps {
+  form: FormInstance;
+}
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const dispatch = useAppDispatch();
@@ -92,13 +101,20 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
           <>
             <SelectionForm form={form}>
               {modules.map((module) => (
-                <SelectionCard key={module.module_id}>
+                <SelectionCard
+                  key={module.module_id}
+                  style={{
+                    borderColor: isCardSelected(module.module_id)
+                      ? "#061178"
+                      : "#BFBFBF",
+                  }}
+                >
                   <Meta
                     title={
                       <TitleContainer
                         style={{
                           backgroundColor: isCardSelected(module.module_id)
-                            ? "#1d39c4"
+                            ? "#061178"
                             : "#BFBFBF",
                         }}
                       >
@@ -125,6 +141,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                     }
                   />
                   <CheckboxContainer>
+                    <CheckboxStyle />{" "}
                     <Checkbox
                       onChange={() => handleCheckboxChange(module.module_id)}
                       checked={isCardSelected(module.module_id)}
