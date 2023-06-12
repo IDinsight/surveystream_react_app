@@ -11,13 +11,16 @@ import {
 } from "./surveyConfigSlice";
 import { SurveyBasicInformationData } from "./types";
 
-export const fetchSurveyConfig = createAsyncThunk(
-  "survey/fetchSurveyConfig",
-  async (params: { survey_uid: string }, { dispatch, rejectWithValue }) => {
+export const getSurveyConfig = createAsyncThunk(
+  "surveyConfig/getSupervisorRoles",
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(fetchSurveyConfigRequest(params.survey_uid));
+      dispatch(fetchSurveyConfigRequest());
       const surveyConfig = await api.fetchSurveysConfig(params.survey_uid);
+
       if (surveyConfig.data && surveyConfig.success) {
+        delete surveyConfig.data.overall_status;
+
         dispatch(fetchSurveysConfigSuccess(surveyConfig.data));
         return surveyConfig.data;
       }
@@ -36,7 +39,7 @@ export const fetchSurveyConfig = createAsyncThunk(
 );
 
 export const postBasicInformation = createAsyncThunk(
-  "survey/postBasicInformation",
+  "surveyConfig/postBasicInformation",
   async (
     basicInformationData: SurveyBasicInformationData,
     { dispatch, rejectWithValue }
@@ -65,6 +68,6 @@ export const postBasicInformation = createAsyncThunk(
 );
 
 export const surveyConfigActions = {
-  fetchSurveyConfig,
+  getSurveyConfig,
   postBasicInformation,
 };

@@ -3,14 +3,13 @@ import styled from "styled-components";
 
 export const SCTOQuestionsButton = styled(Button)`
   margin-top: 20px;
-  background-color: #597ef7;
+  background-color: #2f54eb;
   color: #fff;
   font-family: Inter;
-
   &:hover {
-    border: 1px solid #597ef7;
+    border: 1px solid #2f54eb;
     background-color: #fff;
-    color: #597ef7;
+    color: #2f54eb;
   }
 `;
 

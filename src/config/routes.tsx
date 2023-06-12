@@ -41,7 +41,7 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/new-survey-config/:path?"
+        path="/new-survey-config/:survey_uid?"
         element={requireAuth(NewSurveyConfig)}
       />
       <Route
@@ -49,11 +49,15 @@ const AppRoutes = () => {
         element={requireAuth(ModuleSelection)}
       />
       <Route
-        path="/survey-information/survey-cto-information"
+        path="/survey-information/:survey_uid?"
         element={requireAuth(SurveyCTOInfomation)}
       />
       <Route
-        path="/survey-information/survey-cto-questions"
+        path="/survey-information/survey-cto-information/:survey_uid?"
+        element={requireAuth(SurveyCTOInfomation)}
+      />
+      <Route
+        path="/survey-information/survey-cto-questions/:survey_uid?"
         element={requireAuth(SurveyCTOQuestions)}
       />
       <Route

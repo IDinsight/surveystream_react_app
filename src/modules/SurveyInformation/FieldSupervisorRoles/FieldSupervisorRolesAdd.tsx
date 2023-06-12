@@ -13,7 +13,7 @@ import {
   DescriptionTitle,
   DescriptionText,
 } from "../SurveyInformation.styled";
-import { RolesForm } from "./FildSupervisorRoles.styled";
+import { AddAnotherButton, RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
@@ -173,13 +173,13 @@ function FieldSupervisorRolesAdd() {
         <RolesForm form={form}>
           {renderRolesField()}
           <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
-            <Button
+            <AddAnotherButton
               onClick={handleAddRole}
               type="dashed"
               style={{ width: "100%" }}
             >
               <FileAddOutlined /> Add another role
-            </Button>
+            </AddAnotherButton>
           </StyledFormItem>
         </RolesForm>
       </MainWrapper>

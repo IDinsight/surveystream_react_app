@@ -4,7 +4,6 @@ interface SurveyConfigState {
   loading: boolean;
   error: any;
   basicInfo: any;
-  surveyUId: string;
   surveyConfigs:
     | {
         [key: string]: any;
@@ -16,20 +15,19 @@ const initialState: SurveyConfigState = {
   loading: false,
   error: null,
   basicInfo: null,
-  surveyUId: "",
   surveyConfigs: {
     "Basic Information": {
-      status: "Done",
+      status: "Not Started",
     },
     "Module Selection": {
-      status: "Done",
+      status: "Not Started",
     },
     "Survey Information": [
       {
         name: "SurveyCTO information",
-        status: "Done",
+        status: "Not Started",
       },
-      { name: "Field supervisor roles", status: "In Progress" },
+      { name: "Field supervisor roles", status: "Not Started" },
       {
         name: "Survey locations",
         status: "Not Started",
@@ -71,19 +69,19 @@ const surveyConfigSlice = createSlice({
   name: "surveyConfig",
   initialState,
   reducers: {
-    fetchSurveyConfigRequest: (state, action: PayloadAction<string>) => {
+    fetchSurveyConfigRequest: (state) => {
       state.loading = true;
       state.error = null;
-      state.surveyUId = action.payload;
     },
     fetchSurveysConfigSuccess: (state, action: PayloadAction<any>) => {
+      if (Object.keys(action.payload).length > 0) {
+        state.surveyConfigs = action.payload;
+      }
       state.loading = false;
-      state.surveyConfigs = action.payload;
       state.error = null;
     },
     fetchSurveysConfigFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
-      state.surveyUId = "";
       state.error = action.payload;
     },
     postSurveyBasicInformationRequest: (state) => {

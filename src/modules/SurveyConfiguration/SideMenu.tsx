@@ -26,9 +26,16 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
           >
             <Progress
               percent={
-                surveyProgress["Basic Information"]?.status === "Done" ? 100 : 0
+                surveyProgress["Basic Information"]?.status === "Done" ||
+                surveyProgress["Basic Information"]?.status === "Error"
+                  ? 100
+                  : 0
               }
-              strokeColor="#1D39C4"
+              strokeColor={
+                surveyProgress["Basic Information"]?.status === "Error"
+                  ? "#F5222D"
+                  : "#1D39C4"
+              }
               showInfo={false}
               strokeWidth={10}
             />
@@ -42,9 +49,16 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
           >
             <Progress
               percent={
-                surveyProgress["Module Selection"]?.status === "Done" ? 100 : 0
+                surveyProgress["Module Selection"]?.status === "Done" ||
+                surveyProgress["Module Selection"]?.status === "Error"
+                  ? 100
+                  : 0
               }
-              strokeColor="#1D39C4"
+              strokeColor={
+                surveyProgress["Module Selection"]?.status === "Error"
+                  ? "#F5222D"
+                  : "#1D39C4"
+              }
               showInfo={false}
               strokeWidth={10}
             />
@@ -66,8 +80,28 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                   ? 100
                   : 0
               }
-              strokeColor="#1D39C4"
-              showInfo={false}
+              strokeColor={
+                Array.isArray(surveyProgress["Survey Information"]) &&
+                surveyProgress["Survey Information"].some(
+                  (step) => step.status === "Error"
+                )
+                  ? "#F5222D"
+                  : surveyProgress["Survey Information"]?.length > 0 &&
+                    surveyProgress["Survey Information"].length ===
+                      surveyProgress["Survey Information"].filter(
+                        (step: { status: string }) => step.status === "Done"
+                      ).length
+                  ? "#52C41A"
+                  : "#1D39C4"
+              }
+              showInfo={
+                Array.isArray(surveyProgress["Survey Information"]) &&
+                surveyProgress["Survey Information"].length > 0 &&
+                surveyProgress["Survey Information"].length ===
+                  surveyProgress["Survey Information"].filter(
+                    (step) => step.status === "Done"
+                  ).length
+              }
               strokeWidth={10}
             />
           </div>
@@ -82,8 +116,28 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                   ? 100
                   : 0
               }
-              strokeColor="#1D39C4"
-              showInfo={false}
+              strokeColor={
+                Array.isArray(surveyProgress["Module Configuration"]) &&
+                surveyProgress["Module Configuration"].some(
+                  (step) => step.status === "Error"
+                )
+                  ? "#F5222D"
+                  : surveyProgress["Module Configuration"]?.length > 0 &&
+                    surveyProgress["Module Configuration"].length ===
+                      surveyProgress["Module Configuration"].filter(
+                        (step: { status: string }) => step.status === "Done"
+                      ).length
+                  ? "#52C41A"
+                  : "#1D39C4"
+              }
+              showInfo={
+                Array.isArray(surveyProgress["Module Configuration"]) &&
+                surveyProgress["Module Configuration"].length > 0 &&
+                surveyProgress["Module Configuration"].length ===
+                  surveyProgress["Module Configuration"].filter(
+                    (step) => step.status === "Done"
+                  ).length
+              }
               strokeWidth={10}
             />
           </div>

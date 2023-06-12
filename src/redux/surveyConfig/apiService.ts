@@ -4,12 +4,12 @@ import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 import { SurveyBasicInformationData } from "./types";
 
-export const fetchSurveysConfig = async (survey_uid: string) => {
+export const fetchSurveysConfig = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const url = `${API_BASE_URL}/surveys/${survey_uid}/configuration`;
+    const url = `${API_BASE_URL}/surveys/${survey_uid}/config-status`;
 
     const response = await axios.get(url, {
       headers: {
@@ -46,4 +46,5 @@ export const postSurveyBasicInformation = async (
 };
 export const api = {
   postSurveyBasicInformation,
+  fetchSurveysConfig,
 };
