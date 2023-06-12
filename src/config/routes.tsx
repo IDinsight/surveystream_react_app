@@ -5,12 +5,13 @@ import LandingPage from "../modules/LandingPage";
 import SurveysHomePage from "../modules/SurveysHomePage";
 import NewSurveyConfig from "../modules/NewSurveyConfig";
 import ModuleSelection from "../modules/ModuleSelection";
-import { ComponentType, ReactNode, useEffect } from "react";
+import { ComponentType, ReactNode } from "react";
 import { getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
+import SurveyConfiguration from "../modules/SurveyConfiguration";
 import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRoles";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -33,8 +34,12 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
-      {/* this will default to the basic form if path is not defined */}
       <Route path="/surveys" element={requireAuth(SurveysHomePage)} />
+      <Route
+        path="/survey-configuration/:survey_uid?"
+        element={requireAuth(SurveyConfiguration)}
+      />
+
       <Route
         path="/new-survey-config/:path?"
         element={requireAuth(NewSurveyConfig)}

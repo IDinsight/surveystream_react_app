@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { message } from "antd";
 import Header from "../../components/Header";
@@ -22,7 +23,6 @@ import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
 import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
-import { useNavigate } from "react-router-dom";
 
 export interface IStepIndex {
   sidebar: number;
