@@ -8,7 +8,6 @@ export const getCSRFToken = async () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log("getCSRFToken", response);
         return response;
       });
 

@@ -5,6 +5,7 @@ import modulesReducer from "./moduleSelection/modulesSlice";
 import authReducer from "./auth/authSlice";
 import surveysReducer from "./surveyList/surveysSlice";
 import surveyConfigReducer from "./surveyConfig/surveyConfigSlice";
+import surveyInformationReducer from "./surveyInformation/surveyInformationSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   surveys: surveysReducer,
   surveyConfig: surveyConfigReducer,
+  surveyInformation: surveyInformationReducer,
 });
 
 export default rootReducer;

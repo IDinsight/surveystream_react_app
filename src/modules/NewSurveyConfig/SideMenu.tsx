@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import {
   SideMenuWrapper,
-  MenuItem,
+  MenuAItem,
   IconWrapper,
   InfoIcon,
   QuestionIcon,
@@ -23,13 +23,13 @@ function SideMenu({ stepIndex, setStepIndexHandler }: ISideMenuProps) {
     <div>
       <SideMenuWrapper>
         {menus.map((item: { text: string; icon: any }, index: number) => (
-          <MenuItem
+          <MenuAItem
             key={index}
             className={stepIndex["sidebar"] === index ? "active" : ""}
           >
             <IconWrapper>{item.icon}</IconWrapper>
             {item.text}
-          </MenuItem>
+          </MenuAItem>
         ))}
       </SideMenuWrapper>
     </div>

@@ -18,7 +18,6 @@ export const fetchSurveysConfig = async (survey_uid: string) => {
       },
       withCredentials: true,
     });
-    console.log("response", response);
     return response.data;
   } catch (error) {
     return error;
