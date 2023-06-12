@@ -5,9 +5,8 @@ import LandingPage from "../modules/LandingPage";
 import SurveysHomePage from "../modules/SurveysHomePage";
 import NewSurveyConfig from "../modules/NewSurveyConfig";
 import ModuleSelection from "../modules/ModuleSelection";
-import { useNavigate } from "react-router-dom";
-import { ComponentType, ReactNode, useEffect, useState } from "react";
-import { deleteAllCookies, getCookie } from "../utils/helper";
+import { ComponentType, ReactNode } from "react";
+import { getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
@@ -28,18 +27,6 @@ const requireAuth = (Component: ComponentType<any>): ReactNode => {
 };
 
 const AppRoutes = () => {
-  const navigate = useNavigate();
-  const isAuthorized = isAuthenticated();
-
-  useEffect(() => {
-    if (!isAuthorized && window.location.pathname !== "/login") {
-      deleteAllCookies();
-      navigate(`/login?redirectedFrom=${window.location.pathname}`, {
-        replace: true,
-      });
-    }
-  }, [isAuthorized, navigate]);
-
   return (
     <SentryRoutes>
       <Route path="/" element={<LandingPage />} />
