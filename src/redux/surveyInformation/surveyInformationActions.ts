@@ -17,7 +17,7 @@ export const postSupervisorRoles = createAsyncThunk(
     {
       supervisorRolesData,
       surveyUid,
-    }: { supervisorRolesData: SupervisorRole; surveyUid: string },
+    }: { supervisorRolesData: SupervisorRole[]; surveyUid: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -26,13 +26,15 @@ export const postSupervisorRoles = createAsyncThunk(
         supervisorRolesData,
         surveyUid
       );
+      console.log("postSupervisorRoles", response);
+
       if (response.status == 200) {
         dispatch(postSupervisorRolesSuccess(response.data));
         return response;
       }
 
       const error = {
-        message: response.data.message,
+        message: response.message,
         status: false,
       };
       dispatch(postSupervisorRolesFailure(error));

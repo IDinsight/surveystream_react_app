@@ -62,15 +62,13 @@ function FieldSupervisorRolesHierarchy() {
           wrapperCol={{ span: 11 }}
           name={`role_${index}`}
           label={role.role_name ? role.role_name : ""}
-          initialValue={role.reporting_role_uid ? role.reporting_role_uid : ""}
+          initialValue={
+            role.reporting_role_uid ? role.reporting_role_uid : null
+          }
           rules={[
             {
-              required: true,
-              message: "Please select a role!",
-            },
-            {
               validator: (_, value) => {
-                if (value && value === role.role_name) {
+                if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
                 }
                 return Promise.resolve();
@@ -83,11 +81,9 @@ function FieldSupervisorRolesHierarchy() {
             style={{ width: "100%" }}
             onChange={(value) => handleSelectChange(value, index)}
           >
-            <Select.Option value="No reporting role">
-              No reporting role
-            </Select.Option>
+            <Select.Option value={null}>No reporting role</Select.Option>
             {supervisorRoles.map((r, i) => (
-              <Select.Option key={i} value={r.reporting_role_uid}>
+              <Select.Option key={i} value={r.role_uid}>
                 {r.role_name}
               </Select.Option>
             ))}
@@ -119,17 +115,19 @@ function FieldSupervisorRolesHierarchy() {
       const supervisorRolesData = supervisorRoles;
       const surveyUid = survey_uid ? survey_uid : "168";
 
-      for (const roleData of supervisorRolesData) {
-        const rolesRes = await dispatch(
-          postSupervisorRoles({ supervisorRolesData: roleData, surveyUid })
-        );
+      const rolesRes = await dispatch(
+        postSupervisorRoles({
+          supervisorRolesData: supervisorRolesData,
+          surveyUid,
+        })
+      );
 
-        if (rolesRes.payload.status === false) {
-          message.error("Failed to save roles");
-          return;
-        }
+      if (rolesRes.payload.status === false) {
+        message.error(rolesRes.payload.message);
+        return;
+      } else {
+        message.success("Roles updated successfully");
       }
-      message.success("Roles updated successfully");
 
       // Save successful, navigate to the next step
     } catch (error) {

@@ -24,7 +24,7 @@ export const fetchSupervisorRoles = async (survey_uid?: string) => {
 };
 
 export const postSupervisorRoles = async (
-  formData: SupervisorRole,
+  formData: SupervisorRole[],
   survey_uid: string
 ) => {
   try {
@@ -34,7 +34,7 @@ export const postSupervisorRoles = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
-      formData,
+      { roles: formData },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
