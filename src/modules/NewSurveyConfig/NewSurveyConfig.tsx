@@ -9,15 +9,25 @@ import {
   Title,
   MainWrapper,
 } from "../../shared/Nav.styled";
+import SideMenu from "./SideMenu";
+import BasicInformationForm from "./BasicInformation/BasicInformationForm";
+import { Form } from "antd";
+import {
+  FooterWrapper,
+  SaveButton,
+  ContinueButton,
+} from "../../shared/FooterBar.styled";
 import ModuleQuestionnaire from "./ModuleQuestionnaire";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
 import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
-import SideMenu from "./SideMenu";
-import BasicInformationForm from "./BasicInformation/BasicInformationForm";
-import { Form } from "antd";
+
+export interface IStepIndex {
+  sidebar: number;
+  mqIndex: number; // mq stands for module questionnaire
+}
 
 function NewSurveyConfig() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -94,7 +104,7 @@ function NewSurveyConfig() {
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: 'Your draft survey has been created successfully.',
+          content: "Your draft survey has been created successfully.",
         });
 
         if (stepIndex["sidebar"] < 1) {

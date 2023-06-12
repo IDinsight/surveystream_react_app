@@ -60,6 +60,14 @@ const AppRoutes = () => {
         path="/module-selection/:survey_uid?"
         element={requireAuth(ModuleSelection)}
       />
+      <Route
+        path="/survey-information/survey-cto-information"
+        element={requireAuth(SurveyCTOInfomation)}
+      />
+      <Route
+        path="/survey-information/survey-cto-questions"
+        element={requireAuth(SurveyCTOQuestions)}
+      />
     </SentryRoutes>
   );
 };

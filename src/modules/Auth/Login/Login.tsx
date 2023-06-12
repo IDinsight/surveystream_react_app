@@ -63,17 +63,6 @@ const Login = () => {
   //   }
   // }, [redirectedFrom]);
 
-  useEffect(() => {
-    //  TODO: check issue with displaying message twice
-    if (redirectedFrom) {
-      messageApi.open({
-        type: "info",
-        content:
-          "Because you are not logged in, you have been redirected to the login page.",
-      });
-    }
-  }, [redirectedFrom]);
-
   return (
     <>
       <Header />
