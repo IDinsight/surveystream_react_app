@@ -4,12 +4,12 @@ revision:
   revisionType: AppSpecContent
   appSpecContent:
     content: |
-      version: 0.0
+      version: 1.0
       Resources:
         - TargetService:
             Type: AWS::ECS::Service
             Properties:
-              TaskDefinition: "arn:aws:ecs:ap-south-1:210688620213:task-definition/frontend-task:2"
+              TaskDefinition: "arn:aws:ecs:ap-south-1:210688620213:task-definition/frontend-task:12"
               LoadBalancerInfo:
                 ContainerName: "app"
                 ContainerPort: 80

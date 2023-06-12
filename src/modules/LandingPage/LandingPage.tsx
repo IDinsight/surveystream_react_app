@@ -81,7 +81,7 @@ function LandingPage() {
           </p>
           <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
             One stop solution for configuring, running, and managing survey
-            operations by DoD
+            operations by DoD.
           </p>
           <div className="mt-[40px]">
             <Link to="/login">
