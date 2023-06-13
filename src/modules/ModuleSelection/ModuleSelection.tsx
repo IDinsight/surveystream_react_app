@@ -4,21 +4,22 @@ import {
   BackLink,
   BackArrow,
   Title,
-  MainWrapper,
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
 import { Form } from "antd";
 import ModuleSelectionForm from "./ModuleSelectionForm";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../shared/FooterBar.styled";
+
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 
 function ModuleSelection() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.reducer.surveys.activeSurvey
+  );
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
@@ -28,21 +29,21 @@ function ModuleSelection() {
     <>
       <Header />
       <NavWrapper>
-        <BackLink href="#" onClick={handleGoBack}>
+        <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> TSDPS </Title>
+        <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
+      <div
+        style={{
+          float: "left",
+          display: "inline-block",
+        }}
+      >
         <SideMenu />
-        <MainWrapper>
-          <ModuleSelectionForm form={form} />
-        </MainWrapper>
       </div>
-      <FooterWrapper>
-        <SaveButton>Save</SaveButton>
-        <ContinueButton>Continue</ContinueButton>
-      </FooterWrapper>
+
+      <ModuleSelectionForm form={form} />
     </>
   );
 }

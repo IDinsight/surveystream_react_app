@@ -1,36 +1,64 @@
-// apiService.ts
 import axios from "axios";
 import { ModuleStatus } from "./types";
 import { API_BASE_URL } from "../../config/url";
+import { getCSRFToken } from "../apiService";
+import { getCookie } from "../../utils/helper";
 
-// Define functions for making API requests
-export const fetchModuleStatuses = async () => {
+export const fetchModuleStatuses = async (survey_uid?: string) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/module-statuses`);
-    return response.data;
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/module-status/${survey_uid}`;
+    const response = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response;
   } catch (error) {
-    throw new Error("Failed to fetch module statuses");
+    return error;
   }
 };
 
 export const createModuleStatus = async (moduleStatusData: ModuleStatus) => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/module-statuses`,
-      moduleStatusData
-    );
-    return response.data;
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const url = `${API_BASE_URL}/module-status`;
+
+    const response = await axios.post(url, moduleStatusData, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+
+    return response;
   } catch (error) {
-    throw new Error("Failed to create module status");
+    return error;
   }
 };
 
 export const fetchModules = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/modules`);
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/modules`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch modules");
+    return error;
   }
 };
 

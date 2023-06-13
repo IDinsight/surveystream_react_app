@@ -24,11 +24,15 @@ import {
   TwoColumnForm,
 } from "./SurveyCTOInformation.styled";
 import { DescriptionText } from "../SurveyInformation.styled";
+import { useAppSelector } from "../../../redux/hooks";
+import { RootState } from "../../../redux/store";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.reducer.surveys.activeSurvey
+  );
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
   };
@@ -37,10 +41,10 @@ function SurveyCTOInfomation() {
     <>
       <Header />
       <NavWrapper>
-        <BackLink href="#" onClick={handleGoBack}>
+        <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> TSDPS </Title>
+        <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />

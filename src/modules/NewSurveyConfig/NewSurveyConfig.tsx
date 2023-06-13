@@ -47,6 +47,9 @@ function NewSurveyConfig() {
   const showError = useAppSelector(
     (state: RootState) => state.reducer.surveyConfig.error
   );
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.reducer.surveys.activeSurvey
+  );
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
@@ -151,7 +154,10 @@ function NewSurveyConfig() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title>New survey config</Title>
+        <Title>
+          New survey config
+          {activeSurvey?.survey_name ? ` : ${activeSurvey?.survey_name}` : ""}
+        </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu stepIndex={stepIndex} setStepIndexHandler={setStepIndex} />

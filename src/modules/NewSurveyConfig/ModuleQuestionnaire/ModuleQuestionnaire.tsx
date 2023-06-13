@@ -19,7 +19,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({ stepIndex }) => {
   ];
 
   const supervisorsHierarchyOptions = [
-    { label: "Yes, there is a heirarchy", value: "supervisor_heirarchy_yes" },
+    { label: "Yes, there is a hierarchy", value: "supervisor_hierarchy_yes" },
     {
       label: "No, they are all at the same level",
       value: "supervisor_heirarchy_no",

@@ -13,8 +13,8 @@ import {
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
 import { useForm } from "antd/es/form/Form";
-import { Title } from "../../shared/Nav.styled";
-import { Card, Checkbox } from "antd";
+import { MainWrapper, Title } from "../../shared/Nav.styled";
+import { Card, Checkbox, message } from "antd";
 import Icon, {
   ArrowRightOutlined,
   FileSearchOutlined,
@@ -25,6 +25,16 @@ import { fetchModules } from "../../redux/moduleSelection/modulesActions";
 import { RootState } from "../../redux/store";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { createGlobalStyle } from "styled-components";
+import {
+  FooterWrapper,
+  SaveButton,
+  ContinueButton,
+} from "../../shared/FooterBar.styled";
+import {
+  createModuleStatus,
+  fetchModuleStatuses,
+} from "../../redux/moduleSelection/moduleStatusActions";
+import { useNavigate, useParams } from "react-router-dom";
 
 const { Meta } = Card;
 
@@ -41,9 +51,18 @@ export interface ModuleSelectionFormProps {
 }
 
 const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const modules = useAppSelector(
     (state: RootState) => state.reducer.modules.modules
+  );
+  const modulesStatus = useAppSelector(
+    (state: RootState) => state.reducer.moduleStatuses.moduleStatuses
   );
   const isLoading = useAppSelector(
     (state: RootState) => state.reducer.modules.loading
@@ -51,10 +70,22 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
 
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchModules());
+    if (survey_uid) {
+      dispatch(fetchModuleStatuses({ survey_uid: survey_uid }));
+    }
   }, [dispatch]);
+
+  useEffect(() => {
+    let filteredModules = [];
+    filteredModules = modulesStatus;
+    // Set selected cards based on module_id
+    const selectedModuleIds = filteredModules.map((module) => module.module_id);
+    setSelectedCards(selectedModuleIds);
+  }, [modulesStatus]);
 
   const handleCheckboxChange = (cardId: number) => {
     setSelectedCards((prevSelectedCards: number[]) => {
@@ -70,110 +101,156 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     return selectedCards.includes(cardId);
   };
 
+  const handleContinue = async () => {
+    try {
+      if (selectedCards.length === 0) {
+        message.error("Kindly select at least one module to proceed");
+        return;
+      }
+
+      setLoading(true);
+      const data = { modules: selectedCards, survey_uid: survey_uid };
+      // Dispatch the selected modules
+      const modulesRes = await dispatch(createModuleStatus(data));
+
+      if (modulesRes.payload.status === false) {
+        message.error(modulesRes.payload.message);
+        return;
+      } else {
+        message.success("Modules updated successfully");
+        navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+      }
+    } catch (error) {
+      message.error("Please fill in all required fields.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (isLoading) {
     return <FullScreenLoader></FullScreenLoader>;
   }
 
   return (
-    <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
-      <Title>Module Selection </Title>
+    <>
+      <MainWrapper
+        style={{
+          width: "74.5%",
+          minHeight: "75vh",
+          float: "right",
+          display: "inline-block",
+        }}
+      >
+        <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
+          <Title>Module Selection </Title>
 
-      <p style={{ fontSize: 14 }}>
-        Please start by selecting modules you’ll use in your survey
-      </p>
+          <p style={{ fontSize: 14 }}>
+            Please start by selecting modules you’ll use in your survey
+          </p>
 
-      <InfoCard>
-        <Meta
-          avatar={<InfoCircleFilled />}
-          description={
-            <>
-              <div>New to SurveyStream?</div>
-              <div>
-                <a style={{ color: "#1D39C4" }}> Click here </a> to visit
-                documentation before configuring your first survey
-              </div>
-            </>
-          }
-        />
-      </InfoCard>
-      <div>
-        {!isLoading ? (
-          <>
-            <SelectionForm form={form}>
-              {modules.map((module) => (
-                <SelectionCard
-                  key={module.module_id}
-                  style={{
-                    borderColor: isCardSelected(module.module_id)
-                      ? "#061178"
-                      : "#BFBFBF",
-                  }}
-                >
-                  <Meta
-                    title={
-                      <TitleContainer
-                        style={{
-                          backgroundColor: isCardSelected(module.module_id)
-                            ? "#061178"
-                            : "#BFBFBF",
-                        }}
-                      >
-                        <CardTitle>
-                          <Icon
-                            component={module.icon}
-                            style={{ marginRight: 8 }}
-                          />
-                          <div>{module.title}</div>
-                        </CardTitle>
-                        <LearnMoreLink>
-                          Learn more{" "}
-                          <ArrowRightOutlined style={{ marginLeft: 4 }} />
-                        </LearnMoreLink>
-                      </TitleContainer>
-                    }
-                    description={
-                      <div
-                        className="description"
-                        dangerouslySetInnerHTML={{
-                          __html: module.description || "",
-                        }}
-                      />
-                    }
-                  />
-                  <CheckboxContainer>
-                    <CheckboxStyle />{" "}
-                    <Checkbox
-                      onChange={() => handleCheckboxChange(module.module_id)}
-                      checked={isCardSelected(module.module_id)}
+          <InfoCard>
+            <Meta
+              avatar={<InfoCircleFilled />}
+              description={
+                <>
+                  <div>New to SurveyStream?</div>
+                  <div>
+                    <a style={{ color: "#1D39C4" }}> Click here </a> to visit
+                    documentation before configuring your first survey
+                  </div>
+                </>
+              }
+            />
+          </InfoCard>
+          <div>
+            {!isLoading ? (
+              <>
+                <SelectionForm form={form}>
+                  {modules.map((module) => (
+                    <SelectionCard
+                      key={module.module_id}
+                      style={{
+                        borderColor: isCardSelected(module.module_id)
+                          ? "#061178"
+                          : "#BFBFBF",
+                      }}
                     >
-                      I need this module in my survey
-                    </Checkbox>
-                  </CheckboxContainer>
-                </SelectionCard>
-              ))}
-              <CustomizationCard>
-                <Meta
-                  title={
-                    <TitleContainer style={{ color: "#2f54eb" }}>
-                      <CardTitle style={{ color: "#2f54eb" }}>
-                        <FileSearchOutlined
-                          style={{ marginRight: 8, color: "#434343" }}
-                        />
-                        <div> Request customization support</div>
-                      </CardTitle>
-                      <LearnMoreLink>
-                        Learn more{" "}
-                        <ArrowRightOutlined style={{ marginLeft: 4 }} />
-                      </LearnMoreLink>
-                    </TitleContainer>
-                  }
-                />
-              </CustomizationCard>
-            </SelectionForm>
-          </>
-        ) : null}
-      </div>
-    </ModuleSelectionFormWrapper>
+                      <Meta
+                        title={
+                          <TitleContainer
+                            style={{
+                              backgroundColor: isCardSelected(module.module_id)
+                                ? "#061178"
+                                : "#BFBFBF",
+                            }}
+                          >
+                            <CardTitle>
+                              <Icon
+                                component={module.icon}
+                                style={{ marginRight: 8 }}
+                              />
+                              <div>{module.title}</div>
+                            </CardTitle>
+                            <LearnMoreLink>
+                              Learn more{" "}
+                              <ArrowRightOutlined style={{ marginLeft: 4 }} />
+                            </LearnMoreLink>
+                          </TitleContainer>
+                        }
+                        description={
+                          <div
+                            className="description"
+                            dangerouslySetInnerHTML={{
+                              __html: module.description || "",
+                            }}
+                          />
+                        }
+                      />
+                      <CheckboxContainer>
+                        <CheckboxStyle />{" "}
+                        <Checkbox
+                          onChange={() =>
+                            handleCheckboxChange(module.module_id)
+                          }
+                          checked={isCardSelected(module.module_id)}
+                        >
+                          I need this module in my survey
+                        </Checkbox>
+                      </CheckboxContainer>
+                    </SelectionCard>
+                  ))}
+                  <CustomizationCard>
+                    <Meta
+                      title={
+                        <TitleContainer style={{ color: "#2f54eb" }}>
+                          <CardTitle style={{ color: "#2f54eb" }}>
+                            <FileSearchOutlined
+                              style={{ marginRight: 8, color: "#434343" }}
+                            />
+                            <div> Request customization support</div>
+                          </CardTitle>
+                          <LearnMoreLink>
+                            Learn more{" "}
+                            <ArrowRightOutlined style={{ marginLeft: 4 }} />
+                          </LearnMoreLink>
+                        </TitleContainer>
+                      }
+                    />
+                  </CustomizationCard>
+                </SelectionForm>
+              </>
+            ) : null}
+          </div>
+        </ModuleSelectionFormWrapper>
+      </MainWrapper>
+
+      <FooterWrapper>
+        <SaveButton>Save</SaveButton>
+        <ContinueButton loading={loading} onClick={handleContinue}>
+          Continue
+        </ContinueButton>
+      </FooterWrapper>
+    </>
   );
 };
 
