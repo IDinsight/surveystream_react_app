@@ -4,9 +4,11 @@ import {
   CalendarOutlined,
   CompassOutlined,
   NumberOutlined,
+  PlusSquareOutlined,
   ProfileOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
+  UploadOutlined,
   UserOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
@@ -50,7 +52,6 @@ function SideMenu() {
       ),
       key: "surveyInformation",
     },
-
     {
       label: (
         <MenuItem
@@ -106,8 +107,12 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={isActive("/survey-information/survey-location")}
-          to="#"
+          className={`${
+            isActive("/survey-information/location/add") ||
+            isActive("/survey-information/location/hierarchy") ||
+            isActive("/survey-information/location/upload")
+          }`}
+          to={`/survey-information/location/add`}
         >
           <IconWrapper>
             <CompassOutlined />
@@ -116,7 +121,50 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyLocation",
-      disabled: true,
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive("/survey-information/location/add")}
+              to={`/survey-information/location/add`}
+            >
+              <IconWrapper>
+                <PlusSquareOutlined />
+              </IconWrapper>
+              Location labels
+            </MenuItem>
+          ),
+          key: "surveyLocationAdd",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive("/survey-information/location/hierarchy")}
+              to={`/survey-information/location/hierarchy`}
+            >
+              <IconWrapper>
+                <ApartmentOutlined />
+              </IconWrapper>
+              Location hierarchy
+            </MenuItem>
+          ),
+          key: "surveyLocationHierarchy",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive("/survey-information/location/upload")}
+              to={`/survey-information/location/upload`}
+            >
+              <IconWrapper>
+                <UploadOutlined />
+              </IconWrapper>
+              Upload locations
+            </MenuItem>
+          ),
+          key: "surveyLocationUpload",
+        },
+      ],
     },
     {
       label: (
