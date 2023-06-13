@@ -35,7 +35,7 @@ function SurveyLocationUpload() {
   const navigate = useNavigate();
 
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
-  const [columnMatch, setColumnMatch] = useState<boolean>(true);
+  const [columnMatch, setColumnMatch] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
 
   const locationLabel = [
@@ -128,7 +128,10 @@ function SurveyLocationUpload() {
                         }}
                       >
                         <p>Locations</p>
-                        <Button type="primary" icon={<CloudDownloadOutlined />}>
+                        <Button
+                          icon={<CloudDownloadOutlined />}
+                          style={{ backgroundColor: "#2F54EB", color: "#FFF" }}
+                        >
                           Download CSV
                         </Button>
                       </div>

@@ -14,18 +14,18 @@ import {
 import { RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import { setSupervisorRoles } from "../../../redux/surveyInformation/surveyInformationSlice";
+import { setSupervisorRoles } from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesSlice";
 import { MainWrapper } from "../../../shared/Nav.styled";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/surveyInformation/surveyInformationActions";
+} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesHierarchy() {
   const dispatch = useAppDispatch();
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.reducer.surveyInformation.supervisorRoles
+    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
   );
   const [loading, setLoading] = useState(false);
 

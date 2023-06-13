@@ -1,20 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SupervisorRole } from "./types";
 
-interface SurveyInformationState {
+interface FieldSupervisorRolesState {
   loading: boolean;
   error: any;
   supervisorRoles: SupervisorRole[];
 }
 
-const initialState: SurveyInformationState = {
+const initialState: FieldSupervisorRolesState = {
   loading: false,
   error: null,
   supervisorRoles: [],
 };
 
-const surveyInformationSlice = createSlice({
-  name: "surveyInformation",
+const fieldSupervisorRolesSlice = createSlice({
+  name: "fieldSupervisorRoles",
   initialState,
   reducers: {
     addSupervisorRole: (state, action) => {
@@ -67,6 +67,6 @@ export const {
   postSupervisorRolesFailure,
   addSupervisorRole,
   setSupervisorRoles,
-} = surveyInformationSlice.actions;
+} = fieldSupervisorRolesSlice.actions;
 
-export default surveyInformationSlice.reducer;
+export default fieldSupervisorRolesSlice.reducer;

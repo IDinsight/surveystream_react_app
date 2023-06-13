@@ -9,7 +9,7 @@ export const SCTOInformationFormWrapper = styled.div`
   font-family: "Inter", sans-serif;
 `;
 
-export const TwoColumnForm = styled(Form)`
+export const TwoColumnForm = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -65,4 +65,14 @@ export const CheckboxSCTO = styled(Checkbox)`
   margin-inline-start: 0 !important;
   font-family: "Inter", sans-serif;
   color: #434343;
+
+  & .ant-checkbox-input {
+    float: left;
+    width: auto !important;
+    display: inline-block;
+  }
+
+  & span {
+    float: left;
+  }
 `;

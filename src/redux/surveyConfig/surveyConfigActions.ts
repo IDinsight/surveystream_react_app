@@ -10,6 +10,7 @@ import {
   postSurveyBasicInformationFailure,
 } from "./surveyConfigSlice";
 import { SurveyBasicInformationData } from "./types";
+import { surveyConfigs } from "./surveyConfigsInit";
 
 export const getSurveyConfig = createAsyncThunk(
   "surveyConfig/getSupervisorRoles",
@@ -21,9 +22,49 @@ export const getSurveyConfig = createAsyncThunk(
       if (surveyConfig.data && surveyConfig.success) {
         delete surveyConfig.data.overall_status;
 
-        dispatch(fetchSurveysConfigSuccess(surveyConfig.data));
+        // Filter and transform config
+        const transformedConfigs = Object.entries(surveyConfigs).reduce(
+          (acc, [key, value]) => {
+            if (Array.isArray(value)) {
+              const transformedModules = value.map((module) => {
+                const matchingModule = surveyConfig.data[key]?.find(
+                  (dataModule: { name: any }) => dataModule.name === module.name
+                );
+
+                console.log("ArraymatchingValue", matchingModule);
+
+                if (matchingModule) {
+                  return {
+                    ...module,
+                    status: matchingModule.status,
+                  };
+                } else {
+                  return module;
+                }
+              });
+              return { ...acc, [key]: transformedModules };
+            } else {
+              const matchingValue = surveyConfig.data[key];
+
+              console.log("matchingValue", matchingValue);
+
+              if (matchingValue) {
+                return {
+                  ...acc,
+                  [key]: { ...value, status: matchingValue.status },
+                };
+              } else {
+                return { ...acc, [key]: value };
+              }
+            }
+          },
+          {}
+        );
+
+        dispatch(fetchSurveysConfigSuccess(transformedConfigs));
         return surveyConfig.data;
       }
+
       const error = {
         ...surveyConfig.response.data,
         code: surveyConfig.response.status,
