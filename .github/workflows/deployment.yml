@@ -58,15 +58,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: container_name
+          container-name: app
           image: ${{ steps.build.outputs.image }}
 
       - name: Set appspec.json values
         id: set-appspec-values
         env:
           container_port: 80
-          container_name: api
-          cluster: example_codedeploy_ecs_cluster
+          container_name: app
+          cluster: web-callisto-cluster
           service: frontend
           codedeploy-application: frontend-deploy
           codedeploy-deployment-group: frontend-deploy-group
