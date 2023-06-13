@@ -5,6 +5,7 @@ interface SurveyConfigState {
   loading: boolean;
   error: any;
   basicInfo: any;
+  moduleQuestionnaire: any;
   surveyConfigs:
     | {
         [key: string]: any;
@@ -17,6 +18,7 @@ const initialState: SurveyConfigState = {
   error: null,
   basicInfo: null,
   surveyConfigs: surveyConfigs,
+  moduleQuestionnaire: null,
 };
 
 const surveyConfigSlice = createSlice({
@@ -38,6 +40,72 @@ const surveyConfigSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    fetchSurveyBasicInformationRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchSurveyBasicInformationSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.basicInfo = action.payload;
+      state.error = null;
+    },
+    fetchSurveyBasicInformationFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.basicInfo = null;
+      state.error = action.payload;
+    },
+    fetchSurveyModuleQuestionnaireRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchSurveyModuleQuestionnaireSuccess: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.moduleQuestionnaire = action.payload;
+      state.error = null;
+    },
+    fetchSurveyModuleQuestionnaireFailure: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.moduleQuestionnaire = null;
+      state.error = action.payload;
+    },
+    putSurveyModuleQuestionnaireRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putSurveyModuleQuestionnaireSuccess: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.error = null;
+    },
+    putSurveyModuleQuestionnaireFailure: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    putSurveyBasicInformationRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putSurveyBasicInformationSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.basicInfo = action.payload;
+      state.error = null;
+    },
+    putSurveyBasicInformationFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.basicInfo = null;
+      state.error = action.payload;
+    },
     postSurveyBasicInformationRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -56,6 +124,18 @@ const surveyConfigSlice = createSlice({
 });
 
 export const {
+  fetchSurveyBasicInformationFailure,
+  fetchSurveyBasicInformationRequest,
+  fetchSurveyBasicInformationSuccess,
+  fetchSurveyModuleQuestionnaireFailure,
+  fetchSurveyModuleQuestionnaireRequest,
+  fetchSurveyModuleQuestionnaireSuccess,
+  putSurveyBasicInformationFailure,
+  putSurveyBasicInformationRequest,
+  putSurveyBasicInformationSuccess,
+  putSurveyModuleQuestionnaireFailure,
+  putSurveyModuleQuestionnaireRequest,
+  putSurveyModuleQuestionnaireSuccess,
   fetchSurveyConfigRequest,
   fetchSurveysConfigSuccess,
   fetchSurveysConfigFailure,

@@ -2,7 +2,70 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
-import { SurveyBasicInformationData } from "./types";
+import { SurveyBasicInformationData, SurveyModuleQuestionnaire } from "./types";
+
+export const fetchSurveyBasicInformation = async (survey_uid?: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const url = `${API_BASE_URL}/surveys/${survey_uid}/basic-information`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const fetchSurveyModuleQuestionnaire = async (survey_uid?: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const url = `${API_BASE_URL}/module-questionnaire/${survey_uid}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const postSurveyModuleQuestionnaire = async (
+  formData: SurveyModuleQuestionnaire,
+  survey_uid?: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const url = `${API_BASE_URL}/module-questionnaire/${survey_uid}`;
+
+    const response = await axios.put(url, formData, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const fetchSurveysConfig = async (survey_uid?: string) => {
   try {
@@ -47,4 +110,7 @@ export const postSurveyBasicInformation = async (
 export const api = {
   postSurveyBasicInformation,
   fetchSurveysConfig,
+  fetchSurveyBasicInformation,
+  fetchSurveyModuleQuestionnaire,
+  postSurveyModuleQuestionnaire,
 };
