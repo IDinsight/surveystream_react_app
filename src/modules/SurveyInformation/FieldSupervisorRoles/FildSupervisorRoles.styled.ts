@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Form } from "antd";
+import { Button, Form } from "antd";
 
 export const RolesForm = styled(Form)`
   display: flex;
@@ -16,5 +16,17 @@ export const RolesForm = styled(Form)`
   input {
     flex: 1;
     text-align: left;
+  }
+`;
+
+export const AddAnotherButton = styled(Button)`
+  margin-top: 20px;
+  background-color: #2f54eb;
+  color: #fff;
+  font-family: Inter;
+  &:hover {
+    border: 1px solid #2f54eb;
+    background-color: #fff;
+    color: #2f54eb;
   }
 `;

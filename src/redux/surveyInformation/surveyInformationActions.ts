@@ -69,4 +69,5 @@ export const getSupervisorRoles = createAsyncThunk(
 
 export const surveyInformationActions = {
   postSupervisorRoles,
+  getSupervisorRoles,
 };
