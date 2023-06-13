@@ -36,7 +36,7 @@ function FieldSupervisorRoles() {
         style={{
           float: "left",
           display: "inline-block",
-        }}  
+        }}
       >
         <SideMenu />
       </div>
