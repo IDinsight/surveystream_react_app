@@ -19,11 +19,11 @@ import {
   DescriptionText,
   IconText,
   SurveyLocationFormWrapper,
-} from "./SurveyLocationLabel.styled";
+} from "./SurveyLocationAdd.styled";
 import { ChangeEvent, useState } from "react";
 import { FileAddOutlined } from "@ant-design/icons";
 
-function SurveyLocation() {
+function SurveyLocationAdd() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -97,4 +97,4 @@ function SurveyLocation() {
   );
 }
 
-export default SurveyLocation;
+export default SurveyLocationAdd;

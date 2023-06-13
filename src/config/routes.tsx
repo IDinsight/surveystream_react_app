@@ -13,7 +13,7 @@ import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions"
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
 import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRoles";
-import SurveyLocationLabel from "../modules/SurveyInformation/SurveyLocationLabel";
+import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
 
@@ -69,7 +69,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/survey-information/location/add"
-        element={requireAuth(SurveyLocationLabel)}
+        element={requireAuth(SurveyLocationAdd)}
       />
       <Route
         path="/survey-information/location/hierarchy"

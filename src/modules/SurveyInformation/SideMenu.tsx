@@ -129,13 +129,15 @@ function SideMenu() {
         {
           label: (
             <MenuItem
-              className={isActive(`/survey-information/location/add/${survey_uid}`)}
+              className={isActive(
+                `/survey-information/location/add/${survey_uid}`
+              )}
               to={`/survey-information/location/add/${survey_uid}`}
             >
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Location labels
+              Add location
             </MenuItem>
           ),
           key: "surveyLocationAdd",
@@ -143,7 +145,9 @@ function SideMenu() {
         {
           label: (
             <MenuItem
-              className={isActive(`/survey-information/location/hierarchy/${survey_uid}`)}
+              className={isActive(
+                `/survey-information/location/hierarchy/${survey_uid}`
+              )}
               to={`/survey-information/location/hierarchy/${survey_uid}`}
             >
               <IconWrapper>
@@ -157,7 +161,9 @@ function SideMenu() {
         {
           label: (
             <MenuItem
-              className={isActive(`/survey-information/location/upload/${survey_uid}`)}
+              className={isActive(
+                `/survey-information/location/upload/${survey_uid}`
+              )}
               to={`/survey-information/location/upload/${survey_uid}`}
             >
               <IconWrapper>
