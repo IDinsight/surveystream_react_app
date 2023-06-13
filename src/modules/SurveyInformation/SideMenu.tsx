@@ -26,8 +26,6 @@ function SideMenu() {
   };
   const isActive = (path: string) => {
     const currentPath = location.pathname;
-    console.log("currentPath", currentPath);
-
     return path == currentPath ? "active" : "";
   };
 

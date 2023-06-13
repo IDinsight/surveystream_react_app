@@ -44,16 +44,16 @@ export const getTimezones = async () => {
 
 export const createSurveyCTOForm = async (
   formData: SurveyCTOForm,
-  survey_uid: string
+  survey_uid?: string
 ) => {
   try {
     await getCSRFToken();
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
-    const res = await axios.put(
+    const res = await axios.post(
       `${API_BASE_URL}/forms?survey_uid=${survey_uid}`,
-      { roles: formData },
+      { ...formData, survey_uid: survey_uid },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -70,7 +70,7 @@ export const createSurveyCTOForm = async (
 
 export const updateSurveyCTOForm = async (
   formData: SurveyCTOForm,
-  form_uid: string
+  form_uid?: string
 ) => {
   try {
     await getCSRFToken();
@@ -79,7 +79,7 @@ export const updateSurveyCTOForm = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/forms/${form_uid}`,
-      { roles: formData },
+      { ...formData },
       {
         headers: {
           "X-CSRF-Token": csrfToken,

@@ -23,13 +23,14 @@ export const postSurveyCTOForm = createAsyncThunk(
     {
       surveyCTOData,
       surveyUid,
-    }: { surveyCTOData: SurveyCTOForm; surveyUid: string },
+    }: { surveyCTOData: SurveyCTOForm; surveyUid?: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(postSurveyCTOFormRequest());
       const response = await api.createSurveyCTOForm(surveyCTOData, surveyUid);
-      if (response.status == 200) {
+
+      if (response.status == 201) {
         dispatch(postSurveyCTOFormSucess(response.data));
         return response;
       }
@@ -53,13 +54,13 @@ export const putSurveyCTOForm = createAsyncThunk(
   async (
     {
       surveyCTOData,
-      surveyUid,
-    }: { surveyCTOData: SurveyCTOForm; surveyUid: string },
+      formUid,
+    }: { surveyCTOData: SurveyCTOForm; formUid?: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(putSurveyCTOFormRequest());
-      const response = await api.createSurveyCTOForm(surveyCTOData, surveyUid);
+      const response = await api.updateSurveyCTOForm(surveyCTOData, formUid);
       if (response.status == 200) {
         dispatch(putSurveyCTOFormSucess(response.data));
         return response;

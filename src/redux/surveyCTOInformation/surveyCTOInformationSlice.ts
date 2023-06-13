@@ -47,10 +47,13 @@ const surveyCTOInformationSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
-    getSurveyCTOFormSuccess: (state, action: PayloadAction<SurveyCTOForm>) => {
+    getSurveyCTOFormSuccess: (
+      state,
+      action: PayloadAction<SurveyCTOForm[]>
+    ) => {
       state.loading = false;
       state.error = null;
-      state.surveyCTOForm = action.payload;
+      state.surveyCTOForm = action.payload[0]; // Extract the object at index 0
     },
     getSurveyCTOFormFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
