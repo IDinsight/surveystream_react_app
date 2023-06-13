@@ -26,7 +26,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: "arn:aws:iam::${{ env.STAGING_ACCOUNT }}:role/github-actions-role-frontend"
-          role-session-name: stagingrolesession
+          role-session-name: frontendstagingrolesession
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -59,7 +59,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: app
-          image: ${{ steps.build.outputs.image }}
+          image: ${{ steps.build-image.outputs.image }}
 
       - name: Set appspec.json values
         id: set-appspec-values
