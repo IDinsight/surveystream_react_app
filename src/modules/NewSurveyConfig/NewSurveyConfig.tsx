@@ -22,7 +22,10 @@ import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
 import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
-import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
+import {
+  postBasicInformation,
+  updateBasicInformation,
+} from "../../redux/surveyConfig/surveyConfigActions";
 
 export interface IStepIndex {
   sidebar: number;
@@ -102,12 +105,25 @@ function NewSurveyConfig() {
         return;
       }
 
-      const response = await dispatch(postBasicInformation(formData));
+      let response;
+      if (formData.survey_uid == null) {
+        delete formData.survey_uid;
+        response = await dispatch(postBasicInformation(formData));
+      } else {
+        response = await dispatch(
+          updateBasicInformation({
+            basicInformationData: formData,
+            surveyUid: formData.survey_uid,
+          })
+        );
+      }
+
+      console.log("response.payload", response.payload);
 
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: "Your draft survey has been created successfully.",
+          content: "Your draft survey has been updated successfully.",
         });
 
         if (stepIndex["sidebar"] < 1) {
@@ -130,7 +146,7 @@ function NewSurveyConfig() {
           }));
         }
       } else {
-        messageApi.open({
+        message.open({
           type: "error",
           content: response.payload.error
             ? response.payload.error

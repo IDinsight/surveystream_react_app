@@ -11,7 +11,12 @@ import TextArea from "antd/es/input/TextArea";
 import { Title } from "../../../shared/Nav.styled";
 import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
 import { performGetUserProfile } from "../../../redux/auth/authActions";
-import { useAppDispatch } from "../../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
+import { RootState } from "../../../redux/store";
+import { useParams } from "react-router-dom";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import moment from "moment";
 
 export interface BasicInformationFormProps {
   setFormData: (formData: SurveyBasicInformationData) => void;
@@ -24,6 +29,18 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   const [userUId, setUserUId] = useState<any>();
   const dispatch = useAppDispatch();
 
+  const basicInfo = useAppSelector(
+    (state: RootState) => state.reducer.surveyConfig.basicInfo
+  );
+
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: "",
+  };
+
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.surveyConfig.loading
+  );
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       const profile = await dispatch(performGetUserProfile());
@@ -32,18 +49,30 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     };
 
     fetchUserProfile();
+
+    //get basic information for survey in case it exists
+    const fetchSurveyBasicInformation = async () => {
+      if (survey_uid) {
+        await dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
+      }
+    };
+
+    fetchSurveyBasicInformation();
   }, [dispatch]);
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const formValues: SurveyBasicInformationData = {
+      survey_uid: basicInfo?.survey_uid ? basicInfo?.survey_uid : null,
       survey_id: allValues.surveyID,
       survey_name: allValues.surveyName,
       project_name: allValues.projectName,
       survey_description: allValues.surveyDescription,
       surveying_method: allValues.surveyMethod,
       irb_approval: allValues.irbApproval,
-      planned_start_date: allValues.systemsReadinessStartDate,
-      planned_end_date: allValues.systemsEndDate,
+      planned_start_date: moment(allValues.systemsReadinessStartDate).format(
+        "YYYY-MM-DD"
+      ),
+      planned_end_date: moment(allValues.systemsEndDate).format("YYYY-MM-DD"),
       config_status: "In Progress - Configuration",
       state: "Draft",
       created_by_user_uid: userUId,
@@ -51,6 +80,10 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
 
     setFormData(formValues); // Update form data in the parent component
   };
+
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <BasicInformationFormWrapper data-testid="BasicInformationForm">
@@ -63,6 +96,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         <Row gutter={36}>
           <Col span={10}>
             <StyledFormItem
+              initialValue={basicInfo?.survey_name}
               required
               label={
                 <span>
@@ -84,6 +118,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={basicInfo?.project_name}
               name="projectName"
               label={
                 <span>
@@ -104,6 +139,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={basicInfo?.surveying_method}
               style={{ display: "block", marginTop: "37px" }}
               required
               label={
@@ -128,6 +164,11 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={
+                basicInfo?.planned_start_date
+                  ? moment(basicInfo?.planned_start_date)
+                  : null
+              }
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
@@ -152,6 +193,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
 
           <Col span={10}>
             <StyledFormItem
+              initialValue={basicInfo?.survey_id}
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
@@ -170,6 +212,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={basicInfo?.survey_description}
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
@@ -191,6 +234,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={basicInfo?.irb_approval}
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
               name="irbApproval"
@@ -212,6 +256,11 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
+              initialValue={
+                basicInfo?.planned_end_date
+                  ? moment(basicInfo?.planned_end_date)
+                  : null
+              }
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}

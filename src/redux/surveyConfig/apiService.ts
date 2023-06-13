@@ -87,6 +87,32 @@ export const fetchSurveysConfig = async (survey_uid?: string) => {
   }
 };
 
+export const updateSurveyBasicInformation = async (
+  formData: SurveyBasicInformationData,
+  survey_uid: string
+) => {
+  try {
+    await getCSRFToken();
+
+    const csrfToken = getCookie("CSRF-TOKEN");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/surveys/${survey_uid}/basic-information`,
+      formData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return response;
+  } catch (err: any) {
+    return err;
+  }
+};
+
 export const postSurveyBasicInformation = async (
   formData: SurveyBasicInformationData
 ) => {
@@ -95,22 +121,23 @@ export const postSurveyBasicInformation = async (
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
-    const { data } = await axios.post(`${API_BASE_URL}/surveys`, formData, {
+    const response = await axios.post(`${API_BASE_URL}/surveys`, formData, {
       headers: {
         "X-CSRF-Token": csrfToken,
         "Content-Type": "application/json",
       },
       withCredentials: true,
     });
-    return data;
+    return response;
   } catch (err: any) {
     return err;
   }
 };
 export const api = {
-  postSurveyBasicInformation,
-  fetchSurveysConfig,
   fetchSurveyBasicInformation,
+  postSurveyBasicInformation,
+  updateSurveyBasicInformation,
+  fetchSurveysConfig,
   fetchSurveyModuleQuestionnaire,
   postSurveyModuleQuestionnaire,
 };

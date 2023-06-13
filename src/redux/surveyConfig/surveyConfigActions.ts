@@ -129,21 +129,24 @@ export const getSurveyBasicInformation = createAsyncThunk(
       const basicRes: any = await api.fetchSurveyBasicInformation(
         params.survey_uid
       );
-
-      if (basicRes.data && basicRes.success) {
-        dispatch(fetchSurveyBasicInformationSuccess(basicRes.data.data));
+      if (basicRes.status == 200) {
+        dispatch(fetchSurveyBasicInformationSuccess(basicRes.data));
         return basicRes.data;
       }
 
       const error = {
-        ...basicRes.response.data,
-        code: basicRes.response.status,
+        message: basicRes.message
+          ? basicRes.message
+          : "Failed to fetch survey basic information.",
+        code: basicRes.response?.status
+          ? basicRes.response?.status
+          : basicRes.code,
         success: false,
       };
       dispatch(fetchSurveyBasicInformationFailure(error));
-      return basicRes.response.data;
+      return error;
     } catch (error) {
-      const errorMessage = error || "Failed to fetch survey basic information";
+      const errorMessage = error || "Failed to fetch survey basic information.";
       dispatch(fetchSurveyBasicInformationFailure(errorMessage as string));
       return rejectWithValue(errorMessage);
     }
@@ -188,23 +191,38 @@ export const updateSurveyModuleQuestionnaire = createAsyncThunk(
 
 export const updateBasicInformation = createAsyncThunk(
   "surveyConfig/updateBasicInformation",
+
   async (
-    basicInformationData: SurveyBasicInformationData,
+    {
+      basicInformationData,
+      surveyUid,
+    }: { basicInformationData: SurveyBasicInformationData; surveyUid: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(putSurveyBasicInformationRequest());
-      const response = await api.postSurveyBasicInformation(
-        basicInformationData
+      const response = await api.updateSurveyBasicInformation(
+        basicInformationData,
+        surveyUid
       );
-      if (response.data && response.success) {
+
+      console.log("updateBasicInformation", response);
+
+      if (response.status == 200) {
         dispatch(putSurveyBasicInformationSuccess(response.data));
-        return response;
+        return { ...response.data, success: true };
       }
+
       const error = {
-        ...response.response.data,
-        code: response.response.status,
+        message: response.message
+          ? response.message
+          : "Failed to update survey, kindly check your inputs and try again.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
       };
+
       dispatch(putSurveyBasicInformationFailure(error));
       return error;
     } catch (error) {
@@ -226,18 +244,28 @@ export const postBasicInformation = createAsyncThunk(
       const response = await api.postSurveyBasicInformation(
         basicInformationData
       );
-      if (response.data && response.success) {
-        dispatch(postSurveyBasicInformationSuccess(response.data));
-        return response;
+
+      if (response?.status == 201) {
+        dispatch(postSurveyBasicInformationSuccess(response.data.data.survey));
+        return { ...response.data.data, success: true };
       }
       const error = {
-        ...response.response.data,
-        code: response.response.status,
+        message: response.message
+          ? response.message
+          : "Failed to create new survey, kindly check your inputs and try again.",
+
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
       };
+
       dispatch(postSurveyBasicInformationFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to create new survey";
+      const errorMessage =
+        error ||
+        "Failed to create new survey, kindly check your inputs and try again.";
       dispatch(postSurveyBasicInformationFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }

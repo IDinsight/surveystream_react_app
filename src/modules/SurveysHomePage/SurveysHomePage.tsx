@@ -111,33 +111,39 @@ function SurveysHomePage() {
                 <p className="font-inter font-medium text-base text-gray-7">
                   Draft surveys
                 </p>
-                <div className="flex">
-                  {draftSurveys.map((survey) => (
-                    <div
-                      key={survey.survey_uid}
-                      className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
-                    >
-                      <Link
-                        onClick={() =>
-                          dispatch(
-                            setActiveSurvey({
-                              survey_uid: survey.survey_uid,
-                              survey_name: survey.survey_name,
-                            })
-                          )
-                        }
-                        to={`/survey-configuration/${survey.survey_uid.toString()}`}
-                        className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
+                <div className="flex flex-wrap">
+                  {draftSurveys.map((survey, index: number) => (
+                    <>
+                      <div
+                        key={survey.survey_uid}
+                        className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
                       >
-                        {survey.survey_name}
-                      </Link>
-                      <p className="m-0 mt-2 font-inter font-normal text-xs leading-5 text-gray-7">
-                        Last edited on {survey.last_updated_at}
-                      </p>
-                    </div>
+                        <Link
+                          onClick={() =>
+                            dispatch(
+                              setActiveSurvey({
+                                survey_uid: survey.survey_uid,
+                                survey_name: survey.survey_name,
+                              })
+                            )
+                          }
+                          to={`/survey-configuration/${survey.survey_uid.toString()}`}
+                          className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
+                        >
+                          {survey.survey_name}
+                        </Link>
+                        <p className="m-0 mt-2 font-inter font-normal text-xs leading-5 text-gray-7">
+                          Last edited on {survey.last_updated_at}
+                        </p>
+                      </div>
+                      {index % 4 === 3 && <div className="w-0 flex-1" />}
+                    </>
                   ))}
-                  <div className="flex justify-center items-center mt-4 w-[270px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
-                    <Link to="/new-survey-config" className="no-underline">
+                  <div className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
+                    <Link
+                      to="/new-survey-config"
+                      className="no-underline flex items-center"
+                    >
                       <PlusOutlined className="!text-base text-gray-9" />
                       <span className="ml-3 font-inter font-medium text-base text-gray-10">
                         Configure new survey
@@ -146,6 +152,7 @@ function SurveysHomePage() {
                   </div>
                 </div>
               </div>
+
               <div id="surveys-past">
                 <p className="font-inter font-medium text-base text-gray-7">
                   Past surveys
