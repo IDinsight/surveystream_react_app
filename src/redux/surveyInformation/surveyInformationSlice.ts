@@ -23,7 +23,6 @@ const surveyInformationSlice = createSlice({
     setSupervisorRoles: (state, action: PayloadAction<SupervisorRole[]>) => {
       state.supervisorRoles = action.payload;
     },
-
     getSupervisorRolesRequest: (state) => {
       state.loading = true;
       state.error = null;

@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   ApartmentOutlined,
   CalendarOutlined,
@@ -21,7 +21,9 @@ import { useState } from "react";
 
 function SideMenu() {
   const location = useLocation();
-
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: "",
+  };
   const isActive = (path: string) => {
     const currentPath = location.pathname;
     const pathParts = currentPath.split("/");
@@ -34,7 +36,7 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to="/survey-information/survey-cto-information"
+          to={`/survey-information/survey-cto-information/${survey_uid}`}
           className={
             isActive("/survey-information/survey-cto-information") ||
             isActive("/survey-information/")
@@ -57,7 +59,7 @@ function SideMenu() {
             isActive("/survey-information/field-supervisor-roles/add") ||
             isActive("/survey-information/field-supervisor-roles/hierarchy")
           }`}
-          to="/survey-information/field-supervisor-roles"
+          to={`/survey-information/field-supervisor-roles/add/${survey_uid}`}
         >
           <IconWrapper>
             <CalendarOutlined />
@@ -73,7 +75,7 @@ function SideMenu() {
               className={isActive(
                 "/survey-information/field-supervisor-roles/add"
               )}
-              to="/survey-information/field-supervisor-roles/add"
+              to={`/survey-information/field-supervisor-roles/add/${survey_uid}`}
             >
               <IconWrapper>
                 <UsergroupAddOutlined />
@@ -89,7 +91,7 @@ function SideMenu() {
               className={isActive(
                 "/survey-information/field-supervisor-roles/hierarchy"
               )}
-              to="/survey-information/field-supervisor-roles/hierarchy"
+              to={`/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`}
             >
               <IconWrapper>
                 <ApartmentOutlined />
@@ -161,7 +163,7 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to="/survey-information/survey-cto-questions"
+          to={`/survey-information/survey-cto-questions/${survey_uid}`}
           className={isActive("/survey-information/survey-cto-questions")}
         >
           <IconWrapper>

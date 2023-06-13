@@ -30,7 +30,7 @@ const moduleStatusesSlice = createSlice({
       state.moduleStatuses = action.payload;
       state.error = null;
     },
-    fetchModuleStatusesFailure: (state, action: PayloadAction<string>) => {
+    fetchModuleStatusesFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.moduleStatuses = [];
       state.error = action.payload;
@@ -39,9 +39,11 @@ const moduleStatusesSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    createModuleStatusSuccess: (state, action: PayloadAction<ModuleStatus>) => {
+    createModuleStatusSuccess: (
+      state,
+      action: PayloadAction<ModuleStatus[]>
+    ) => {
       state.loading = false;
-      state.moduleStatuses.push(action.payload);
       state.error = null;
     },
     createModuleStatusFailure: (state, action: PayloadAction<string>) => {

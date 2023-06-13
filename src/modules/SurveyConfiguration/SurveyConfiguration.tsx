@@ -20,7 +20,7 @@ import {
   SectionTitle,
 } from "./SurveyConfiguration.styled";
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
 import { Result, Button } from "antd";
 
@@ -75,6 +75,9 @@ const SurveyConfiguration: React.FC = () => {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.reducer.surveys.activeSurvey
+  );
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
@@ -216,7 +219,10 @@ const SurveyConfiguration: React.FC = () => {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title>Survey configuration</Title>
+        <Title>
+          Survey configuration
+          {activeSurvey?.survey_name ? ` : ${activeSurvey?.survey_name}` : ""}
+        </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu surveyProgress={surveyConfigs} />

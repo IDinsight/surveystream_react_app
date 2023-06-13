@@ -5,18 +5,23 @@ interface SurveyState {
   loading: boolean;
   error: any;
   surveys: Survey[];
+  activeSurvey: any;
 }
 
 const initialState: SurveyState = {
   loading: false,
   error: null,
   surveys: [],
+  activeSurvey: null,
 };
 
 const surveySlice = createSlice({
   name: "survey",
   initialState,
   reducers: {
+    setActiveSurvey: (state, action: PayloadAction<any>) => {
+      state.activeSurvey = action.payload;
+    },
     fetchSurveysRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -34,7 +39,11 @@ const surveySlice = createSlice({
   },
 });
 
-export const { fetchSurveysRequest, fetchSurveysSuccess, fetchSurveysFailure } =
-  surveySlice.actions;
+export const {
+  fetchSurveysRequest,
+  fetchSurveysSuccess,
+  fetchSurveysFailure,
+  setActiveSurvey,
+} = surveySlice.actions;
 
 export default surveySlice.reducer;

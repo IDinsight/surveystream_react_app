@@ -1,19 +1,30 @@
 import { Link } from "react-router-dom";
+import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
+import { useAppDispatch } from "../../redux/hooks";
 
 function SurveyCard({
   title,
   link,
   start,
   end,
+  survey_uid,
 }: {
   title: string;
   link: string;
   start: string;
   end: string;
+  survey_uid: string;
 }) {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="mt-4 mr-6 p-4 w-[270px] h-[132px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
       <Link
+        onClick={() =>
+          dispatch(
+            setActiveSurvey({ survey_uid: survey_uid, survey_name: title })
+          )
+        }
         to={link}
         className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
       >

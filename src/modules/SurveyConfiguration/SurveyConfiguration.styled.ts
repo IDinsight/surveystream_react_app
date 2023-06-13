@@ -70,11 +70,13 @@ export const StepCard = styled(Card)`
 
 export const Title = styled.h1`
   font-family: "Inter";
-  font-style: medium;
+  font-weight: 500;
   font-size: 16px;
-  line-height: 24px;
+  line-height: 28px;
   color: #000;
   margin-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 `;
 export const MainWrapper = styled.div`
   flex: 1;
