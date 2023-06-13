@@ -2,7 +2,10 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
-import { SurveyBasicInformationData, SurveyModuleQuestionnaire } from "./types";
+import {
+  SurveyBasicInformationData,
+  SurveyModuleQuestionnaireData,
+} from "./types";
 
 export const fetchSurveyBasicInformation = async (survey_uid?: string) => {
   try {
@@ -45,7 +48,7 @@ export const fetchSurveyModuleQuestionnaire = async (survey_uid?: string) => {
 };
 
 export const postSurveyModuleQuestionnaire = async (
-  formData: SurveyModuleQuestionnaire,
+  formData: SurveyModuleQuestionnaireData,
   survey_uid?: string
 ) => {
   try {

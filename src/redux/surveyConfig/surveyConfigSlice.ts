@@ -25,6 +25,12 @@ const surveyConfigSlice = createSlice({
   name: "surveyConfig",
   initialState,
   reducers: {
+    clearModuleQuestionnaire: (state) => {
+      state.moduleQuestionnaire = null;
+    },
+    clearBasicInfo: (state) => {
+      state.basicInfo = null;
+    },
     fetchSurveyConfigRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -142,6 +148,8 @@ export const {
   postSurveyBasicInformationRequest,
   postSurveyBasicInformationSuccess,
   postSurveyBasicInformationFailure,
+  clearBasicInfo,
+  clearModuleQuestionnaire,
 } = surveyConfigSlice.actions;
 
 export default surveyConfigSlice.reducer;

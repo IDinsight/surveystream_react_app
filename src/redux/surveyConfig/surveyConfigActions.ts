@@ -21,7 +21,10 @@ import {
   putSurveyBasicInformationSuccess,
   putSurveyBasicInformationFailure,
 } from "./surveyConfigSlice";
-import { SurveyBasicInformationData, SurveyModuleQuestionnaire } from "./types";
+import {
+  SurveyBasicInformationData,
+  SurveyModuleQuestionnaireData,
+} from "./types";
 import { surveyConfigs } from "./surveyConfigsInit";
 
 export const getSurveyConfig = createAsyncThunk(
@@ -92,11 +95,9 @@ export const getSurveyModuleQuestionnaire = createAsyncThunk(
   async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(fetchSurveyModuleQuestionnaireRequest());
-      const moduleQuestionnaireRes = await api.fetchSurveysConfig(
-        params.survey_uid
-      );
-
-      if (moduleQuestionnaireRes.data && moduleQuestionnaireRes.success) {
+      const moduleQuestionnaireRes: any =
+        await api.fetchSurveyModuleQuestionnaire(params.survey_uid);
+      if (moduleQuestionnaireRes.status == 200) {
         dispatch(
           fetchSurveyModuleQuestionnaireSuccess(
             moduleQuestionnaireRes.data.data
@@ -106,15 +107,19 @@ export const getSurveyModuleQuestionnaire = createAsyncThunk(
       }
 
       const error = {
-        ...moduleQuestionnaireRes.response.data,
-        code: moduleQuestionnaireRes.response.status,
-        status: false,
+        message: moduleQuestionnaireRes.message
+          ? moduleQuestionnaireRes.message
+          : "Failed to fetch survey module questionnaire.",
+        code: moduleQuestionnaireRes.response?.status
+          ? moduleQuestionnaireRes.response?.status
+          : moduleQuestionnaireRes.code,
+        success: false,
       };
       dispatch(fetchSurveyModuleQuestionnaireFailure(error));
       return moduleQuestionnaireRes.response.data;
     } catch (error) {
       const errorMessage =
-        error || "Failed to fetch survey module questionnaire";
+        error || "Failed to fetch survey module questionnaire.";
       dispatch(fetchSurveysConfigFailure(errorMessage as string));
       return rejectWithValue(errorMessage);
     }
@@ -160,7 +165,7 @@ export const updateSurveyModuleQuestionnaire = createAsyncThunk(
       moduleQuestionnaireData,
       surveyUid,
     }: {
-      moduleQuestionnaireData: SurveyModuleQuestionnaire;
+      moduleQuestionnaireData: SurveyModuleQuestionnaireData;
       surveyUid?: string;
     },
     { dispatch, rejectWithValue }
@@ -171,18 +176,25 @@ export const updateSurveyModuleQuestionnaire = createAsyncThunk(
         moduleQuestionnaireData,
         surveyUid
       );
-      if (response.data && response.success) {
+
+      if (response.status == 200) {
         dispatch(putSurveyModuleQuestionnaireSuccess(response.data));
-        return response;
+        return { ...response.data, success: true };
       }
       const error = {
-        ...response.response.data,
-        code: response.response.status,
+        message: response.message
+          ? response.message
+          : "Failed to update module questionnaire, kindly check your inputs and try again.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
       };
+
       dispatch(putSurveyModuleQuestionnaireFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to update survey";
+      const errorMessage = error || "Failed to update module questionnaire";
       dispatch(putSurveyModuleQuestionnaireFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }

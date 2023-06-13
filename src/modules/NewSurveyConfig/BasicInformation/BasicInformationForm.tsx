@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Col, Input, Row, Select, DatePicker, Form } from "antd";
 import {
   BasicInformationFormWrapper,
-  StyledFormItem,
   TwoColumnForm,
   StyledTooltip,
 } from "./BasicInformationForm.styled";
@@ -17,6 +16,7 @@ import { RootState } from "../../../redux/store";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import moment from "moment";
+import { StyledFormItem } from "../NewSurveyConfig.styled";
 
 export interface BasicInformationFormProps {
   setFormData: (formData: SurveyBasicInformationData) => void;
@@ -54,6 +54,12 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     const fetchSurveyBasicInformation = async () => {
       if (survey_uid) {
         await dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
+        form.setFieldsValue({
+          systemsReadinessStartDate: moment(basicInfo?.planned_start_date),
+        });
+        form.setFieldsValue({
+          systemsEndDate: moment(basicInfo?.planned_end_date),
+        });
       }
     };
 

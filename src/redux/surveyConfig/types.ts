@@ -13,13 +13,13 @@ export type SurveyBasicInformationData = {
   [key: string]: any; // Index signature allowing any string key
 };
 
-export type SurveyModuleQuestionnaire = {
-  assignment_process: string;
-  language_lacation_mapping: true;
-  reassignment_required: true;
-  supervisor_assignment_criteria: string[];
-  supervisor_enumerator_relation: string;
-  supervisor_hierarchy_exists: true;
-  survey_uid: 0;
+export type SurveyModuleQuestionnaireData = {
+  survey_uid?: number;
   target_assignment_criteria: string[];
+  supervisor_assignment_criteria: string[];
+  supervisor_hierarchy_exists: boolean;
+  reassignment_required: boolean;
+  assignment_process: string;
+  supervisor_surveyor_relation: string;
+  language_location_mapping: boolean;
 };

@@ -19,11 +19,22 @@ function SideMenu({ stepIndex, setStepIndexHandler }: ISideMenuProps) {
     { text: "Module questionnaire", icon: <QuestionIcon /> },
   ];
 
+  const handleClick = (index: number) => {
+    setStepIndexHandler((prev: IStepIndex) => ({
+      ...prev,
+      sidebar: index,
+    }));
+  };
+
   return (
     <div>
       <SideMenuWrapper>
         {menus.map((item: { text: string; icon: any }, index: number) => (
           <MenuAItem
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              handleClick(index);
+            }}
             key={index}
             className={stepIndex["sidebar"] === index ? "active" : ""}
           >
