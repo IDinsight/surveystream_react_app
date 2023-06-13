@@ -9,7 +9,7 @@ revision:
         - TargetService:
             Type: AWS::ECS::Service
             Properties:
-              TaskDefinition: "arn:aws:ecs:ap-south-1:210688620213:task-definition/frontend-task:12"
+              TaskDefinition: "arn:aws:ecs:ap-south-1:210688620213:task-definition/frontend-task:14"
               LoadBalancerInfo:
                 ContainerName: "app"
                 ContainerPort: 80
