@@ -9,10 +9,10 @@ import {
   postSupervisorRolesFailure,
   postSupervisorRolesRequest,
   postSupervisorRolesSuccess,
-} from "./surveyInformationSlice";
+} from "./fieldSupervisorRolesSlice";
 
 export const postSupervisorRoles = createAsyncThunk(
-  "surveyInformation/postSupervisorRoles",
+  "fieldSupervisorRoles/postSupervisorRoles",
   async (
     {
       supervisorRolesData,
@@ -46,7 +46,7 @@ export const postSupervisorRoles = createAsyncThunk(
 );
 
 export const getSupervisorRoles = createAsyncThunk(
-  "surveyInformation/getSupervisorRoles",
+  "fieldSupervisorRoles/getSupervisorRoles",
   async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getSupervisorRolesRequest());
@@ -67,7 +67,7 @@ export const getSupervisorRoles = createAsyncThunk(
   }
 );
 
-export const surveyInformationActions = {
+export const fieldSupervisorRolesActions = {
   postSupervisorRoles,
   getSupervisorRoles,
 };

@@ -19,11 +19,11 @@ import { RootState } from "../../../redux/store";
 import {
   addSupervisorRole,
   setSupervisorRoles,
-} from "../../../redux/surveyInformation/surveyInformationSlice";
+} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesSlice";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/surveyInformation/surveyInformationActions";
+} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesAdd() {
@@ -34,7 +34,7 @@ function FieldSupervisorRolesAdd() {
 
   const dispatch = useAppDispatch();
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.reducer.surveyInformation.supervisorRoles
+    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
   );
 
   const [form] = Form.useForm();
@@ -74,7 +74,10 @@ function FieldSupervisorRolesAdd() {
                 if (
                   value &&
                   supervisorRoles.some(
-                    (r) => r.role_name === value && r !== role
+                    (r: {
+                      role_name: any;
+                      reporting_role_uid?: string | undefined;
+                    }) => r.role_name === value && r !== role
                   )
                 ) {
                   return Promise.reject("Please use unique role names!");
@@ -99,7 +102,7 @@ function FieldSupervisorRolesAdd() {
       const newRole = form.getFieldValue(`role_${lastRoleIndex}`);
 
       const isDuplicateRole = supervisorRoles.some(
-        (role) => role.role_name === newRole
+        (role: { role_name: string }) => role.role_name === newRole
       );
 
       if (!isDuplicateRole) {
@@ -115,7 +118,9 @@ function FieldSupervisorRolesAdd() {
   };
   const handleContinue = async () => {
     try {
-      const filteredRoles = supervisorRoles.filter((role) => role.role_name);
+      const filteredRoles = supervisorRoles.filter(
+        (role: { role_name: string }) => role.role_name
+      );
 
       if (filteredRoles.length === 0) {
         message.error("Please fill in at least one role name!");
