@@ -4,9 +4,11 @@ import {
   CalendarOutlined,
   CompassOutlined,
   NumberOutlined,
+  PlusSquareOutlined,
   ProfileOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
+  UploadOutlined,
   UserOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
@@ -26,7 +28,10 @@ function SideMenu() {
   };
   const isActive = (path: string) => {
     const currentPath = location.pathname;
-    return path == currentPath ? "active" : "";
+    const pathParts = currentPath.split("/");
+    const middlePart =
+      pathParts.length > 3 ? pathParts[3] : pathParts[pathParts.length - 1];
+    return path.includes(middlePart) ? "active" : "";
   };
 
   const items: MenuProps["items"] = [
@@ -48,7 +53,6 @@ function SideMenu() {
       ),
       key: "surveyInformation",
     },
-
     {
       label: (
         <MenuItem
@@ -110,10 +114,12 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={isActive(
-            `/survey-information/survey-location/${survey_uid}`
-          )}
-          to="#"
+          className={`${
+            isActive(`/survey-information/location/add/${survey_uid}`) ||
+            isActive(`/survey-information/location/hierarchy/${survey_uid}`) ||
+            isActive(`/survey-information/location/upload/${survey_uid}`)
+          }`}
+          to={`/survey-information/location/add/${survey_uid}`}
         >
           <IconWrapper>
             <CompassOutlined />
@@ -122,7 +128,56 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyLocation",
-      disabled: true,
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/location/add/${survey_uid}`
+              )}
+              to={`/survey-information/location/add/${survey_uid}`}
+            >
+              <IconWrapper>
+                <PlusSquareOutlined />
+              </IconWrapper>
+              Add location types
+            </MenuItem>
+          ),
+          key: "surveyLocationAdd",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/location/hierarchy/${survey_uid}`
+              )}
+              to={`/survey-information/location/hierarchy/${survey_uid}`}
+            >
+              <IconWrapper>
+                <ApartmentOutlined />
+              </IconWrapper>
+              Define location type hierarchy
+            </MenuItem>
+          ),
+          key: "surveyLocationHierarchy",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/location/upload/${survey_uid}`
+              )}
+              to={`/survey-information/location/upload/${survey_uid}`}
+            >
+              <IconWrapper>
+                <UploadOutlined />
+              </IconWrapper>
+              Upload locations
+            </MenuItem>
+          ),
+          key: "surveyLocationUpload",
+        },
+      ],
     },
     {
       label: (

@@ -13,6 +13,9 @@ import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions"
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
 import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRoles";
+import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
+import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
+import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -63,6 +66,18 @@ const AppRoutes = () => {
       <Route
         path="/survey-information/field-supervisor-roles/:path?/:survey_uid?"
         element={requireAuth(FieldSupervisorRoles)}
+      />
+      <Route
+        path="/survey-information/location/add"
+        element={requireAuth(SurveyLocationAdd)}
+      />
+      <Route
+        path="/survey-information/location/hierarchy"
+        element={requireAuth(SurveyLocationHierarchy)}
+      />
+      <Route
+        path="/survey-information/location/upload"
+        element={requireAuth(SurveyLocationUpload)}
       />
     </SentryRoutes>
   );
