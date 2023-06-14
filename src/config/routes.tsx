@@ -16,6 +16,7 @@ import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRo
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
+import NotFound from "../modules/NotFound";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -79,6 +80,7 @@ const AppRoutes = () => {
         path="/survey-information/location/upload"
         element={requireAuth(SurveyLocationUpload)}
       />
+      <Route path="*" element={<NotFound />} />
     </SentryRoutes>
   );
 };
