@@ -33,9 +33,6 @@ image-stg:
     --password-stdin $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com
 	@docker push $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
 
-deploy:
-	@aws deploy create-deployment --cli-input-yaml file://appspec.yaml
-
 
 container-up-stg:
 	# Configure ecs-cli options
