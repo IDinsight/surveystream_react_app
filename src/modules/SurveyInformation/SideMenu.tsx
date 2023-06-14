@@ -28,7 +28,10 @@ function SideMenu() {
   };
   const isActive = (path: string) => {
     const currentPath = location.pathname;
-    return path == currentPath ? "active" : "";
+    const pathParts = currentPath.split("/");
+    const middlePart =
+      pathParts.length > 3 ? pathParts[3] : pathParts[pathParts.length - 1];
+    return path.includes(middlePart) ? "active" : "";
   };
 
   const items: MenuProps["items"] = [

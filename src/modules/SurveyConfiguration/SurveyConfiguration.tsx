@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -83,11 +82,11 @@ const SurveyConfiguration: React.FC = () => {
     navigate(-1); // Navigate back one step in the history stack
   };
 
-  const surveyConfigs = useSelector(
+  const surveyConfigs = useAppSelector(
     (state: RootState) => state.reducer.surveyConfig.surveyConfigs
   );
 
-  const isLoading = useSelector(
+  const isLoading = useAppSelector(
     (state: RootState) => state.reducer.surveyConfig.loading
   );
 
@@ -98,10 +97,6 @@ const SurveyConfiguration: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [dispatch]);
-
-  if (isLoading) {
-    return <FullScreenLoader />;
-  }
 
   const renderStatus = (status: string) => {
     let color;
@@ -211,6 +206,10 @@ const SurveyConfiguration: React.FC = () => {
       />;
     }
   };
+
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <>

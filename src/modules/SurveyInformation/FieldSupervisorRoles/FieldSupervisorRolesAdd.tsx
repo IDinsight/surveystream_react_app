@@ -6,12 +6,12 @@ import {
   ContinueButton,
 } from "../../../shared/FooterBar.styled";
 import { FileAddOutlined } from "@ant-design/icons";
-import { StyledFormItem } from "../../NewSurveyConfig/BasicInformation/BasicInformationForm.styled";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionWrap,
   DescriptionTitle,
   DescriptionText,
+  StyledFormItem,
 } from "../SurveyInformation.styled";
 import { AddAnotherButton, RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -70,7 +70,7 @@ function FieldSupervisorRolesAdd() {
               message: "Please enter a role name",
             },
             {
-              validator: (_, value) => {
+              validator: (_: any, value: any) => {
                 if (
                   value &&
                   supervisorRoles.some(

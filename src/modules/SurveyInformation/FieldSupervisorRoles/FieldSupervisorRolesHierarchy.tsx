@@ -4,12 +4,12 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../../shared/FooterBar.styled";
-import { StyledFormItem } from "../../NewSurveyConfig/BasicInformation/BasicInformationForm.styled";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionWrap,
   DescriptionTitle,
   DescriptionText,
+  StyledFormItem,
 } from "../SurveyInformation.styled";
 import { RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -67,7 +67,7 @@ function FieldSupervisorRolesHierarchy() {
           }
           rules={[
             {
-              validator: (_, value) => {
+              validator: (_: any, value: string | undefined) => {
                 if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
                 }
