@@ -33,6 +33,7 @@ image-stg:
     --password-stdin $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com
 	@docker push $(STAGING_ACCOUNT).dkr.ecr.ap-south-1.amazonaws.com/web-callisto-ecr-repository:frontend
 
+
 container-up-stg:
 	# Configure ecs-cli options
 	@ecs-cli configure --cluster web-callisto-cluster \
@@ -138,3 +139,4 @@ container-down-prod:
 	--project-name dod-surveystream-web-app \
 	--cluster-config dod-surveystream-web-app-config \
 	service down
+
