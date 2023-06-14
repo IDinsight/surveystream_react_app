@@ -86,6 +86,6 @@ jobs:
           service: frontend
           cluster: web-callisto-cluster
           wait-for-service-stability: true
-          codedeploy-appspec: appspecfinal.json
+          codedeploy-appspec: ./.github/workflows/appspecfinal.json
           codedeploy-application: frontend-deploy
           codedeploy-deployment-group: frontend-deploy-group
