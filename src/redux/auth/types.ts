@@ -19,3 +19,8 @@ export type ResetPasswordData = {
   new_password: string;
   confirm: string;
 };
+
+export type ResetParams = {
+  password: string;
+  confirmPassword: string;
+};

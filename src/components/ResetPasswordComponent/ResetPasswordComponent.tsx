@@ -5,11 +5,7 @@ import PasswordStrengthBar from "react-password-strength-bar";
 
 import PasswordStatusIndicator from "../PasswordStatusIndicator";
 import "./ResetPasswordComponent.css";
-
-type ResetParams = {
-  newPassword: string;
-  confirmPassword: string;
-};
+import { ResetParams } from "../../redux/auth/types";
 
 interface IResetPasswordProps {
   handleResetSubmit: (values: ResetParams) => void;
