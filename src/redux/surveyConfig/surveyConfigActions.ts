@@ -8,8 +8,23 @@ import {
   postSurveyBasicInformationRequest,
   postSurveyBasicInformationSuccess,
   postSurveyBasicInformationFailure,
+  fetchSurveyBasicInformationRequest,
+  fetchSurveyBasicInformationSuccess,
+  fetchSurveyBasicInformationFailure,
+  putSurveyBasicInformationRequest,
+  fetchSurveyModuleQuestionnaireRequest,
+  fetchSurveyModuleQuestionnaireSuccess,
+  fetchSurveyModuleQuestionnaireFailure,
+  putSurveyModuleQuestionnaireRequest,
+  putSurveyModuleQuestionnaireSuccess,
+  putSurveyModuleQuestionnaireFailure,
+  putSurveyBasicInformationSuccess,
+  putSurveyBasicInformationFailure,
 } from "./surveyConfigSlice";
-import { SurveyBasicInformationData } from "./types";
+import {
+  SurveyBasicInformationData,
+  SurveyModuleQuestionnaireData,
+} from "./types";
 import { surveyConfigs } from "./surveyConfigsInit";
 
 export const getSurveyConfig = createAsyncThunk(
@@ -31,8 +46,6 @@ export const getSurveyConfig = createAsyncThunk(
                   (dataModule: { name: any }) => dataModule.name === module.name
                 );
 
-                console.log("ArraymatchingValue", matchingModule);
-
                 if (matchingModule) {
                   return {
                     ...module,
@@ -45,8 +58,6 @@ export const getSurveyConfig = createAsyncThunk(
               return { ...acc, [key]: transformedModules };
             } else {
               const matchingValue = surveyConfig.data[key];
-
-              console.log("matchingValue", matchingValue);
 
               if (matchingValue) {
                 return {
@@ -79,6 +90,161 @@ export const getSurveyConfig = createAsyncThunk(
   }
 );
 
+export const getSurveyModuleQuestionnaire = createAsyncThunk(
+  "surveyConfig/getSurveyModuleQuestionnaire",
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(fetchSurveyModuleQuestionnaireRequest());
+      const moduleQuestionnaireRes: any =
+        await api.fetchSurveyModuleQuestionnaire(params.survey_uid);
+      if (moduleQuestionnaireRes.status == 200) {
+        dispatch(
+          fetchSurveyModuleQuestionnaireSuccess(
+            moduleQuestionnaireRes.data.data
+          )
+        );
+        return moduleQuestionnaireRes.data;
+      }
+
+      const error = {
+        message: moduleQuestionnaireRes.message
+          ? moduleQuestionnaireRes.message
+          : "Failed to fetch survey module questionnaire.",
+        code: moduleQuestionnaireRes.response?.status
+          ? moduleQuestionnaireRes.response?.status
+          : moduleQuestionnaireRes.code,
+        success: false,
+      };
+      dispatch(fetchSurveyModuleQuestionnaireFailure(error));
+      return moduleQuestionnaireRes.response.data;
+    } catch (error) {
+      const errorMessage =
+        error || "Failed to fetch survey module questionnaire.";
+      dispatch(fetchSurveysConfigFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getSurveyBasicInformation = createAsyncThunk(
+  "surveyConfig/getSurveyBasicInformation",
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(fetchSurveyBasicInformationRequest());
+      const basicRes: any = await api.fetchSurveyBasicInformation(
+        params.survey_uid
+      );
+      if (basicRes.status == 200) {
+        dispatch(fetchSurveyBasicInformationSuccess(basicRes.data));
+        return basicRes.data;
+      }
+
+      const error = {
+        message: basicRes.message
+          ? basicRes.message
+          : "Failed to fetch survey basic information.",
+        code: basicRes.response?.status
+          ? basicRes.response?.status
+          : basicRes.code,
+        success: false,
+      };
+      dispatch(fetchSurveyBasicInformationFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to fetch survey basic information.";
+      dispatch(fetchSurveyBasicInformationFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateSurveyModuleQuestionnaire = createAsyncThunk(
+  "surveyConfig/updateSurveyModuleQuestionnaire",
+  async (
+    {
+      moduleQuestionnaireData,
+      surveyUid,
+    }: {
+      moduleQuestionnaireData: SurveyModuleQuestionnaireData;
+      surveyUid?: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putSurveyModuleQuestionnaireRequest());
+      const response: any = await api.postSurveyModuleQuestionnaire(
+        moduleQuestionnaireData,
+        surveyUid
+      );
+
+      if (response.status == 200) {
+        dispatch(putSurveyModuleQuestionnaireSuccess(response.data));
+        return { ...response.data, success: true };
+      }
+      const error = {
+        message: response.message
+          ? response.message
+          : "Failed to update module questionnaire, kindly check your inputs and try again.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
+      };
+
+      dispatch(putSurveyModuleQuestionnaireFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update module questionnaire";
+      dispatch(putSurveyModuleQuestionnaireFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateBasicInformation = createAsyncThunk(
+  "surveyConfig/updateBasicInformation",
+
+  async (
+    {
+      basicInformationData,
+      surveyUid,
+    }: { basicInformationData: SurveyBasicInformationData; surveyUid: string },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putSurveyBasicInformationRequest());
+      const response = await api.updateSurveyBasicInformation(
+        basicInformationData,
+        surveyUid
+      );
+
+      console.log("updateBasicInformation", response);
+
+      if (response.status == 200) {
+        dispatch(putSurveyBasicInformationSuccess(response.data));
+        return { ...response.data, success: true };
+      }
+
+      const error = {
+        message: response.message
+          ? response.message
+          : "Failed to update survey, kindly check your inputs and try again.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
+      };
+
+      dispatch(putSurveyBasicInformationFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update survey";
+      dispatch(putSurveyBasicInformationFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const postBasicInformation = createAsyncThunk(
   "surveyConfig/postBasicInformation",
   async (
@@ -90,18 +256,28 @@ export const postBasicInformation = createAsyncThunk(
       const response = await api.postSurveyBasicInformation(
         basicInformationData
       );
-      if (response.data && response.success) {
-        dispatch(postSurveyBasicInformationSuccess(response.data));
-        return response;
+
+      if (response?.status == 201) {
+        dispatch(postSurveyBasicInformationSuccess(response.data.data.survey));
+        return { ...response.data.data, success: true };
       }
       const error = {
-        ...response.response.data,
-        code: response.response.status,
+        message: response.message
+          ? response.message
+          : "Failed to create new survey, kindly check your inputs and try again.",
+
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
       };
+
       dispatch(postSurveyBasicInformationFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to post new survey";
+      const errorMessage =
+        error ||
+        "Failed to create new survey, kindly check your inputs and try again.";
       dispatch(postSurveyBasicInformationFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -111,4 +287,8 @@ export const postBasicInformation = createAsyncThunk(
 export const surveyConfigActions = {
   getSurveyConfig,
   postBasicInformation,
+  updateBasicInformation,
+  getSurveyBasicInformation,
+  getSurveyModuleQuestionnaire,
+  updateSurveyModuleQuestionnaire,
 };

@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { message } from "antd";
 import Header from "../../components/Header";
 import {
@@ -21,8 +21,20 @@ import ModuleQuestionnaire from "./ModuleQuestionnaire";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
-import { SurveyBasicInformationData } from "../../redux/surveyConfig/types";
-import { postBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
+import {
+  SurveyBasicInformationData,
+  SurveyModuleQuestionnaireData,
+} from "../../redux/surveyConfig/types";
+import {
+  postBasicInformation,
+  updateBasicInformation,
+  updateSurveyModuleQuestionnaire,
+} from "../../redux/surveyConfig/surveyConfigActions";
+import {
+  clearBasicInfo,
+  clearModuleQuestionnaire,
+} from "../../redux/surveyConfig/surveyConfigSlice";
+import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 
 export interface IStepIndex {
   sidebar: number;
@@ -38,9 +50,14 @@ function NewSurveyConfig() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [formData, setFormData] = useState<SurveyBasicInformationData | null>(
-    null
-  );
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: "",
+  };
+  const [basicformData, setBasicFormData] =
+    useState<SurveyBasicInformationData | null>(null);
+
+  const [moduleQuestionnaireformData, setModuleFormData] =
+    useState<SurveyModuleQuestionnaireData | null>(null);
   const isLoading = useAppSelector(
     (state: RootState) => state.reducer.surveyConfig.loading
   );
@@ -50,14 +67,88 @@ function NewSurveyConfig() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.reducer.surveys.activeSurvey
   );
+  useEffect(() => {
+    if (survey_uid == undefined) {
+      dispatch(clearBasicInfo());
+      dispatch(clearModuleQuestionnaire());
+      dispatch(setActiveSurvey(null));
+    }
+  }, [dispatch]);
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
   };
 
   const handleContinue = async () => {
+    if (stepIndex.sidebar == 0) {
+      return handleBasicContinue();
+    } else {
+      return handleModuleQuestionnaireContinue();
+    }
+  };
+
+  const handleBack = async () => {
+    if (stepIndex["sidebar"] == 1) {
+      if (stepIndex["mqIndex"] == 0) return;
+
+      setStepIndex((prev: IStepIndex) => ({
+        ...prev,
+        mqIndex: prev["mqIndex"] - 1,
+      }));
+    }
+  };
+  const handleModuleQuestionnaireContinue = async () => {
+    if (stepIndex["sidebar"] == 1) {
+      if (stepIndex["mqIndex"] >= 2) {
+        if (moduleQuestionnaireformData === null) {
+          messageApi.open({
+            type: "error",
+            content: "Kindly fill in form to continue",
+          });
+          return;
+        }
+        try {
+          const response = await dispatch(
+            updateSurveyModuleQuestionnaire({
+              moduleQuestionnaireData: moduleQuestionnaireformData,
+              surveyUid: survey_uid,
+            })
+          );
+          if (response.payload.success) {
+            message.open({
+              type: "success",
+              content: "Survey module questionnaire data updated successfully.",
+            });
+            navigate(`/module-selection/${survey_uid}`);
+          } else {
+            message.open({
+              type: "error",
+              content: response.payload.error
+                ? response.payload.error
+                : response.payload.message,
+            });
+          }
+        } catch (error) {
+          // Handle any error
+          console.error("post error", error);
+          messageApi.open({
+            type: "error",
+            content: showError.payload.message,
+          });
+        }
+        return;
+      }
+
+      setStepIndex((prev: IStepIndex) => ({
+        ...prev,
+        mqIndex: prev["mqIndex"] + 1,
+      }));
+    }
+  };
+
+  const handleBasicContinue = async () => {
     try {
-      if (formData === null) {
+      if (basicformData === null) {
         messageApi.open({
           type: "error",
           content: "Kindly fill in form to continue",
@@ -88,7 +179,7 @@ function NewSurveyConfig() {
       ];
 
       const hasValidationErrors = !validationRules.every((rule) => {
-        if (!formData?.[rule.key]) {
+        if (!basicformData?.[rule.key]) {
           messageApi.open({
             type: "error",
             content: rule.message,
@@ -102,12 +193,22 @@ function NewSurveyConfig() {
         return;
       }
 
-      const response = await dispatch(postBasicInformation(formData));
-
+      let response;
+      if (basicformData.survey_uid == null) {
+        delete basicformData.survey_uid;
+        response = await dispatch(postBasicInformation(basicformData));
+      } else {
+        response = await dispatch(
+          updateBasicInformation({
+            basicInformationData: basicformData,
+            surveyUid: basicformData.survey_uid,
+          })
+        );
+      }
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: "Your draft survey has been created successfully.",
+          content: "Your draft survey has been updated successfully.",
         });
 
         if (stepIndex["sidebar"] < 1) {
@@ -116,21 +217,8 @@ function NewSurveyConfig() {
             sidebar: prev["sidebar"] + 1,
           }));
         }
-
-        /*
-        If we are on second index in sidebar then 
-        increament only module questionnaire step's index
-      */
-        if (stepIndex["sidebar"] == 1) {
-          if (stepIndex["mqIndex"] >= 2) return;
-
-          setStepIndex((prev: IStepIndex) => ({
-            ...prev,
-            mqIndex: prev["mqIndex"] + 1,
-          }));
-        }
       } else {
-        messageApi.open({
+        message.open({
           type: "error",
           content: response.payload.error
             ? response.payload.error
@@ -164,17 +252,27 @@ function NewSurveyConfig() {
         <MainWrapper>
           {contextHolder}
           {stepIndex["sidebar"] === 0 ? (
-            <BasicInformationForm setFormData={setFormData} />
+            <BasicInformationForm setFormData={setBasicFormData} />
           ) : (
-            <ModuleQuestionnaire stepIndex={stepIndex["mqIndex"]} />
+            <ModuleQuestionnaire
+              setFormData={setModuleFormData}
+              stepIndex={stepIndex["mqIndex"]}
+            />
           )}
         </MainWrapper>
       </div>
       <FooterWrapper>
+        <SaveButton
+          onClick={handleBack}
+          disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
+        >
+          Back
+        </SaveButton>
+
         <ContinueButton
           onClick={handleContinue}
           loading={isLoading}
-          disabled={formData === null}
+          disabled={stepIndex.sidebar === 0 ? basicformData === null : false}
         >
           Continue
         </ContinueButton>

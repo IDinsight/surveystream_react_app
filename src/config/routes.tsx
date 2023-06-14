@@ -61,7 +61,7 @@ const AppRoutes = () => {
         element={requireAuth(SurveyCTOInfomation)}
       />
       <Route
-        path="/survey-information/survey-cto-questions/:survey_uid?"
+        path="/survey-information/survey-cto-questions/:survey_uid?/:form_uid?"
         element={requireAuth(SurveyCTOQuestions)}
       />
       <Route
@@ -69,15 +69,15 @@ const AppRoutes = () => {
         element={requireAuth(FieldSupervisorRoles)}
       />
       <Route
-        path="/survey-information/location/add"
+        path="/survey-information/location/add/:survey_uid?"
         element={requireAuth(SurveyLocationAdd)}
       />
       <Route
-        path="/survey-information/location/hierarchy"
+        path="/survey-information/location/hierarchy/:survey_uid?"
         element={requireAuth(SurveyLocationHierarchy)}
       />
       <Route
-        path="/survey-information/location/upload"
+        path="/survey-information/location/upload/:survey_uid?"
         element={requireAuth(SurveyLocationUpload)}
       />
       <Route path="*" element={<NotFound />} />

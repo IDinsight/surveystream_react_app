@@ -12,3 +12,14 @@ export type SurveyBasicInformationData = {
   created_by_user_uid: number;
   [key: string]: any; // Index signature allowing any string key
 };
+
+export type SurveyModuleQuestionnaireData = {
+  survey_uid?: number;
+  target_assignment_criteria: string[];
+  supervisor_assignment_criteria: string[];
+  supervisor_hierarchy_exists: boolean;
+  reassignment_required: boolean;
+  assignment_process: string;
+  supervisor_surveyor_relation: string;
+  language_location_mapping: boolean;
+};
