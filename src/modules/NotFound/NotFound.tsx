@@ -20,11 +20,12 @@ const NotFound: React.FC = () => (
         subTitle={
           <>
             <p style={{ marginBottom: 0 }}>
-              The page you are trying to load is not found! Please go back home
-              and try again. If the problem persists,
+              The page you are trying to load is not found. Please click on the
+              button below to go to the home page and try again.
             </p>
             <p style={{ marginTop: 0 }}>
-              please contact the SurveyStream team.
+              In case the problem persists, please contact the SurveyStream
+              team.
             </p>
           </>
         }
