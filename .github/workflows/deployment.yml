@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     branches:
-      - DODSS-909-Frontend-blue-green-cicd
+      - dev
 
 jobs:
   build-deploy:
