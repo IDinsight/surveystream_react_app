@@ -15,6 +15,7 @@ import {
   performLogin,
 } from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
+import { getCookie } from "../../../utils/helper";
 
 const Login = () => {
   const [form] = useForm();
@@ -63,6 +64,12 @@ const Login = () => {
   //   }
   // }, [redirectedFrom]);
 
+  useEffect(() => {
+    const rememberToken = getCookie("remember_token");
+    if (rememberToken !== "") {
+      navigate("/surveys");
+    }
+  }, []);
   return (
     <>
       <Header />
