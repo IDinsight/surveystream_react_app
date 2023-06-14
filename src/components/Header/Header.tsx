@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { useEffect } from "react";
 import { RootState } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ProfileWrapper = styled.div`
   color: white;
@@ -76,7 +77,9 @@ function Header({ items }: { items?: any }) {
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
-        <img className="pl-6 pr-12" src={Logo} alt="SurveyStream Logo" />
+        <Link to="/">
+          <img className="pl-6 pr-12" src={Logo} alt="SurveyStream Logo" />
+        </Link>
       </div>
       {items ? <NavItems /> : null}
 
