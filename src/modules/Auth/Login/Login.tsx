@@ -66,7 +66,9 @@ const Login = () => {
 
   useEffect(() => {
     const rememberToken = getCookie("remember_token");
-    console.log("remember_token:", rememberToken);
+    if (rememberToken !== "") {
+      navigate("/surveys");
+    }
   }, []);
   return (
     <>
