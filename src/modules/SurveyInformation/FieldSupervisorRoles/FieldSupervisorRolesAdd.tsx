@@ -12,18 +12,19 @@ import {
   DescriptionTitle,
   DescriptionText,
   StyledFormItem,
+  AddAnotherButton,
+  DynamicItemsForm,
 } from "../SurveyInformation.styled";
-import { AddAnotherButton, RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
   addSupervisorRole,
   setSupervisorRoles,
-} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesSlice";
+} from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesSlice";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesActions";
+} from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesAdd() {
@@ -125,7 +126,6 @@ function FieldSupervisorRolesAdd() {
       if (filteredRoles.length === 0) {
         message.error("Please fill in at least one role name!");
       } else {
-        // Update the supervisorRoles state with the filtered roles
         dispatch(setSupervisorRoles(filteredRoles));
       }
 
@@ -175,7 +175,7 @@ function FieldSupervisorRolesAdd() {
             of roles: core team, regional coordinator, cluster coordinator.
           </DescriptionText>
         </DescriptionWrap>
-        <RolesForm form={form}>
+        <DynamicItemsForm form={form}>
           {renderRolesField()}
           <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
             <AddAnotherButton
@@ -186,7 +186,7 @@ function FieldSupervisorRolesAdd() {
               <FileAddOutlined /> Add another role
             </AddAnotherButton>
           </StyledFormItem>
-        </RolesForm>
+        </DynamicItemsForm>
       </MainWrapper>
       <FooterWrapper style={{ flexBasis: "auto" }}>
         <SaveButton>Save</SaveButton>

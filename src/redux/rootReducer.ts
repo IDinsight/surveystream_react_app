@@ -5,9 +5,10 @@ import modulesReducer from "./moduleSelection/modulesSlice";
 import authReducer from "./auth/authSlice";
 import surveysReducer from "./surveyList/surveysSlice";
 import surveyConfigReducer from "./surveyConfig/surveyConfigSlice";
-import fieldSupevisorRolesReducer from "./fiedSupervisorRoles/fieldSupervisorRolesSlice";
+import fieldSupervisorRolesReducer from "./fieldSupervisorRoles/fieldSupervisorRolesSlice";
 import surveyCTOInformationReducer from "./surveyCTOInformation/surveyCTOInformationSlice";
 import surveyCTOQuestionsReducer from "./surveyCTOQuestions/surveyCTOQuestionsSlice";
+import surveyLocationsReducer from "./surveyLocations/surveyLocationsSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -15,9 +16,10 @@ const rootReducer = combineReducers({
   auth: authReducer,
   surveys: surveysReducer,
   surveyConfig: surveyConfigReducer,
-  filedSupervisorRoles: fieldSupevisorRolesReducer,
+  filedSupervisorRoles: fieldSupervisorRolesReducer,
   surveyCTOInformation: surveyCTOInformationReducer,
   surveyCTOQuestions: surveyCTOQuestionsReducer,
+  surveyLocations: surveyLocationsReducer,
 });
 
 export default rootReducer;

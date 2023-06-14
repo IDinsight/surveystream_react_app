@@ -10,16 +10,16 @@ import {
   DescriptionTitle,
   DescriptionText,
   StyledFormItem,
+  DynamicItemsForm,
 } from "../SurveyInformation.styled";
-import { RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import { setSupervisorRoles } from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesSlice";
+import { setSupervisorRoles } from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesSlice";
 import { MainWrapper } from "../../../shared/Nav.styled";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesActions";
+} from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesHierarchy() {
@@ -158,7 +158,9 @@ function FieldSupervisorRolesHierarchy() {
           </DescriptionText>
         </DescriptionWrap>
 
-        <RolesForm form={form}>{renderReportingRolesField()}</RolesForm>
+        <DynamicItemsForm form={form}>
+          {renderReportingRolesField()}
+        </DynamicItemsForm>
       </MainWrapper>
 
       <FooterWrapper>

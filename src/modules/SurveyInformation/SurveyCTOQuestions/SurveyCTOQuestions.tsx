@@ -198,6 +198,7 @@ function SurveyCTOQuestions() {
             </DescriptionText>
 
             <SCTOQuestionsButton
+              type="dashed"
               loading={loading}
               onClick={loadFormQuestions}
               disabled={form_uid == undefined}
