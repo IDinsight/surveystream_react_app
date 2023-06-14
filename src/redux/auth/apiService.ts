@@ -1,4 +1,3 @@
-import { message } from "antd";
 import axios from "axios";
 import { LoginFormData, ResetPasswordData } from "./types";
 
@@ -84,7 +83,7 @@ export const forgotPasswordAction = async (formData: { email: string }) => {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    await axios.post(
+    const { data } = await axios.post(
       `${API_BASE_URL}/forgot-password`,
       { email: formData.email },
       {
@@ -92,7 +91,7 @@ export const forgotPasswordAction = async (formData: { email: string }) => {
         withCredentials: true,
       }
     );
-    message.success(`Success! Please check your email to reset your password`);
+    return data;
   } catch (err: any) {
     return err;
   }
@@ -103,14 +102,18 @@ export const resetPasswordAction = async (formData: ResetPasswordData) => {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    await axios.post(`${API_BASE_URL}/reset-password`, formData, {
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
-    message.success("Password reset success");
+    const { data } = await axios.post(
+      `${API_BASE_URL}/reset-password`,
+      formData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return data;
   } catch (err: any) {
     return err;
   }
