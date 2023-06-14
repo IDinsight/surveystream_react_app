@@ -129,12 +129,16 @@ function SurveyCTOInfomation() {
         );
       }
 
-      if (formRes && formRes.payload.status === false) {
+      if (formRes.payload.success === false) {
         message.error(formRes.payload.message);
       } else {
         message.success("SurveyCTO form updated successfully");
         navigate(
-          `/survey-information/field-supervisor-roles/add/${survey_uid}`
+          `/survey-information/survey-cto-questions/${survey_uid}/${
+            surveyCTOForm.form_uid
+              ? surveyCTOForm.form_uid
+              : formRes.payload.data.data.survey.form_uid
+          }`
         );
       }
       setLoading(false);

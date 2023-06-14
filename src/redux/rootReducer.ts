@@ -7,6 +7,7 @@ import surveysReducer from "./surveyList/surveysSlice";
 import surveyConfigReducer from "./surveyConfig/surveyConfigSlice";
 import fieldSupevisorRolesReducer from "./fiedSupervisorRoles/fieldSupervisorRolesSlice";
 import surveyCTOInformationReducer from "./surveyCTOInformation/surveyCTOInformationSlice";
+import surveyCTOQuestionsReducer from "./surveyCTOQuestions/surveyCTOQuestionsSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   surveyConfig: surveyConfigReducer,
   filedSupervisorRoles: fieldSupevisorRolesReducer,
   surveyCTOInformation: surveyCTOInformationReducer,
+  surveyCTOQuestions: surveyCTOQuestionsReducer,
 });
 
 export default rootReducer;

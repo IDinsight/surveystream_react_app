@@ -64,7 +64,7 @@ const surveyCTOInformationSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    postSurveyCTOFormSucess: (state, action: PayloadAction<any>) => {
+    postSurveyCTOFormSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
     },
@@ -76,7 +76,7 @@ const surveyCTOInformationSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    putSurveyCTOFormSucess: (state, action: PayloadAction<any>) => {
+    putSurveyCTOFormSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
     },
@@ -96,10 +96,10 @@ export const {
   getSurveyCTOFormRequest,
   postSurveyCTOFormFailure,
   postSurveyCTOFormRequest,
-  postSurveyCTOFormSucess,
+  postSurveyCTOFormSuccess,
   putSurveyCTOFormFailure,
   putSurveyCTOFormRequest,
-  putSurveyCTOFormSucess,
+  putSurveyCTOFormSuccess,
 } = surveyCTOInformationSlice.actions;
 
 export default surveyCTOInformationSlice.reducer;

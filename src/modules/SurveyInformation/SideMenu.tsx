@@ -26,12 +26,12 @@ function SideMenu() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const { form_uid } = useParams<{ form_uid?: string }>() ?? {
+    form_uid: "",
+  };
   const isActive = (path: string) => {
     const currentPath = location.pathname;
-    const pathParts = currentPath.split("/");
-    const middlePart =
-      pathParts.length > 3 ? pathParts[3] : pathParts[pathParts.length - 1];
-    return path.includes(middlePart) ? "active" : "";
+    return path.includes(currentPath) ? "active" : "";
   };
 
   const items: MenuProps["items"] = [
@@ -227,9 +227,9 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to={`/survey-information/survey-cto-questions/${survey_uid}`}
+          to={`/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`}
           className={isActive(
-            `/survey-information/survey-cto-questions/${survey_uid}`
+            `/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`
           )}
         >
           <IconWrapper>
