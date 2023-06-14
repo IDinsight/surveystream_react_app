@@ -10,10 +10,10 @@ import {
   getTimezonesSuccess,
   postSurveyCTOFormFailure,
   postSurveyCTOFormRequest,
-  postSurveyCTOFormSucess,
+  postSurveyCTOFormSuccess,
   putSurveyCTOFormFailure,
   putSurveyCTOFormRequest,
-  putSurveyCTOFormSucess,
+  putSurveyCTOFormSuccess,
 } from "./surveyCTOInformationSlice";
 import { SurveyCTOForm } from "./types";
 
@@ -31,13 +31,15 @@ export const postSurveyCTOForm = createAsyncThunk(
       const response = await api.createSurveyCTOForm(surveyCTOData, surveyUid);
 
       if (response.status == 201) {
-        dispatch(postSurveyCTOFormSucess(response.data));
-        return response;
+        dispatch(postSurveyCTOFormSuccess(response.data));
+        return { ...response.data, success: true };
       }
 
       const error = {
-        message: response.message,
-        status: false,
+        message: response.message
+          ? response.message
+          : "Failed to create surveyCTO form",
+        success: false,
       };
       dispatch(postSurveyCTOFormFailure(error));
       return error;
@@ -62,13 +64,15 @@ export const putSurveyCTOForm = createAsyncThunk(
       dispatch(putSurveyCTOFormRequest());
       const response = await api.updateSurveyCTOForm(surveyCTOData, formUid);
       if (response.status == 200) {
-        dispatch(putSurveyCTOFormSucess(response.data));
-        return response;
+        dispatch(putSurveyCTOFormSuccess(response.data));
+        return { ...response.data, success: true };
       }
 
       const error = {
-        message: response.message,
-        status: false,
+        message: response.message
+          ? response.message
+          : "Failed to update surveyCTO form",
+        success: false,
       };
       dispatch(putSurveyCTOFormFailure(error));
       return error;
@@ -92,7 +96,7 @@ export const getSurveyCTOForm = createAsyncThunk(
         return res.data.data;
       }
       const error = { ...res.response.data, code: res.response.status };
-      dispatch(getSurveyCTOFormSuccess(error));
+      dispatch(getSurveyCTOFormFailure(error));
       return res.response.data;
     } catch (error) {
       const errorMessage = error || "Failed to get surveyCTO form";

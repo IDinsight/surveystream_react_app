@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Form } from "antd";
 import styled from "styled-components";
 
 export const SCTOQuestionsButton = styled(Button)`
@@ -13,7 +13,7 @@ export const SCTOQuestionsButton = styled(Button)`
   }
 `;
 
-export const QuestionsForm = styled.form`
+export const QuestionsForm = styled(Form)`
   width: 50%;
   margin-top: 40px;
   font-family: Inter;
