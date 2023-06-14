@@ -75,7 +75,7 @@ jobs:
             cat ./.github/workflows/appspec.json | jq --arg key "$TASK_DEF_ARN" '.Resources[].TargetService.Properties.TaskDefinition=$key' \
             | jq --arg key "$container_port" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerPort=$key' \
             | jq --arg key "$container_name" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerName=$key' > ./.github/workflows/appspecfinal.json
-            sed -i 's#\\"##g' appspec.json  
+            sed -i 's#\\"##g' ./.github/workflows/appspecfinal.json  
         
       - name: ECS task deployment using CodeDeploy
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
