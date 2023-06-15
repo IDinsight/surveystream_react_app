@@ -155,8 +155,15 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                 <>
                   <div>New to SurveyStream?</div>
                   <div>
-                    <a style={{ color: "#1D39C4" }}> Click here </a> to visit
-                    documentation before configuring your first survey
+                    <a
+                      href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
+                      target="__blank"
+                      style={{ color: "#1D39C4" }}
+                    >
+                      {" "}
+                      Click here{" "}
+                    </a>{" "}
+                    to visit documentation before configuring your first survey
                   </div>
                 </>
               }
@@ -229,7 +236,14 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                             />
                             <div> Request customization support</div>
                           </CardTitle>
-                          <LearnMoreLink>
+                          <LearnMoreLink
+                            onClick={() =>
+                              window.open(
+                                "https://forms.gle/81zvXSZutnE4GHwB6",
+                                "_blank"
+                              )
+                            }
+                          >
                             Learn more{" "}
                             <ArrowRightOutlined style={{ marginLeft: 4 }} />
                           </LearnMoreLink>
