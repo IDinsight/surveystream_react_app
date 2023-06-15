@@ -37,6 +37,15 @@ function Header({ items }: { items?: any }) {
     (state: RootState) => state.reducer.auth.profile
   );
 
+  const getUsernameText = (): string => {
+    if (userProfile?.first_name !== null && userProfile?.last_name !== null) {
+      return `${userProfile?.first_name} ${userProfile?.last_name}`;
+    } else if (userProfile?.email !== null) {
+      return userProfile?.email;
+    }
+    return "";
+  };
+
   const logoutUser = async () => {
     const logoutRes = await dispatch(performLogout());
     if (logoutRes.payload.status) {
@@ -53,11 +62,7 @@ function Header({ items }: { items?: any }) {
 
   const avatarMenu: MenuProps["items"] = [
     {
-      label: (
-        <Menu.Item key="profile">
-          {`${userProfile?.first_name} ${userProfile?.last_name}`}
-        </Menu.Item>
-      ),
+      label: <Menu.Item key="profile">{getUsernameText()}</Menu.Item>,
       key: "1",
     },
     {
@@ -77,13 +82,13 @@ function Header({ items }: { items?: any }) {
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
-        <Link to="/">
+        <Link to={userProfile?.user_uid ? "/surveys" : "/"}>
           <img className="pl-6 pr-12" src={Logo} alt="SurveyStream Logo" />
         </Link>
       </div>
       {items ? <NavItems /> : null}
 
-      {userProfile?.first_name && (
+      {userProfile?.user_uid && (
         <ProfileWrapper className="flex items-center ml-auto mr-6">
           <Dropdown menu={{ items: helpMenu }} trigger={["hover", "click"]}>
             <div className="mr-4">
@@ -98,9 +103,7 @@ function Header({ items }: { items?: any }) {
 
           <Dropdown menu={{ items: avatarMenu }} trigger={["hover", "click"]}>
             <a>
-              <UserAvatar
-                name={`${userProfile?.first_name} ${userProfile?.last_name}`}
-              />
+              <UserAvatar name={getUsernameText()} />
             </a>
           </Dropdown>
         </ProfileWrapper>

@@ -1,11 +1,16 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  forgotPasswordAction,
   getUserProfile,
   performLoginRequest,
   performLogoutRequest,
+  resetPasswordAction,
 } from "./apiService";
-import { LoginFormData } from "./types";
+import { LoginFormData, ResetPasswordData } from "./types";
 import {
+  forgotPasswordFailure,
+  forgotPasswordRequest,
+  forgotPasswordSuccess,
   loginFailure,
   loginRequest,
   loginSuccess,
@@ -15,6 +20,9 @@ import {
   profileFailure,
   profileRequest,
   profileSuccess,
+  resetPasswordFailure,
+  resetPasswordRequest,
+  resetPasswordSuccess,
 } from "./authSlice";
 import { deleteAllCookies } from "../../utils/helper";
 
@@ -71,6 +79,38 @@ export const performGetUserProfile = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "fetching profile failed";
       dispatch(profileFailure(errorMessage as string));
+      return rejectWithValue(errorMessage as string);
+    }
+  }
+);
+
+export const performForgotPassword = createAsyncThunk(
+  "auth/performForgotPassword",
+  async (userData: { email: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(forgotPasswordRequest());
+      const response = await forgotPasswordAction(userData);
+      dispatch(forgotPasswordSuccess(response));
+      return response;
+    } catch (error) {
+      const errorMessage = error || "Action forgot password failed";
+      dispatch(forgotPasswordFailure(errorMessage as string));
+      return rejectWithValue(errorMessage as string);
+    }
+  }
+);
+
+export const performResetPassword = createAsyncThunk(
+  "auth/performResetPassword",
+  async (reqData: ResetPasswordData, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(resetPasswordRequest());
+      const response = await resetPasswordAction(reqData);
+      dispatch(resetPasswordSuccess(response));
+      return response;
+    } catch (error) {
+      const errorMessage = error || "Action reset password failed";
+      dispatch(resetPasswordFailure(errorMessage as string));
       return rejectWithValue(errorMessage as string);
     }
   }

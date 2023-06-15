@@ -3,42 +3,70 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import ResetPasswordComponent from "../../../components/ResetPasswordComponent";
 import SuccessCard from "../../../components/SuccessCard";
-
-// TODO: Moved these type while integration
-type ResetPasswordData = {
-  rpt_id: string;
-  rpt_token: string;
-  newPassword: string;
-  confirmPassword: string;
-};
-
-type ResetParams = {
-  newPassword: string;
-  confirmPassword: string;
-};
+import { ResetParams, ResetPasswordData } from "../../../redux/auth/types";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { message } from "antd";
+import { performResetPassword } from "../../../redux/auth/authActions";
+import { RootState } from "../../../redux/store";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 function ResetPassword() {
   const [urlArr, setUrlARr] = useState<string[]>();
   const [actionDone, setActionDone] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
+  const loading = useAppSelector(
+    (state: RootState) => state.reducer.auth.loading
+  );
 
-  const handleResetSubmit = (values: ResetParams) => {
+  const handleResetSubmit = async (values: ResetParams) => {
     if (!urlArr || urlArr.length < 2) {
       return;
     }
 
     const requestData: ResetPasswordData = {
-      ...values,
+      new_password: values.password,
+      confirm: values.confirmPassword,
       rpt_id: urlArr[2],
       rpt_token: urlArr[3],
     };
-    // TODO: Add Dispatch here
-    console.log(requestData);
-    setActionDone(true);
-    return;
+
+    try {
+      const resetPasswordResp = await dispatch(
+        performResetPassword(requestData)
+      );
+
+      if (resetPasswordResp.payload?.message === "Success: password reset") {
+        setActionDone(true);
+        return;
+      } else {
+        // If it is Axios error then we will have the message
+        if (resetPasswordResp.payload?.name === "AxiosError") {
+          messageApi.open({
+            type: "error",
+            content: resetPasswordResp.payload?.response?.data?.message,
+          });
+          return;
+        }
+
+        messageApi.open({
+          type: "error",
+          content: "Forgot password failed!",
+        });
+      }
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "Reset password failed!",
+      });
+    }
   };
 
   const handleResetFailure = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
+    messageApi.open({
+      type: "error",
+      content: "Reset password failed!",
+    });
   };
 
   useEffect(() => {
@@ -48,22 +76,29 @@ function ResetPassword() {
   return (
     <>
       <Header />
-      <div className="bg-[#F5F5F5] flex justify-center items-center min-h-[calc(100vh-114px)]">
-        {actionDone != true ? (
-          <ResetPasswordComponent
-            handleResetSubmit={handleResetSubmit}
-            handleResetFailure={handleResetFailure}
-          />
-        ) : (
-          <SuccessCard
-            heading="Password has been updated successfully!"
-            subheading=""
-            link="/login"
-            linktext="Login"
-          />
-        )}
-      </div>
-      <Footer />
+      {contextHolder}
+      {loading ? (
+        <FullScreenLoader />
+      ) : (
+        <>
+          <div className="bg-[#F5F5F5] flex justify-center items-center min-h-[calc(100vh-114px)]">
+            {actionDone != true ? (
+              <ResetPasswordComponent
+                handleResetSubmit={handleResetSubmit}
+                handleResetFailure={handleResetFailure}
+              />
+            ) : (
+              <SuccessCard
+                heading="Password has been updated successfully!"
+                subheading=""
+                link="/login"
+                linktext="Login"
+              />
+            )}
+          </div>
+          <Footer />
+        </>
+      )}
     </>
   );
 }
