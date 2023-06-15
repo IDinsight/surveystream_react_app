@@ -110,10 +110,10 @@ export const getSCTOFormMapping = createAsyncThunk(
 
 export const getCTOFormQuestions = createAsyncThunk(
   "surveyCTOQuestions/getCTOFormQuestions",
-  async (params: { formUid: string }, { dispatch, rejectWithValue }) => {
+  async ({ formUid, refresh = false }: { formUid: string, refresh?: boolean }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getFormQuestionsDefinitionRequest());
-      const res: any = await api.getSurveyCTOFormDefinition(params.formUid);
+      const res: any = await api.getSurveyCTOFormDefinition(formUid, refresh);
 
       if (res.status === 200) {
         dispatch(getFormQuestionsDefinitionSuccess(res.data.data));
