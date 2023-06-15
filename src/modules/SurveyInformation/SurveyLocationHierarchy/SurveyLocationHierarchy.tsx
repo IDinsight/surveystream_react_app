@@ -29,7 +29,7 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
 import { GeoLevel } from "../../../redux/surveyLocations/types";
-import { setSurveyLocationGeoLevel } from "../../../redux/surveyLocations/surveyLocationsSlice";
+import { setSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsSlice";
 
 interface ILocationHierarchySelect {
   name: string;
@@ -83,9 +83,11 @@ function SurveyLocationHierarchy() {
           labelCol={{ span: 11 }}
           wrapperCol={{ span: 11 }}
           name={`geo_level_${index}`}
-          label={geoLevel.geo_level_name ? geoLevel.geo_level_name : ""}
+          label={geoLevel.geo_level_name ? geoLevel?.geo_level_name : ""}
           initialValue={
-            geoLevel.parent_geo_level_uid ? geoLevel.parent_geo_level_uid : null
+            geoLevel?.parent_geo_level_uid
+              ? geoLevel?.parent_geo_level_uid
+              : null
           }
           rules={[
             {
@@ -125,7 +127,7 @@ function SurveyLocationHierarchy() {
       parent_geo_level_uid: value,
     };
 
-    dispatch(setSurveyLocationGeoLevel(updatedLevels));
+    dispatch(setSurveyLocationGeoLevels(updatedLevels));
   };
 
   const handleHierarchyContinue = async () => {

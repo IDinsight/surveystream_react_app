@@ -22,7 +22,7 @@ const surveyLocationsSlice = createSlice({
     addSurveyLocationGeoLevel: (state, action) => {
       state.surveyLocationGeoLevels.push(action.payload);
     },
-    setSurveyLocationGeoLevel: (state, action: PayloadAction<GeoLevel[]>) => {
+    setSurveyLocationGeoLevels: (state, action: PayloadAction<GeoLevel[]>) => {
       state.surveyLocationGeoLevels = action.payload;
     },
     getSurveyLocationGeoLevelsRequest: (state) => {
@@ -103,7 +103,7 @@ export const {
   postSurveyLocationsFailure,
   postSurveyLocationsRequest,
   postSurveyLocationsSuccess,
-  setSurveyLocationGeoLevel,
+  setSurveyLocationGeoLevels,
   addSurveyLocationGeoLevel,
 } = surveyLocationsSlice.actions;
 

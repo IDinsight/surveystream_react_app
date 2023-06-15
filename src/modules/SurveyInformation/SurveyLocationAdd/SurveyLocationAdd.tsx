@@ -1,26 +1,6 @@
 import { Form, Input, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-
-import Header from "../../../components/Header";
-import {
-  NavWrapper,
-  BackLink,
-  BackArrow,
-  Title,
-} from "../../../shared/Nav.styled";
-
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
-import SideMenu from "../SideMenu";
-import {
-  DescriptionText,
-  IconText,
-  SurveyLocationFormWrapper,
-} from "./SurveyLocationAdd.styled";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FileAddOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
@@ -30,13 +10,30 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import {
   addSurveyLocationGeoLevel,
-  setSurveyLocationGeoLevel,
+  setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
+import {
+  DescriptionText,
+  SurveyLocationFormWrapper,
+} from "./SurveyLocationAdd.styled";
 import {
   AddAnotherButton,
   DynamicItemsForm,
   StyledFormItem,
 } from "../SurveyInformation.styled";
+import {
+  ContinueButton,
+  FooterWrapper,
+  SaveButton,
+} from "../../../shared/FooterBar.styled";
+import {
+  NavWrapper,
+  BackLink,
+  BackArrow,
+  Title,
+} from "../../../shared/Nav.styled";
+import SideMenu from "../SideMenu";
+import { Header } from "antd/es/layout/layout";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -58,7 +55,7 @@ function SurveyLocationAdd() {
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
-    if (survey_uid != undefined) {
+    if (survey_uid !== undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
     }
   };
@@ -83,7 +80,9 @@ function SurveyLocationAdd() {
           wrapperCol={{ span: 11 }}
           name={`geo_level_${index}`}
           label={<span>Location {index + 1}</span>}
-          initialValue={geoLevel.geo_level_name ? geoLevel.geo_level_name : ""}
+          initialValue={
+            geoLevel?.geo_level_name ? geoLevel?.geo_level_name : ""
+          }
           rules={[
             {
               required: true,
@@ -116,31 +115,42 @@ function SurveyLocationAdd() {
   };
 
   const handleAddGeoLevel = () => {
-    form.validateFields().then(() => {
-      const lastRoleIndex = surveyLocationGeoLevels.length;
+    return form
+      .validateFields()
+      .then(() => {
+        const lastRoleIndex = surveyLocationGeoLevels.length;
 
-      const newGeoLevel = form.getFieldValue(`geo_level_${lastRoleIndex}`);
+        const newGeoLevel = form.getFieldValue(`geo_level_${lastRoleIndex}`);
 
-      const isDuplicate = surveyLocationGeoLevels.some(
-        (geoLevel: { geo_level_name: string }) =>
-          geoLevel.geo_level_name === newGeoLevel
-      );
+        if (newGeoLevel === undefined) {
+          throw new Error(`Field geo_level_${lastRoleIndex} is not defined.`);
+        }
 
-      if (!isDuplicate) {
-        const geoLevel = {
-          geo_level_name: newGeoLevel,
-        };
+        const isDuplicate = surveyLocationGeoLevels.some(
+          (geoLevel) => geoLevel?.geo_level_name === newGeoLevel
+        );
 
-        dispatch(addSurveyLocationGeoLevel(geoLevel));
-      } else {
-        message.error("Geo level already exists!");
-      }
-    });
+        if (!isDuplicate) {
+          const geoLevel = {
+            geo_level_name: newGeoLevel,
+          };
+
+          dispatch(addSurveyLocationGeoLevel(geoLevel));
+          return true;
+        } else {
+          message.error("Geo level already exists!");
+          return false;
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
   };
 
   const handleLocationAddContinue = async () => {
     try {
-      if (survey_uid != undefined) {
+      if (survey_uid !== undefined) {
         const filteredGeoLevels = surveyLocationGeoLevels?.filter(
           (geoLevel: { geo_level_name: string }) => geoLevel.geo_level_name
         );
@@ -148,7 +158,7 @@ function SurveyLocationAdd() {
         if (filteredGeoLevels.length === 0) {
           message.error("Please fill in at least one location geo level!");
         } else {
-          dispatch(setSurveyLocationGeoLevel(filteredGeoLevels));
+          dispatch(setSurveyLocationGeoLevels(filteredGeoLevels));
         }
 
         setLoading(true);
@@ -172,7 +182,7 @@ function SurveyLocationAdd() {
         navigate(`/survey-information/location/hierarchy/${survey_uid}`);
       } else {
         message.error(
-          "Kindly check that survey_uid is provided in the url to proceed."
+          "Kindly check that survey_uid is provided in the URL to proceed."
         );
       }
     } catch (error) {
@@ -189,7 +199,7 @@ function SurveyLocationAdd() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> {activeSurvey?.survey_name} </Title>
+        <Title>{activeSurvey?.survey_name}</Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />
@@ -220,7 +230,7 @@ function SurveyLocationAdd() {
         <ContinueButton
           onClick={handleLocationAddContinue}
           loading={loading}
-          disabled={surveyLocationGeoLevels.length == 0}
+          disabled={surveyLocationGeoLevels.length === 0}
         >
           Continue
         </ContinueButton>
