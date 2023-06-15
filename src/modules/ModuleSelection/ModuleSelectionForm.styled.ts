@@ -40,6 +40,8 @@ export const SelectionCard = styled(Card)`
     }
     .ant-card-meta-title {
       background: #bfbfbf;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
     }
     margin-top: 15px;
     width: 86.5%;
@@ -48,6 +50,10 @@ export const SelectionCard = styled(Card)`
       padding: 5px;
       font-size: 12px;
       color: #595959;
+    }
+
+    & .ant-card-meta {
+      margin: 0;
     }
   `}
   font-size: 12px;
