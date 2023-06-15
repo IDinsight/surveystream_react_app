@@ -157,22 +157,38 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
         <div>Need help?</div>
         <HelpList>
           <HelpListItem color="#1D39C4">
-            <a href="#" target="_blank">
+            <a
+              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home#h.lofoqzg1pbqb"
+              target="_blank"
+              rel="noreferrer"
+            >
               Watch SurveyStream demo
             </a>
           </HelpListItem>
           <HelpListItem color="#1D39C4">
-            <a href="#" target="_blank">
+            <a
+              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/features"
+              target="_blank"
+              rel="noreferrer"
+            >
               How to choose modules for your survey?
             </a>
           </HelpListItem>
           <HelpListItem color="#1D39C4">
-            <a href="#" target="_blank">
+            <a
+              href="https://docs.surveycto.com/04-monitoring-and-management/01-the-basics/00.managing-server.html"
+              target="_blank"
+              rel="noreferrer"
+            >
               How to connect with SurveyCTO?
             </a>
           </HelpListItem>
           <HelpListItem color="#262626">
-            <a href="#" target="_blank">
+            <a
+              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
+              target="_blank"
+              rel="noreferrer"
+            >
               View all help topics -&gt;
             </a>
           </HelpListItem>
