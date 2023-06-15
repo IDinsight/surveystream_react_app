@@ -1,11 +1,10 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import Login from "../modules/Auth/Login";
 import LandingPage from "../modules/LandingPage";
 import SurveysHomePage from "../modules/SurveysHomePage";
 import NewSurveyConfig from "../modules/NewSurveyConfig";
 import ModuleSelection from "../modules/ModuleSelection";
-import { ComponentType, ReactNode } from "react";
 import { getCookie } from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
@@ -26,9 +25,9 @@ const isAuthenticated = () => {
   return rememberToken !== "";
 };
 
-const requireAuth = (Component: ComponentType<any>): ReactNode => {
+const PrivateRoute = () => {
   const isAuthorized = isAuthenticated();
-  return isAuthorized ? <Component /> : <Navigate to="/login" replace />;
+  return isAuthorized ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 const AppRoutes = () => {
@@ -38,48 +37,49 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
-      <Route path="/surveys" element={requireAuth(SurveysHomePage)} />
-      <Route
-        path="/survey-configuration/:survey_uid?"
-        element={requireAuth(SurveyConfiguration)}
-      />
-
-      <Route
-        path="/new-survey-config/:survey_uid?"
-        element={requireAuth(NewSurveyConfig)}
-      />
-      <Route
-        path="/module-selection/:survey_uid?"
-        element={requireAuth(ModuleSelection)}
-      />
-      <Route
-        path="/survey-information/:survey_uid?"
-        element={requireAuth(SurveyCTOInfomation)}
-      />
-      <Route
-        path="/survey-information/survey-cto-information/:survey_uid?"
-        element={requireAuth(SurveyCTOInfomation)}
-      />
-      <Route
-        path="/survey-information/survey-cto-questions/:survey_uid?/:form_uid?"
-        element={requireAuth(SurveyCTOQuestions)}
-      />
-      <Route
-        path="/survey-information/field-supervisor-roles/:path?/:survey_uid?"
-        element={requireAuth(FieldSupervisorRoles)}
-      />
-      <Route
-        path="/survey-information/location/add/:survey_uid?"
-        element={requireAuth(SurveyLocationAdd)}
-      />
-      <Route
-        path="/survey-information/location/hierarchy/:survey_uid?"
-        element={requireAuth(SurveyLocationHierarchy)}
-      />
-      <Route
-        path="/survey-information/location/upload/:survey_uid?"
-        element={requireAuth(SurveyLocationUpload)}
-      />
+      <Route element={<PrivateRoute />}>
+        <Route path="/surveys" element={<SurveysHomePage />} />
+        <Route
+          path="/survey-configuration/:survey_uid?"
+          element={<SurveyConfiguration />}
+        />
+        <Route
+          path="/new-survey-config/:survey_uid?"
+          element={<NewSurveyConfig />}
+        />
+        <Route
+          path="/module-selection/:survey_uid?"
+          element={<ModuleSelection />}
+        />
+        <Route
+          path="/survey-information/:survey_uid?"
+          element={<SurveyCTOInfomation />}
+        />
+        <Route
+          path="/survey-information/survey-cto-information/:survey_uid?"
+          element={<SurveyCTOInfomation />}
+        />
+        <Route
+          path="/survey-information/survey-cto-questions/:survey_uid?/:form_uid?"
+          element={<SurveyCTOQuestions />}
+        />
+        <Route
+          path="/survey-information/field-supervisor-roles/:path?/:survey_uid?"
+          element={<FieldSupervisorRoles />}
+        />
+        <Route
+          path="/survey-information/location/add/:survey_uid?"
+          element={<SurveyLocationAdd />}
+        />
+        <Route
+          path="/survey-information/location/hierarchy/:survey_uid?"
+          element={<SurveyLocationHierarchy />}
+        />
+        <Route
+          path="/survey-information/location/upload/:survey_uid?"
+          element={<SurveyLocationUpload />}
+        />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </SentryRoutes>
   );
