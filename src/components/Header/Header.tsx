@@ -82,7 +82,7 @@ function Header({ items }: { items?: any }) {
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
-        <Link to="/">
+        <Link to={userProfile?.user_uid ? "/surveys" : "/"}>
           <img className="pl-6 pr-12" src={Logo} alt="SurveyStream Logo" />
         </Link>
       </div>
