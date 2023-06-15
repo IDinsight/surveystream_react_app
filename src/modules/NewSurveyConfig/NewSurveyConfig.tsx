@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+
 import { useEffect, useState } from "react";
 import { message } from "antd";
 import Header from "../../components/Header";
@@ -50,9 +51,12 @@ function NewSurveyConfig() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const [surveyUid, setSurveyUid] = useState<string | undefined>(undefined);
+
   const [basicformData, setBasicFormData] =
     useState<SurveyBasicInformationData | null>(null);
 
@@ -111,7 +115,7 @@ function NewSurveyConfig() {
           const response = await dispatch(
             updateSurveyModuleQuestionnaire({
               moduleQuestionnaireData: moduleQuestionnaireformData,
-              surveyUid: survey_uid,
+              surveyUid: survey_uid !== undefined ? survey_uid : surveyUid,
             })
           );
           if (response.payload.success) {
@@ -119,7 +123,11 @@ function NewSurveyConfig() {
               type: "success",
               content: "Survey module questionnaire data updated successfully.",
             });
-            navigate(`/module-selection/${survey_uid}`);
+            navigate(
+              `/module-selection/${
+                survey_uid !== undefined ? survey_uid : surveyUid
+              }`
+            );
           } else {
             message.open({
               type: "error",
@@ -205,11 +213,18 @@ function NewSurveyConfig() {
           })
         );
       }
+
       if (response.payload.success) {
         messageApi.open({
           type: "success",
           content: "Your draft survey has been updated successfully.",
         });
+        const newSurveyUid = response.payload.survey.survey_uid;
+        const currentURL = window.location.href;
+        const newURL = `${currentURL}/${newSurveyUid}`;
+
+        window.history.replaceState(null, "", newURL);
+        setSurveyUid(newSurveyUid);
 
         if (stepIndex["sidebar"] < 1) {
           setStepIndex((prev: IStepIndex) => ({
