@@ -159,9 +159,10 @@ function SurveyLocationHierarchy() {
           "Kindly check that survey_uid is provided in the url to proceed."
         );
       }
-
+      setLoading(false);
       // Save successful, navigate to the next step
     } catch (error) {
+      setLoading(false);
       message.error("Please fill in all required fields.");
     } finally {
       setLoading(false);

@@ -33,6 +33,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
   getSurveyLocationGeoLevels,
+  getSurveyLocations,
   postSurveyLocations,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
@@ -71,6 +72,10 @@ function SurveyLocationUpload() {
     (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
   );
 
+  const surveyLocations = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.surveyLocations
+  );
+
   const isLoading = useAppSelector(
     (state: RootState) => state.reducer.surveyLocations.loading
   );
@@ -81,8 +86,21 @@ function SurveyLocationUpload() {
     }
   };
 
+  const fetchSurveyLocations = async () => {
+    if (survey_uid != undefined) {
+      await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
+    }
+  };
+
   useEffect(() => {
     fetchSurveyLocationGeoLevels();
+    fetchSurveyLocations();
+    console.log("surveyLocations", surveyLocations);
+    if (surveyLocations.length > 0) {
+      setHasError(false);
+      setColumnMatch(true);
+      setFileUploaded(true);
+    }
   }, [dispatch]);
 
   const handleFileUpload = (
@@ -160,12 +178,17 @@ function SurveyLocationUpload() {
             return;
           }
           message.success("Survey locations mapping updated successfully.");
-
-          // navigate(`/survey-information/location/upload/${survey_uid}`);
+          await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
+          setHasError(false);
+          setColumnMatch(true);
+          setFileUploaded(true);
         } else {
           message.error(
             "Kindly check that survey_uid is provided in the url to proceed."
           );
+          setHasError(true);
+          setColumnMatch(true);
+          setFileUploaded(true);
         }
 
         setLoading(false);
