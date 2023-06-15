@@ -113,11 +113,8 @@ function SurveysHomePage() {
                 </p>
                 <div className="flex flex-wrap">
                   {draftSurveys.map((survey, index: number) => (
-                    <>
-                      <div
-                        key={survey.survey_uid}
-                        className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
-                      >
+                    <div key={survey.survey_uid}>
+                      <div className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
                         <Link
                           onClick={() =>
                             dispatch(
@@ -133,13 +130,16 @@ function SurveysHomePage() {
                           {survey.survey_name}
                         </Link>
                         <p className="m-0 mt-2 font-inter font-normal text-xs leading-5 text-gray-7">
-                          Last edited on {survey.last_updated_at}
+                          Last edited on {getDayMonth(survey.last_updated_at)}
                         </p>
                       </div>
                       {index % 4 === 3 && <div className="w-0 flex-1" />}
-                    </>
+                    </div>
                   ))}
-                  <div className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
+                  <div
+                    key="new_survey"
+                    className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
+                  >
                     <Link
                       to="/new-survey-config"
                       className="no-underline flex items-center"
