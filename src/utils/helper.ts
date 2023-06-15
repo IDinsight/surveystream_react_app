@@ -5,7 +5,7 @@
  */
 export const getDayMonth = (date: string) => {
   const dataArr = new Date(date).toDateString().split(" ");
-  return dataArr[2] + " " + dataArr[1];
+  return dataArr[2] + " " + dataArr[1] + " " + dataArr[3];
 };
 export const getCookie = (cname: string) => {
   const name = cname + "=";
