@@ -233,14 +233,14 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Survey description&nbsp;
-                  <StyledTooltip title="Survey description">
+                  <StyledTooltip title="Enter a brief description about the survey. Ex: Household surveys of ~ 56000 households to measure ~200 indicators">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
               }
             >
               <TextArea
-                placeholder="Household surveys of ~ 56000 households to measure ~200 indicators"
+                placeholder="Survey description"
                 style={{ width: "100%" }}
               ></TextArea>
             </StyledFormItem>
@@ -252,7 +252,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               name="irbApproval"
               label={
                 <span>
-                  Have you received an IRB approval? (optional)&nbsp;
+                  Have you received an IRB approval?&nbsp;
                   <StyledTooltip title="IRB approval">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
