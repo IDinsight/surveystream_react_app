@@ -66,6 +66,12 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     fetchSurveyBasicInformation();
   }, [dispatch]);
 
+  useEffect(() => {
+    if (basicInfo === null) {
+      form.resetFields();
+    }
+  }, [basicInfo]);
+
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const formValues: SurveyBasicInformationData = {
       survey_uid: basicInfo?.survey_uid ? basicInfo?.survey_uid : null,

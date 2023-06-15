@@ -67,13 +67,6 @@ function NewSurveyConfig() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.reducer.surveys.activeSurvey
   );
-  useEffect(() => {
-    if (survey_uid == undefined) {
-      dispatch(clearBasicInfo());
-      dispatch(clearModuleQuestionnaire());
-      dispatch(setActiveSurvey(null));
-    }
-  }, [dispatch]);
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
@@ -234,6 +227,14 @@ function NewSurveyConfig() {
       });
     }
   };
+
+  useEffect(() => {
+    if (survey_uid === undefined) {
+      dispatch(clearBasicInfo());
+      dispatch(clearModuleQuestionnaire());
+      dispatch(setActiveSurvey(null));
+    }
+  }, [dispatch]);
 
   return (
     <>
