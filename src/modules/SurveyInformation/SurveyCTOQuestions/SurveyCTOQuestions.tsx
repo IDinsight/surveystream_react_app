@@ -74,7 +74,7 @@ function SurveyCTOQuestions() {
     navigate(-1); // Navigate back one step in the history stack
   };
 
-  const loadFormQuestions = async (refresh: boolean = false) => {
+  const loadFormQuestions = async (refresh = false) => {
     setLoading(true);
     if (form_uid != undefined) {
       const questionsRes = await dispatch(
