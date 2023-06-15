@@ -89,7 +89,10 @@ function SurveysHomePage() {
             />
           )}
           {!showError && (
-            <div className="pl-20 py-10 bg-gray-2">
+            <div
+              className="pl-20 py-10 bg-gray-2"
+              style={{ minHeight: "calc( 100vh - 158px)" }}
+            >
               <div id="surveys-active" className="mb-10">
                 <p className="font-inter font-medium text-base text-gray-7">
                   Active surveys
