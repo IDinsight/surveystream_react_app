@@ -137,6 +137,7 @@ function FieldSupervisorRolesHierarchy() {
         return;
       } else {
         message.success("Roles updated successfully");
+        navigate(`/survey-information/location/add/${survey_uid}`);
       }
 
       // Save successful, navigate to the next step
