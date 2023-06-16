@@ -4,11 +4,27 @@ import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 import { SurveyCTOQuestionsForm } from "./types";
 
-export const getSurveyCTOFormDefinition = async (form_uid: string) => {
+export const getSurveyCTOFormDefinition = async (
+  form_uid: string,
+  refresh?: boolean
+) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/forms/${form_uid}/scto-form-definition`;
+    const url = `${API_BASE_URL}/forms/${form_uid}/scto-form-definition${
+      refresh ? "/refresh" : ""
+    }`;
+
+    if (refresh) {
+      const res = await axios.post(url, {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      return res;
+    }
 
     const res = await axios.get(url, {
       headers: {

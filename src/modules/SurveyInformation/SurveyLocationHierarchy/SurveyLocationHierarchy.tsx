@@ -1,5 +1,5 @@
-import { Form, Select } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Form, Select, message } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
 import {
@@ -20,7 +20,16 @@ import {
   SelectItem,
   SurveyLocationHierarchyFormWrapper,
 } from "./SurveyLocationHierarchy.styled";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { RootState } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import {
+  getSurveyLocationGeoLevels,
+  postSurveyLocationGeoLevels,
+} from "../../../redux/surveyLocations/surveyLocationsActions";
+import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
+import { GeoLevel } from "../../../redux/surveyLocations/types";
+import { setSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsSlice";
 
 interface ILocationHierarchySelect {
   name: string;
@@ -28,40 +37,154 @@ interface ILocationHierarchySelect {
 }
 
 function SurveyLocationHierarchy() {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  // Once, we will have location items, we can prepare locations hierarchy
-  const locationItems = ["State", "District", "Block"];
-  const locationArr = locationItems.map(
-    (val: string): ILocationHierarchySelect => {
-      return { name: val, value: "" };
-    }
-  );
-  const [locationsHierarchy, setLocationsHierarchy] =
-    useState<ILocationHierarchySelect[]>(locationArr);
-
-  const selectionOption = locationItems.map((val) => {
-    return { label: val, value: val };
-  });
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: "",
+  };
+  const [loading, setLoading] = useState(false);
 
   const handleGoBack = () => {
     navigate(-1);
   };
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.reducer.surveys.activeSurvey
+  );
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+  );
 
-  const handleLocationSelection = (val: string, index: number) => {
-    const tempLocationsHierarchy = [...locationsHierarchy];
-    tempLocationsHierarchy[index].value = val;
-    setLocationsHierarchy(tempLocationsHierarchy);
+  const fetchSurveyLocationGeoLevels = async () => {
+    if (survey_uid != undefined) {
+      await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
+    }
+  };
+
+  useEffect(() => {
+    fetchSurveyLocationGeoLevels();
+  }, [dispatch]);
+
+  const renderHierarchyGeoLevelsField = () => {
+    const numGeoLevels = surveyLocationGeoLevels.length;
+
+    const fields = Array.from({ length: numGeoLevels }, (_, index) => {
+      const geoLevel: {
+        parent_geo_level_uid?: string;
+        geo_level_name?: string;
+        geo_level_uid?: string;
+      } = surveyLocationGeoLevels[index];
+
+      return (
+        <StyledFormItem
+          key={index}
+          required
+          labelCol={{ span: 11 }}
+          wrapperCol={{ span: 11 }}
+          name={`geo_level_${index}`}
+          label={geoLevel.geo_level_name ? geoLevel?.geo_level_name : ""}
+          initialValue={
+            geoLevel?.parent_geo_level_uid
+              ? geoLevel?.parent_geo_level_uid
+              : null
+          }
+          rules={[
+            {
+              validator: (_: any, value: string | undefined) => {
+                if (value && value === geoLevel.geo_level_uid) {
+                  return Promise.reject("Location hierarchy invalid!");
+                }
+                if (
+                  value &&
+                  surveyLocationGeoLevels.some(
+                    (g) => g.parent_geo_level_uid === value && g !== geoLevel
+                  )
+                ) {
+                  return Promise.reject("Please select a unique hierarchy!");
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          <Select
+            placeholder="Choose hierarchy"
+            style={{ width: "100%" }}
+            onChange={(value) => handleSelectChange(value, index)}
+          >
+            <Select.Option value={null}>Highest hierarchy level</Select.Option>
+            {surveyLocationGeoLevels.map((g, i) => (
+              <Select.Option key={i} value={g.geo_level_uid}>
+                {g.geo_level_name}
+              </Select.Option>
+            ))}
+          </Select>
+        </StyledFormItem>
+      );
+    });
+
+    return fields;
+  };
+
+  const handleSelectChange = (value: string, index: number) => {
+    const updatedLevels = [...surveyLocationGeoLevels];
+
+    updatedLevels[index] = {
+      ...updatedLevels[index],
+      parent_geo_level_uid: value,
+    };
+
+    dispatch(setSurveyLocationGeoLevels(updatedLevels));
+  };
+
+  const handleHierarchyContinue = async () => {
+    try {
+      if (survey_uid != undefined) {
+        setLoading(true);
+
+        await form.validateFields();
+
+        const surveyGeoLevelsData = surveyLocationGeoLevels;
+
+        const geoLevelsRes = await dispatch(
+          postSurveyLocationGeoLevels({
+            geoLevelsData: surveyGeoLevelsData,
+            surveyUid: survey_uid,
+          })
+        );
+
+        if (geoLevelsRes.payload.status === false) {
+          message.error(geoLevelsRes.payload.message);
+          return;
+        } else {
+          message.success("Survey GeoLevels updated successfully.");
+        }
+
+        navigate(`/survey-information/location/upload/${survey_uid}`);
+      } else {
+        message.error(
+          "Kindly check that survey_uid is provided in the url to proceed."
+        );
+      }
+      setLoading(false);
+      // Save successful, navigate to the next step
+    } catch (error) {
+      setLoading(false);
+      message.error("Please fill in all required fields.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Header />
       <NavWrapper>
-        <BackLink href="#" onClick={handleGoBack}>
+        <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> TSDPS </Title>
+        <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />
@@ -71,31 +194,17 @@ function SurveyLocationHierarchy() {
             Please add locations for this survey
           </DescriptionText>
           <div style={{ marginTop: "40px" }}>
-            <Form layout="horizontal">
-              {locationsHierarchy.map(
-                (item: ILocationHierarchySelect, index: number) => {
-                  return (
-                    <SelectItem key={index} label={item.name} required>
-                      <Select
-                        style={{ width: 168 }}
-                        placeholder="Choose hierarchy"
-                        onChange={(e) => handleLocationSelection(e, index)}
-                        options={[
-                          { label: "Highest location", value: "highest" },
-                          ...selectionOption,
-                        ]}
-                      />
-                    </SelectItem>
-                  );
-                }
-              )}
-            </Form>
+            <DynamicItemsForm form={form}>
+              {renderHierarchyGeoLevelsField()}
+            </DynamicItemsForm>
           </div>
         </SurveyLocationHierarchyFormWrapper>
       </div>
       <FooterWrapper>
         <SaveButton>Save</SaveButton>
-        <ContinueButton>Continue</ContinueButton>
+        <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
+          Continue
+        </ContinueButton>
       </FooterWrapper>
     </>
   );

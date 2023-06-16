@@ -64,6 +64,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   "Survey information": {
     "SurveyCTO information": "survey-cto-information",
     "Field supervisor roles": "field-supervisor-roles/add",
+    "Survey locations": "location/add",
   },
 };
 
@@ -207,10 +208,6 @@ const SurveyConfiguration: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return <FullScreenLoader />;
-  }
-
   return (
     <>
       <Header />
@@ -223,15 +220,19 @@ const SurveyConfiguration: React.FC = () => {
           {activeSurvey?.survey_name ? ` : ${activeSurvey?.survey_name}` : ""}
         </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
-        <SideMenu surveyProgress={surveyConfigs} />
-        <MainWrapper>
-          {Object.entries(surveyConfigs).map(
-            ([sectionTitle, sectionConfig], index) =>
-              renderSection(sectionTitle, sectionConfig, index)
-          )}
-        </MainWrapper>
-      </div>
+      {isLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <div style={{ display: "flex" }}>
+          <SideMenu surveyProgress={surveyConfigs} />
+          <MainWrapper>
+            {Object.entries(surveyConfigs).map(
+              ([sectionTitle, sectionConfig], index) =>
+                renderSection(sectionTitle, sectionConfig, index)
+            )}
+          </MainWrapper>
+        </div>
+      )}
     </>
   );
 };

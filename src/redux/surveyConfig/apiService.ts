@@ -56,7 +56,9 @@ export const postSurveyModuleQuestionnaire = async (
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const url = `${API_BASE_URL}/module-questionnaire/${survey_uid}`;
-
+    formData.survey_uid = survey_uid
+      ? parseInt(survey_uid)
+      : formData.survey_uid;
     const response = await axios.put(url, formData, {
       headers: {
         "X-CSRF-Token": csrfToken,

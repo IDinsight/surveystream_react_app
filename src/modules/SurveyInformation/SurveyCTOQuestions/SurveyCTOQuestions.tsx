@@ -67,17 +67,18 @@ function SurveyCTOQuestions() {
 
   useEffect(() => {
     loadFormMappings();
+    loadFormQuestions();
   }, [dispatch]);
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
   };
 
-  const loadFormQuestions = async () => {
+  const loadFormQuestions = async (refresh = false) => {
     setLoading(true);
     if (form_uid != undefined) {
       const questionsRes = await dispatch(
-        getCTOFormQuestions({ formUid: form_uid })
+        getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
       console.log("questionsRes", questionsRes);
     } else {
@@ -198,8 +199,9 @@ function SurveyCTOQuestions() {
             </DescriptionText>
 
             <SCTOQuestionsButton
+              type="dashed"
               loading={loading}
-              onClick={loadFormQuestions}
+              onClick={() => loadFormQuestions(true)}
               disabled={form_uid == undefined}
             >
               Load questions from SCTO form

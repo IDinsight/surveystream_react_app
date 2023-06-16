@@ -104,7 +104,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Define role Hierarchy
+              Role Hierarchy
             </MenuItem>
           ),
           key: "surveyFieldSupervisorRolesHierarchy",
@@ -156,7 +156,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Define location type hierarchy
+              Location type hierarchy
             </MenuItem>
           ),
           key: "surveyLocationHierarchy",

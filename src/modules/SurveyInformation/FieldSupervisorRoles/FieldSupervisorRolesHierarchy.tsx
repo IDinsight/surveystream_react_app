@@ -10,16 +10,16 @@ import {
   DescriptionTitle,
   DescriptionText,
   StyledFormItem,
+  DynamicItemsForm,
 } from "../SurveyInformation.styled";
-import { RolesForm } from "./FildSupervisorRoles.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import { setSupervisorRoles } from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesSlice";
+import { setSupervisorRoles } from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesSlice";
 import { MainWrapper } from "../../../shared/Nav.styled";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/fiedSupervisorRoles/fieldSupervisorRolesActions";
+} from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
 
 function FieldSupervisorRolesHierarchy() {
@@ -70,6 +70,16 @@ function FieldSupervisorRolesHierarchy() {
               validator: (_: any, value: string | undefined) => {
                 if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
+                }
+                if (
+                  value &&
+                  supervisorRoles.some(
+                    (r) => r.reporting_role_uid === value && r !== role
+                  )
+                ) {
+                  return Promise.reject(
+                    "Please select a unique reporting role!"
+                  );
                 }
                 return Promise.resolve();
               },
@@ -127,6 +137,7 @@ function FieldSupervisorRolesHierarchy() {
         return;
       } else {
         message.success("Roles updated successfully");
+        navigate(`/survey-information/location/add/${survey_uid}`);
       }
 
       // Save successful, navigate to the next step
@@ -158,7 +169,9 @@ function FieldSupervisorRolesHierarchy() {
           </DescriptionText>
         </DescriptionWrap>
 
-        <RolesForm form={form}>{renderReportingRolesField()}</RolesForm>
+        <DynamicItemsForm form={form}>
+          {renderReportingRolesField()}
+        </DynamicItemsForm>
       </MainWrapper>
 
       <FooterWrapper>
