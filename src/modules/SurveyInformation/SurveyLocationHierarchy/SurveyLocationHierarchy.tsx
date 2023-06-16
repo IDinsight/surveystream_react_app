@@ -95,6 +95,14 @@ function SurveyLocationHierarchy() {
                 if (value && value === geoLevel.geo_level_uid) {
                   return Promise.reject("Location hierarchy invalid!");
                 }
+                if (
+                  value &&
+                  surveyLocationGeoLevels.some(
+                    (g) => g.parent_geo_level_uid === value && g !== geoLevel
+                  )
+                ) {
+                  return Promise.reject("Please select a unique hierarchy!");
+                }
                 return Promise.resolve();
               },
             },

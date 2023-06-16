@@ -71,6 +71,16 @@ function FieldSupervisorRolesHierarchy() {
                 if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
                 }
+                if (
+                  value &&
+                  supervisorRoles.some(
+                    (r) => r.reporting_role_uid === value && r !== role
+                  )
+                ) {
+                  return Promise.reject(
+                    "Please select a unique reporting role!"
+                  );
+                }
                 return Promise.resolve();
               },
             },
