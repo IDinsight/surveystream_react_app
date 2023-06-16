@@ -26,7 +26,7 @@ const NotFound: React.FC = () => (
             <p style={{ marginTop: 0 }}>
               In case the problem persists, please click on this{" "}
               <a
-                href="https://idinsight.slack.com/archives/D03FGU4T0KA/p1686818355657519"
+                href="https://idinsight.slack.com/channels/surveystream_bug_reporting"
                 target="__blank"
               >
                 link
