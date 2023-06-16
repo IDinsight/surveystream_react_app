@@ -15,6 +15,7 @@ export interface Module {
   module_id: number;
   name?: string;
   title: string;
+  link: string;
   description?: string;
   icon?: any;
   optional?: boolean;

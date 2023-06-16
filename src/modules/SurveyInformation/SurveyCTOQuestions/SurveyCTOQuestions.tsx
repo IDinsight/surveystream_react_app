@@ -67,7 +67,6 @@ function SurveyCTOQuestions() {
   const surveyCTOQuestions = useAppSelector(
     (state: RootState) => state.reducer.surveyCTOQuestions.surveyCTOQuestions
   );
-
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
   );
