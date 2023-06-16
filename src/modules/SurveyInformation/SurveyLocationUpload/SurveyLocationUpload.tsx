@@ -242,7 +242,7 @@ function SurveyLocationUpload() {
           }}
           type="dashed"
         >
-          ReUpload CSV
+          Re-upload CSV
         </AddAnotherButton>
       </>
     );
