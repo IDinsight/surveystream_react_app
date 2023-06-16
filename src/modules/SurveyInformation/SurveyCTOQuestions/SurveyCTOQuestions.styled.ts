@@ -15,8 +15,9 @@ export const SCTOQuestionsButton = styled(Button)`
 
 export const QuestionsForm = styled(Form)`
   width: 50%;
-  margin-top: 40px;
+  margin-top: 20px;
   font-family: Inter;
+  margin-bottom: 40px;
 `;
 
 export const QuestionsFormTitle = styled.div`

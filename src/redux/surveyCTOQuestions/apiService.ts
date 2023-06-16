@@ -16,13 +16,17 @@ export const getSurveyCTOFormDefinition = async (
     }`;
 
     if (refresh) {
-      const res = await axios.post(url, {
-        headers: {
-          "X-CSRF-Token": csrfToken,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+      const res = await axios.post(
+        url,
+        {},
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
       return res;
     }
 
@@ -69,7 +73,7 @@ export const createSurveyCTOFormMapping = async (
 
     const res = await axios.post(
       `${API_BASE_URL}/forms/${form_uid}/scto-question-mapping`,
-      { ...formData },
+      { ...formData, form_uid: form_uid },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -95,7 +99,7 @@ export const updateSurveyCTOFormMapping = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/forms/${form_uid}/scto-question-mapping`,
-      { ...formData },
+      { ...formData, form_uid: form_uid },
       {
         headers: {
           "X-CSRF-Token": csrfToken,

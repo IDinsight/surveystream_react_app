@@ -38,6 +38,9 @@ import {
   postSCTOFormMapping,
   putSCTOFormMapping,
 } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
+import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
+import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsSlice";
+import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -65,13 +68,29 @@ function SurveyCTOQuestions() {
     (state: RootState) => state.reducer.surveyCTOQuestions.surveyCTOQuestions
   );
 
-  useEffect(() => {
-    loadFormMappings();
-    loadFormQuestions();
-  }, [dispatch]);
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+  );
 
+  const fetchSurveyLocationGeoLevels = async () => {
+    if (survey_uid != undefined) {
+      await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
+    }
+  };
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack
+  };
+
+  const handleFormChange = (changedFields: any[]) => {
+    const fieldName: string = changedFields[0]["name"];
+    const fieldValue = changedFields[0]["value"];
+
+    dispatch(
+      setSurveyCTOQuestionsForm({
+        ...surveyCTOQuestionsForm,
+        [fieldName]: fieldValue,
+      })
+    );
   };
 
   const loadFormQuestions = async (refresh = false) => {
@@ -89,9 +108,12 @@ function SurveyCTOQuestions() {
     setLoading(false);
   };
 
-  const loadFormMappings = () => {
+  const loadFormMappings = async () => {
     if (form_uid != undefined) {
-      dispatch(getSCTOFormMapping({ formUid: form_uid }));
+      const res = await dispatch(getSCTOFormMapping({ formUid: form_uid }));
+      const formData = res.payload;
+      console.log("res", formData);
+      await setSurveySCTOQuestionsData(formData);
     } else {
       message.error(
         "Kindly check if the form_uid is provided on the url to proceed."
@@ -107,18 +129,32 @@ function SurveyCTOQuestions() {
       if (form_uid !== undefined) {
         let formRes;
         const formData = form.getFieldsValue();
+        const formattedData = Object.entries(formData).reduce(
+          (result: { [key: string]: any }, [key, value]) => {
+            if (key.includes("locations.")) {
+              const formattedKey = key.replace("locations.", "");
+              (result.locations as { [key: string]: any }) =
+                result.locations || {};
+              result.locations[formattedKey] = value;
+            } else {
+              result[key] = value;
+            }
+            return result;
+          },
+          { locations: {} }
+        );
 
-        if (surveyCTOQuestionsForm) {
+        if (surveyCTOQuestionsForm.new_form) {
           formRes = await dispatch(
-            putSCTOFormMapping({
-              ctoFormMappingData: formData,
+            postSCTOFormMapping({
+              ctoFormMappingData: formattedData as SurveyCTOQuestionsForm,
               formUid: form_uid,
             })
           );
         } else {
           formRes = await dispatch(
-            postSCTOFormMapping({
-              ctoFormMappingData: formData,
+            putSCTOFormMapping({
+              ctoFormMappingData: formattedData as SurveyCTOQuestionsForm,
               formUid: form_uid,
             })
           );
@@ -163,6 +199,88 @@ function SurveyCTOQuestions() {
       </Select>
     );
   };
+
+  const renderLocationsSelect = () => {
+    const numGeoLevels = surveyLocationGeoLevels.length;
+
+    const fields = Array.from({ length: numGeoLevels }, (_, index) => {
+      const geoLevel: {
+        geo_level_name?: string;
+      } = surveyLocationGeoLevels[index];
+      const location_field = `location_${index + 1}`;
+
+      return (
+        <StyledFormItem
+          key={index}
+          initialValue={surveyCTOQuestionsForm?.locations?.location_field}
+          required
+          rules={[
+            {
+              required: true,
+              message: `Please enter ${geoLevel?.geo_level_name} ID`,
+            },
+            {
+              validator: (_: any, value: string | undefined) => {
+                const valueOccurrences = Object.values(
+                  surveyCTOQuestionsForm
+                ).filter((v) => v === value).length;
+
+                if (valueOccurrences > 1) {
+                  return Promise.reject("Duplicate value!");
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 8 }}
+          name={`locations.${location_field}`}
+          label={
+            <span>
+              {geoLevel?.geo_level_name} ID&nbsp;
+              <StyledTooltip title={`${geoLevel?.geo_level_name} ID`}>
+                <QuestionCircleOutlined />
+              </StyledTooltip>
+            </span>
+          }
+          style={{ display: "block" }}
+        >
+          {renderQuestionsSelect()}
+        </StyledFormItem>
+      );
+    });
+    return fields;
+  };
+
+  const setSurveySCTOQuestionsData = (formData: any) => {
+    form.setFieldsValue({
+      survey_status: formData?.survey_status,
+    });
+    form.setFieldsValue({
+      revisit_section: formData?.revisit_section,
+    });
+    form.setFieldsValue({
+      target_id: formData?.target_id,
+    });
+    form.setFieldsValue({
+      enumerator_id: formData?.enumerator_id,
+    });
+
+    if (formData?.locations) {
+      Object.entries(formData.locations).forEach(([key, value], index) => {
+        const dynamicKey = `locations.location_${index + 1}`;
+        form.setFieldsValue({
+          [`${dynamicKey}`]: value,
+        });
+      });
+    }
+  };
+
+  useEffect(() => {
+    loadFormQuestions();
+    fetchSurveyLocationGeoLevels();
+    loadFormMappings();
+  }, [dispatch]);
 
   return (
     <>
@@ -211,16 +329,28 @@ function SurveyCTOQuestions() {
           {isLoading ? (
             <FullScreenLoader />
           ) : (
-            <QuestionsForm form={form}>
+            <QuestionsForm form={form} onFieldsChange={handleFormChange}>
               <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
 
               <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.survey_status}
+                initialValue={surveyCTOQuestionsForm.survey_status}
                 required
                 rules={[
                   {
                     required: true,
                     message: "Please enter survey status",
+                  },
+                  {
+                    validator: (_: any, value: string | undefined) => {
+                      const valueOccurrences = Object.values(
+                        surveyCTOQuestionsForm
+                      ).filter((v) => v === value).length;
+
+                      if (valueOccurrences > 1) {
+                        return Promise.reject("Duplicate value!");
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
                 labelCol={{ span: 8 }}
@@ -247,6 +377,18 @@ function SurveyCTOQuestions() {
                     required: true,
                     message: "Please enter revisit section",
                   },
+                  {
+                    validator: (_: any, value: string | undefined) => {
+                      const valueOccurrences = Object.values(
+                        surveyCTOQuestionsForm
+                      ).filter((v) => v === value).length;
+
+                      if (valueOccurrences > 1) {
+                        return Promise.reject("Duplicate value!");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 8 }}
@@ -271,6 +413,18 @@ function SurveyCTOQuestions() {
                   {
                     required: true,
                     message: "Please enter target ID",
+                  },
+                  {
+                    validator: (_: any, value: string | undefined) => {
+                      const valueOccurrences = Object.values(
+                        surveyCTOQuestionsForm
+                      ).filter((v) => v === value).length;
+
+                      if (valueOccurrences > 1) {
+                        return Promise.reject("Duplicate value!");
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
                 labelCol={{ span: 8 }}
@@ -297,6 +451,18 @@ function SurveyCTOQuestions() {
                     required: true,
                     message: "Please enter enumerator ID",
                   },
+                  {
+                    validator: (_: any, value: string | undefined) => {
+                      const valueOccurrences = Object.values(
+                        surveyCTOQuestionsForm
+                      ).filter((v) => v === value).length;
+
+                      if (valueOccurrences > 1) {
+                        return Promise.reject("Duplicate value!");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 8 }}
@@ -313,84 +479,7 @@ function SurveyCTOQuestions() {
               >
                 {renderQuestionsSelect()}
               </StyledFormItem>
-              <StyledFormItem>
-                <p>If location is used in the survey</p>
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.locations?.state_id}
-                required
-                rules={[
-                  {
-                    required: false,
-                    message: "Please enter state ID",
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="locations.state_id"
-                label={
-                  <span>
-                    State ID&nbsp;
-                    <StyledTooltip title="State ID">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.locations?.district_id}
-                required
-                rules={[
-                  {
-                    required: false,
-                    message: "Please enter district ID",
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="locations.district_id"
-                label={
-                  <span>
-                    District ID&nbsp;
-                    <StyledTooltip title="District ID">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.locations?.block_id}
-                required
-                rules={[
-                  {
-                    required: false,
-                    message: "Please enter block ID",
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="locations.block_id"
-                label={
-                  <span>
-                    Block ID&nbsp;
-                    <StyledTooltip title="Block ID">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
+              {renderLocationsSelect()}
             </QuestionsForm>
           )}
         </MainWrapper>

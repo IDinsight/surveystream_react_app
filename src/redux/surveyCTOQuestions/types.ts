@@ -5,4 +5,5 @@ export type SurveyCTOQuestionsForm = {
   revisit_section: string;
   survey_status: string;
   target_id: string;
+  new_form?: boolean;
 };

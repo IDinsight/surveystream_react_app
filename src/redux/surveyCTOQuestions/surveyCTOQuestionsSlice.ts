@@ -26,6 +26,9 @@ const surveyCTOQuestionsSlice = createSlice({
   name: "surveyCTOQuestions",
   initialState,
   reducers: {
+    setSurveyCTOQuestionsForm: (state, action: PayloadAction<any>) => {
+      state.surveyCTOQuestionsForm = action.payload;
+    },
     getFormQuestionsDefinitionRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -49,9 +52,10 @@ const surveyCTOQuestionsSlice = createSlice({
     ) => {
       state.loading = false;
       state.error = null;
-      state.surveyCTOQuestionsForm = action.payload; // Extract the object at index 0
+      state.surveyCTOQuestionsForm = action.payload;
     },
     getFormMappingFailure: (state, action: PayloadAction<any>) => {
+      state.surveyCTOQuestionsForm.new_form = true;
       state.loading = false;
       state.error = action.payload;
     },
@@ -96,6 +100,7 @@ export const {
   putFormMappingFailure,
   putFormMappingRequest,
   putFormMappingSuccess,
+  setSurveyCTOQuestionsForm,
 } = surveyCTOQuestionsSlice.actions;
 
 export default surveyCTOQuestionsSlice.reducer;

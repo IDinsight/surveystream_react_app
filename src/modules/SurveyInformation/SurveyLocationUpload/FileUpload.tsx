@@ -23,7 +23,9 @@ function FileUpload({
     }
 
     // Validate file size (number of rows)
-    const maxRows = 2000;
+    const maxRows = process.env.REACT_APP_MAX_UPLOAD_ROWS
+      ? parseInt(process.env.REACT_APP_MAX_UPLOAD_ROWS)
+      : 2000;
     const reader = new FileReader();
     reader.onload = () => {
       const csvData = reader.result as string;
