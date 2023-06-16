@@ -198,7 +198,9 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                               />
                               <div>{module.title}</div>
                             </CardTitle>
-                            <LearnMoreLink>
+                            <LearnMoreLink
+                              onClick={() => window.open(module.link, "_blank")}
+                            >
                               Learn more{" "}
                               <ArrowRightOutlined style={{ marginLeft: 4 }} />
                             </LearnMoreLink>
