@@ -21,11 +21,7 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import {
-  CloudDownloadOutlined,
-  LinkOutlined,
-  ReadOutlined,
-} from "@ant-design/icons";
+import { CloudDownloadOutlined, LinkOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -37,10 +33,7 @@ import {
   postSurveyLocations,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  AddAnotherButton,
-  DynamicItemsForm,
-} from "../SurveyInformation.styled";
+import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 
 function SurveyLocationUpload() {
@@ -56,6 +49,7 @@ function SurveyLocationUpload() {
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
   const [columnMatch, setColumnMatch] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [uploadErrors, setUploadErrors] = useState<any>({});
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -93,10 +87,11 @@ function SurveyLocationUpload() {
   };
 
   useEffect(() => {
-    fetchSurveyLocationGeoLevels();
     fetchSurveyLocations();
+
+    fetchSurveyLocationGeoLevels();
     console.log("surveyLocations", surveyLocations);
-    if (surveyLocations.length > 0) {
+    if (surveyLocations?.records?.length > 0) {
       setHasError(false);
       setColumnMatch(true);
       setFileUploaded(true);
@@ -126,7 +121,138 @@ function SurveyLocationUpload() {
     });
   };
 
+  const renderLocationMappingSelect = () => {
+    {
+      return surveyLocationGeoLevels.map((geo_level, index) => {
+        const geo_level_name: string = geo_level.geo_level_name;
+        const geo_level_name_id = `${geo_level_name}_id`;
+
+        return (
+          <>
+            <SelectItem
+              label={geo_level_name}
+              required
+              name={geo_level_name}
+              labelCol={{ span: 5 }}
+              wrapperCol={{ span: 5 }}
+              rules={[
+                {
+                  required: true,
+                  message: "Please select a column!",
+                },
+                {
+                  validator: (_: any, value: any) => {
+                    if (
+                      value &&
+                      Object.values(mappedColumnNames).filter(
+                        (name) => name === value
+                      ).length > 1
+                    ) {
+                      return Promise.reject("Please select a unique column!");
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Select
+                placeholder="Choose column"
+                options={csvColumnNames.map((columnName, columnIndex) => ({
+                  label: columnName,
+                  value: `${columnName}`,
+                }))}
+                onChange={(value) => handleOnChange(value, `${geo_level_name}`)}
+              />
+            </SelectItem>
+            <SelectItem
+              label={`${geo_level_name} ID`}
+              required
+              name={geo_level_name_id}
+              labelCol={{ span: 5 }}
+              wrapperCol={{ span: 5 }}
+              rules={[
+                {
+                  required: true,
+                  message: "Please select a column!",
+                },
+                {
+                  validator: (_: any, value: any) => {
+                    if (
+                      value &&
+                      Object.values(mappedColumnNames).filter(
+                        (name) => name === value
+                      ).length > 1
+                    ) {
+                      return Promise.reject("Please select a unique column!");
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Select
+                placeholder="Choose another column"
+                options={csvColumnNames.map((columnName, columnIndex) => ({
+                  label: columnName,
+                  value: `${columnName}`,
+                }))}
+                onChange={(value) =>
+                  handleOnChange(value, `${geo_level_name_id}`)
+                }
+              />
+            </SelectItem>
+          </>
+        );
+      });
+    }
+  };
+
+  const renderLocationUploadErrors = () => {
+    const fileErrorList = uploadErrors.file.map(
+      (item: string, index: number) => <li key={index}>{item}</li>
+    );
+    const geoErrorList = uploadErrors.geo_level_mapping.map(
+      (item: string, index: number) => <li key={index}>{item}</li>
+    );
+
+    return (
+      <>
+        <Alert
+          message="File parsing error,please upload the file again after making the corrections."
+          description={
+            <>
+              <p>
+                The csv file could not be uploaded because of the following
+                errors:
+              </p>
+
+              <ol>{fileErrorList}</ol>
+              <ol>{geoErrorList}</ol>
+            </>
+          }
+          type="error"
+          style={{ marginRight: "80px" }}
+        />
+        <AddAnotherButton
+          style={{ width: "200px" }}
+          onClick={() => {
+            setFileUploaded(false);
+            setColumnMatch(false);
+            setHasError(false);
+          }}
+          type="dashed"
+        >
+          ReUpload CSV
+        </AddAnotherButton>
+      </>
+    );
+  };
+
   const handleUploadContinue = () => {
+    if (surveyLocations?.records?.length > 0 && !hasError) {
+      navigate(`/survey-configuration/${survey_uid}`);
+      return;
+    }
     form
       .validateFields()
       .then(async () => {
@@ -173,12 +299,18 @@ function SurveyLocationUpload() {
           );
 
           console.log("mappingsRes", mappingsRes);
-          if (mappingsRes.payload.status === false) {
+          if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
+            setLoading(false);
+            setUploadErrors(mappingsRes.payload.errors);
+            setHasError(true);
+            setColumnMatch(true);
+            setFileUploaded(true);
             return;
           }
           message.success("Survey locations mapping updated successfully.");
           await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
+          setLoading(false);
           setHasError(false);
           setColumnMatch(true);
           setFileUploaded(true);
@@ -186,14 +318,13 @@ function SurveyLocationUpload() {
           message.error(
             "Kindly check that survey_uid is provided in the url to proceed."
           );
+          setLoading(false);
           setHasError(true);
           setColumnMatch(true);
           setFileUploaded(true);
         }
 
         setLoading(false);
-
-        // Use the requestData as needed (e.g., send it to the server)
       })
       .catch((error) => {
         setLoading(false);
@@ -260,97 +391,7 @@ function SurveyLocationUpload() {
                         “Add location” step
                       </p>
 
-                      {surveyLocationGeoLevels.map((geo_level, index) => {
-                        const geo_level_name: string = geo_level.geo_level_name;
-                        const geo_level_name_id = `${geo_level_name}_id`;
-
-                        return (
-                          <>
-                            <SelectItem
-                              label={geo_level_name}
-                              required
-                              name={geo_level_name}
-                              labelCol={{ span: 5 }}
-                              wrapperCol={{ span: 5 }}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Please select a column!",
-                                },
-                                {
-                                  validator: (_: any, value: any) => {
-                                    if (
-                                      value &&
-                                      Object.values(mappedColumnNames).filter(
-                                        (name) => name === value
-                                      ).length > 1
-                                    ) {
-                                      return Promise.reject(
-                                        "Please select a unique column!"
-                                      );
-                                    }
-                                    return Promise.resolve();
-                                  },
-                                },
-                              ]}
-                            >
-                              <Select
-                                placeholder="Choose column"
-                                options={csvColumnNames.map(
-                                  (columnName, columnIndex) => ({
-                                    label: columnName,
-                                    value: `${columnName}`,
-                                  })
-                                )}
-                                onChange={(value) =>
-                                  handleOnChange(value, `${geo_level_name}`)
-                                }
-                              />
-                            </SelectItem>
-                            <SelectItem
-                              label={`${geo_level_name} ID`}
-                              required
-                              name={geo_level_name_id}
-                              labelCol={{ span: 5 }}
-                              wrapperCol={{ span: 5 }}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Please select a column!",
-                                },
-                                {
-                                  validator: (_: any, value: any) => {
-                                    if (
-                                      value &&
-                                      Object.values(mappedColumnNames).filter(
-                                        (name) => name === value
-                                      ).length > 1
-                                    ) {
-                                      return Promise.reject(
-                                        "Please select a unique column!"
-                                      );
-                                    }
-                                    return Promise.resolve();
-                                  },
-                                },
-                              ]}
-                            >
-                              <Select
-                                placeholder="Choose another column"
-                                options={csvColumnNames.map(
-                                  (columnName, columnIndex) => ({
-                                    label: columnName,
-                                    value: `${columnName}`,
-                                  })
-                                )}
-                                onChange={(value) =>
-                                  handleOnChange(value, `${geo_level_name_id}`)
-                                }
-                              />
-                            </SelectItem>
-                          </>
-                        );
-                      })}
+                      {renderLocationMappingSelect()}
                     </Form>
                   </>
                 ) : (
@@ -376,34 +417,13 @@ function SurveyLocationUpload() {
                             Download CSV
                           </Button>
                         </div>
-                        <LocationTable />
+                        <LocationTable
+                          columns={surveyLocations?.ordered_columns}
+                          data={surveyLocations?.records}
+                        />
                       </>
                     ) : (
-                      <>
-                        <Alert
-                          message="File parsing error,  please upload the file again after making the corrections."
-                          description={
-                            <p>
-                              The csv file could not be uploaded because of the
-                              following errors:
-                              <ol></ol>
-                            </p>
-                          }
-                          type="error"
-                          style={{ marginRight: "80px" }}
-                        />
-                        <AddAnotherButton
-                          onClick={() => {
-                            setFileUploaded(false);
-                            setColumnMatch(false);
-                            setHasError(false);
-                          }}
-                          type="dashed"
-                          style={{ width: "100%" }}
-                        >
-                          ReUpload CSV
-                        </AddAnotherButton>
-                      </>
+                      <>{renderLocationUploadErrors()}</>
                     )}
                   </>
                 )}

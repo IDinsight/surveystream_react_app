@@ -23,7 +23,7 @@ function FileUpload({
     }
 
     // Validate file size (number of rows)
-    const maxRows = 500;
+    const maxRows = 2000;
     const reader = new FileReader();
     reader.onload = () => {
       const csvData = reader.result as string;

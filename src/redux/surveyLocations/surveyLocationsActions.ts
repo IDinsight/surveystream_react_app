@@ -103,14 +103,15 @@ export const postSurveyLocations = createAsyncThunk(
       );
       if (response.status == 200) {
         dispatch(postSurveyLocationsSuccess(response.data));
-        return response;
+        return { ...response, success: true };
       }
 
       const error = {
+        errors: response.response.data.errors,
         message: response.message
           ? response.message
           : "Failed to update survey locations.",
-        status: false,
+        success: false,
       };
       dispatch(postSurveyLocationsFailure(error));
       return error;
