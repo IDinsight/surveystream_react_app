@@ -218,8 +218,6 @@ export const updateBasicInformation = createAsyncThunk(
         surveyUid
       );
 
-      console.log("updateBasicInformation", response);
-
       if (response.status == 200) {
         dispatch(putSurveyBasicInformationSuccess(response.data));
         return { ...response.data, success: true };
