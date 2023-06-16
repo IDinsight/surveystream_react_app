@@ -64,7 +64,7 @@ function SurveyCTOInfomation() {
   useEffect(() => {
     // Set initial form values when surveyCTOForm is available
     if (surveyCTOForm) {
-      form.setFieldsValue({
+      const formFieldData = {
         scto_form_id: surveyCTOForm.scto_form_id,
         scto_server_name: surveyCTOForm.scto_server_name,
         form_name: surveyCTOForm.form_name,
@@ -72,7 +72,9 @@ function SurveyCTOInfomation() {
         encryption_key_shared: surveyCTOForm.encryption_key_shared,
         server_access_role_granted: surveyCTOForm.server_access_role_granted,
         server_access_allowed: surveyCTOForm.server_access_allowed,
-      });
+      };
+      form.setFieldsValue(formFieldData);
+      setFormData(formFieldData);
     }
   }, [surveyCTOForm, form]);
 
