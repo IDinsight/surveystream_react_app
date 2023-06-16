@@ -15,7 +15,7 @@ import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyCon
 import { RootState } from "../../../redux/store";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import moment from "moment";
+import dayjs from "dayjs";
 import { StyledFormItem } from "../NewSurveyConfig.styled";
 
 export interface BasicInformationFormProps {
@@ -54,12 +54,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     const fetchSurveyBasicInformation = async () => {
       if (survey_uid) {
         await dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
-        form.setFieldsValue({
-          systemsReadinessStartDate: moment(basicInfo?.planned_start_date),
-        });
-        form.setFieldsValue({
-          systemsEndDate: moment(basicInfo?.planned_end_date),
-        });
       }
     };
 
@@ -69,6 +63,24 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   useEffect(() => {
     if (basicInfo === null) {
       form.resetFields();
+    } else {
+      if (
+        basicInfo?.planned_start_date !== null &&
+        basicInfo?.planned_end_date !== null
+      ) {
+        form.setFieldsValue({
+          systemsReadinessStartDate: dayjs(basicInfo?.planned_start_date),
+          systemsEndDate: dayjs(basicInfo?.planned_end_date),
+        });
+
+        // Setting the data to parent
+        const fieldsValue = form.getFieldsValue();
+        setFormData({
+          ...fieldsValue,
+          systemsReadinessStartDate: dayjs(basicInfo?.planned_start_date),
+          systemsEndDate: dayjs(basicInfo?.planned_end_date),
+        });
+      }
     }
   }, [basicInfo]);
 
@@ -81,10 +93,10 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
       survey_description: allValues.surveyDescription,
       surveying_method: allValues.surveyMethod,
       irb_approval: allValues.irbApproval,
-      planned_start_date: moment(allValues.systemsReadinessStartDate).format(
+      planned_start_date: dayjs(allValues.systemsReadinessStartDate).format(
         "YYYY-MM-DD"
       ),
-      planned_end_date: moment(allValues.systemsEndDate).format("YYYY-MM-DD"),
+      planned_end_date: dayjs(allValues.systemsEndDate).format("YYYY-MM-DD"),
       config_status: "In Progress - Configuration",
       state: "Draft",
       created_by_user_uid: userUId,
@@ -178,7 +190,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             <StyledFormItem
               initialValue={
                 basicInfo?.planned_start_date
-                  ? moment(basicInfo?.planned_start_date)
+                  ? dayjs(basicInfo?.planned_start_date)
                   : null
               }
               required
@@ -270,7 +282,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             <StyledFormItem
               initialValue={
                 basicInfo?.planned_end_date
-                  ? moment(basicInfo?.planned_end_date)
+                  ? dayjs(basicInfo?.planned_end_date)
                   : null
               }
               required
