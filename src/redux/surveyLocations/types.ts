@@ -9,3 +9,4 @@ export type GeoLevelMapping = {
   location_name_column: string;
   location_id_column: string;
 };
+

@@ -3,6 +3,7 @@ import { compose, createAsyncThunk } from "@reduxjs/toolkit";
 import * as api from "./apiService";
 import { SurveyCTOQuestionsForm } from "./types";
 import {
+  getFormMappingFailure,
   getFormMappingRequest,
   getFormMappingSuccess,
   getFormQuestionsDefinitionFailure,
@@ -98,11 +99,11 @@ export const getSCTOFormMapping = createAsyncThunk(
         return res.data.data;
       }
       const error = { ...res.response.data, code: res.response.status };
-      dispatch(getSurveyCTOFormFailure(error));
+      dispatch(getFormMappingFailure(error));
       return res.response.data;
     } catch (error) {
       const errorMessage = error || "Failed to get surveyCTO form mapping";
-      dispatch(getSurveyCTOFormFailure(errorMessage as string));
+      dispatch(getFormMappingFailure(errorMessage as string));
       return rejectWithValue(errorMessage);
     }
   }
