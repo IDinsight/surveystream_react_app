@@ -23,6 +23,8 @@ import BetterQualityImg from "./../../assets/better-quality.svg";
 import FasterResponsesImg from "./../../assets/faster-responses.svg";
 
 import "./LandingPage.css";
+import { useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 const NavItems = () => {
   return (
     <div className="nav-menu flex">
@@ -71,6 +73,10 @@ const NavItems = () => {
 };
 
 function LandingPage() {
+  const userProfile = useAppSelector(
+    (state: RootState) => state.reducer.auth.profile
+  );
+
   return (
     <>
       <Header items={NavItems} />
@@ -84,13 +90,13 @@ function LandingPage() {
             operations by DoD
           </p>
           <div className="mt-[40px]">
-            <Link to="/login">
+            <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
               <Button
                 type="primary"
                 size="large"
-                className="bg-geekblue-5 !rounded-sm w-[74px]"
+                className="bg-geekblue-5 !rounded-sm w-[94px]"
               >
-                Login
+                {userProfile?.user_uid ? "Surveys" : "Login"}
               </Button>
             </Link>
             <Button
