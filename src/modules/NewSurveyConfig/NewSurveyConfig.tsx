@@ -212,9 +212,11 @@ function NewSurveyConfig() {
           type: "success",
           content: "Your draft survey has been updated successfully.",
         });
-        const newSurveyUid = response.payload.survey.survey_uid;
+        const newSurveyUid = response.payload.survey_uid;
         const currentURL = window.location.href;
-        const newURL = `${currentURL}/${newSurveyUid}`;
+        const newURL = basicformData.survey_uid
+          ? currentURL
+          : `${currentURL}/${newSurveyUid}`;
 
         window.history.replaceState(null, "", newURL);
         setSurveyUid(newSurveyUid);

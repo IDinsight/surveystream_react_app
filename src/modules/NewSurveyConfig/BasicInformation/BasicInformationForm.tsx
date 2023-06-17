@@ -74,34 +74,43 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         });
 
         // Setting the data to parent
-        const fieldsValue = form.getFieldsValue();
+        const fieldsValue = fieldValuesToformValues(form.getFieldsValue());
         setFormData({
           ...fieldsValue,
-          systemsReadinessStartDate: dayjs(basicInfo?.planned_start_date),
-          systemsEndDate: dayjs(basicInfo?.planned_end_date),
+          planned_start_date: dayjs(basicInfo?.planned_start_date).format(
+            "YYYY-MM-DD"
+          ),
+          planned_end_date: dayjs(basicInfo?.planned_end_date).format(
+            "YYYY-MM-DD"
+          ),
         });
       }
     }
   }, [basicInfo]);
 
-  const handleFormValuesChange = (changedValues: any, allValues: any) => {
-    const formValues: SurveyBasicInformationData = {
+  const fieldValuesToformValues = (
+    objValues: any
+  ): SurveyBasicInformationData => {
+    return {
       survey_uid: basicInfo?.survey_uid ? basicInfo?.survey_uid : null,
-      survey_id: allValues.surveyID,
-      survey_name: allValues.surveyName,
-      project_name: allValues.projectName,
-      survey_description: allValues.surveyDescription,
-      surveying_method: allValues.surveyMethod,
-      irb_approval: allValues.irbApproval,
-      planned_start_date: dayjs(allValues.systemsReadinessStartDate).format(
+      survey_id: objValues.surveyID,
+      survey_name: objValues.surveyName,
+      project_name: objValues.projectName,
+      survey_description: objValues.surveyDescription,
+      surveying_method: objValues.surveyMethod,
+      irb_approval: objValues.irbApproval,
+      planned_start_date: dayjs(objValues.systemsReadinessStartDate).format(
         "YYYY-MM-DD"
       ),
-      planned_end_date: dayjs(allValues.systemsEndDate).format("YYYY-MM-DD"),
+      planned_end_date: dayjs(objValues.systemsEndDate).format("YYYY-MM-DD"),
       config_status: "In Progress - Configuration",
       state: "Draft",
       created_by_user_uid: userUId,
     };
-
+  };
+  const handleFormValuesChange = (changedValues: any, allValues: any) => {
+    const formValues: SurveyBasicInformationData =
+      fieldValuesToformValues(allValues);
     setFormData(formValues); // Update form data in the parent component
   };
 
