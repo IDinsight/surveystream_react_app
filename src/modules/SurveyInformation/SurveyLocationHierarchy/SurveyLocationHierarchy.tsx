@@ -30,6 +30,7 @@ import {
 import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
 import { GeoLevel } from "../../../redux/surveyLocations/types";
 import { setSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsSlice";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 interface ILocationHierarchySelect {
   name: string;
@@ -54,6 +55,9 @@ function SurveyLocationHierarchy() {
   );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+  );
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.loading
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
@@ -226,20 +230,24 @@ function SurveyLocationHierarchy() {
         </BackLink>
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
-        <SideMenu />
-        <SurveyLocationHierarchyFormWrapper>
-          <Title>Survey Location: Hierarchy</Title>
-          <DescriptionText>
-            Please add locations for this survey
-          </DescriptionText>
-          <div style={{ marginTop: "40px" }}>
-            <DynamicItemsForm form={form}>
-              {renderHierarchyGeoLevelsField()}
-            </DynamicItemsForm>
-          </div>
-        </SurveyLocationHierarchyFormWrapper>
-      </div>
+      {isLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <div style={{ display: "flex" }}>
+          <SideMenu />
+          <SurveyLocationHierarchyFormWrapper>
+            <Title>Survey Location: Hierarchy</Title>
+            <DescriptionText>
+              Please add locations for this survey
+            </DescriptionText>
+            <div style={{ marginTop: "40px" }}>
+              <DynamicItemsForm form={form}>
+                {renderHierarchyGeoLevelsField()}
+              </DynamicItemsForm>
+            </div>
+          </SurveyLocationHierarchyFormWrapper>
+        </div>
+      )}
       <FooterWrapper>
         <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleHierarchyContinue}>

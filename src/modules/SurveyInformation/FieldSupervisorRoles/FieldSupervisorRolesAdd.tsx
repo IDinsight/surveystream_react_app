@@ -17,15 +17,13 @@ import {
 } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import {
-  addSupervisorRole,
-  setSupervisorRoles,
-} from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesSlice";
+import { setSupervisorRoles } from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesSlice";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 function FieldSupervisorRolesAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -33,28 +31,51 @@ function FieldSupervisorRolesAdd() {
   };
   const [loading, setLoading] = useState(false);
 
-  const dispatch = useAppDispatch();
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
+  );
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.filedSupervisorRoles.loading
+  );
+
+  const [numRoleFields, setNumRoleFields] = useState(
+    supervisorRoles.length !== 0 ? supervisorRoles.length : 1
   );
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const fetchSupervisorRoles = async () => {
-    await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
+    const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
+    setNumRoleFields(res.payload.length === 0 ? 1 : res.payload.length);
+    if (res.payload.length > 0) {
+      form.setFieldValue("role_0", res.payload[0].role_name);
+    }
   };
 
-  useEffect(() => {
-    fetchSupervisorRoles();
-  }, [dispatch]);
+  const handleFormValuesChange = async () => {
+    const formValues = form.getFieldsValue();
+
+    const filteredRoles = Object.keys(formValues).reduce(
+      (role: any[], fieldName: string) => {
+        const fieldValue = formValues[fieldName];
+
+        if (fieldValue !== undefined && fieldValue !== "") {
+          role.push({ role_name: fieldValue });
+        }
+
+        return role;
+      },
+      []
+    );
+    dispatch(setSupervisorRoles(filteredRoles));
+  };
 
   const renderRolesField = () => {
-    const numRoles = supervisorRoles.length;
-
-    const fields = Array.from({ length: numRoles + 1 }, (_, index) => {
+    const fields = Array.from({ length: numRoleFields }, (_, index) => {
       const role: { role_name?: string; reporting_role_uid?: string } =
-        index === numRoles ? {} : supervisorRoles[index];
+        numRoleFields === 1 ? {} : supervisorRoles[index];
 
       return (
         <StyledFormItem
@@ -64,7 +85,7 @@ function FieldSupervisorRolesAdd() {
           wrapperCol={{ span: 11 }}
           name={`role_${index}`}
           label={<span>Role {index + 1}</span>}
-          initialValue={role.role_name ? role.role_name : ""}
+          initialValue={role?.role_name ? role.role_name : ""}
           rules={[
             {
               required: true,
@@ -74,12 +95,12 @@ function FieldSupervisorRolesAdd() {
               validator: (_: any, value: any) => {
                 if (
                   value &&
-                  supervisorRoles.some(
+                  Object.values(supervisorRoles).filter(
                     (r: {
                       role_name: any;
                       reporting_role_uid?: string | undefined;
-                    }) => r.role_name === value && r !== role
-                  )
+                    }) => r.role_name === value
+                  ).length > 1
                 ) {
                   return Promise.reject("Please use unique role names!");
                 }
@@ -97,30 +118,24 @@ function FieldSupervisorRolesAdd() {
   };
 
   const handleAddRole = () => {
-    form.validateFields().then(() => {
-      const lastRoleIndex = supervisorRoles.length;
-
-      const newRole = form.getFieldValue(`role_${lastRoleIndex}`);
-
-      const isDuplicateRole = supervisorRoles.some(
-        (role: { role_name: string }) => role.role_name === newRole
-      );
-
-      if (!isDuplicateRole) {
-        const role = {
-          role_name: newRole,
-        };
-
-        dispatch(addSupervisorRole(role));
-      } else {
-        message.error("Role already exists!");
-      }
+    return form.validateFields().then(() => {
+      setNumRoleFields(numRoleFields + 1);
     });
   };
   const handleContinue = async () => {
     try {
-      const filteredRoles = supervisorRoles.filter(
-        (role: { role_name: string }) => role.role_name
+      const formValues = form.getFieldsValue();
+      const filteredRoles = Object.keys(formValues).reduce(
+        (role: any[], fieldName: string) => {
+          const fieldValue = formValues[fieldName];
+
+          if (fieldValue !== undefined && fieldValue !== "") {
+            role.push({ role_name: fieldValue });
+          }
+
+          return role;
+        },
+        []
       );
 
       if (filteredRoles.length === 0) {
@@ -131,7 +146,7 @@ function FieldSupervisorRolesAdd() {
 
       setLoading(true);
 
-      const supervisorRolesData = supervisorRoles;
+      const supervisorRolesData = filteredRoles;
       const surveyUid = survey_uid ? survey_uid : "168";
 
       const rolesRes = await dispatch(
@@ -157,37 +172,46 @@ function FieldSupervisorRolesAdd() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchSupervisorRoles();
+  }, [dispatch]);
 
   return (
     <>
-      <MainWrapper
-        style={{
-          width: "74.5%",
-          height: "75vh",
-          float: "right",
-          display: "inline-block",
-        }}
-      >
-        <DescriptionWrap>
-          <DescriptionTitle>Field Supervisor Roles: Add Roles</DescriptionTitle>
-          <DescriptionText>
-            Please create the field supervisor roles for your survey. Examples
-            of roles: core team, regional coordinator, cluster coordinator.
-          </DescriptionText>
-        </DescriptionWrap>
-        <DynamicItemsForm form={form}>
-          {renderRolesField()}
-          <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
-            <AddAnotherButton
-              onClick={handleAddRole}
-              type="dashed"
-              style={{ width: "100%" }}
-            >
-              <FileAddOutlined /> Add another role
-            </AddAnotherButton>
-          </StyledFormItem>
-        </DynamicItemsForm>
-      </MainWrapper>
+      {isLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <MainWrapper
+          style={{
+            width: "74.5%",
+            height: "75vh",
+            float: "right",
+            display: "inline-block",
+          }}
+        >
+          <DescriptionWrap>
+            <DescriptionTitle>
+              Field Supervisor Roles: Add Roles
+            </DescriptionTitle>
+            <DescriptionText>
+              Please create the field supervisor roles for your survey. Examples
+              of roles: core team, regional coordinator, cluster coordinator.
+            </DescriptionText>
+          </DescriptionWrap>
+          <DynamicItemsForm form={form} onValuesChange={handleFormValuesChange}>
+            {renderRolesField()}
+            <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
+              <AddAnotherButton
+                onClick={handleAddRole}
+                type="dashed"
+                style={{ width: "100%" }}
+              >
+                <FileAddOutlined /> Add another role
+              </AddAnotherButton>
+            </StyledFormItem>
+          </DynamicItemsForm>
+        </MainWrapper>
+      )}
       <FooterWrapper style={{ flexBasis: "auto" }}>
         <SaveButton>Save</SaveButton>
         <ContinueButton
