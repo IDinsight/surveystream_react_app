@@ -21,28 +21,27 @@ import {
   postSupervisorRoles,
 } from "../../../redux/fieldSupervisorRoles/fieldSupervisorRolesActions";
 import { useEffect, useState } from "react";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 function FieldSupervisorRolesHierarchy() {
   const dispatch = useAppDispatch();
-  const supervisorRoles = useAppSelector(
-    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
-  );
   const [loading, setLoading] = useState(false);
-
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.loading
+  );
+  const supervisorRoles = useAppSelector(
+    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
+  );
 
   const fetchSupervisorRoles = async () => {
     await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
   };
-
-  useEffect(() => {
-    fetchSupervisorRoles();
-  }, [dispatch]);
 
   const renderReportingRolesField = () => {
     const numRoles = supervisorRoles.length;
@@ -81,7 +80,6 @@ function FieldSupervisorRolesHierarchy() {
                     return map;
                   }, {} as { [key: string]: string[] });
 
-                console.log("rolesMap", rolesMap);
                 const hasCycle = (node: string, visited: string[] = []) => {
                   visited.push(node);
 
@@ -184,33 +182,39 @@ function FieldSupervisorRolesHierarchy() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchSupervisorRoles();
+  }, [dispatch]);
 
   return (
     <>
-      <MainWrapper
-        style={{
-          width: "74.5%",
-          height: "75vh",
-          float: "right",
-          display: "inline-block",
-        }}
-      >
-        <DescriptionWrap>
-          <DescriptionTitle>
-            Field supervisors: Define role hierarchy
-          </DescriptionTitle>
-          <DescriptionText>
-            Please map the hierarchy among roles. For each role defined in the
-            previous step, select the corresponding reporting role. If there is
-            no reporting role, please select ‘No reporting role’.
-          </DescriptionText>
-        </DescriptionWrap>
+      {isLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <MainWrapper
+          style={{
+            width: "74.5%",
+            height: "75vh",
+            float: "right",
+            display: "inline-block",
+          }}
+        >
+          <DescriptionWrap>
+            <DescriptionTitle>
+              Field supervisors: Define role hierarchy
+            </DescriptionTitle>
+            <DescriptionText>
+              Please map the hierarchy among roles. For each role defined in the
+              previous step, select the corresponding reporting role. If there
+              is no reporting role, please select ‘No reporting role’.
+            </DescriptionText>
+          </DescriptionWrap>
 
-        <DynamicItemsForm form={form}>
-          {renderReportingRolesField()}
-        </DynamicItemsForm>
-      </MainWrapper>
-
+          <DynamicItemsForm form={form}>
+            {renderReportingRolesField()}
+          </DynamicItemsForm>
+        </MainWrapper>
+      )}
       <FooterWrapper>
         <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleContinue}>

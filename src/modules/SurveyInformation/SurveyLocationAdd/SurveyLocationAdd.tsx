@@ -34,6 +34,7 @@ import {
 } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import { Header } from "antd/es/layout/layout";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -53,24 +54,47 @@ function SurveyLocationAdd() {
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
   );
+  const isLoading = useAppSelector(
+    (state: RootState) => state.reducer.surveyLocations.loading
+  );
 
+  const [numLocationFields, setNumLocationFields] = useState(
+    surveyLocationGeoLevels.length !== 0 ? surveyLocationGeoLevels.length : 1
+  );
+  const handleFormValuesChange = async () => {
+    const formValues = form.getFieldsValue();
+
+    const filteredGeoLevels = Object.keys(formValues).reduce(
+      (geoLevels: any[], fieldName: string) => {
+        const fieldValue = formValues[fieldName];
+
+        if (fieldValue !== undefined && fieldValue !== "") {
+          geoLevels.push({ geo_level_name: fieldValue });
+        }
+
+        return geoLevels;
+      },
+      []
+    );
+    dispatch(setSurveyLocationGeoLevels(filteredGeoLevels));
+  };
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid !== undefined) {
-      await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
+      const res = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+      setNumLocationFields(res.payload.length === 0 ? 1 : res.payload.length);
+      if (res.payload.length > 0) {
+        form.setFieldValue("geo_level_0", res.payload[0].geo_level_name);
+      }
     }
   };
-
-  useEffect(() => {
-    fetchSurveyLocationGeoLevels();
-  }, [dispatch]);
-
   const renderLocationFields = () => {
-    const numLevels = surveyLocationGeoLevels.length;
-    const fields = Array.from({ length: numLevels + 1 }, (_, index) => {
+    const fields = Array.from({ length: numLocationFields }, (_, index) => {
       const geoLevel: {
         geo_level_name?: string;
         parent_geo_level_uid?: string;
-      } = numLevels === 0 ? {} : surveyLocationGeoLevels[index];
+      } = numLocationFields === 1 ? {} : surveyLocationGeoLevels[index];
 
       return (
         <StyledFormItem
@@ -92,12 +116,12 @@ function SurveyLocationAdd() {
               validator: (_: any, value: any) => {
                 if (
                   value &&
-                  surveyLocationGeoLevels.some(
+                  Object.values(surveyLocationGeoLevels).filter(
                     (r: {
                       geo_level_name: any;
                       parent_geo_level_uid?: string | undefined;
-                    }) => r.geo_level_name === value && r !== geoLevel
-                  )
+                    }) => r.geo_level_name === value
+                  ).length > 1
                 ) {
                   return Promise.reject("Please use unique geo level name!");
                 }
@@ -118,29 +142,7 @@ function SurveyLocationAdd() {
     return form
       .validateFields()
       .then(() => {
-        const lastRoleIndex = surveyLocationGeoLevels.length;
-
-        const newGeoLevel = form.getFieldValue(`geo_level_${lastRoleIndex}`);
-
-        if (newGeoLevel === undefined) {
-          throw new Error(`Field geo_level_${lastRoleIndex} is not defined.`);
-        }
-
-        const isDuplicate = surveyLocationGeoLevels.some(
-          (geoLevel) => geoLevel?.geo_level_name === newGeoLevel
-        );
-
-        if (!isDuplicate) {
-          const geoLevel = {
-            geo_level_name: newGeoLevel,
-          };
-
-          dispatch(addSurveyLocationGeoLevel(geoLevel));
-          return true;
-        } else {
-          message.error("Geo level already exists!");
-          return false;
-        }
+        setNumLocationFields(numLocationFields + 1);
       })
       .catch((error) => {
         console.error(error);
@@ -151,8 +153,19 @@ function SurveyLocationAdd() {
   const handleLocationAddContinue = async () => {
     try {
       if (survey_uid !== undefined) {
-        const filteredGeoLevels = surveyLocationGeoLevels?.filter(
-          (geoLevel: { geo_level_name: string }) => geoLevel.geo_level_name
+        const formValues = form.getFieldsValue();
+
+        const filteredGeoLevels = Object.keys(formValues).reduce(
+          (geoLevels: any[], fieldName: string) => {
+            const fieldValue = formValues[fieldName];
+
+            if (fieldValue !== undefined && fieldValue !== "") {
+              geoLevels.push({ geo_level_name: fieldValue });
+            }
+
+            return geoLevels;
+          },
+          []
         );
 
         if (filteredGeoLevels.length === 0) {
@@ -192,6 +205,10 @@ function SurveyLocationAdd() {
     }
   };
 
+  useEffect(() => {
+    fetchSurveyLocationGeoLevels();
+  }, [dispatch]);
+
   return (
     <>
       <Header />
@@ -201,30 +218,40 @@ function SurveyLocationAdd() {
         </BackLink>
         <Title>{activeSurvey?.survey_name}</Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
-        <SideMenu />
-        <SurveyLocationFormWrapper>
-          <Title>Survey location: Add location</Title>
-          <DescriptionText>
-            Please create the locations for your survey. Examples of locations:
-            state, district, and block
-          </DescriptionText>
-          <div style={{ marginTop: "40px" }}>
-            <DynamicItemsForm form={form}>
-              {renderLocationFields()}
-              <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
-                <AddAnotherButton
-                  onClick={handleAddGeoLevel}
-                  type="dashed"
-                  style={{ width: "100%" }}
+      {isLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <div style={{ display: "flex" }}>
+          <SideMenu />
+          <SurveyLocationFormWrapper>
+            <Title>Survey location: Add location</Title>
+            <DescriptionText>
+              Please create the locations for your survey. Examples of
+              locations: state, district, and block
+            </DescriptionText>
+            <div style={{ marginTop: "40px" }}>
+              <DynamicItemsForm
+                form={form}
+                onValuesChange={handleFormValuesChange}
+              >
+                {renderLocationFields()}
+                <StyledFormItem
+                  labelCol={{ span: 5 }}
+                  wrapperCol={{ span: 11 }}
                 >
-                  <FileAddOutlined /> Add another location
-                </AddAnotherButton>
-              </StyledFormItem>
-            </DynamicItemsForm>
-          </div>
-        </SurveyLocationFormWrapper>
-      </div>
+                  <AddAnotherButton
+                    onClick={handleAddGeoLevel}
+                    type="dashed"
+                    style={{ width: "100%" }}
+                  >
+                    <FileAddOutlined /> Add another location
+                  </AddAnotherButton>
+                </StyledFormItem>
+              </DynamicItemsForm>
+            </div>
+          </SurveyLocationFormWrapper>
+        </div>
+      )}
       <FooterWrapper>
         <SaveButton>Save</SaveButton>
         <ContinueButton
