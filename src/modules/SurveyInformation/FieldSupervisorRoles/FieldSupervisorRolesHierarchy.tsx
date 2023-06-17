@@ -68,6 +68,40 @@ function FieldSupervisorRolesHierarchy() {
           rules={[
             {
               validator: (_: any, value: string | undefined) => {
+                // Create a mapping of role_uid to reporting_role_uids
+                const rolesMap: { [key: string]: string[] } =
+                  supervisorRoles.reduce((map, role) => {
+                    const { role_uid, reporting_role_uid } = role;
+                    if (reporting_role_uid !== null) {
+                      if (!map[reporting_role_uid]) {
+                        map[reporting_role_uid] = [];
+                      }
+                      map[reporting_role_uid].push(role_uid);
+                    }
+                    return map;
+                  }, {} as { [key: string]: string[] });
+
+                console.log("rolesMap", rolesMap);
+                const hasCycle = (node: string, visited: string[] = []) => {
+                  visited.push(node);
+
+                  const children = rolesMap[node] || [];
+
+                  for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+
+                    if (visited.includes(child)) {
+                      return true; // Cycle detected
+                    }
+
+                    if (hasCycle(child, [...visited])) {
+                      return true; // Cycle detected in child subtree
+                    }
+                  }
+
+                  return false; // No cycle detected
+                };
+
                 if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
                 }
@@ -80,6 +114,9 @@ function FieldSupervisorRolesHierarchy() {
                   return Promise.reject(
                     "Please select a unique reporting role!"
                   );
+                }
+                if (role.role_uid && hasCycle(role.role_uid)) {
+                  return Promise.reject("Role hierarchy cycle detected!");
                 }
                 return Promise.resolve();
               },

@@ -92,17 +92,57 @@ function SurveyLocationHierarchy() {
           rules={[
             {
               validator: (_: any, value: string | undefined) => {
-                if (value && value === geoLevel.geo_level_uid) {
-                  return Promise.reject("Location hierarchy invalid!");
+                const hierarchyMap: { [key: string]: string[] } =
+                  surveyLocationGeoLevels.reduce((map, item) => {
+                    const { parent_geo_level_uid, geo_level_uid } = item;
+                    if (parent_geo_level_uid !== null) {
+                      if (!map[parent_geo_level_uid]) {
+                        map[parent_geo_level_uid] = [];
+                      }
+                      map[parent_geo_level_uid].push(geo_level_uid);
+                    }
+                    return map;
+                  }, {} as { [key: string]: string[] });
+
+                const hasCycle = (node: string, visited: string[] = []) => {
+                  visited.push(node);
+
+                  const children = hierarchyMap[node] || [];
+
+                  for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+
+                    if (visited.includes(child)) {
+                      return true; // Cycle detected
+                    }
+
+                    if (hasCycle(child, [...visited])) {
+                      return true; // Cycle detected in child subtree
+                    }
+                  }
+
+                  return false; // No cycle detected
+                };
+
+                if (geoLevel) {
+                  const { geo_level_uid, parent_geo_level_uid } = geoLevel;
+
+                  if (
+                    value &&
+                    surveyLocationGeoLevels.some(
+                      (g) => g.parent_geo_level_uid === value && g !== geoLevel
+                    )
+                  ) {
+                    return Promise.reject("Please select a unique hierarchy!");
+                  }
+                  if (value && value === geoLevel.geo_level_uid) {
+                    return Promise.reject("Location hierarchy invalid!");
+                  }
+                  if (geo_level_uid && hasCycle(geo_level_uid)) {
+                    return Promise.reject("Location hierarchy cycle detected!");
+                  }
                 }
-                if (
-                  value &&
-                  surveyLocationGeoLevels.some(
-                    (g) => g.parent_geo_level_uid === value && g !== geoLevel
-                  )
-                ) {
-                  return Promise.reject("Please select a unique hierarchy!");
-                }
+
                 return Promise.resolve();
               },
             },
