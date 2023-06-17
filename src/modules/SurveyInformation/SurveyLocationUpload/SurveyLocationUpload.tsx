@@ -82,7 +82,14 @@ function SurveyLocationUpload() {
 
   const fetchSurveyLocations = async () => {
     if (survey_uid != undefined) {
-      await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
+      const res = await dispatch(
+        getSurveyLocations({ survey_uid: survey_uid })
+      );
+      if (res.payload?.records?.length > 0) {
+        setHasError(false);
+        setColumnMatch(true);
+        setFileUploaded(true);
+      }
     }
   };
 
