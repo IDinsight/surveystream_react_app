@@ -96,8 +96,14 @@ function SurveyCTOQuestions() {
     setLoading(true);
     if (form_uid != undefined) {
       const questionsRes = await dispatch(
-        getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
+        await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
+      //dispatch twice if refresh
+      if (refresh) {
+        await dispatch(
+          getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
+        );
+      }
       console.log("questionsRes", questionsRes);
     } else {
       message.error(
