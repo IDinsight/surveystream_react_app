@@ -25,7 +25,8 @@ import {
   SurveyBasicInformationData,
   SurveyModuleQuestionnaireData,
 } from "./types";
-import { surveyConfigs } from "./surveyConfigsInit";
+import { surveyConfigs as surveyConfigsInit } from "./surveyConfigsInit";
+import { moduleDescriptions } from "../moduleSelection/moduleDescriptions";
 
 export const getSurveyConfig = createAsyncThunk(
   "surveyConfig/getSupervisorRoles",
@@ -38,7 +39,7 @@ export const getSurveyConfig = createAsyncThunk(
         delete surveyConfig.data.overall_status;
 
         // Filter and transform config
-        const transformedConfigs = Object.entries(surveyConfigs).reduce(
+        const transformedConfigs = Object.entries(surveyConfigsInit).reduce(
           (acc, [key, value]) => {
             if (Array.isArray(value)) {
               const transformedModules = value.map((module) => {
@@ -71,12 +72,46 @@ export const getSurveyConfig = createAsyncThunk(
           },
           {}
         );
+        let transformedModules: any = [];
+        if (
+          surveyConfig?.data["Module configuration"] &&
+          surveyConfig?.data["Module configuration"].length > 0
+        ) {
+          // Filter and transform modules
+          const moduleIds = surveyConfig?.data["Module configuration"].map(
+            (module: any) => module.module_id
+          );
+          const moduleStatus = surveyConfig?.data["Module configuration"].map(
+            (module: any) => module.status
+          );
 
-        dispatch(fetchSurveysConfigSuccess(transformedConfigs));
-        return surveyConfig.data;
+          transformedModules = moduleDescriptions
+            .filter((module) => moduleIds.includes(module.module_id))
+            .map((module) => {
+              const index = moduleIds.indexOf(module.module_id);
+              return {
+                module_id: moduleIds[index],
+                name: module.title,
+                status: moduleStatus[index],
+              };
+            });
+        }
+
+        dispatch(
+          fetchSurveysConfigSuccess({
+            ...transformedConfigs,
+            "Module configuration": transformedModules,
+          })
+        );
+        return {
+          ...transformedConfigs,
+          "Module configuration": transformedModules,
+          success: true,
+        };
       }
 
       const error = {
+        success: false,
         ...surveyConfig.response.data,
         code: surveyConfig.response.status,
       };

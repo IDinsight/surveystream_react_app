@@ -28,21 +28,5 @@ export const surveyConfigs: Record<string, any> = {
       status: "Not Started",
     },
   ],
-  "Module configuration": [
-    {
-      module_id: 1,
-      name: "Assignments",
-      status: "Not Started",
-    },
-    {
-      module_id: 2,
-      name: "Productivity tracker",
-      status: "Not Started",
-    },
-    {
-      module_id: 3,
-      name: "Data quality",
-      status: "Not Started",
-    },
-  ],
+  "Module configuration": [],
 };
