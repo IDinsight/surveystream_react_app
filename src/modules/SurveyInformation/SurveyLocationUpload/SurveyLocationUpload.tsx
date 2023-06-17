@@ -1,4 +1,4 @@
-import { Alert, Button, Col, Form, Row, Select, message } from "antd";
+import { Alert, Col, Form, Row, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
@@ -398,25 +398,6 @@ function SurveyLocationUpload() {
                   <>
                     {!hasError ? (
                       <>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginRight: "80px",
-                          }}
-                        >
-                          <p>Locations</p>
-                          <Button
-                            icon={<CloudDownloadOutlined />}
-                            style={{
-                              backgroundColor: "#2F54EB",
-                              color: "#FFF",
-                            }}
-                          >
-                            Download CSV
-                          </Button>
-                        </div>
                         <LocationTable
                           columns={surveyLocations?.ordered_columns}
                           data={surveyLocations?.records}

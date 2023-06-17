@@ -1,6 +1,8 @@
 import React from "react";
-import { Table } from "antd";
+import { Button, Table } from "antd";
 import styled from "styled-components";
+import { CloudDownloadOutlined } from "@ant-design/icons";
+import { useCSVDownloader } from "react-papaparse";
 
 const TableA = styled(Table)`
   margin-bottom: 80px;
@@ -20,6 +22,8 @@ interface LocationTableProps {
 }
 
 const LocationTable: React.FC<LocationTableProps> = ({ columns, data }) => {
+  const { CSVDownloader, Type } = useCSVDownloader();
+
   const transformedColumns = columns.map((label: string) => {
     return {
       title: label,
@@ -38,12 +42,39 @@ const LocationTable: React.FC<LocationTableProps> = ({ columns, data }) => {
   });
 
   return (
-    <TableA
-      columns={transformedColumns}
-      dataSource={transformedData}
-      pagination={false}
-      style={{ marginRight: "80px", marginTop: "18px" }}
-    />
+    <>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginRight: "80px",
+        }}
+      >
+        <p>Locations</p>
+        <CSVDownloader
+          data={transformedData}
+          filename={"locations.csv"}
+          style={{
+            cursor: "pointer",
+            backgroundColor: "#2F54EB",
+            color: "#FFF",
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 16px",
+          }}
+        >
+          <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+          Download CSV
+        </CSVDownloader>
+      </div>
+      <TableA
+        columns={transformedColumns}
+        dataSource={transformedData}
+        pagination={false}
+        style={{ marginRight: "80px", marginTop: "18px" }}
+      />
+    </>
   );
 };
 
