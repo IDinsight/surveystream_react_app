@@ -47,6 +47,15 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     fetchSurveyModuleQuestionnaire();
   }, [dispatch]);
 
+  useEffect(() => {
+    if (moduleQuestionnaire === null) {
+      form.resetFields();
+    } else {
+      form.setFieldsValue({ ...moduleQuestionnaire });
+      setFormData({ ...moduleQuestionnaire });
+    }
+  }, [moduleQuestionnaire]);
+
   const [basicFormData, setBasicFormData] =
     useState<SurveyModuleQuestionnaireData>({
       assignment_process: moduleQuestionnaire?.assignment_process
@@ -168,10 +177,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What are the criteria which you will use to assign supervisors to
               enumerators? Select all that apply
             </Title>
-            <StyledFormItem
-              name="supervisor_assignment_criteria"
-              initialValue={moduleQuestionnaire?.supervisor_assignment_criteria}
-            >
+            <StyledFormItem required name="supervisor_assignment_criteria">
               <CheckboxGroup
                 options={supervisorsCriteriaOptions}
                 style={{ marginTop: "15px" }}
@@ -181,10 +187,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <Title style={{ marginTop: "24px" }}>
               Is there a hierarchy in supervisors?
             </Title>
-            <StyledFormItem
-              name="supervisor_hierarchy_exists"
-              initialValue={moduleQuestionnaire?.supervisor_hierarchy_exists}
-            >
+            <StyledFormItem name="supervisor_hierarchy_exists">
               <Radio.Group
                 options={supervisorsHierarchyOptions}
                 style={{ marginTop: "15px" }}
@@ -201,10 +204,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What is the criteria which you will use to assign enumerators to
               targets? Select all that apply
             </Title>
-            <StyledFormItem
-              name="target_assignment_criteria"
-              initialValue={moduleQuestionnaire?.target_assignment_criteria}
-            >
+            <StyledFormItem name="target_assignment_criteria">
               <CheckboxGroup
                 options={enumeratorsCriteriaOptions}
                 style={{ marginTop: "15px" }}
@@ -214,10 +214,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               Will the assignment of the targets to enumerators change during
               the course of the survey?
             </Title>
-            <StyledFormItem
-              name="reassignment_required"
-              initialValue={moduleQuestionnaire?.reassignment_required}
-            >
+            <StyledFormItem name="reassignment_required">
               <Radio.Group
                 options={enumeratorsTargetChangeOptions}
                 style={{ marginTop: "15px" }}
@@ -227,10 +224,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What process will you use to perform the assignment of targets to
               enumerators?
             </Title>
-            <StyledFormItem
-              name="assignment_process"
-              initialValue={moduleQuestionnaire?.assignment_process}
-            >
+            <StyledFormItem name="assignment_process">
               <Radio.Group
                 options={enumeratorsTargetAssignmentWayOptions}
                 style={{ marginTop: "15px" }}
@@ -240,10 +234,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What is the mapping of supervisors to enumerators (supervisors :
               enumerator)?
             </Title>
-            <StyledFormItem
-              name="supervisor_surveyor_relation"
-              initialValue={moduleQuestionnaire?.supervisor_surveyor_relation}
-            >
+            <StyledFormItem name="supervisor_surveyor_relation">
               <Radio.Group
                 options={supervisorsEnumeratorsMappingOptions}
                 style={{ marginTop: "15px" }}
@@ -260,10 +251,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               You have selected ‘location’ and ‘language’ as a mapping criteria.
               Can the languages be mapped via locations?
             </Title>
-            <StyledFormItem
-              name="language_location_mapping"
-              initialValue={moduleQuestionnaire?.language_location_mapping}
-            >
+            <StyledFormItem name="language_location_mapping">
               <Radio.Group
                 options={languageMappedOptions}
                 style={{ marginTop: "15px" }}
