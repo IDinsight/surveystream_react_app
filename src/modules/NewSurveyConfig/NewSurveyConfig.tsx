@@ -102,6 +102,61 @@ function NewSurveyConfig() {
           });
           return;
         }
+
+        const validationRules = [
+          {
+            key: "supervisor_assignment_criteria",
+            message: "Please select the supervisor assignment criteria",
+          },
+          {
+            key: "supervisor_hierarchy_exists",
+            message: "Please select the supervisor hierarchy",
+          },
+          {
+            key: "target_assignment_criteria",
+            message: "Please select the target assignment criteria",
+          },
+          {
+            key: "reassignment_required",
+            message: "Please select the reassignment required",
+          },
+          {
+            key: "assignment_process",
+            message: "Please select the assignment process",
+          },
+          {
+            key: "supervisor_surveyor_relation",
+            message: "Please select the supervisor surveyor relation",
+          },
+          {
+            key: "language_location_mapping",
+            message: "Please select the language location mapping",
+          },
+        ];
+
+        const hasValidationErrors = !validationRules.every(
+          (rule: { key: string; message: string }) => {
+            console.log(moduleQuestionnaireformData);
+            const val =
+              moduleQuestionnaireformData[
+                rule.key as keyof SurveyModuleQuestionnaireData
+              ];
+
+            if (!val || (Array.isArray(val) && val.length < 1)) {
+              messageApi.open({
+                type: "error",
+                content: rule.message,
+              });
+              return false;
+            }
+            return true;
+          }
+        );
+
+        if (hasValidationErrors) {
+          return;
+        }
+
         try {
           const response = await dispatch(
             updateSurveyModuleQuestionnaire({
@@ -129,7 +184,6 @@ function NewSurveyConfig() {
           }
         } catch (error) {
           // Handle any error
-          console.error("post error", error);
           messageApi.open({
             type: "error",
             content: showError.payload.message,
@@ -242,7 +296,6 @@ function NewSurveyConfig() {
       }
     } catch (error) {
       // Handle any error
-      console.error("post error", error);
       messageApi.open({
         type: "error",
         content: showError.payload.message,

@@ -51,59 +51,40 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     if (moduleQuestionnaire === null) {
       form.resetFields();
     } else {
-      form.setFieldsValue({ ...moduleQuestionnaire });
-      setFormData({ ...moduleQuestionnaire });
+      // If data is there, then set to states and fields
+      const fieldData = { ...moduleQuestionnaire };
+      form.setFieldsValue(fieldData);
+
+      setMQFormData(fieldData);
+      setFormData(fieldData);
     }
   }, [moduleQuestionnaire]);
 
-  const [basicFormData, setBasicFormData] =
-    useState<SurveyModuleQuestionnaireData>({
-      assignment_process: moduleQuestionnaire?.assignment_process
-        ? moduleQuestionnaire?.assignment_process
-        : "",
-      language_location_mapping: moduleQuestionnaire?.language_location_mapping
-        ? moduleQuestionnaire?.language_location_mapping
-        : false,
-      reassignment_required: moduleQuestionnaire?.reassignment_required
-        ? moduleQuestionnaire?.reassignment_required
-        : false,
-      supervisor_assignment_criteria:
-        moduleQuestionnaire?.supervisor_assignment_criteria
-          ? moduleQuestionnaire?.supervisor_assignment_criteria
-          : [],
-      supervisor_surveyor_relation:
-        moduleQuestionnaire?.supervisor_surveyor_relation
-          ? moduleQuestionnaire?.supervisor_surveyor_relation
-          : "",
-      supervisor_hierarchy_exists:
-        moduleQuestionnaire?.supervisor_hierarchy_exists
-          ? moduleQuestionnaire?.supervisor_hierarchy_exists
-          : false,
-      survey_uid: moduleQuestionnaire?.survey_uid
-        ? moduleQuestionnaire?.survey_uid
-        : survey_uid
-        ? parseInt(survey_uid)
-        : 0,
-      target_assignment_criteria:
-        moduleQuestionnaire?.target_assignment_criteria
-          ? moduleQuestionnaire?.target_assignment_criteria
-          : [],
-    });
+  const [mqFormData, setMQFormData] = useState<SurveyModuleQuestionnaireData>({
+    assignment_process: null,
+    language_location_mapping: null,
+    reassignment_required: null,
+    supervisor_assignment_criteria: [],
+    supervisor_surveyor_relation: null,
+    supervisor_hierarchy_exists: null,
+    survey_uid: moduleQuestionnaire?.survey_uid
+      ? moduleQuestionnaire?.survey_uid
+      : survey_uid
+      ? parseInt(survey_uid)
+      : 0,
+    target_assignment_criteria: [],
+  });
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
-    const updatedFormData: SurveyModuleQuestionnaireData = moduleQuestionnaire
-      ? {
-          ...moduleQuestionnaire,
-          ...changedValues,
-        }
-      : {
-          ...basicFormData,
-          ...changedValues,
-        };
+    const updatedFormData: SurveyModuleQuestionnaireData = {
+      ...mqFormData,
+      ...changedValues,
+    };
 
-    setBasicFormData(updatedFormData);
+    setMQFormData(updatedFormData);
     setFormData(updatedFormData);
   };
+
   // Supervisors checkbox options
   const supervisorsCriteriaOptions = [
     { label: "Location", value: "Location" },
