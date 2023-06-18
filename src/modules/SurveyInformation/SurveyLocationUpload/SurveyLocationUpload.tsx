@@ -363,7 +363,11 @@ function SurveyLocationUpload() {
             ) : null}
             {!fileUploaded ? (
               <>
-                <a style={{ textDecoration: "none", color: "#2f54eb" }}>
+                <a
+                  href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
+                  target="__blank"
+                  style={{ textDecoration: "none", color: "#2f54eb" }}
+                >
                   <LinkOutlined style={{ fontSize: "14px" }} />
                   <IconText>Download template</IconText>
                 </a>
