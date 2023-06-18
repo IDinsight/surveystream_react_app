@@ -12,7 +12,6 @@ import {
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
 import BasicInformationForm from "./BasicInformation/BasicInformationForm";
-import { Form } from "antd";
 import {
   FooterWrapper,
   SaveButton,
@@ -48,7 +47,6 @@ function NewSurveyConfig() {
     sidebar: 0,
     mqIndex: 0,
   });
-  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 

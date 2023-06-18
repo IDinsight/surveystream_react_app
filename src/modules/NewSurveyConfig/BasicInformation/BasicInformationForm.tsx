@@ -64,27 +64,15 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     if (basicInfo === null) {
       form.resetFields();
     } else {
-      if (
-        basicInfo?.planned_start_date !== null &&
-        basicInfo?.planned_end_date !== null
-      ) {
-        form.setFieldsValue({
-          systemsReadinessStartDate: dayjs(basicInfo?.planned_start_date),
-          systemsEndDate: dayjs(basicInfo?.planned_end_date),
-        });
+      form.setFieldsValue({
+        ...basicInfo,
+        planned_start_date: dayjs(basicInfo?.planned_start_date),
+        planned_end_date: dayjs(basicInfo?.planned_end_date),
+      });
 
-        // Setting the data to parent
-        const fieldsValue = fieldValuesToformValues(form.getFieldsValue());
-        setFormData({
-          ...fieldsValue,
-          planned_start_date: dayjs(basicInfo?.planned_start_date).format(
-            "YYYY-MM-DD"
-          ),
-          planned_end_date: dayjs(basicInfo?.planned_end_date).format(
-            "YYYY-MM-DD"
-          ),
-        });
-      }
+      // Setting the data to parent
+      const fieldsValue = fieldValuesToformValues(form.getFieldsValue());
+      setFormData({ ...fieldsValue });
     }
   }, [basicInfo]);
 
@@ -92,17 +80,12 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     objValues: any
   ): SurveyBasicInformationData => {
     return {
+      ...objValues,
       survey_uid: basicInfo?.survey_uid ? basicInfo?.survey_uid : null,
-      survey_id: objValues.surveyID,
-      survey_name: objValues.surveyName,
-      project_name: objValues.projectName,
-      survey_description: objValues.surveyDescription,
-      surveying_method: objValues.surveyMethod,
-      irb_approval: objValues.irbApproval,
-      planned_start_date: dayjs(objValues.systemsReadinessStartDate).format(
+      planned_start_date: dayjs(objValues.planned_start_date).format(
         "YYYY-MM-DD"
       ),
-      planned_end_date: dayjs(objValues.systemsEndDate).format("YYYY-MM-DD"),
+      planned_end_date: dayjs(objValues.planned_end_date).format("YYYY-MM-DD"),
       config_status: "In Progress - Configuration",
       state: "Draft",
       created_by_user_uid: userUId,
@@ -129,7 +112,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         <Row gutter={36}>
           <Col span={10}>
             <StyledFormItem
-              initialValue={basicInfo?.survey_name}
               required
               label={
                 <span>
@@ -139,7 +121,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                   </StyledTooltip>
                 </span>
               }
-              name="surveyName"
+              name="survey_name"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
               style={{ display: "block" }}
@@ -151,8 +133,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={basicInfo?.project_name}
-              name="projectName"
+              name="project_name"
               label={
                 <span>
                   Project name (optional)&nbsp;
@@ -172,7 +153,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={basicInfo?.surveying_method}
               style={{ display: "block", marginTop: "37px" }}
               required
               label={
@@ -183,7 +163,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                   </StyledTooltip>
                 </span>
               }
-              name="surveyMethod"
+              name="surveying_method"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
             >
@@ -197,15 +177,10 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={
-                basicInfo?.planned_start_date
-                  ? dayjs(basicInfo?.planned_start_date)
-                  : null
-              }
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              name="systemsReadinessStartDate"
+              name="planned_start_date"
               style={{ display: "block" }}
               label={
                 <span>
@@ -226,7 +201,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
 
           <Col span={10}>
             <StyledFormItem
-              initialValue={basicInfo?.survey_id}
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
@@ -238,18 +212,17 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                   </StyledTooltip>
                 </span>
               }
-              name="surveyID"
+              name="survey_id"
               style={{ display: "block" }}
             >
               <Input placeholder="Enter survey ID" style={{ width: "100%" }} />
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={basicInfo?.survey_description}
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              name="surveyDescription"
+              name="survey_description"
               style={{ display: "block" }}
               label={
                 <span>
@@ -267,10 +240,9 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={basicInfo?.irb_approval}
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              name="irbApproval"
+              name="irb_approval"
               label={
                 <span>
                   Have you received an IRB approval?&nbsp;
@@ -289,11 +261,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
             </StyledFormItem>
 
             <StyledFormItem
-              initialValue={
-                basicInfo?.planned_end_date
-                  ? dayjs(basicInfo?.planned_end_date)
-                  : null
-              }
               required
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
@@ -305,7 +272,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                   </StyledTooltip>
                 </span>
               }
-              name="systemsEndDate"
+              name="planned_end_date"
               style={{ display: "block" }}
             >
               <DatePicker
