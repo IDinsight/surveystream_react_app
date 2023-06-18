@@ -210,7 +210,14 @@ function NewSurveyConfig() {
           type: "success",
           content: "Your draft survey has been updated successfully.",
         });
-        const newSurveyUid = response.payload.survey_uid;
+
+        // TODO: Check why response.payload have two different format
+        let newSurveyUid;
+        if (basicformData.survey_uid == null) {
+          newSurveyUid = response.payload.survey.survey_uid;
+        } else {
+          newSurveyUid = response.payload.survey_uid;
+        }
         const currentURL = window.location.href;
         const newURL = basicformData.survey_uid
           ? currentURL
@@ -248,6 +255,8 @@ function NewSurveyConfig() {
       dispatch(clearBasicInfo());
       dispatch(clearModuleQuestionnaire());
       dispatch(setActiveSurvey(null));
+      setBasicFormData(null);
+      setModuleFormData(null);
     }
   }, [dispatch]);
 
