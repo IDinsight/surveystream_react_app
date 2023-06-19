@@ -168,15 +168,35 @@ function SurveyLocationAdd() {
           []
         );
 
-        if (filteredGeoLevels.length === 0) {
+        const updatedGeoLevels = filteredGeoLevels.map((location) => {
+          const matchingLevel = surveyLocationGeoLevels.find(
+            (filteredLevel) =>
+              filteredLevel.geo_level_name === location.geo_level_name
+          );
+
+          if (matchingLevel) {
+            return {
+              ...location,
+              geo_level_uid: matchingLevel.geo_level_uid || null,
+              parent_geo_level_uid: matchingLevel.parent_geo_level_uid || null,
+            };
+          }
+          return {
+            ...location,
+            geo_level_uid: null,
+            parent_geo_level_uid: null,
+          };
+        });
+
+        if (updatedGeoLevels.length === 0) {
           message.error("Please fill in at least one location geo level!");
         } else {
-          dispatch(setSurveyLocationGeoLevels(filteredGeoLevels));
+          dispatch(setSurveyLocationGeoLevels(updatedGeoLevels));
         }
 
         setLoading(true);
 
-        const surveyGeoLevelsData = filteredGeoLevels;
+        const surveyGeoLevelsData = updatedGeoLevels;
 
         const geoLevelsRes = await dispatch(
           postSurveyLocationGeoLevels({
