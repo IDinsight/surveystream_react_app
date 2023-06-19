@@ -13,7 +13,7 @@ export const moduleDescriptions: Module[] = [
     title: "Hire Surveyors",
     link: "https://docs.google.com/document/d/1p4KxhkmCBHnvV9nQfgV7qP8UA_lsC4VPRu2aJ3uFAjQ/edit?usp=sharing",
     description:
-      "<ul><li>This feature runs on Google sheets</li><li>Track candidates [by geography, gender etc]</li><li>Generate offer letters</li></ul>",
+      "<ul><li>Track candidates by attributes like geography and gender</li><li>Generate offer letters</li><li>Note: This feature runs on Google sheets</li></ul>",
     icon: UsergroupAddOutlined,
   },
   {
@@ -21,7 +21,7 @@ export const moduleDescriptions: Module[] = [
     title: "Assign targets to surveyors",
     link: "https://docs.google.com/document/d/19tgToMhODhYouO5hzWdDqUZKugrXXlrQnADVUU-IIBM/edit",
     description:
-      "<ul><li>Assign targets to surveyors on SurveyStream web app</li><li> Rebalance targets, handle surveyor drop-outs and perform reassignments </li><li> Communicate assignments to surveyors via emails</li><li> Configure templates, option available to use local languages</li><li> Schedule the emails to be sent as per the requirements of your data collection activity</li></ul>",
+      "<ul><li>Assign targets to enumerators</li><li>Rebalance targets, handle surveyor drop-outs and perform reassignments</li><li>Communicate assignments to enumerators via emails with multi-language support</li></ul>",
     icon: SendOutlined,
   },
   {
@@ -29,7 +29,7 @@ export const moduleDescriptions: Module[] = [
     title: "Track productivity",
     link: "https://docs.google.com/document/d/1vG09sa1rdntl1XZgfKmXcWBzcEhqJcsj_KAtn4kfABw/edit?usp=sharing",
     description:
-      "<ul><li>Define productivity metrics and aggregation levels to track</li><li>Choose the platform for productivity tracking - Superset or Google Sheets</li></ul>",
+      "<ul><li>Define productivity metrics to track</li><li>Choose your platform for productivity tracking: Superset or Google Sheets</li></ul>",
     icon: PieChartOutlined,
   },
   {
@@ -37,23 +37,23 @@ export const moduleDescriptions: Module[] = [
     title: "Track data quality",
     link: "https://docs.google.com/document/d/1tfLmq66S9Xkkfvztd2AvlKQp6FLbDZswxtZQrpU97qI/edit?usp=sharing",
     description:
-      "<ul><li>Setup data quality checks based on logic, missing value, constraint, outliers etc</li><li>Choose the platform for data quality tracking - Superset or Google Sheets</li></ul>",
+      "<ul><li>Set up data quality tracking based on rule-based checks</li><li>Choose your platform for data quality tracking: Superset or Google Sheets</li></ul>",
     icon: UnorderedListOutlined,
   },
   {
     module_id: 12,
-    title: "Audit audio",
+    title: "Audio audits",
     link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
     description:
-      "<ul><li>Assign audios for audits </li><li>Google sheets based feature</li></ul>",
+      "<ul><li>Assign audio recordings for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
     icon: FileSearchOutlined,
   },
   {
     module_id: 14,
-    title: "Audit photo",
+    title: "Photo audits",
     link: "https://docs.google.com/document/d/1D1mohkcPn4RfZ8swaQXno6jnxyW1H4Fv_aboy6f19SY/edit",
     description:
-      "<ul><li>Assign photos for audits </li><li>Google sheets based feature</li></ul>",
+      "<ul><li>Assign photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
     icon: FileSearchOutlined,
   },
 ];
