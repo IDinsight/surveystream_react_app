@@ -194,7 +194,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Main Form ID&nbsp;
-                            <StyledTooltip title="Main SCTO form ID. Ex: Main_Individual_RD_Survey">
+                            <StyledTooltip title="Input the form ID of the main SCTO form. Ex: agrifieldnet_main_form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -217,7 +217,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             SCTO server name&nbsp;
-                            <StyledTooltip title="SCTO server name Ex: dodieic. Note to teams: Please consider carefully the server you will be using is appropriate for your project.">
+                            <StyledTooltip title="SurveyCTO server name Ex: dodieic. Please carefully consider the server you are sharing is the one cleared for use on your project.">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -245,7 +245,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Main form name&nbsp;
-                            <StyledTooltip title="Main SCTO form name. Ex: Main_Individual_RD_Survey">
+                            <StyledTooltip title="Input the form name of the main SCTO form. Ex: AgriFieldNet main survey form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -270,7 +270,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Time zone of location of data collection&nbsp;
-                            <StyledTooltip title="Select the timezone for data collection Ex: Asia/Kolkata">
+                            <StyledTooltip title="Select the timezone in which you will be conducting data collection. Ex: Asia/Kolkata">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -315,18 +315,18 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      Please grant
+                      Please grant{" "}
                       <a
                         href="https://docs.surveycto.com/04-monitoring-and-management/01-the-basics/00b.managing-user-roles.html"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         Data Manager
-                      </a>
-                      access to
+                      </a>{" "}
+                      access to{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
-                      </a>
+                      </a>{" "}
                       on the SCTO server. Please ensure the role has API access
                       enabled.
                     </CheckboxSCTO>
@@ -337,7 +337,7 @@ function SurveyCTOInfomation() {
                   >
                     <CheckboxSCTO>
                       I allow SurveyStream to connect to the SCTO server as per
-                      the requirements of modules selected
+                      the requirements of modules selected.
                     </CheckboxSCTO>
                   </StyledFormItem>
                 </div>

@@ -369,7 +369,7 @@ function SurveyCTOQuestions() {
                 label={
                   <span>
                     Survey status&nbsp;
-                    <StyledTooltip title="Survey status">
+                    <StyledTooltip title="Select the variable that is used to track the overall status of the survey. It will be used for tracking productivity, data quality and assignments.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
@@ -410,7 +410,7 @@ function SurveyCTOQuestions() {
                 label={
                   <span>
                     Revisit Section&nbsp;
-                    <StyledTooltip title="Revisit section">
+                    <StyledTooltip title="It is a comma separated list of modules which are not completed and flagged for revisit for a survey that is not completed.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
@@ -449,7 +449,7 @@ function SurveyCTOQuestions() {
                 label={
                   <span>
                     Target ID&nbsp;
-                    <StyledTooltip title="Target ID">
+                    <StyledTooltip title="Select the variable that is used to track the Target ID. It will be used for tracking productivity, data quality and assignments.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
@@ -488,7 +488,7 @@ function SurveyCTOQuestions() {
                 label={
                   <span>
                     Surveyor ID&nbsp;
-                    <StyledTooltip title="Surveyor ID">
+                    <StyledTooltip title="Select the variable that is used to track the Surveyor ID. It will be used for tracking productivity, data quality and assignments.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>

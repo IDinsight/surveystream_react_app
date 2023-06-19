@@ -227,6 +227,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                         description={
                           <div
                             className="description"
+                            style={{ fontSize: "13px" }}
                             dangerouslySetInnerHTML={{
                               __html: module.description || "",
                             }}

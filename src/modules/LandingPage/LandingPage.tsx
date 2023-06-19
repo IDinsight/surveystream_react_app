@@ -83,20 +83,20 @@ function LandingPage() {
       <div className="flex h-[568px] pt-[100px] pl-[180px] pr-[88px]">
         <div className="flex flex-col w-1/2 pr-[30px]">
           <p className="font-inter font-medium text-[56px] leading-[64px] text-gray-10 m-0">
-            Power your survey ops with SurveyStream
+            Support your survey operations with DoD SurveyStream
           </p>
           <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-            One stop solution for configuring, running, and managing survey
-            operations by DoD
+            Platform for configuring, running, and managing survey operations by
+            DoD
           </p>
           <div className="mt-[40px]">
             <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
               <Button
                 type="primary"
                 size="large"
-                className="bg-geekblue-5 !rounded-sm w-[94px]"
+                className="bg-geekblue-5 !rounded-sm min-w-[94px]"
               >
-                {userProfile?.user_uid ? "Surveys" : "Login"}
+                {userProfile?.user_uid ? "Go to my surveys" : "Login"}
               </Button>
             </Link>
             <Button
@@ -115,6 +115,7 @@ function LandingPage() {
           <img src={CreditImg} className="h-[336px] w-[527px]" alt="Credit" />
         </div>
       </div>
+      {/**
       <div className="flex flex-col h-[745px] pl-[180px] pr-[180px] bg-gray-2">
         <div className="pt-[130px] w-[575px]">
           <p className="font-inter font-medium text-[38px] leading-[46px] text-gray-10 m-0">
@@ -223,6 +224,7 @@ function LandingPage() {
           </div>
         </div>
       </div>
+      */}
       <Footer />
     </>
   );

@@ -116,7 +116,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Survey name&nbsp;
-                  <StyledTooltip title="It will be used to refer to the survey in the web app and to create folders on Google Drive. Ex: Digital Green, ADP 2.0 R1. For multiple rounds of the surveys, you’ll have to create different survey names">
+                  <StyledTooltip title="The survey name will be the label you see for your survey throughout the web app and other SurveyStream generated outputs like Google Drive folders. Example: ADP 2.0 Round 1">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -137,7 +137,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Project name (optional)&nbsp;
-                  <StyledTooltip title="It can be used to group together multiple rounds. Ex: ADP 2.0 would be the project name, ADP 2.0 R1 and ADP 2.0 R2 would be the survey names.">
+                  <StyledTooltip title="The project name can be used to group together multiple related surveys, such as different survey rounds. Example: ADP 2.0">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -158,7 +158,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Survey method&nbsp;
-                  <StyledTooltip title="Survey method">
+                  <StyledTooltip title="The survey method can help determine how other parts of SurveyStream will be setup for your survey.">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -185,7 +185,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Systems readiness start date (YYYY-MM-DD)&nbsp;
-                  <StyledTooltip title="Systems readiness start date (YYYY-MM-DD)">
+                  <StyledTooltip title="The systems readiness start date is the date at which your team will begin using SurveyStream to support survey activities.">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -227,7 +227,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Survey description&nbsp;
-                  <StyledTooltip title="Enter a brief description about the survey. Ex: Household surveys of ~ 56000 households to measure ~200 indicators">
+                  <StyledTooltip title="The survey description can help provide additional context about your survey to other SurveyStream users.">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -246,7 +246,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Have you received an IRB approval?&nbsp;
-                  <StyledTooltip title="IRB approval">
+                  <StyledTooltip title="The IRB approval checkbox serves as a reminder to your team to secure ethics approvals before beginning survey activities.">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
@@ -267,7 +267,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               label={
                 <span>
                   Systems end date (YYYY-MM-DD)&nbsp;
-                  <StyledTooltip title="Systems end date (YYYY-MM-DD)">
+                  <StyledTooltip title="The systems end date is the date when your team is projected to finish using SurveyStream to support survey activities.">
                     <QuestionCircleOutlined />
                   </StyledTooltip>
                 </span>
