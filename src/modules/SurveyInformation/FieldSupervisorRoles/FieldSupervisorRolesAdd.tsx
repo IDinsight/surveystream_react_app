@@ -125,6 +125,9 @@ function FieldSupervisorRolesAdd() {
   const handleContinue = async () => {
     try {
       const formValues = form.getFieldsValue();
+
+      console.log("supervisorRoles", supervisorRoles);
+
       const filteredRoles = Object.keys(formValues).reduce(
         (role: any[], fieldName: string) => {
           const fieldValue = formValues[fieldName];
@@ -138,21 +141,44 @@ function FieldSupervisorRolesAdd() {
         []
       );
 
-      if (filteredRoles.length === 0) {
+      const updatedRoles = filteredRoles.map((role) => {
+        const matchingRole = supervisorRoles.find(
+          (filteredRole) => filteredRole.role_name === role.role_name
+        );
+
+        if (matchingRole) {
+          return {
+            ...role,
+            role_uid: matchingRole.role_uid || null,
+            reporting_role_uid: matchingRole.reporting_role_uid || null,
+          };
+        }
+        return {
+          ...role,
+          role_uid: null,
+          reporting_role_uid: null,
+        };
+      });
+
+      if (updatedRoles.length === 0) {
         message.error("Please fill in at least one role name!");
       } else {
-        dispatch(setSupervisorRoles(filteredRoles));
+        dispatch(setSupervisorRoles(updatedRoles));
       }
 
       setLoading(true);
 
-      const supervisorRolesData = filteredRoles;
-      const surveyUid = survey_uid ? survey_uid : "168";
-
+      const supervisorRolesData = updatedRoles;
+      if (survey_uid == undefined) {
+        message.error(
+          "Please check that the survey_uid is provided on the url!"
+        );
+        return;
+      }
       const rolesRes = await dispatch(
         postSupervisorRoles({
           supervisorRolesData: supervisorRolesData,
-          surveyUid,
+          surveyUid: survey_uid,
         })
       );
 
