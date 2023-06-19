@@ -107,7 +107,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       label: "Location of target",
       value: "Location of target",
     },
-    { label: "Location of enumerators", value: "Location of enumerators" },
+    { label: "Location of surveyors", value: "Location of enumerators" },
     { label: "Gender", value: "Gender" },
     { label: "Language", value: "Location" },
     {
@@ -119,7 +119,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   const enumeratorsTargetChangeOptions = [
     { label: "Yes", value: true },
     {
-      label: "No, there is a fixed list of targets and enumerators",
+      label: "No, there is a fixed list of targets and surveyors",
       value: false,
     },
   ];
@@ -156,7 +156,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <Title style={{ marginTop: "18px" }}>Supervisors</Title>
             <Title style={{ marginTop: "23px" }}>
               What are the criteria which you will use to assign supervisors to
-              enumerators? Select all that apply
+              surveyors? Select all that apply
             </Title>
             <StyledFormItem required name="supervisor_assignment_criteria">
               <CheckboxGroup
@@ -180,9 +180,9 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       case 1:
         return (
           <>
-            <Title style={{ marginTop: "18px" }}>Enumerators</Title>
+            <Title style={{ marginTop: "18px" }}>Surveyors</Title>
             <Title style={{ marginTop: "23px" }}>
-              What is the criteria which you will use to assign enumerators to
+              What is the criteria which you will use to assign surveyors to
               targets? Select all that apply
             </Title>
             <StyledFormItem name="target_assignment_criteria">
@@ -192,8 +192,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               />
             </StyledFormItem>
             <Title style={{ marginTop: "24px" }}>
-              Will the assignment of the targets to enumerators change during
-              the course of the survey?
+              Will the assignment of the targets to surveyors change during the
+              course of the survey?
             </Title>
             <StyledFormItem name="reassignment_required">
               <Radio.Group
@@ -203,7 +203,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             </StyledFormItem>
             <Title style={{ marginTop: "24px" }}>
               What process will you use to perform the assignment of targets to
-              enumerators?
+              surveyors?
             </Title>
             <StyledFormItem name="assignment_process">
               <Radio.Group
@@ -212,8 +212,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               />
             </StyledFormItem>
             <Title style={{ marginTop: "24px" }}>
-              What is the mapping of supervisors to enumerators (supervisors :
-              enumerator)?
+              What is the mapping of supervisors to surveyors (supervisors :
+              surveyors)?
             </Title>
             <StyledFormItem name="supervisor_surveyor_relation">
               <Radio.Group

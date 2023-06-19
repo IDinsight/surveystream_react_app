@@ -203,7 +203,7 @@ function SideMenu() {
           <IconWrapper>
             <ProfileOutlined />
           </IconWrapper>
-          Enumerators
+          Surveyors
         </MenuItem>
       ),
       key: "surveyEnumerators",

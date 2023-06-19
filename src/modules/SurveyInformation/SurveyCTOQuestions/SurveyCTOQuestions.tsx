@@ -452,7 +452,7 @@ function SurveyCTOQuestions() {
                 rules={[
                   {
                     required: true,
-                    message: "Please enter enumerator ID",
+                    message: "Please enter surveyor ID",
                   },
                   {
                     validator: (_: any, value: string | undefined) => {
@@ -472,8 +472,8 @@ function SurveyCTOQuestions() {
                 name="enumerator_id"
                 label={
                   <span>
-                    Enumerator ID&nbsp;
-                    <StyledTooltip title="Enumerator ID">
+                    Surveyor ID&nbsp;
+                    <StyledTooltip title="Surveyor ID">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
