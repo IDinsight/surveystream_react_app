@@ -138,10 +138,10 @@ function LandingPage() {
             <div className="w-[328px]">
               <UsergroupAddOutlined className="text-gray-9 !text-2xl" />
               <p className="font-inter font-medium text-[20px] leading-[28px] text-gray-10">
-                Enumerator Hiring
+                Surveyor Hiring
               </p>
               <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-                Automate the enumerator hiring process
+                Automate the surveyor hiring process
               </p>
             </div>
             <div className="w-[328px]">
@@ -150,8 +150,8 @@ function LandingPage() {
                 Assignments
               </p>
               <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-                Assign targets to enumerators and share assignment information
-                via automated emails
+                Assign targets to surveyors and share assignment information via
+                automated emails
               </p>
             </div>
           </div>
