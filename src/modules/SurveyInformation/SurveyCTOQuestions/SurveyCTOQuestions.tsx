@@ -336,18 +336,19 @@ function SurveyCTOQuestions() {
               <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
 
               <StyledFormItem
-                initialValue={surveyCTOQuestionsForm.survey_status}
-                required
+                initialValue={surveyCTOQuestionsForm?.survey_status}
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please enter survey status",
                   },
                   {
                     validator: (_: any, value: string | undefined) => {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
-                      ).filter((v) => v === value).length;
+                      ).filter(
+                        (v) => v === value && value !== undefined
+                      ).length;
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
@@ -374,17 +375,18 @@ function SurveyCTOQuestions() {
 
               <StyledFormItem
                 initialValue={surveyCTOQuestionsForm?.revisit_section}
-                required
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please enter revisit section",
                   },
                   {
                     validator: (_: any, value: string | undefined) => {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
-                      ).filter((v) => v === value).length;
+                      ).filter(
+                        (v) => v === value && value !== undefined
+                      ).length;
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
@@ -421,7 +423,9 @@ function SurveyCTOQuestions() {
                     validator: (_: any, value: string | undefined) => {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
-                      ).filter((v) => v === value).length;
+                      ).filter(
+                        (v) => v === value && value !== undefined
+                      ).length;
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
@@ -458,7 +462,9 @@ function SurveyCTOQuestions() {
                     validator: (_: any, value: string | undefined) => {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
-                      ).filter((v) => v === value).length;
+                      ).filter(
+                        (v) => v === value && value !== undefined
+                      ).length;
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");

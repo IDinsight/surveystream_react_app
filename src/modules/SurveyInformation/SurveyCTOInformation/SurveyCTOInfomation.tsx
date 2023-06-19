@@ -111,6 +111,11 @@ function SurveyCTOInfomation() {
       const surveyCTOData = formData;
       let formRes;
 
+      if (survey_uid == undefined) {
+        message.error("Kindly check that survey_uid is provided on the url");
+        return;
+      }
+
       if (
         surveyCTOForm &&
         surveyCTOForm?.form_uid !== null &&
@@ -131,30 +136,24 @@ function SurveyCTOInfomation() {
         );
       }
 
-      if (formRes.payload.success === false) {
-        message.error(formRes.payload.message);
-      } else {
-        message.success("SurveyCTO form updated successfully");
+      if (formRes.payload.success === true) {
+        message.success("SurveyCTO form updated successfully.");
         navigate(
           `/survey-information/survey-cto-questions/${survey_uid}/${
-            surveyCTOForm.form_uid
-              ? surveyCTOForm.form_uid
-              : formRes.payload.data.data.survey.form_uid
+            surveyCTOForm?.form_uid
+              ? surveyCTOForm?.form_uid
+              : formRes.payload?.data?.survey?.form_uid
           }`
         );
+      } else {
+        message.error(formRes.payload.message);
       }
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
-
-      if (Array.isArray(error.errorFields) && error.errorFields.length > 0) {
-        // Handle validation errors
-        const errorMessage = error.errorFields[0]?.errors[0];
-
-        message.error(errorMessage);
-      } else {
-        message.error("Please fill in all required fields.");
-      }
+      message.error(
+        "Something went wrong, could not save surveyCTO information."
+      );
     } finally {
       setLoading(false);
     }
