@@ -142,7 +142,7 @@ function NewSurveyConfig() {
                 rule.key as keyof SurveyModuleQuestionnaireData
               ];
 
-            if (!val || (Array.isArray(val) && val.length < 1)) {
+            if (val === null || (Array.isArray(val) && val.length < 1)) {
               messageApi.open({
                 type: "error",
                 content: rule.message,
