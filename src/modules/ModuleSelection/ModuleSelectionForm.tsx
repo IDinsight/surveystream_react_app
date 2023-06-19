@@ -69,7 +69,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   );
 
   const [form] = useForm();
-  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -83,12 +83,14 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     let filteredModules = [];
     filteredModules = modulesStatus;
     // Set selected cards based on module_id
-    const selectedModuleIds = filteredModules.map((module) => module.module_id);
+    const selectedModuleIds = filteredModules.map((module) =>
+      module.module_id.toString()
+    );
     setSelectedCards(selectedModuleIds);
   }, [modulesStatus]);
 
-  const handleCheckboxChange = (cardId: number) => {
-    setSelectedCards((prevSelectedCards: number[]) => {
+  const handleCheckboxChange = (cardId: string) => {
+    setSelectedCards((prevSelectedCards: string[]) => {
       if (prevSelectedCards.includes(cardId)) {
         return prevSelectedCards.filter((id) => id !== cardId);
       } else {
@@ -97,7 +99,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     });
   };
 
-  const isCardSelected = (cardId: number) => {
+  const isCardSelected = (cardId: string) => {
     return selectedCards.includes(cardId);
   };
 
@@ -113,15 +115,29 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
       // Dispatch the selected modules
       const modulesRes = await dispatch(createModuleStatus(data));
 
-      if (modulesRes.payload.status === false) {
-        message.error(modulesRes.payload.message);
-        return;
-      } else {
+      if (modulesRes.payload?.success === true) {
         message.success("Modules updated successfully");
         navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+      } else {
+        modulesRes.payload?.message
+          ? message.error(modulesRes.payload.message)
+          : message.error(
+              "Failed to update modules, kindly check your inputs."
+            );
+        if (modulesRes.payload?.response?.data?.errors?.modules) {
+          message.error(
+            `modules: ${modulesRes.payload.response.data.errors.modules}`
+          );
+        }
+        if (modulesRes.payload?.response?.data?.errors?.survey_uid) {
+          message.error(
+            `survey_uid: ${modulesRes.payload.response.data.errors.survey_uid}`
+          );
+        }
+        return;
       }
     } catch (error) {
-      message.error("Please fill in all required fields.");
+      message.error("Failed to update modules, kindly check your inputs.");
     } finally {
       setLoading(false);
     }
@@ -177,7 +193,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                     <SelectionCard
                       key={module.module_id}
                       style={{
-                        borderColor: isCardSelected(module.module_id)
+                        borderColor: isCardSelected(module.module_id.toString())
                           ? "#061178"
                           : "#BFBFBF",
                       }}
@@ -186,7 +202,9 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                         title={
                           <TitleContainer
                             style={{
-                              backgroundColor: isCardSelected(module.module_id)
+                              backgroundColor: isCardSelected(
+                                module.module_id.toString()
+                              )
                                 ? "#061178"
                                 : "#BFBFBF",
                             }}
@@ -219,9 +237,9 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                         <CheckboxStyle />{" "}
                         <Checkbox
                           onChange={() =>
-                            handleCheckboxChange(module.module_id)
+                            handleCheckboxChange(module.module_id.toString())
                           }
-                          checked={isCardSelected(module.module_id)}
+                          checked={isCardSelected(module.module_id.toString())}
                         >
                           I need this module in my survey
                         </Checkbox>
