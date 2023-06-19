@@ -20,7 +20,7 @@ export const surveyConfigs: Record<string, any> = {
       status: "Not Started",
     },
     {
-      name: "Enumerators",
+      name: "Surveyors",
       status: "Not Started",
     },
     {

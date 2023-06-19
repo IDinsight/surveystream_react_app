@@ -10,7 +10,7 @@ import {
 export const moduleDescriptions: Module[] = [
   {
     module_id: 13,
-    title: "Hire Enumerators",
+    title: "Hire Surveyors",
     link: "https://docs.google.com/document/d/1p4KxhkmCBHnvV9nQfgV7qP8UA_lsC4VPRu2aJ3uFAjQ/edit?usp=sharing",
     description:
       "<ul><li>This feature runs on Google sheets</li><li>Track candidates [by geography, gender etc]</li><li>Generate offer letters</li></ul>",
@@ -18,10 +18,10 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 9,
-    title: "Assign targets to enumerators",
+    title: "Assign targets to surveyors",
     link: "https://docs.google.com/document/d/19tgToMhODhYouO5hzWdDqUZKugrXXlrQnADVUU-IIBM/edit",
     description:
-      "<ul><li>Assign targets to enumerators on SurveyStream web app</li><li> Rebalance targets, handle surveyor drop-outs and perform reassignments </li><li> Communicate assignments to enumerators via emails</li><li> Configure templates, option available to use local languages</li><li> Schedule the emails to be sent as per the requirements of your data collection activity</li></ul>",
+      "<ul><li>Assign targets to surveyors on SurveyStream web app</li><li> Rebalance targets, handle surveyor drop-outs and perform reassignments </li><li> Communicate assignments to surveyors via emails</li><li> Configure templates, option available to use local languages</li><li> Schedule the emails to be sent as per the requirements of your data collection activity</li></ul>",
     icon: SendOutlined,
   },
   {
