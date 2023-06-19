@@ -47,54 +47,44 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     fetchSurveyModuleQuestionnaire();
   }, [dispatch]);
 
-  const [basicFormData, setBasicFormData] =
-    useState<SurveyModuleQuestionnaireData>({
-      assignment_process: moduleQuestionnaire?.assignment_process
-        ? moduleQuestionnaire?.assignment_process
-        : "",
-      language_location_mapping: moduleQuestionnaire?.language_location_mapping
-        ? moduleQuestionnaire?.language_location_mapping
-        : false,
-      reassignment_required: moduleQuestionnaire?.reassignment_required
-        ? moduleQuestionnaire?.reassignment_required
-        : false,
-      supervisor_assignment_criteria:
-        moduleQuestionnaire?.supervisor_assignment_criteria
-          ? moduleQuestionnaire?.supervisor_assignment_criteria
-          : [],
-      supervisor_surveyor_relation:
-        moduleQuestionnaire?.supervisor_surveyor_relation
-          ? moduleQuestionnaire?.supervisor_surveyor_relation
-          : "",
-      supervisor_hierarchy_exists:
-        moduleQuestionnaire?.supervisor_hierarchy_exists
-          ? moduleQuestionnaire?.supervisor_hierarchy_exists
-          : false,
-      survey_uid: moduleQuestionnaire?.survey_uid
-        ? moduleQuestionnaire?.survey_uid
-        : survey_uid
-        ? parseInt(survey_uid)
-        : 0,
-      target_assignment_criteria:
-        moduleQuestionnaire?.target_assignment_criteria
-          ? moduleQuestionnaire?.target_assignment_criteria
-          : [],
-    });
+  useEffect(() => {
+    if (moduleQuestionnaire === null) {
+      form.resetFields();
+    } else {
+      // If data is there, then set to states and fields
+      const fieldData = { ...moduleQuestionnaire };
+      form.setFieldsValue(fieldData);
+
+      setMQFormData(fieldData);
+      setFormData(fieldData);
+    }
+  }, [moduleQuestionnaire]);
+
+  const [mqFormData, setMQFormData] = useState<SurveyModuleQuestionnaireData>({
+    assignment_process: null,
+    language_location_mapping: null,
+    reassignment_required: null,
+    supervisor_assignment_criteria: [],
+    supervisor_surveyor_relation: null,
+    supervisor_hierarchy_exists: null,
+    survey_uid: moduleQuestionnaire?.survey_uid
+      ? moduleQuestionnaire?.survey_uid
+      : survey_uid
+      ? parseInt(survey_uid)
+      : 0,
+    target_assignment_criteria: [],
+  });
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
-    const updatedFormData: SurveyModuleQuestionnaireData = moduleQuestionnaire
-      ? {
-          ...moduleQuestionnaire,
-          ...changedValues,
-        }
-      : {
-          ...basicFormData,
-          ...changedValues,
-        };
+    const updatedFormData: SurveyModuleQuestionnaireData = {
+      ...mqFormData,
+      ...changedValues,
+    };
 
-    setBasicFormData(updatedFormData);
+    setMQFormData(updatedFormData);
     setFormData(updatedFormData);
   };
+
   // Supervisors checkbox options
   const supervisorsCriteriaOptions = [
     { label: "Location", value: "Location" },
@@ -168,10 +158,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What are the criteria which you will use to assign supervisors to
               enumerators? Select all that apply
             </Title>
-            <StyledFormItem
-              name="supervisor_assignment_criteria"
-              initialValue={moduleQuestionnaire?.supervisor_assignment_criteria}
-            >
+            <StyledFormItem required name="supervisor_assignment_criteria">
               <CheckboxGroup
                 options={supervisorsCriteriaOptions}
                 style={{ marginTop: "15px" }}
@@ -181,10 +168,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <Title style={{ marginTop: "24px" }}>
               Is there a hierarchy in supervisors?
             </Title>
-            <StyledFormItem
-              name="supervisor_hierarchy_exists"
-              initialValue={moduleQuestionnaire?.supervisor_hierarchy_exists}
-            >
+            <StyledFormItem name="supervisor_hierarchy_exists">
               <Radio.Group
                 options={supervisorsHierarchyOptions}
                 style={{ marginTop: "15px" }}
@@ -201,10 +185,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What is the criteria which you will use to assign enumerators to
               targets? Select all that apply
             </Title>
-            <StyledFormItem
-              name="target_assignment_criteria"
-              initialValue={moduleQuestionnaire?.target_assignment_criteria}
-            >
+            <StyledFormItem name="target_assignment_criteria">
               <CheckboxGroup
                 options={enumeratorsCriteriaOptions}
                 style={{ marginTop: "15px" }}
@@ -214,10 +195,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               Will the assignment of the targets to enumerators change during
               the course of the survey?
             </Title>
-            <StyledFormItem
-              name="reassignment_required"
-              initialValue={moduleQuestionnaire?.reassignment_required}
-            >
+            <StyledFormItem name="reassignment_required">
               <Radio.Group
                 options={enumeratorsTargetChangeOptions}
                 style={{ marginTop: "15px" }}
@@ -227,10 +205,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What process will you use to perform the assignment of targets to
               enumerators?
             </Title>
-            <StyledFormItem
-              name="assignment_process"
-              initialValue={moduleQuestionnaire?.assignment_process}
-            >
+            <StyledFormItem name="assignment_process">
               <Radio.Group
                 options={enumeratorsTargetAssignmentWayOptions}
                 style={{ marginTop: "15px" }}
@@ -240,10 +215,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               What is the mapping of supervisors to enumerators (supervisors :
               enumerator)?
             </Title>
-            <StyledFormItem
-              name="supervisor_surveyor_relation"
-              initialValue={moduleQuestionnaire?.supervisor_surveyor_relation}
-            >
+            <StyledFormItem name="supervisor_surveyor_relation">
               <Radio.Group
                 options={supervisorsEnumeratorsMappingOptions}
                 style={{ marginTop: "15px" }}
@@ -260,10 +232,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
               You have selected ‘location’ and ‘language’ as a mapping criteria.
               Can the languages be mapped via locations?
             </Title>
-            <StyledFormItem
-              name="language_location_mapping"
-              initialValue={moduleQuestionnaire?.language_location_mapping}
-            >
+            <StyledFormItem name="language_location_mapping">
               <Radio.Group
                 options={languageMappedOptions}
                 style={{ marginTop: "15px" }}
