@@ -100,9 +100,7 @@ function SurveyCTOQuestions() {
       );
       //dispatch twice if refresh
       if (refresh) {
-        await dispatch(
-          getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
-        );
+        await dispatch(getCTOFormQuestions({ formUid: form_uid }));
       }
       console.log("questionsRes", questionsRes);
     } else {
