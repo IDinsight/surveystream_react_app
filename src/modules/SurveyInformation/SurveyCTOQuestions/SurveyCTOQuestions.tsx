@@ -350,6 +350,12 @@ function SurveyCTOQuestions() {
                         (v) => v === value && value !== undefined
                       ).length;
 
+                      console.log("survey_status value", value);
+                      console.log(
+                        "survey_status valueOccurrences",
+                        valueOccurrences
+                      );
+
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
                       }
@@ -387,6 +393,9 @@ function SurveyCTOQuestions() {
                       ).filter(
                         (v) => v === value && value !== undefined
                       ).length;
+
+                      console.log("revisit value", value);
+                      console.log("revisit valueOccurrences", valueOccurrences);
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
