@@ -347,7 +347,8 @@ function SurveyCTOQuestions() {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
                       ).filter(
-                        (v) => v === value && value !== undefined
+                        (v) =>
+                          v === value && value !== undefined && value !== ""
                       ).length;
 
                       console.log("survey_status value", value);
@@ -391,7 +392,8 @@ function SurveyCTOQuestions() {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
                       ).filter(
-                        (v) => v === value && value !== undefined
+                        (v) =>
+                          v === value && value !== undefined && value !== ""
                       ).length;
 
                       console.log("revisit value", value);
@@ -433,7 +435,8 @@ function SurveyCTOQuestions() {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
                       ).filter(
-                        (v) => v === value && value !== undefined
+                        (v) =>
+                          v === value && value !== undefined && value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
@@ -472,7 +475,8 @@ function SurveyCTOQuestions() {
                       const valueOccurrences = Object.values(
                         surveyCTOQuestionsForm
                       ).filter(
-                        (v) => v === value && value !== undefined
+                        (v) =>
+                          v === value && value !== undefined && value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
