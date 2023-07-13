@@ -255,7 +255,16 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                             <FileSearchOutlined
                               style={{ marginRight: 8, color: "#434343" }}
                             />
-                            <div> Request customization support</div>
+                            <a
+                              onClick={() =>
+                                window.open(
+                                  "https://forms.gle/81zvXSZutnE4GHwB6",
+                                  "_blank"
+                                )
+                              }
+                            >
+                              Request customization support
+                            </a>
                           </CardTitle>
                           <LearnMoreLink
                             onClick={() =>
