@@ -25,4 +25,9 @@ export const CheckboxGroup = styled(Group)`
   && .ant-checkbox-wrapper {
     margin-right: 24px;
   }
+
+  && span.ant-checkbox {
+    align-self: auto !important;
+    top: 0.2rem !important;
+  }
 `;
