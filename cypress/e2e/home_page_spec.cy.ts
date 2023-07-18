@@ -4,11 +4,10 @@ import LoginPage from "../pages/login_page.cy";
 const url = `${Cypress.env("TEST_APP_URL")}`;
 const API_BASE = `${Cypress.env("TEST_BASE_API_URL")}`;
 
-const invalid_email = "ahsdkfj";
 const valid_test_email = Cypress.env("TEST_USER_EMAIL");
 const valid_test_password = Cypress.env("TEST_USER_PASSWORD");
 
-describe("Reset password tests", () => {
+describe("Landing page tests", () => {
   beforeEach(() => {
     HomePage.navigate(url);
   });
