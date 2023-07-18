@@ -102,7 +102,7 @@ function Header({ items }: { items?: any }) {
           </div>
 
           <Dropdown menu={{ items: avatarMenu }} trigger={["hover", "click"]}>
-            <a>
+            <a id="user_profile_avatar">
               <UserAvatar name={getUsernameText()} />
             </a>
           </Dropdown>
