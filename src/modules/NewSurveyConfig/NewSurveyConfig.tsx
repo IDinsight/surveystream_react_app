@@ -341,6 +341,7 @@ function NewSurveyConfig() {
       </div>
       <FooterWrapper>
         <SaveButton
+          id="new-survey-config-save-button"
           onClick={handleBack}
           disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
         >
@@ -348,6 +349,7 @@ function NewSurveyConfig() {
         </SaveButton>
 
         <ContinueButton
+          id="new-survey-config-continue-button"
           onClick={handleContinue}
           loading={isLoading}
           disabled={stepIndex.sidebar === 0 ? basicformData === null : false}

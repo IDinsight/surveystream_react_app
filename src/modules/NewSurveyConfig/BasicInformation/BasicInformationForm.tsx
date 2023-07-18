@@ -127,6 +127,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               style={{ display: "block" }}
             >
               <Input
+                id="basic-information-survey-name"
                 placeholder="Enter survey name"
                 style={{ width: "100%" }}
               />
@@ -147,6 +148,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               style={{ display: "block" }}
             >
               <Input
+                id="basic-information-project-name"
                 placeholder="Enter project name"
                 style={{ width: "100%" }}
               />
@@ -168,6 +170,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               wrapperCol={{ span: 24 }}
             >
               <Select
+                id="basic-information-survey-method"
                 placeholder="Choose survey method"
                 style={{ width: "100%" }}
               >
@@ -192,6 +195,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               }
             >
               <DatePicker
+                id="basic-information-start-date"
                 placeholder="Choose start date"
                 format="YYYY-MM-DD"
                 style={{ width: "100%" }}
@@ -215,7 +219,11 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               name="survey_id"
               style={{ display: "block" }}
             >
-              <Input placeholder="Enter survey ID" style={{ width: "100%" }} />
+              <Input
+                id="basic-information-survey-id"
+                placeholder="Enter survey ID"
+                style={{ width: "100%" }}
+              />
             </StyledFormItem>
 
             <StyledFormItem
@@ -234,6 +242,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               }
             >
               <TextArea
+                id="basic-information-survey-description"
                 placeholder="Survey description"
                 style={{ width: "100%" }}
               ></TextArea>
@@ -253,7 +262,11 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               }
               style={{ display: "block" }}
             >
-              <Select style={{ width: "100%" }} placeholder="Yes, no, pending">
+              <Select
+                id="basic-information-irb-approval"
+                style={{ width: "100%" }}
+                placeholder="Yes, no, pending"
+              >
                 <Select.Option value="Yes">Yes</Select.Option>
                 <Select.Option value="No">No</Select.Option>
                 <Select.Option value="Pending">Pending</Select.Option>
@@ -276,6 +289,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               style={{ display: "block" }}
             >
               <DatePicker
+                id="basic-information-end-date"
                 placeholder="Choose end date"
                 format="YYYY-MM-DD"
                 style={{ width: "100%" }}

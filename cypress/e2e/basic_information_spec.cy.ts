@@ -1,7 +1,8 @@
 import SurveysPage from "../pages/surveys_page.cy";
 import LoginPage from "../pages/login_page.cy";
+import BasicInformationPage from "../pages/basic_information_page.cy";
 
-const url = `${Cypress.env("TEST_APP_URL")}/surveys`;
+const url = `${Cypress.env("TEST_APP_URL")}/new-survey-config`;
 const API_BASE = `${Cypress.env("TEST_BASE_API_URL")}`;
 
 const valid_test_email = Cypress.env("TEST_USER_EMAIL");
@@ -9,9 +10,14 @@ const valid_test_password = Cypress.env("TEST_USER_PASSWORD");
 
 let userId = Cypress.env("TEST_USER_ID");
 
-describe("Surveys page tests", () => {
+
+const valid_survey_data = {
+  "survey_name": "Valid Test Survey Name"
+}
+
+describe("Basic information page tests", () => {
   beforeEach(() => {
-    SurveysPage.navigate(url);
+    BasicInformationPage.navigate(url);
   });
 
   it("Checking page load for logged out users", () => {
@@ -36,28 +42,29 @@ describe("Surveys page tests", () => {
       // Assert that login pushed through
       cy.url().should("include", "/surveys");
     });
-    //reload the surveys page
-    cy.intercept("GET", url).as("pageLoaded");
-    cy.visit(url);
-    cy.wait("@pageLoaded");
 
-    //assert that surveys still loads
-    cy.url().should("include", "/surveys");
-
-    //check that surveys endpoint returns a 200
-    cy.intercept("GET", `${API_BASE}/surveys?user_uid=${userId}`).as(
-      "surveysRequest"
-    );
-
-    cy.wait("@surveysRequest").then((interception) => {
-      // Assert that the response status code is 200
-      expect(interception?.response?.statusCode).to.equal(200);
-    });
-
-    //check for specific sections within the surveys page
-    cy.contains("Active surveys");
-    cy.contains("Draft surveys");
-    cy.contains("Past surveys");
     SurveysPage.getConfigureNewSurveyLink().should("be.visible");
+
+    SurveysPage.clickConfigureNewSurveyLink();
+
+    cy.url().should("include", "/new-survey-config");
+
+    cy.contains("New survey config");
+
+    cy.contains("Basic Information");
+
+    cy.contains("Please fill out the basic information about your survey");
+
+    //check all buttons are visible and disabled
+    BasicInformationPage.getContinueButton().should("be.disabled");
+    BasicInformationPage.getSaveButton().should("be.disabled");
+
+    //check if all fields are available
+    BasicInformationPage.getSurveyName().should("be.visible");
+    BasicInformationPage.getSurveyId().should("be.visible");
+    BasicInformationPage.getProjectName().should("be.visible");
+    BasicInformationPage.getSurveyDescription().should("be.visible");
+    BasicInformationPage.getStartDate().should("be.visible");
+    BasicInformationPage.getEndDate().should("be.visible");
   });
 });

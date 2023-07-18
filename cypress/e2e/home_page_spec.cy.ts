@@ -12,7 +12,7 @@ describe("Landing page tests", () => {
     HomePage.navigate(url);
   });
 
-  it("Checking for successful load", () => {
+  it("Checking page load for logged out users", () => {
     //check page is loaded well and contains all text
     cy.url().should("include", "/");
     cy.contains("Support your survey operations with DoD SurveyStream");
@@ -24,7 +24,7 @@ describe("Landing page tests", () => {
     HomePage.getContactUsButton().should("be.visible");
   });
 
-  it("Checking for logged in users", () => {
+  it("Checking page load for logged in users", () => {
     //navigate to login through the login button then reload the page after login
     cy.url().should("include", "/");
     HomePage.getLoginButton().should("be.visible");

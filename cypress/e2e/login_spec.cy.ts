@@ -15,7 +15,7 @@ describe("Login and logout tests", () => {
     LoginPage.navigate(url);
   });
 
-  it("Trying login with wrong credentials", () => {
+  it("Checking login with wrong credentials", () => {
     // Intercept the login API request and wait for its response
     cy.intercept("POST", `${API_BASE}/login`).as("loginRequest");
 
@@ -36,7 +36,7 @@ describe("Login and logout tests", () => {
     cy.url().should("not.contain", "/surveys");
   });
 
-  it("Trying login with correct credentials", () => {
+  it("Checking login with correct credentials", () => {
     console.log("email", email);
     console.log("password", password);
 
@@ -84,7 +84,7 @@ describe("Login and logout tests", () => {
     LoginPage.getButton().should("be.enabled");
   });
 
-  it("Trying logout after login", () => {
+  it("Checking logout after login", () => {
     // Login
     cy.intercept("POST", `${API_BASE}/login`).as("loginRequest");
 
