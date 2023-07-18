@@ -1,8 +1,9 @@
 import LoginPage from "../pages/login_page.cy";
 import HeaderSection from "../pages/header_section.cy";
 
-const url = "http://localhost:3000/login/";
-const API_BASE = "http://localhost:5001/api/";
+const url = `${Cypress.env("TEST_APP_URL")}/login`;
+const API_BASE = `${Cypress.env("TEST_BASE_API_URL")}`;
+
 const email = Cypress.env("TEST_USER_EMAIL");
 const password = Cypress.env("TEST_USER_PASSWORD");
 
@@ -107,7 +108,6 @@ describe("Login and logout tests", () => {
 
     ///assert that dropdown is visible
     HeaderSection.getProfileDropdown().should("be.visible");
-
 
     //click logout
     HeaderSection.clickLogout();
