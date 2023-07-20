@@ -42,7 +42,7 @@
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "eject": "react-scripts eject",
     "ts-coverage": "typescript-coverage-report",
-    "cypress:run-all": "npx cypress run --spec \"cypress/e2e/run_all_specs.cy.ts\""
+    "cypress:run-all": "npx cypress run --spec \"cypress/e2e/*\""
   },
   "eslintConfig": {
     "extends": [
