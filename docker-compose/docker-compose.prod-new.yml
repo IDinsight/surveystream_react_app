@@ -1,0 +1,16 @@
+version: '2'
+services:
+  client:
+    image: ${PROD_NEW_ACCOUNT}.dkr.ecr.ap-south-1.amazonaws.com/web-ecr-repository:frontend
+    cpu_shares: 700
+    mem_limit: 2000000000
+    ports:
+      - "443:80"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: surveystream_webapp
+        awslogs-region: ap-south-1
+        awslogs-stream-prefix: surveystream_frontend
+    links: 
+      - "api:api"
