@@ -9,7 +9,7 @@ import {
   postSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import {
-  addSurveyLocationGeoLevel,
+  resetSurveyLocations,
   setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import {
@@ -227,6 +227,10 @@ function SurveyLocationAdd() {
 
   useEffect(() => {
     fetchSurveyLocationGeoLevels();
+
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
   }, [dispatch]);
 
   return (

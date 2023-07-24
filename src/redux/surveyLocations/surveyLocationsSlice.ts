@@ -87,6 +87,9 @@ const surveyLocationsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    resetSurveyLocations: () => {
+      return initialState;
+    },
   },
 });
 
@@ -105,6 +108,7 @@ export const {
   postSurveyLocationsSuccess,
   setSurveyLocationGeoLevels,
   addSurveyLocationGeoLevel,
+  resetSurveyLocations,
 } = surveyLocationsSlice.actions;
 
 export default surveyLocationsSlice.reducer;

@@ -21,7 +21,7 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import { CloudDownloadOutlined, LinkOutlined } from "@ant-design/icons";
+import { LinkOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -32,6 +32,7 @@ import {
   getSurveyLocations,
   postSurveyLocations,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
+import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
@@ -97,12 +98,15 @@ function SurveyLocationUpload() {
     fetchSurveyLocations();
 
     fetchSurveyLocationGeoLevels();
-    console.log("surveyLocations", surveyLocations);
     if (surveyLocations?.records?.length > 0) {
       setHasError(false);
       setColumnMatch(true);
       setFileUploaded(true);
     }
+
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
   }, [dispatch]);
 
   const handleFileUpload = (
