@@ -1,4 +1,4 @@
-# DOD SurveyStream FrontEnd
+# SurveyStream FrontEnd
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -36,4 +36,22 @@ To deploy the react app on docker, use the following commands
 `make image`
 `make container-up`
 
+
+## E2E Testing 
+
+Testing for E2E has been setup using cypress, to setup this locally setup a cypress.env.json file on the root folder. Include the following key values using a valid account email and password for the dev environment.
+
+{
+   "TEST_USER_EMAIL":"",
+   "TEST_USER_PASSWORD":"",
+   "TEST_APP_URL":"http://localhost:3000",
+   "TEST_BASE_API_URL":"http://localhost:5001/api",
+   "TEST_USER_ID": "19945"
+}
+
+
+
+To run E2E tests use 
+
+`npm run cypress:run-all`
  

@@ -52,11 +52,15 @@ function ForgotPasswordComponent({
               { type: "email", message: "Please enter valid email address" },
             ]}
           >
-            <Input className="h-10 font-inter not-italic font-medium text-[14px] leading-[22px] text-gray-7" />
+            <Input
+              id="forgot-password-email-input"
+              className="h-10 font-inter not-italic font-medium text-[14px] leading-[22px] text-gray-7"
+            />
           </Form.Item>
           <Form.Item shouldUpdate>
             {() => (
               <Button
+                id="forgot-password-submit-button"
                 type="primary"
                 htmlType="submit"
                 block

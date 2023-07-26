@@ -1,4 +1,4 @@
-## [DODSS-##] <PR Title>
+## [SS-##] <PR Title>
 
 Provide a short, concise and meaningful PR title above. Examples of good PR titles:
 
@@ -8,7 +8,7 @@ Provide a short, concise and meaningful PR title above. Examples of good PR titl
 
 ## Ticket
 
-Fixes: https://idinsight.atlassian.net/browse/DODSS-##
+Fixes: https://idinsight.atlassian.net/browse/SS-##
 
 ## Description, Motivation and Context
 
@@ -43,5 +43,3 @@ Put an `x` in all the items that apply and remove any items that are not relevan
 - [ ] I have written [good commit messages][1]
 - [ ] I have updated the README file (if applicable)
 - [ ] I have updated affected documentation (if applicable)
-
-[1]: http://chris.beams.io/posts/git-commit/

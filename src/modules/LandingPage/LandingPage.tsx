@@ -92,6 +92,7 @@ function LandingPage() {
           <div className="mt-[40px]">
             <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
               <Button
+                id="home-login-button"
                 type="primary"
                 size="large"
                 className="bg-geekblue-5 !rounded-sm min-w-[94px]"
@@ -100,6 +101,7 @@ function LandingPage() {
               </Button>
             </Link>
             <Button
+              id="home-contact-us-button"
               className="ml-[25px] text-[20px] !rounded-sm"
               type="default"
               target="_blank"

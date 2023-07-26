@@ -100,6 +100,7 @@ const Login = () => {
               onFinish={onFinish}
             >
               <Form.Item
+                id="loginForm_email"
                 label="Email"
                 name="email"
                 rules={[
@@ -110,6 +111,7 @@ const Login = () => {
                 <Input />
               </Form.Item>
               <Form.Item
+                id="loginForm_password"
                 label="Password"
                 name="password"
                 rules={[{ required: true, message: "Please enter password" }]}
@@ -119,6 +121,7 @@ const Login = () => {
               <Form.Item shouldUpdate>
                 {() => (
                   <Button
+                    id="loginForm_submit"
                     type="primary"
                     htmlType="submit"
                     block
