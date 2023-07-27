@@ -58,15 +58,11 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const modules = useAppSelector(
-    (state: RootState) => state.reducer.modules.modules
-  );
+  const modules = useAppSelector((state: RootState) => state.modules.modules);
   const modulesStatus = useAppSelector(
-    (state: RootState) => state.reducer.moduleStatuses.moduleStatuses
+    (state: RootState) => state.moduleStatuses.moduleStatuses
   );
-  const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.modules.loading
-  );
+  const isLoading = useAppSelector((state: RootState) => state.modules.loading);
 
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<string[]>([]);

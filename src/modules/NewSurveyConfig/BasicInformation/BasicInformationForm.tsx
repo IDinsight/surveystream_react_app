@@ -30,7 +30,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   const dispatch = useAppDispatch();
 
   const basicInfo = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.basicInfo
+    (state: RootState) => state.surveyConfig.basicInfo
   );
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -38,7 +38,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   };
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.loading
+    (state: RootState) => state.surveyConfig.loading
   );
 
   useEffect(() => {

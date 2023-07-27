@@ -33,9 +33,7 @@ function Header({ items }: { items?: any }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const userProfile = useAppSelector(
-    (state: RootState) => state.reducer.auth.profile
-  );
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
   const getUsernameText = (): string => {
     if (userProfile?.first_name !== null && userProfile?.last_name !== null) {

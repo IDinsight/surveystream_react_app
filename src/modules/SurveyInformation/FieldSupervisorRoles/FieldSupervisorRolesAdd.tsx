@@ -32,10 +32,10 @@ function FieldSupervisorRolesAdd() {
   const [loading, setLoading] = useState(false);
 
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
+    (state: RootState) => state.filedSupervisorRoles.supervisorRoles
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.filedSupervisorRoles.loading
+    (state: RootState) => state.filedSupervisorRoles.loading
   );
 
   const [numRoleFields, setNumRoleFields] = useState(

@@ -61,13 +61,13 @@ function NewSurveyConfig() {
   const [moduleQuestionnaireformData, setModuleFormData] =
     useState<SurveyModuleQuestionnaireData | null>(null);
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.loading
+    (state: RootState) => state.surveyConfig.loading
   );
   const showError = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.error
+    (state: RootState) => state.surveyConfig.error
   );
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
 
   const handleGoBack = () => {
