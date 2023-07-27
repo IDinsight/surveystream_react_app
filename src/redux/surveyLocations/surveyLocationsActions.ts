@@ -1,4 +1,4 @@
-import { compose, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import * as api from "./apiService";
 import { GeoLevel, GeoLevelMapping } from "./types";

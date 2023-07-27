@@ -17,7 +17,6 @@ import {
 import SideMenu from "../SideMenu";
 import {
   DescriptionText,
-  SelectItem,
   SurveyLocationHierarchyFormWrapper,
 } from "./SurveyLocationHierarchy.styled";
 import { useEffect, useState } from "react";
@@ -28,14 +27,11 @@ import {
   postSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
-import { GeoLevel } from "../../../redux/surveyLocations/types";
-import { setSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsSlice";
+import {
+  resetSurveyLocations,
+  setSurveyLocationGeoLevels,
+} from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-
-interface ILocationHierarchySelect {
-  name: string;
-  value: string;
-}
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -68,6 +64,10 @@ function SurveyLocationHierarchy() {
 
   useEffect(() => {
     fetchSurveyLocationGeoLevels();
+
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
   }, [dispatch]);
 
   const renderHierarchyGeoLevelsField = () => {
@@ -129,7 +129,7 @@ function SurveyLocationHierarchy() {
                 };
 
                 if (geoLevel) {
-                  const { geo_level_uid, parent_geo_level_uid } = geoLevel;
+                  const { geo_level_uid } = geoLevel;
 
                   if (
                     value &&
