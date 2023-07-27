@@ -15,7 +15,7 @@ import { RootState } from "../../../redux/store";
 function FieldSupervisorRoles() {
   const navigate = useNavigate();
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const handleGoBack = () => {
     navigate(-1); // Navigate back one step in the history stack

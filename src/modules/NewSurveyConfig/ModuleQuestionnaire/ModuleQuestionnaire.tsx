@@ -28,11 +28,11 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   };
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.loading
+    (state: RootState) => state.surveyConfig.loading
   );
 
   const moduleQuestionnaire = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.moduleQuestionnaire
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
   );
 
   const setFieldsDataWithStates = (data: any): void => {

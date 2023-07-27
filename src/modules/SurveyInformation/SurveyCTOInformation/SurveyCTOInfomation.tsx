@@ -41,10 +41,10 @@ function SurveyCTOInfomation() {
     survey_uid: "",
   };
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyCTOInformation.loading
+    (state: RootState) => state.surveyCTOInformation.loading
   );
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const [formData, setFormData] = useState<SurveyCTOForm | null>(null);
   const handleGoBack = () => {
@@ -54,11 +54,11 @@ function SurveyCTOInfomation() {
 
   const dispatch = useAppDispatch();
   const timezones = useAppSelector(
-    (state: RootState) => state.reducer.surveyCTOInformation.timezones
+    (state: RootState) => state.surveyCTOInformation.timezones
   );
 
   const surveyCTOForm = useAppSelector(
-    (state: RootState) => state.reducer.surveyCTOInformation.surveyCTOForm
+    (state: RootState) => state.surveyCTOInformation.surveyCTOForm
   );
 
   useEffect(() => {

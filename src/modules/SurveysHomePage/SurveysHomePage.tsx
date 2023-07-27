@@ -29,20 +29,12 @@ const NavItems = () => {
 
 function SurveysHomePage() {
   const dispatch = useAppDispatch();
-  const surveys = useAppSelector(
-    (state: RootState) => state.reducer.surveys.surveys
-  );
-  const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveys.loading
-  );
+  const surveys = useAppSelector((state: RootState) => state.surveys.surveys);
+  const isLoading = useAppSelector((state: RootState) => state.surveys.loading);
 
-  const userProfile = useAppSelector(
-    (state: RootState) => state.reducer.auth.profile
-  );
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
-  const showError = useAppSelector(
-    (state: RootState) => state.reducer.surveys.error
-  );
+  const showError = useAppSelector((state: RootState) => state.surveys.error);
   const fetchData = async () => {
     let { user_uid } = userProfile;
 

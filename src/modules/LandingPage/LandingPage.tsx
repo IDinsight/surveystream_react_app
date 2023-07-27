@@ -73,9 +73,7 @@ const NavItems = () => {
 };
 
 function LandingPage() {
-  const userProfile = useAppSelector(
-    (state: RootState) => state.reducer.auth.profile
-  );
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
   return (
     <>

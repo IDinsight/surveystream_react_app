@@ -61,18 +61,18 @@ function SurveyLocationUpload() {
   const [mappedColumnNames, setMappedColumnNames] = useState<any>({});
 
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const surveyLocationGeoLevels = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const surveyLocations = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocations
+    (state: RootState) => state.surveyLocations.surveyLocations
   );
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.loading
+    (state: RootState) => state.surveyLocations.loading
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
