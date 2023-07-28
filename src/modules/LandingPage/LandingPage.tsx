@@ -81,11 +81,10 @@ function LandingPage() {
       <div className="flex h-[568px] pt-[100px] pl-[180px] pr-[88px]">
         <div className="flex flex-col w-1/2 pr-[30px]">
           <p className="font-inter font-medium text-[56px] leading-[64px] text-gray-10 m-0">
-            Support your survey operations with DoD SurveyStream
+            Support your survey operations with SurveyStream
           </p>
           <p className="font-inter font-normal text-[20px] leading-[28px] text-gray-7">
-            Platform for configuring, running, and managing survey operations by
-            DoD
+            Platform for configuring, running, and managing survey operations
           </p>
           <div className="mt-[40px]">
             <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
