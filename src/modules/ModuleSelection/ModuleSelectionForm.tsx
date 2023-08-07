@@ -58,15 +58,11 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const modules = useAppSelector(
-    (state: RootState) => state.reducer.modules.modules
-  );
+  const modules = useAppSelector((state: RootState) => state.modules.modules);
   const modulesStatus = useAppSelector(
-    (state: RootState) => state.reducer.moduleStatuses.moduleStatuses
+    (state: RootState) => state.moduleStatuses.moduleStatuses
   );
-  const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.modules.loading
-  );
+  const isLoading = useAppSelector((state: RootState) => state.modules.loading);
 
   const [form] = useForm();
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
@@ -255,7 +251,16 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                             <FileSearchOutlined
                               style={{ marginRight: 8, color: "#434343" }}
                             />
-                            <div> Request customization support</div>
+                            <a
+                              onClick={() =>
+                                window.open(
+                                  "https://forms.gle/81zvXSZutnE4GHwB6",
+                                  "_blank"
+                                )
+                              }
+                            >
+                              Request customization support
+                            </a>
                           </CardTitle>
                           <LearnMoreLink
                             onClick={() =>

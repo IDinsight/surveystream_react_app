@@ -25,7 +25,3 @@ container-down:
 	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
 	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml down
-
-
-## make test commands
-## remove these:

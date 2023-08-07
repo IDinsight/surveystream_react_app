@@ -76,7 +76,7 @@ const SurveyConfiguration: React.FC = () => {
     survey_uid: "",
   };
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
 
   const handleGoBack = () => {
@@ -84,11 +84,11 @@ const SurveyConfiguration: React.FC = () => {
   };
 
   const surveyConfigs = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.surveyConfigs
+    (state: RootState) => state.surveyConfig.surveyConfigs
   );
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.loading
+    (state: RootState) => state.surveyConfig.loading
   );
 
   const fetchData = async () => {

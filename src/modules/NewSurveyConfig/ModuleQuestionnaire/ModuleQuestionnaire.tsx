@@ -28,12 +28,19 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   };
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.loading
+    (state: RootState) => state.surveyConfig.loading
   );
 
   const moduleQuestionnaire = useAppSelector(
-    (state: RootState) => state.reducer.surveyConfig.moduleQuestionnaire
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
   );
+
+  const setFieldsDataWithStates = (data: any): void => {
+    form.setFieldsValue(data);
+
+    setFormData(data);
+    setMQFormData(data);
+  };
 
   useEffect(() => {
     const fetchSurveyModuleQuestionnaire = async () => {
@@ -53,10 +60,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     } else {
       // If data is there, then set to states and fields
       const fieldData = { ...moduleQuestionnaire };
-      form.setFieldsValue(fieldData);
-
-      setMQFormData(fieldData);
-      setFormData(fieldData);
+      setFieldsDataWithStates(fieldData);
     }
   }, [moduleQuestionnaire]);
 
@@ -74,6 +78,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       : 0,
     target_assignment_criteria: [],
   });
+  const [isLLMapping, setIsLLMapping] = useState<boolean | null>(null);
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const updatedFormData: SurveyModuleQuestionnaireData = {
@@ -81,8 +86,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       ...changedValues,
     };
 
-    setMQFormData(updatedFormData);
-    setFormData(updatedFormData);
+    setFieldsDataWithStates(updatedFormData);
   };
 
   // Supervisors checkbox options
@@ -107,9 +111,9 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       label: "Location of target",
       value: "Location of target",
     },
-    { label: "Location of surveyors", value: "Location of enumerators" },
+    { label: "Location of surveyors", value: "Location of surveyors" },
     { label: "Gender", value: "Gender" },
-    { label: "Language", value: "Location" },
+    { label: "Language", value: "Language" },
     {
       label: "Type of target/respondent",
       value: "Type of target/respondent",
@@ -147,6 +151,39 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     { label: "Yes", value: true },
     { label: "No", value: false },
   ];
+
+  useEffect(() => {
+    const supervisorsSelected = mqFormData["supervisor_assignment_criteria"];
+    const enumeratorsSelected = mqFormData["target_assignment_criteria"];
+
+    // Condition 1: If Location and Language is selected
+    const result1 = ["Location", "Language"].every((val) =>
+      supervisorsSelected.includes(val)
+    );
+
+    // Condition 2: ("Location of target" or "Location of enumerators") and language
+    const sub_result2 = ["Location of target", "Location of surveyors"].some(
+      (val) => enumeratorsSelected.includes(val)
+    );
+    const result2 = sub_result2 && enumeratorsSelected.includes("Language");
+
+    // Now, setting the result
+    const result = result1 || result2;
+
+    /*
+      If user does not select location and language option
+      then set false value for backend
+    */
+    if (!result) {
+      const updatedFormData: SurveyModuleQuestionnaireData = {
+        ...mqFormData,
+        language_location_mapping: false,
+      };
+      setFieldsDataWithStates(updatedFormData);
+    }
+
+    setIsLLMapping(result);
+  }, Object.values(mqFormData));
 
   const Questionnaire = () => {
     switch (stepIndex) {
@@ -227,17 +264,25 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
       case 2:
         return (
           <>
-            <Title style={{ marginTop: "18px" }}>Language</Title>
-            <Title style={{ marginTop: "23px" }}>
-              You have selected ‘location’ and ‘language’ as a mapping criteria.
-              Can the languages be mapped via locations?
-            </Title>
-            <StyledFormItem name="language_location_mapping">
-              <Radio.Group
-                options={languageMappedOptions}
-                style={{ marginTop: "15px" }}
-              />
-            </StyledFormItem>
+            {isLLMapping ? (
+              <>
+                <Title style={{ marginTop: "18px" }}>Language</Title>
+                <Title style={{ marginTop: "23px" }}>
+                  You have selected ‘location’ and ‘language’ as a mapping
+                  criteria. Can the languages be mapped via locations?
+                </Title>
+                <StyledFormItem
+                  name="language_location_mapping"
+                  style={{ marginBottom: "18px" }}
+                >
+                  <Radio.Group
+                    options={languageMappedOptions}
+                    style={{ marginTop: "15px" }}
+                  />
+                </StyledFormItem>
+              </>
+            ) : null}
+            <p>Now, please click on continue to submit data.</p>
           </>
         );
     }

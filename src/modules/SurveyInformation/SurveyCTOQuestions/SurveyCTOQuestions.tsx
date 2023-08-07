@@ -55,20 +55,19 @@ function SurveyCTOQuestions() {
   const [loading, setLoading] = useState(false);
 
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyCTOQuestions.loading
+    (state: RootState) => state.surveyCTOQuestions.loading
   );
   const surveyCTOQuestionsForm = useAppSelector(
-    (state: RootState) =>
-      state.reducer.surveyCTOQuestions.surveyCTOQuestionsForm
+    (state: RootState) => state.surveyCTOQuestions.surveyCTOQuestionsForm
   );
   const surveyCTOQuestions = useAppSelector(
-    (state: RootState) => state.reducer.surveyCTOQuestions.surveyCTOQuestions
+    (state: RootState) => state.surveyCTOQuestions.surveyCTOQuestions
   );
   const surveyLocationGeoLevels = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const fetchSurveyLocationGeoLevels = async () => {

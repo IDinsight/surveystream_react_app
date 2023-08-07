@@ -33,10 +33,10 @@ function FieldSupervisorRolesHierarchy() {
     survey_uid: "",
   };
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.loading
+    (state: RootState) => state.surveyLocations.loading
   );
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.reducer.filedSupervisorRoles.supervisorRoles
+    (state: RootState) => state.filedSupervisorRoles.supervisorRoles
   );
 
   const fetchSupervisorRoles = async () => {

@@ -9,7 +9,7 @@ import {
   postSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import {
-  addSurveyLocationGeoLevel,
+  resetSurveyLocations,
   setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import {
@@ -49,13 +49,13 @@ function SurveyLocationAdd() {
     navigate(-1);
   };
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const surveyLocationGeoLevels = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.loading
+    (state: RootState) => state.surveyLocations.loading
   );
 
   const [numLocationFields, setNumLocationFields] = useState(
@@ -227,6 +227,10 @@ function SurveyLocationAdd() {
 
   useEffect(() => {
     fetchSurveyLocationGeoLevels();
+
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
   }, [dispatch]);
 
   return (

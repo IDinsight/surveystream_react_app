@@ -18,7 +18,7 @@ function ModuleSelection() {
   const navigate = useNavigate();
 
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
 
   const handleGoBack = () => {

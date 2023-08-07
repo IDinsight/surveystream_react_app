@@ -15,9 +15,7 @@ function ResetPassword() {
   const [actionDone, setActionDone] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
-  const loading = useAppSelector(
-    (state: RootState) => state.reducer.auth.loading
-  );
+  const loading = useAppSelector((state: RootState) => state.auth.loading);
 
   const handleResetSubmit = async (values: ResetParams) => {
     if (!urlArr || urlArr.length < 2) {

@@ -76,7 +76,7 @@ const Login = () => {
       <div className="mb-[80px]">
         <div className="mt-[44px]">
           <p className="font-inter font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
-            Login to DoD SurveyStream
+            Login to SurveyStream
           </p>
           <p className="font-inter font-normal font-medium text-sm leading-[22px] text-gray-9 text-center">
             One stop shop for survey operations management

@@ -1,4 +1,4 @@
-# DESCRIPTION: Dockerfile for dod_surveystream_frontend react app
+# DESCRIPTION: Dockerfile for surveystream_frontend react app
 
 # Build step #1: build the React front end
 FROM node:16-alpine as build-step

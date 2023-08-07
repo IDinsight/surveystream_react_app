@@ -21,7 +21,7 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import { CloudDownloadOutlined, LinkOutlined } from "@ant-design/icons";
+import { LinkOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -32,6 +32,7 @@ import {
   getSurveyLocations,
   postSurveyLocations,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
+import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
@@ -60,18 +61,18 @@ function SurveyLocationUpload() {
   const [mappedColumnNames, setMappedColumnNames] = useState<any>({});
 
   const activeSurvey = useAppSelector(
-    (state: RootState) => state.reducer.surveys.activeSurvey
+    (state: RootState) => state.surveys.activeSurvey
   );
   const surveyLocationGeoLevels = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocationGeoLevels
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const surveyLocations = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.surveyLocations
+    (state: RootState) => state.surveyLocations.surveyLocations
   );
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.reducer.surveyLocations.loading
+    (state: RootState) => state.surveyLocations.loading
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
@@ -97,12 +98,15 @@ function SurveyLocationUpload() {
     fetchSurveyLocations();
 
     fetchSurveyLocationGeoLevels();
-    console.log("surveyLocations", surveyLocations);
     if (surveyLocations?.records?.length > 0) {
       setHasError(false);
       setColumnMatch(true);
       setFileUploaded(true);
     }
+
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
   }, [dispatch]);
 
   const handleFileUpload = (
