@@ -9,8 +9,9 @@ $(eval ADMIN_ACCOUNT=077878936716)
 $(eval DEV_ACCOUNT=453207568606)
 
 test-image:
-	@docker build -f Dockerfile.test --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME_TEST):$(VERSION) . 
-	@docker run -it -v $PWD:/app -w /app $(FRONTEND_NAME_TEST):$(VERSION) npm run cypress:run
+	@docker build -f Dockerfile.client.test --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME_TEST):$(VERSION) . 
+	@docker run -it --rm -v $(PWD):/app -w /app $(FRONTEND_NAME_TEST):$(VERSION) /bin/bash npm run cypress:run 
+
 
 image:
 	@docker build -f Dockerfile.client --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
