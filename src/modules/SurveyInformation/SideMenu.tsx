@@ -3,9 +3,11 @@ import {
   ApartmentOutlined,
   CalendarOutlined,
   CompassOutlined,
+  FormOutlined,
   NumberOutlined,
   PlusSquareOutlined,
   ProfileOutlined,
+  SelectOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
   UploadOutlined,
@@ -197,17 +199,70 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={isActive(`/survey-information/enumerators/${survey_uid}`)}
-          to="#"
+          className={`${
+            isActive(`/survey-information/enumerators/upload/${survey_uid}`) ||
+            isActive(`/survey-information/enumerators/map/${survey_uid}`) ||
+            isActive(`/survey-information/enumerators/manage/${survey_uid}`)
+          }`}
+          to={`/survey-information/enumerators/upload/${survey_uid}`}
         >
           <IconWrapper>
             <ProfileOutlined />
           </IconWrapper>
-          Surveyors
+          Enumerators
         </MenuItem>
       ),
       key: "surveyEnumerators",
-      disabled: true,
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/enumerators/upload/${survey_uid}`
+              )}
+              to={`/survey-information/enumerators/upload/${survey_uid}`}
+            >
+              <IconWrapper>
+                <UploadOutlined />
+              </IconWrapper>
+              Upload csv
+            </MenuItem>
+          ),
+          key: "surveyEnumeratorsUpload",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/enumerators/map/${survey_uid}`
+              )}
+              to={`/survey-information/enumerators/map/${survey_uid}`}
+            >
+              <IconWrapper>
+                <SelectOutlined />
+              </IconWrapper>
+              Map csv columns
+            </MenuItem>
+          ),
+          key: "surveyEnumeratorsMap",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/enumerators/manage/${survey_uid}`
+              )}
+              to={`/survey-information/enumerators/manage/${survey_uid}`}
+            >
+              <IconWrapper>
+                <FormOutlined />
+              </IconWrapper>
+              Manage enumerators
+            </MenuItem>
+          ),
+          key: "surveyEnumeratorsManage",
+        },
+      ],
     },
     {
       label: (
