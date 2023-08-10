@@ -15,9 +15,9 @@ describe("Landing page tests", () => {
   it("Checking page load for logged out users", () => {
     //check page is loaded well and contains all text
     cy.url().should("include", "/");
-    cy.contains("Support your survey operations with SurveyStream");
+    cy.contains("Support your survey operations with DoD SurveyStream");
     cy.contains(
-      "Platform for configuring, running, and managing survey operations"
+      "Platform for configuring, running, and managing survey operations by DoD"
     );
     HomePage.getLoginButton().should("be.visible");
     HomePage.getLoginButton().contains("Login");
