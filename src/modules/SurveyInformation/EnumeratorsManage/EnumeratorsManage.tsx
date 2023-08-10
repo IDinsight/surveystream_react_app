@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, message } from "antd";
+import { Button, message } from "antd";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -163,6 +163,7 @@ function EnumeratorsManage() {
               pageSize: paginationPageSize,
               pageSizeOptions: [10, 25, 50, 100],
               showSizeChanger: true,
+              showQuickJumper: true,
               onShowSizeChange: (_, size) => setPaginationPageSize(size),
             }}
           />

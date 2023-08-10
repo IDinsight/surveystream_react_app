@@ -1,3 +1,4 @@
+import { Divider } from "antd";
 import styled from "styled-components";
 
 export const RowCountBoxContainer = styled.div`
@@ -26,4 +27,14 @@ export const RowCountValue = styled.span`
   font-weight: 400;
   line-height: 32px;
   margin-left: 8px;
+`;
+
+export const RowIconContainer = styled.div`
+  display: "flex";
+  align-items: "center";
+`;
+
+export const RowCountDivider = styled(Divider)`
+  height: 80px;
+  background-color: "#F0F0F0";
 `;

@@ -1,48 +1,58 @@
 import {
   CheckCircleFilled,
   CloseCircleFilled,
-  InsertRowAboveOutlined,
   WarningFilled,
 } from "@ant-design/icons";
 import {
   EnumeratorsCountBoxContainer,
+  RowCountDivider,
   RowCountValue,
+  RowIconContainer,
   RowTitle,
 } from "./EnumeratorsCountBox.styled";
-import { Divider } from "antd";
+
+interface ICountBox {
+  color: string;
+  title: string;
+  count: number;
+  Icon: React.FC<any>;
+}
+
+const CountBox = ({ color, title, count, Icon }: ICountBox) => {
+  return (
+    <div style={{ color }}>
+      <RowTitle style={{ color }}>{title}</RowTitle>
+      <RowIconContainer>
+        <Icon style={{ fontSize: 24 }} />
+        <RowCountValue color={color}>{count}</RowCountValue>
+      </RowIconContainer>
+    </div>
+  );
+};
 
 function EnumeratorsCountBox() {
   return (
     <EnumeratorsCountBoxContainer>
-      <div style={{ color: "#389E0D" }}>
-        <RowTitle style={{ color: "#389E0D" }}>Active</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <CheckCircleFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#389E0D" }}>858</RowCountValue>
-        </div>
-      </div>
-      <Divider
-        type="vertical"
-        style={{ height: 80, backgroundColor: "#F0F0F0" }}
+      <CountBox
+        color="#389E0D"
+        title="Active"
+        count={858}
+        Icon={CheckCircleFilled}
       />
-      <div style={{ color: "#CF1322" }}>
-        <RowTitle style={{ color: "#CF1322" }}>Dropped-out</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <CloseCircleFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#CF1322" }}>62</RowCountValue>
-        </div>
-      </div>
-      <Divider
-        type="vertical"
-        style={{ height: 80, backgroundColor: "#F0F0F0" }}
+      <RowCountDivider type="vertical" />
+      <CountBox
+        color="#CF1322"
+        title="Dropped-out"
+        count={62}
+        Icon={CloseCircleFilled}
       />
-      <div style={{ color: "#FA8C16" }}>
-        <RowTitle style={{ color: "#FA8C16" }}>Inactive</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <WarningFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#FA8C16" }}>0</RowCountValue>
-        </div>
-      </div>
+      <RowCountDivider type="vertical" />
+      <CountBox
+        color="#FA8C16"
+        title="Inactive"
+        count={0}
+        Icon={WarningFilled}
+      />
     </EnumeratorsCountBoxContainer>
   );
 }

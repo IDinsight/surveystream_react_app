@@ -4,57 +4,63 @@ import {
   InsertRowAboveOutlined,
   WarningFilled,
 } from "@ant-design/icons";
-import React from "react";
 import {
   RowCountBoxContainer,
+  RowCountDivider,
   RowCountValue,
+  RowIconContainer,
   RowTitle,
 } from "./RowCountBox.styled";
-import { Divider } from "antd";
+
+interface ICountBox {
+  color: string;
+  title: string;
+  count: number;
+  Icon: React.FC<any>;
+}
+
+const CountBox = ({ color, title, count, Icon }: ICountBox) => {
+  return (
+    <div style={{ color }}>
+      <RowTitle style={{ color }}>{title}</RowTitle>
+      <RowIconContainer>
+        <Icon style={{ fontSize: 24 }} />
+        <RowCountValue color={color}>{count}</RowCountValue>
+      </RowIconContainer>
+    </div>
+  );
+};
 
 function RowCountBox() {
   return (
     <RowCountBoxContainer>
-      <div>
-        <RowTitle>Total rows found</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <InsertRowAboveOutlined style={{ fontSize: 24 }} />
-          <RowCountValue>987</RowCountValue>
-        </div>
-      </div>
-      <Divider
-        type="vertical"
-        style={{ height: 80, backgroundColor: "#F0F0F0" }}
+      <CountBox
+        color="#000"
+        title="Total rows found"
+        count={987}
+        Icon={InsertRowAboveOutlined}
       />
-      <div style={{ color: "#389E0D" }}>
-        <RowTitle style={{ color: "#389E0D" }}>Correct rows</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <CheckCircleFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#389E0D" }}>858</RowCountValue>
-        </div>
-      </div>
-      <Divider
-        type="vertical"
-        style={{ height: 80, backgroundColor: "#F0F0F0" }}
+      <RowCountDivider type="vertical" />
+      <CountBox
+        color="#389E0D"
+        title="Correct rows"
+        count={858}
+        Icon={CheckCircleFilled}
       />
-      <div style={{ color: "#CF1322" }}>
-        <RowTitle style={{ color: "#CF1322" }}>Rows with errors</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <CloseCircleFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#CF1322" }}>62</RowCountValue>
-        </div>
-      </div>
-      <Divider
-        type="vertical"
-        style={{ height: 80, backgroundColor: "#F0F0F0" }}
+      <RowCountDivider type="vertical" />
+      <CountBox
+        color="#CF1322"
+        title="Rows with errors"
+        count={62}
+        Icon={CloseCircleFilled}
       />
-      <div style={{ color: "#FA8C16" }}>
-        <RowTitle style={{ color: "#FA8C16" }}>Rows with warnings</RowTitle>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <WarningFilled style={{ fontSize: 24 }} />
-          <RowCountValue style={{ color: "#FA8C16" }}>0</RowCountValue>
-        </div>
-      </div>
+      <RowCountDivider type="vertical" />
+      <CountBox
+        color="#FA8C16"
+        title="Rows with warnings"
+        count={0}
+        Icon={WarningFilled}
+      />
     </RowCountBoxContainer>
   );
 }
