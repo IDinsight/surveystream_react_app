@@ -30,7 +30,19 @@ function RowEditingModal({
 
   return (
     <RowEditingModalContainer>
-      <RowEditingModalHeading>Edit enumerator</RowEditingModalHeading>
+      <RowEditingModalHeading>
+        {data && data.length > 1
+          ? `Edit ${data.length} enumerators in bulk`
+          : "Edit enumerator"}
+      </RowEditingModalHeading>
+      {data && data.length > 1 ? (
+        <OptionText style={{ width: 410, display: "inline-block" }}>
+          {`Bulk editing is only allowed for ${fields
+            .map((item: any) => item.label)
+            .join(", ")}.`}
+        </OptionText>
+      ) : null}
+      <br />
       {data && data.length > 0 ? (
         <>
           {fields.map((field: any, idx: number) => {

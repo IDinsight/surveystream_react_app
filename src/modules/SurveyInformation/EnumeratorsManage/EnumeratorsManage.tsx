@@ -27,6 +27,7 @@ function EnumeratorsManage() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
 
   // Mock data for table, generate it via database
   const dataTableColumn = [
@@ -158,6 +159,12 @@ function EnumeratorsManage() {
             columns={dataTableColumn}
             dataSource={tableDataSource}
             style={{ marginRight: 80, marginTop: 30 }}
+            pagination={{
+              pageSize: paginationPageSize,
+              pageSizeOptions: [10, 25, 50, 100],
+              showSizeChanger: true,
+              onShowSizeChange: (_, size) => setPaginationPageSize(size),
+            }}
           />
           {editData ? (
             <RowEditingModal
