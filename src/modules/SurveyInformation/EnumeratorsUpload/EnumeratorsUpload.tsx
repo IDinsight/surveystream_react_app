@@ -148,12 +148,13 @@ function EnumeratorsUpload() {
                 Mandatory csv fields:
                 <ol type="a">
                   <li>Enumerator ID</li>
-                  <li>Name</li>
+                  <li>Enumerator Name</li>
                   <li>Email ID</li>
                   <li>Mobile (primary)</li>
                   <li>Language</li>
                   <li>Address</li>
                   <li>Gender</li>
+                  <li>Enumerator type</li>
                   <li>
                     Location labels (as provided in the Survey location step ex:
                     state, district, block).

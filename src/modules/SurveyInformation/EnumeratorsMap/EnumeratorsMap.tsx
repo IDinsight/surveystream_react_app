@@ -109,12 +109,13 @@ function EnumeratorsMap() {
   // Mandatory Field
   const personalDetailsField = [
     "Enumerator ID",
-    "Name",
+    "Enumerator Name",
     "Email ID",
     "Mobile (primary)",
     "Language (p)",
     "Address",
     "Gender",
+    "Enumerator type",
   ];
   const locationDetailsField = ["State", "District", "Block"];
 
@@ -124,12 +125,13 @@ function EnumeratorsMap() {
    */
   const csvHeaders = [
     "Surveyor ID",
-    "Name",
+    "Enumerator name",
     "email",
     "Mobile number",
     "Primary language",
     "Surveyor address",
     "Gender",
+    "enum_type",
     "State name",
     "District name",
     "Block name",
