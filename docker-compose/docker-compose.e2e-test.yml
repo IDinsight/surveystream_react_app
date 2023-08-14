@@ -17,6 +17,7 @@ services:
       - CYPRESS_baseUrl=http://host.docker.internal:3000
       command: 
       - |
+        npm install typescript
         npx cypress run
       volumes:
       - ../e2e/integration:/cypress/e2e
