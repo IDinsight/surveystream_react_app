@@ -1,4 +1,4 @@
-import { Form, Select, message } from "antd";
+import { Form, Radio, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Header from "../../../components/Header";
@@ -240,10 +240,23 @@ function SurveyLocationHierarchy() {
             <DescriptionText>
               Please add locations for this survey
             </DescriptionText>
-            <div style={{ marginTop: "40px" }}>
+            <div style={{ marginTop: "30px" }}>
               <DynamicItemsForm form={form}>
                 {renderHierarchyGeoLevelsField()}
               </DynamicItemsForm>
+            </div>
+            <div style={{ marginTop: "20px" }}>
+              <DescriptionText>Select the prime geo location</DescriptionText>
+              <Select defaultValue="no_location">
+                <Select.Option value="no_location">
+                  No location mapping
+                </Select.Option>
+                {surveyLocationGeoLevels.map((g, i) => (
+                  <Select.Option key={i} value={g.geo_level_uid}>
+                    {g.geo_level_name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
           </SurveyLocationHierarchyFormWrapper>
         </div>
