@@ -11,6 +11,6 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: 'http://host.docker.internal:3000',
+    baseUrl: 'localhost:3000',
   },
 })
