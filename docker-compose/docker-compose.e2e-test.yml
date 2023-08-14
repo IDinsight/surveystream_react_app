@@ -8,13 +8,14 @@ services:
       extra_hosts:
           - "host.docker.internal:host-gateway"
     cypress:
-      image: cypress/included:10.3.0
+      image: cypress/included:12.17.0
       build: ./e2e
       container_name: cypress
       depends_on:
         - client
       environment:
       - CYPRESS_baseUrl=http://host.docker.internal:3000
+        CYPRESS_VIDEO=false
       command: 
       - |
         npm install typescript
