@@ -1,0 +1,18 @@
+# DESCRIPTION: Dockerfile for surveystream_frontend react app
+
+# Build step #1: build the React front end
+FROM node:16-alpine as build-step
+ARG BUILD_ENV
+
+WORKDIR  /
+ENV PATH /node_modules/.bin:$PATH
+
+COPY package.json  tailwind.config.js /tsconfig.json ./
+RUN npm install --network-timeout=100000
+RUN npx browserslist@latest --update-db
+
+# Copying source code later so that we can avoid npm install everytime
+COPY src src
+COPY public public
+COPY .env.${BUILD_ENV} .env.${BUILD_ENV}
+RUN npm run build:${BUILD_ENV}

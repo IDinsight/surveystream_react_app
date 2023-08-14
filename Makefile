@@ -1,11 +1,16 @@
 SHELL = /bin/sh
 
-$(eval FRONTEND_NAME=dod_surveystream_frontend)
+$(eval FRONTEND_NAME=surveystream_frontend)
+$(eval FRONTEND_NAME_TEST=surveystream_frontend_test)
 $(eval VERSION=0.1)
 $(eval PROD_NEW_ACCOUNT=923242859002)
 $(eval STAGING_ACCOUNT=210688620213)
 $(eval ADMIN_ACCOUNT=077878936716)
 $(eval DEV_ACCOUNT=453207568606)
+
+test-image:
+	@docker build -f Dockerfile.client.test --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME_TEST):$(VERSION) . 
+	@docker run -it --rm -v $(PWD):/app -w /app $(FRONTEND_NAME_TEST):$(VERSION) /bin/bash npm run cypress:run 
 
 
 login:
