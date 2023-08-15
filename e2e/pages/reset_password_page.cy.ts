@@ -4,11 +4,11 @@ class ResetPasswordPage {
     forgotPasswordSubmit_button: () => cy.get("#forgot-password-submit-button"),
   };
 
-  navigate(url) {
+  navigate(url: string) {
     cy.visit(url);
   }
 
-  enterEmail(email) {
+  enterEmail(email: string) {
     this.elements.forgotPassword_email().first().click().type(email);
   }
 
