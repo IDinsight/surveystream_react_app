@@ -1,12 +1,12 @@
 import { Dispatch, SetStateAction } from "react";
 import { CloseCircleOutlined, InboxOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
-const { Dragger } = Upload;
-
 import CSVFileValidator, {
   FieldSchema,
   ValidatorConfig,
 } from "csv-file-validator";
+
+const { Dragger } = Upload;
 
 interface IFileUpload {
   setUploadStatus: Dispatch<SetStateAction<boolean>>;
