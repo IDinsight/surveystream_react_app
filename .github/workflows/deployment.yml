@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - dev
+      - SS-*
 
 jobs:
   build-deploy:
+    if: github.event_name == 'push' &&  github.ref == 'refs/heads/dev'
     name: Deploy Callisto Staging
     runs-on: ubuntu-latest
 
@@ -27,6 +29,90 @@ jobs:
         with:
           role-to-assume: "arn:aws:iam::${{ env.STAGING_ACCOUNT }}:role/github-actions-role-frontend"
           role-session-name: frontendstagingrolesession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: web-callisto-ecr-repository
+          IMAGE_TAG: frontend
+        run: |
+          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.STAGING_BUILD_ENV }} --rm --platform=linux/amd64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} . 
+          docker tag ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+
+      - name: Task definition download
+        id: download-task-def
+        env:
+          ecs_task_def_name: frontend-task
+        run: |
+          aws ecs describe-task-definition --task-definition "$ecs_task_def_name" --query taskDefinition > task-definition.json    
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: update-task-def-image
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: app
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Set appspec.json values
+        id: set-appspec-values
+        env:
+          container_port: 80
+          container_name: app
+          cluster: web-callisto-cluster
+          service: frontend
+          codedeploy-application: frontend-deploy
+          codedeploy-deployment-group: frontend-deploy-group
+        run: |
+          export TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition="$container_name" | jq '.taskDefinition.taskDefinitionArn')
+            cat ./.github/workflows/appspec.json | jq --arg key "$TASK_DEF_ARN" '.Resources[].TargetService.Properties.TaskDefinition=$key' \
+            | jq --arg key "$container_port" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerPort=$key' \
+            | jq --arg key "$container_name" '.Resources[].TargetService.Properties.LoadBalancerInfo.ContainerName=$key' > ./.github/workflows/appspecfinal.json
+            sed -i 's#\\"##g' ./.github/workflows/appspecfinal.json  
+        
+      - name: ECS task deployment using CodeDeploy
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        env:
+          ACTIONS_STEP_DEBUG: true #enable step debug logging
+        with:
+          task-definition: task-definition.json
+          service: frontend
+          cluster: web-callisto-cluster
+          wait-for-service-stability: true
+          codedeploy-appspec: ./.github/workflows/appspecfinal.json
+          codedeploy-application: frontend-deploy
+          codedeploy-deployment-group: frontend-deploy-group
+
+  build-deploy-prod:
+    name: Deploy Callisto Prod
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+        with:
+          path: ./.github/workflows
+          mode: variables
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: "arn:aws:iam::${{ env.PROD_ACCOUNT }}:role/github-actions-role-frontend"
+          role-session-name: frontendprodrolesession
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
