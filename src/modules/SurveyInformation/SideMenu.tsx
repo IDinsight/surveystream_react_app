@@ -21,7 +21,7 @@ import {
 } from "../../shared/SideMenu.styled";
 import { Menu, MenuProps } from "antd";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function SideMenu() {
   const location = useLocation();
@@ -297,16 +297,34 @@ function SideMenu() {
     },
   ];
   const [current, setCurrent] = useState("mail");
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const onClick: MenuProps["onClick"] = (e) => {
     setCurrent(e.key);
   };
+
+  const getPossibleKey = () => {
+    const path = location.pathname;
+    if (path.includes("field-supervisor-roles/"))
+      return "surveyFieldSupervisorRoles";
+    if (path.includes("location/")) return "surveyLocation";
+    if (path.includes("enumerators/")) return "surveyEnumerators";
+
+    return "";
+  };
+
+  useEffect(() => {
+    const key: string = getPossibleKey();
+    setOpenKeys([key]);
+  }, [setOpenKeys]);
 
   return (
     <SideMenuWrapper>
       <Menu
         onClick={onClick}
         selectedKeys={[current]}
+        openKeys={openKeys}
+        onOpenChange={(key) => setOpenKeys(key)}
         mode="inline"
         items={items}
       />
