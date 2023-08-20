@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 interface CSVError {
   type: string;
   count: number;
-  message: string;
+  message: string[];
 }
 function EnumeratorsUpload() {
   const navigate = useNavigate();
@@ -40,6 +40,8 @@ function EnumeratorsUpload() {
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
+  const [csvColumnNames, setCSVColumnNames] = useState<string[]>([]);
+  const [csvBase64Data, setCSVBase64Data] = useState<string | null>(null);
 
   const errorTableColumn = [
     {
@@ -56,56 +58,27 @@ function EnumeratorsUpload() {
       title: "Error message",
       dataIndex: "message",
       key: "message",
+      render: (message: string[]) => (
+        <ul>
+          {message.map((msg, index) => (
+            <li key={index}>{msg}</li>
+          ))}
+        </ul>
+      ),
     },
   ];
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = (
+    file: File,
+    columnNames: string[],
+    base64Data: string
+  ) => {
     // Access the file upload results
     console.log("File:", file);
+    console.log("Column Names:", columnNames);
+    setCSVColumnNames(columnNames);
+    setCSVBase64Data(base64Data);
   };
-
-  // Dummy data population, Remove it while integreation
-  useEffect(() => {
-    if (hasError) {
-      setErrorList([
-        {
-          type: "Column names not found",
-          count: 4,
-          message:
-            "Column names for columns 4,8,10,12 were not found. Ensure first row contains column names.",
-        },
-        {
-          type: "Duplicate rows",
-          count: 4,
-          message:
-            "Duplicate rows are not allowed. The rows 2, 7, 9, 20 are duplicates.",
-        },
-        {
-          type: "Duplicate column names",
-          count: 3,
-          message:
-            "Duplicate column names are not allowed. Columns 5,6,7 have duplicate column names",
-        },
-        {
-          type: "Blank fields",
-          count: 20,
-          message:
-            "Blank fields are not allowed. The following rows have blank names: 3,4,6",
-        },
-        {
-          type: "Blank rows",
-          count: 12,
-          message: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294.",
-        },
-        {
-          type: "Mandatory columns missing",
-          count: 3,
-          message:
-            "There are 14 mandatory columns, but only 11 columns were found in the csv.",
-        },
-      ]);
-    }
-  }, []);
   return (
     <>
       <Header />
@@ -151,17 +124,13 @@ function EnumeratorsUpload() {
                   <li>Enumerator Name</li>
                   <li>Email ID</li>
                   <li>Mobile (primary)</li>
-                  <li>Language</li>
-                  <li>Address</li>
                   <li>Gender</li>
-                  <li>Enumerator type</li>
                   <li>
-                    Location labels (as provided in the Survey location step ex:
-                    state, district, block).
+                    Prime-Geo Location (If location is selected as a mapping
+                    criterion).
                   </li>
                   <li>
-                    Location ID (as provided in the Survey location step ex:
-                    state ID, district ID, block ID)
+                    Language (If language is selected as a mapping criterion).
                   </li>
                 </ol>
               </li>

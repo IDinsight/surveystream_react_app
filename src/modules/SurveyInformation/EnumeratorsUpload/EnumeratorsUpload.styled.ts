@@ -7,6 +7,7 @@ export const EnumeratorsUploadFormWrapper = styled.div`
   padding-left: 80px;
   padding-top: 23px;
   font-family: "Inter", sans-serif;
+  margin-bottom: 15px;
 `;
 
 export const DescriptionContainer = styled.span`
