@@ -175,8 +175,42 @@ function EnumeratorsMap() {
       console.log("requestData", requestData);
     } catch (error) {
       console.log("Form validation error:", error);
+
+      const requiredErrors: any = {};
+      const formFields = enumeratorMappingForm.getFieldsValue();
+
+      for (const field in formFields) {
+        const errors = enumeratorMappingForm.getFieldError(field);
+        if (errors && errors.length > 0) {
+          requiredErrors[field] = true;
+        }
+      }
+
+      console.log("Required errors:", requiredErrors);
     }
   };
+
+  function checkForDuplicates(
+    rule: any,
+    value: any,
+    callback: (arg0: string | undefined) => void
+  ) {
+    const selectedColumns = personalDetailsField.map((item) => {
+      return enumeratorMappingForm.getFieldValue(item.key);
+    });
+
+    const duplicateCount = selectedColumns.filter((column, index) => {
+      return selectedColumns.indexOf(column) !== index && column !== undefined;
+    }).length;
+
+    if (duplicateCount > 0) {
+      callback(
+        "Column is already mapped. The same column cannot be mapped twice!"
+      );
+    } else {
+      callback("");
+    }
+  }
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
@@ -224,7 +258,15 @@ function EnumeratorsMap() {
                           label={item.title}
                           name={item.key}
                           key={idx}
-                          required={true}
+                          rules={[
+                            {
+                              required: true,
+                              message: "kindly select column to map value",
+                            },
+                            {
+                              validator: checkForDuplicates,
+                            },
+                          ]}
                           labelCol={{ span: 5 }}
                           labelAlign="left"
                         >
