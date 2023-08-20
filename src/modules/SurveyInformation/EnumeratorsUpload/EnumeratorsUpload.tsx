@@ -59,7 +59,7 @@ function EnumeratorsUpload() {
   );
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.surveyLocations.loading
+    (state: RootState) => state.enumerators.loading
   );
 
   const errorTableColumn = [
