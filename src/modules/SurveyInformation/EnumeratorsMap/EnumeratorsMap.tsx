@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Checkbox, Col, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -33,8 +33,9 @@ import {
 } from "@ant-design/icons";
 import RowCountBox from "../../../components/RowCountBox";
 import { RootState } from "../../../redux/store";
-import { useAppSelector } from "../../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { postEnumeratorsMapping } from "../../../redux/enumerators/enumeratorsActions";
 
 interface CSVError {
   type: string;
@@ -51,10 +52,15 @@ function EnumeratorsMap() {
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+  const [enumeratorMappingForm] = Form.useForm();
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
+  const dispatch = useAppDispatch();
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -66,6 +72,10 @@ function EnumeratorsMap() {
 
   const csvHeaders = useAppSelector(
     (state: RootState) => state.enumerators.csvColumnNames
+  );
+
+  const csvBase64Data = useAppSelector(
+    (state: RootState) => state.enumerators.csvBase64Data
   );
 
   const errorTableColumn = [
@@ -149,12 +159,33 @@ function EnumeratorsMap() {
     return { label: item, value: item };
   });
 
+  const handleEnumeratorUploadMapping = async () => {
+    try {
+      const values = await enumeratorMappingForm.validateFields();
+      console.log("handleEnumeratorUploadMapping", values);
+      const column_mapping = {};
+
+      const requestData = {
+        column_mapping: column_mapping,
+
+        file: csvBase64Data,
+        form_uid: form_uid,
+      };
+
+      console.log("requestData", requestData);
+    } catch (error) {
+      console.log("Form validation error:", error);
+    }
+  };
+
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
     //TODO: update this for configured surveys already
     if (csvHeaders.length < 1) {
       message.error("csvHeaders not found kindly reupload csv file");
-      navigate(`/survey-information/enumerators/upload/${survey_uid}`);
+      navigate(
+        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+      );
     }
   }, []);
 
@@ -181,187 +212,164 @@ function EnumeratorsMap() {
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
                 </div>
-                <div>
-                  <HeadingText style={{ marginBottom: 22 }}>
-                    Mandatory columns
-                  </HeadingText>
-                  <HeadingText>Personal Details and contact</HeadingText>
-                  {personalDetailsField.map((item, idx) => {
-                    return (
-                      <Row key={idx}>
-                        <Col span={5}>
-                          <p>
-                            <span style={{ color: "red" }}>*</span>{" "}
-                            <OptionText>{item.title}:</OptionText>
-                          </p>
-                        </Col>
-                        <Col
-                          span={5}
-                          style={{ display: "flex", alignItems: "center" }}
+                <Form form={enumeratorMappingForm}>
+                  <div>
+                    <HeadingText style={{ marginBottom: 22 }}>
+                      Mandatory columns
+                    </HeadingText>
+                    <HeadingText>Personal Details and contact</HeadingText>
+                    {personalDetailsField.map((item, idx) => {
+                      return (
+                        <Form.Item
+                          label={item.title}
+                          name={item.key}
+                          key={idx}
+                          required={true}
+                          labelCol={{ span: 5 }}
+                          labelAlign="left"
                         >
                           <Select
                             style={{ width: 180 }}
+                            filterOption={true}
                             placeholder="Choose column"
                             options={csvHeaderOptions}
                           />
-                        </Col>
-                      </Row>
-                    );
-                  })}
-                  <HeadingText>Location Details</HeadingText>
-                  {locationDetailsField.map((item, idx) => {
-                    return (
-                      <Row key={idx}>
-                        <Col span={5}>
-                          <p>
-                            <span style={{ color: "red" }}>*</span>{" "}
-                            <OptionText>{item.title}:</OptionText>
-                          </p>
-                        </Col>
-                        <Col
-                          span={5}
-                          style={{ display: "flex", alignItems: "center" }}
+                        </Form.Item>
+                      );
+                    })}
+                    <HeadingText>Location Details</HeadingText>
+                    {locationDetailsField.map((item, idx) => {
+                      return (
+                        <Form.Item
+                          label={item.title}
+                          name={item.key}
+                          key={idx}
+                          required={true}
+                          labelCol={{ span: 5 }}
+                          labelAlign="left"
                         >
                           <Select
                             style={{ width: 180 }}
+                            filterOption={true}
                             placeholder="Choose column"
                             options={csvHeaderOptions}
                           />
-                        </Col>
-                      </Row>
-                    );
-                  })}
-                  <HeadingText>Location ID</HeadingText>
-                  <Row>
-                    <Col span={5}>
-                      <p>
-                        <span style={{ color: "red" }}>*</span>{" "}
-                        <OptionText>Prime geo location:</OptionText>
-                      </p>
-                    </Col>
-                    <Col
-                      span={5}
-                      style={{ display: "flex", alignItems: "center" }}
+                        </Form.Item>
+                      );
+                    })}
+                    <HeadingText>Location ID</HeadingText>
+
+                    <Form.Item
+                      label="Prime geo location:"
+                      name="location_id_column"
+                      key="location_id_column"
+                      required={true}
+                      labelAlign="left"
+                      labelCol={{ span: 5 }}
                     >
                       <Select
                         style={{ width: 180 }}
+                        filterOption={true}
                         placeholder="Choose column"
                         options={csvHeaderOptions}
                       />
-                    </Col>
-                  </Row>
-                  {customHeader ? (
-                    <>
-                      <HeadingText>Custom columns</HeadingText>
-                      <p
-                        style={{
-                          color: "#434343",
-                          fontFamily: "Inter",
-                          fontSize: 12,
-                          lineHeight: "20px",
-                        }}
-                      >
-                        {extraCSVHeader.length} custom columns found!
-                      </p>
-                      {extraCSVHeader.map((item, idx) => {
-                        return (
-                          <Row key={idx}>
-                            <Col span={5}>
-                              <p>
-                                <OptionText>{item}:</OptionText>
-                              </p>
-                            </Col>
-                            <Col
-                              span={5}
-                              style={{ display: "flex", alignItems: "center" }}
+                    </Form.Item>
+
+                    {customHeader ? (
+                      <>
+                        <HeadingText>Custom columns</HeadingText>
+                        <p
+                          style={{
+                            color: "#434343",
+                            fontFamily: "Inter",
+                            fontSize: 12,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {extraCSVHeader.length} custom columns found!
+                        </p>
+                        {extraCSVHeader.map((item, idx) => {
+                          return (
+                            <Form.Item
+                              label={item}
+                              name={item}
+                              key={idx}
+                              labelCol={{ span: 5 }}
+                              labelAlign="left"
                             >
-                              <div>
-                                <Button
-                                  icon={
-                                    customHeaderSelection[item] !== null &&
-                                    customHeaderSelection[item] === true ? (
-                                      <LikeFilled style={{ color: "green" }} />
-                                    ) : (
-                                      <LikeOutlined />
-                                    )
-                                  }
-                                  style={{ borderRadius: 0 }}
-                                  onClick={() => {
-                                    setCustomHeaderSelection((prev: any) => {
-                                      return {
-                                        ...prev,
-                                        [item]: true,
-                                      };
-                                    });
-                                  }}
-                                >
-                                  Keep
-                                </Button>
-                                <Button
-                                  icon={
-                                    customHeaderSelection[item] !== null &&
-                                    customHeaderSelection[item] === false ? (
-                                      <DislikeFilled style={{ color: "red" }} />
-                                    ) : (
-                                      <DislikeOutlined />
-                                    )
-                                  }
-                                  style={{ borderRadius: 0 }}
-                                  onClick={() => {
-                                    setCustomHeaderSelection((prev: any) => {
-                                      return {
-                                        ...prev,
-                                        [item]: false,
-                                      };
-                                    });
-                                  }}
-                                >
-                                  Ignore
-                                </Button>
-                              </div>
-                            </Col>
-                            <Col
-                              span={4}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginLeft: 30,
-                              }}
-                            >
-                              <Checkbox>
-                                <OptionText>Bulk changes</OptionText>
-                              </Checkbox>
-                            </Col>
-                          </Row>
-                        );
-                      })}
-                    </>
-                  ) : (
-                    <>
-                      <HeadingText>
-                        Want to map more columns, which are custom to your
-                        survey and present in the csv? Click on the button below
-                        after mapping the mandatory columns!
-                      </HeadingText>
-                      <Button
-                        type="primary"
-                        icon={<SelectOutlined />}
-                        style={{ backgroundColor: "#2f54eB" }}
-                        onClick={() => {
-                          setCustomHeader(true);
-                          // This is temp code to store custom header selection status
-                          const temp: any = {};
-                          extraCSVHeader.forEach((item: string, idx) => {
-                            temp[item] = null;
-                          });
-                          setCustomHeaderSelection(temp);
-                        }}
-                      >
-                        Map custom columns
-                      </Button>
-                    </>
-                  )}
-                </div>
+                              <Button
+                                icon={
+                                  customHeaderSelection[item] !== null &&
+                                  customHeaderSelection[item] === true ? (
+                                    <LikeFilled style={{ color: "green" }} />
+                                  ) : (
+                                    <LikeOutlined />
+                                  )
+                                }
+                                style={{ borderRadius: 0 }}
+                                onClick={() => {
+                                  setCustomHeaderSelection((prev: any) => {
+                                    return {
+                                      ...prev,
+                                      [item]: true,
+                                    };
+                                  });
+                                }}
+                              >
+                                Keep
+                              </Button>
+                              <Button
+                                icon={
+                                  customHeaderSelection[item] !== null &&
+                                  customHeaderSelection[item] === false ? (
+                                    <DislikeFilled style={{ color: "red" }} />
+                                  ) : (
+                                    <DislikeOutlined />
+                                  )
+                                }
+                                style={{ borderRadius: 0 }}
+                                onClick={() => {
+                                  setCustomHeaderSelection((prev: any) => {
+                                    return {
+                                      ...prev,
+                                      [item]: false,
+                                    };
+                                  });
+                                }}
+                              >
+                                Ignore
+                              </Button>
+                            </Form.Item>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <HeadingText>
+                          Want to map more columns, which are custom to your
+                          survey and present in the csv? Click on the button
+                          below after mapping the mandatory columns!
+                        </HeadingText>
+                        <Button
+                          type="primary"
+                          icon={<SelectOutlined />}
+                          style={{ backgroundColor: "#2f54eB" }}
+                          onClick={() => {
+                            setCustomHeader(true);
+                            // This is temp code to store custom header selection status
+                            const temp: any = {};
+                            extraCSVHeader.forEach((item: string, idx) => {
+                              temp[item] = null;
+                            });
+                            setCustomHeaderSelection(temp);
+                          }}
+                        >
+                          Map custom columns
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Form>
               </>
             ) : (
               <>
@@ -442,7 +450,9 @@ function EnumeratorsMap() {
       )}
       <FooterWrapper>
         <SaveButton disabled>Save</SaveButton>
-        <ContinueButton>Continue</ContinueButton>
+        <ContinueButton onClick={handleEnumeratorUploadMapping}>
+          Continue
+        </ContinueButton>
       </FooterWrapper>
     </>
   );

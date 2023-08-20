@@ -83,15 +83,15 @@ const AppRoutes = () => {
           element={<SurveyLocationUpload />}
         />
         <Route
-          path="/survey-information/enumerators/upload/:survey_uid?"
+          path="/survey-information/enumerators/upload/:survey_uid?/:form_uid?"
           element={<EnumeratorsUpload />}
         />
         <Route
-          path="/survey-information/enumerators/map/:survey_uid?"
+          path="/survey-information/enumerators/map/:survey_uid?/:form_uid?"
           element={<EnumeratorsMap />}
         />
         <Route
-          path="/survey-information/enumerators/manage/:survey_uid?"
+          path="/survey-information/enumerators/manage/:survey_uid?/:form_uid?"
           element={<EnumeratorsManage />}
         />
       </Route>

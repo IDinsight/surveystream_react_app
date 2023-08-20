@@ -41,6 +41,9 @@ function EnumeratorsUpload() {
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -102,7 +105,7 @@ function EnumeratorsUpload() {
   };
 
   const moveToMapping = () => {
-    navigate(`/survey-information/enumerators/map/${survey_uid}`);
+    navigate(`/survey-information/enumerators/map/${survey_uid}/${form_uid}`);
   };
 
   return (

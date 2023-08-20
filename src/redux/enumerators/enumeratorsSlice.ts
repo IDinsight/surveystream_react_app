@@ -20,6 +20,18 @@ const enumeratorsSlice = createSlice({
   name: "enumerators",
   initialState,
   reducers: {
+    postEnumeratorsMappingRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    postEnumeratorsMappingSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    postEnumeratorsMappingFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action;
+    },
     setEnumeratorBase64Data: (state, action: PayloadAction<any>) => {
       state.csvBase64Data = action.payload;
     },
@@ -36,6 +48,9 @@ export const {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
+  postEnumeratorsMappingFailure,
+  postEnumeratorsMappingRequest,
+  postEnumeratorsMappingSuccess,
 } = enumeratorsSlice.actions;
 
 export default enumeratorsSlice.reducer;
