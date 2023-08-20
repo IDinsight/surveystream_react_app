@@ -163,7 +163,7 @@ function EnumeratorsMap() {
     try {
       const values = await enumeratorMappingForm.validateFields();
       console.log("handleEnumeratorUploadMapping", values);
-      const column_mapping = {};
+      const column_mapping = enumeratorMappingForm.getFieldsValue();
 
       const requestData = {
         column_mapping: column_mapping,
@@ -189,28 +189,6 @@ function EnumeratorsMap() {
       console.log("Required errors:", requiredErrors);
     }
   };
-
-  function checkForDuplicates(
-    rule: any,
-    value: any,
-    callback: (arg0: string | undefined) => void
-  ) {
-    const selectedColumns = personalDetailsField.map((item) => {
-      return enumeratorMappingForm.getFieldValue(item.key);
-    });
-
-    const duplicateCount = selectedColumns.filter((column, index) => {
-      return selectedColumns.indexOf(column) !== index && column !== undefined;
-    }).length;
-
-    if (duplicateCount > 0) {
-      callback(
-        "Column is already mapped. The same column cannot be mapped twice!"
-      );
-    } else {
-      callback("");
-    }
-  }
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
@@ -261,10 +239,31 @@ function EnumeratorsMap() {
                           rules={[
                             {
                               required: true,
-                              message: "kindly select column to map value",
+                              message: "Kindly select column to map value!",
                             },
                             {
-                              validator: checkForDuplicates,
+                              validator: async (_, value) => {
+                                if (!value) {
+                                  return Promise.resolve(); // No need to check if value is empty
+                                }
+                                const formValues =
+                                  enumeratorMappingForm.getFieldsValue();
+
+                                const valuesArray = Object.values(formValues);
+                                // Count occurrences of the selected value in the valuesArray
+                                const selectedValueCount = valuesArray.filter(
+                                  (val) => val === value
+                                ).length;
+
+                                // Check if the selected value is contained more than once
+                                if (selectedValueCount > 1) {
+                                  return Promise.reject(
+                                    "Column is already mapped. The same column cannot be mapped twice!"
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
                             },
                           ]}
                           labelCol={{ span: 5 }}
