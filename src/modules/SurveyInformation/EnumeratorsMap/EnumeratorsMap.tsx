@@ -36,6 +36,9 @@ import { RootState } from "../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { postEnumeratorsMapping } from "../../../redux/enumerators/enumeratorsActions";
+import { EnumeratorMapping } from "../../../redux/enumerators/types";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
 
 interface CSVError {
   type: string;
@@ -159,20 +162,47 @@ function EnumeratorsMap() {
     return { label: item, value: item };
   });
 
+  const moveToUpload = () => {
+    navigate(
+      `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+    );
+  };
+
   const handleEnumeratorUploadMapping = async () => {
     try {
       const values = await enumeratorMappingForm.validateFields();
       console.log("handleEnumeratorUploadMapping", values);
       const column_mapping = enumeratorMappingForm.getFieldsValue();
 
-      const requestData = {
+      const requestData: EnumeratorMapping = {
         column_mapping: column_mapping,
-
         file: csvBase64Data,
-        form_uid: form_uid,
+        mode: "overwrite",
       };
 
-      console.log("requestData", requestData);
+      if (form_uid !== undefined) {
+        const mappingsRes = await dispatch(
+          postEnumeratorsMapping({
+            enumeratorMappingData: requestData,
+            formUID: form_uid,
+          })
+        );
+
+        console.log("mappingsRes", mappingsRes);
+        if (mappingsRes.payload.success === false) {
+          message.error(mappingsRes.payload.message);
+          console.log(mappingsRes.payload);
+          setHasError(true);
+          return;
+        }
+        message.success("Enumerators uploaded and mapped successfully.");
+        setHasError(false);
+      } else {
+        message.error(
+          "Kindly check that form_uid is provided in the url to proceed."
+        );
+        setHasError(true);
+      }
     } catch (error) {
       console.log("Form validation error:", error);
 
@@ -199,6 +229,33 @@ function EnumeratorsMap() {
         `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
       );
     }
+
+    const handleFormUID = async () => {
+      if (form_uid == "" || form_uid == undefined) {
+        try {
+          dispatch(setLoading(true));
+          const sctoForm = await dispatch(
+            getSurveyCTOForm({ survey_uid: survey_uid })
+          );
+          if (sctoForm?.payload[0]?.form_uid) {
+            navigate(
+              `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            );
+          } else {
+            message.error("Kindly configure SCTO Form to proceed");
+            navigate(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            );
+          }
+          dispatch(setLoading(false));
+        } catch (error) {
+          dispatch(setLoading(false));
+          console.log("Error fetching sctoForm:", error);
+        }
+      }
+    };
+
+    handleFormUID();
   }, []);
 
   return (
@@ -238,7 +295,11 @@ function EnumeratorsMap() {
                           key={idx}
                           rules={[
                             {
-                              required: true,
+                              required:
+                                item.key === "language" ||
+                                item.key === "home_address"
+                                  ? false
+                                  : true,
                               message: "Kindly select column to map value!",
                             },
                             {
@@ -470,13 +531,7 @@ function EnumeratorsMap() {
                 </div>
                 <div style={{ display: "flex" }}>
                   <Button
-                    type="primary"
-                    icon={<CloudDownloadOutlined />}
-                    style={{ backgroundColor: "#2f54eB" }}
-                  >
-                    Download erroneous rows
-                  </Button>
-                  <Button
+                    onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
                     style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}

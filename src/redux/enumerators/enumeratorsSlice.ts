@@ -41,6 +41,9 @@ const enumeratorsSlice = createSlice({
     setEnumeratorFileUpload: (state, action: PayloadAction<any>) => {
       state.fileUploaded = action.payload;
     },
+    setLoading: (state, action: PayloadAction<any>) => {
+      state.loading = action.payload;
+    },
   },
 });
 
@@ -48,6 +51,7 @@ export const {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
+  setLoading,
   postEnumeratorsMappingFailure,
   postEnumeratorsMappingRequest,
   postEnumeratorsMappingSuccess,

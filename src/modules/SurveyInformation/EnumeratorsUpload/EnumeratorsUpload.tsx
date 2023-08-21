@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Col, Form, Row } from "antd";
+import { Col, Form, Row, message } from "antd";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -30,7 +30,9 @@ import {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
+  setLoading,
 } from "../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 
 interface CSVError {
   type: string;
@@ -107,6 +109,35 @@ function EnumeratorsUpload() {
   const moveToMapping = () => {
     navigate(`/survey-information/enumerators/map/${survey_uid}/${form_uid}`);
   };
+
+  useEffect(() => {
+    const handleFormUID = async () => {
+      if (form_uid == "" || form_uid == undefined) {
+        try {
+          dispatch(setLoading(true));
+          const sctoForm = await dispatch(
+            getSurveyCTOForm({ survey_uid: survey_uid })
+          );
+          if (sctoForm?.payload[0]?.form_uid) {
+            navigate(
+              `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            );
+          } else {
+            message.error("Kindly configure SCTO Form to proceed");
+            navigate(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            );
+          }
+          dispatch(setLoading(false));
+        } catch (error) {
+          dispatch(setLoading(false));
+          console.log("Error fetching sctoForm:", error);
+        }
+      }
+    };
+
+    handleFormUID();
+  }, []);
 
   return (
     <>
