@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Col, Row, Select } from "antd";
+import { Button, Checkbox, Col, Row, Select, message } from "antd";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -16,11 +16,12 @@ import {
 import {
   DescriptionContainer,
   DescriptionText,
-  EnumeratorsMapFormWrapper,
+  TargetsMapFormWrapper,
   ErrorTable,
   HeadingText,
   OptionText,
-} from "./EnumeratorsMap.styled";
+  WarningTable,
+} from "./TargetsMap.styled";
 import { useEffect, useState } from "react";
 import {
   CloudDownloadOutlined,
@@ -38,7 +39,7 @@ interface CSVError {
   count: number;
   rows: string;
 }
-function EnumeratorsMap() {
+function TargetsMap() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -47,6 +48,8 @@ function EnumeratorsMap() {
 
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
+  const [hasWarning, setHasWarning] = useState<boolean>(false);
+  const [warningList, setWarningList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
 
@@ -68,77 +71,69 @@ function EnumeratorsMap() {
     },
   ];
 
+  const warningTableColumn = [
+    {
+      title: "Warning type",
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: "Count of warning",
+      dataIndex: "count",
+      key: "count",
+    },
+    {
+      title: "Rows (in original csv) with warning",
+      dataIndex: "rows",
+      key: "rows",
+    },
+  ];
+
   // Dummy data population, Remove it while integreation
   useEffect(() => {
     if (hasError) {
       setErrorList([
         {
-          type: "Invalid email ID",
-          count: 12,
+          type: "Duplicate target ID",
+          count: 14,
           rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
         },
         {
-          type: "Invalid mobile no",
-          count: 12,
+          type: "Invalid PSU ID",
+          count: 14,
           rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
         },
         {
-          type: "Duplicate enumerator ID",
-          count: 12,
+          type: "Missing mandatory field",
+          count: 14,
           rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294, 328, 364, 430, 543, 657, 789, 799",
         },
+      ]);
+    }
+    if (hasWarning) {
+      setWarningList([
         {
-          type: "Duplicate email ID",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
-        },
-        {
-          type: "Invalid location ‘State’",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294.",
-        },
-        {
-          type: "Invalid location ‘Block’",
-          count: 12,
+          type: "Blank cells",
+          count: 20,
           rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
         },
       ]);
     }
   }, []);
 
+  // Note: If it is second time to upload targets
+  // then fetch these feilds from last config to make
+  // table data clumn uniform
+
   // Mandatory Field
-  const personalDetailsField = [
-    "Enumerator ID",
-    "Enumerator Name",
-    "Email ID",
-    "Mobile (primary)",
-    "Language (p)",
-    "Address",
-    "Gender",
-    "Enumerator type",
-  ];
-  const locationDetailsField = ["State", "District", "Block"];
+  const mandatoryDetailsField = ["Target ID"];
+  const locationDetailsField = ["PSU ID"];
 
   /**
    * These are the dummy values. Extract all values from CSV header
    * and store here
    */
-  const csvHeaders = [
-    "Surveyor ID",
-    "Enumerator name",
-    "email",
-    "Mobile number",
-    "Primary language",
-    "Surveyor address",
-    "Gender",
-    "enum_type",
-    "State name",
-    "District name",
-    "Block name",
-    "State ID",
-    "District ID",
-    "Block ID",
-  ];
+  const csvHeaders = ["target_id", "psu_id"];
 
   /**
    * This should derrived values. Write a logic to exact the values
@@ -146,9 +141,11 @@ function EnumeratorsMap() {
    * So we will have only left over header
    */
   const extraCSVHeader = [
-    "Mobile no. (s)",
-    "Employment status",
-    "Secondary language",
+    "Target Name",
+    "Target Address",
+    "GPS",
+    "State",
+    "District",
   ];
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
@@ -166,11 +163,11 @@ function EnumeratorsMap() {
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />
-        <EnumeratorsMapFormWrapper>
-          {!hasError ? (
+        <TargetsMapFormWrapper>
+          {!hasError && !hasWarning ? (
             <>
               <div>
-                <Title>Enumerators: Map CSV columns</Title>
+                <Title>Targets: Map CSV columns</Title>
                 <DescriptionText>
                   Select corresponding CSV column for the label on the left
                 </DescriptionText>
@@ -179,8 +176,7 @@ function EnumeratorsMap() {
                 <HeadingText style={{ marginBottom: 22 }}>
                   Mandatory columns
                 </HeadingText>
-                <HeadingText>Personal Details and contact</HeadingText>
-                {personalDetailsField.map((item, idx) => {
+                {mandatoryDetailsField.map((item, idx) => {
                   return (
                     <Row key={idx}>
                       <Col span={3}>
@@ -199,20 +195,10 @@ function EnumeratorsMap() {
                           options={csvHeaderOptions}
                         />
                       </Col>
-                      <Col
-                        span={3}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: 30,
-                        }}
-                      >
-                        <Checkbox>Bulk changes</Checkbox>
-                      </Col>
                     </Row>
                   );
                 })}
-                <HeadingText>Location Details</HeadingText>
+                <HeadingText>Location ID</HeadingText>
                 {locationDetailsField.map((item, idx) => {
                   return (
                     <Row key={idx}>
@@ -232,53 +218,11 @@ function EnumeratorsMap() {
                           options={csvHeaderOptions}
                         />
                       </Col>
-                      <Col
-                        span={3}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: 30,
-                        }}
-                      >
-                        <Checkbox>Bulk changes</Checkbox>
-                      </Col>
                     </Row>
                   );
                 })}
-                <HeadingText>Location ID</HeadingText>
-                <Row>
-                  <Col span={3}>
-                    <p>
-                      <span style={{ color: "red" }}>*</span>{" "}
-                      <OptionText>Prime geo location:</OptionText>
-                    </p>
-                  </Col>
-                  <Col
-                    span={4}
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    <Select
-                      style={{ width: 180 }}
-                      placeholder="Choose column"
-                      options={csvHeaderOptions}
-                    />
-                  </Col>
-                  <Col
-                    span={3}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginLeft: 30,
-                    }}
-                  >
-                    <Checkbox>
-                      <OptionText>Bulk changes</OptionText>
-                    </Checkbox>
-                  </Col>
-                </Row>
                 {customHeader ? (
                   <>
-                    <HeadingText>Custom columns</HeadingText>
                     <p
                       style={{
                         color: "#434343",
@@ -287,8 +231,12 @@ function EnumeratorsMap() {
                         lineHeight: "20px",
                       }}
                     >
-                      {extraCSVHeader.length} custom columns found!
+                      {extraCSVHeader.length} more columns found! Do you want to
+                      keep them? Also, you can select if the column is mandatory
+                      or not. You can also select if the column can be edited in
+                      bulk.
                     </p>
+                    <HeadingText>User selected columns</HeadingText>
                     {extraCSVHeader.map((item, idx) => {
                       return (
                         <Row key={idx}>
@@ -346,33 +294,51 @@ function EnumeratorsMap() {
                               </Button>
                             </div>
                           </Col>
-                          <Col
-                            span={3}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginLeft: 30,
-                            }}
-                          >
-                            <Checkbox>
-                              <OptionText>Bulk changes</OptionText>
-                            </Checkbox>
-                          </Col>
+                          {customHeaderSelection[item] !== null &&
+                          customHeaderSelection[item] === true ? (
+                            <>
+                              <Col
+                                span={3}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: 30,
+                                }}
+                              >
+                                <Checkbox>Is mandatory?</Checkbox>
+                              </Col>
+                              <Col
+                                span={3}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: 30,
+                                }}
+                              >
+                                <Checkbox>Bulk edit?</Checkbox>
+                              </Col>
+                              <Col
+                                span={3}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginLeft: 30,
+                                }}
+                              >
+                                <Checkbox>PII?</Checkbox>
+                              </Col>
+                            </>
+                          ) : null}
                         </Row>
                       );
                     })}
                   </>
                 ) : (
                   <>
-                    <HeadingText>
-                      Want to map more columns, which are custom to your survey
-                      and present in the csv? Click on the button below after
-                      mapping the mandatory columns!
-                    </HeadingText>
                     <Button
                       type="primary"
                       icon={<SelectOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
+                      style={{ backgroundColor: "#2f54eB", marginTop: 10 }}
                       onClick={() => {
                         setCustomHeader(true);
                         // This is temp code to store custom header selection status
@@ -392,9 +358,14 @@ function EnumeratorsMap() {
           ) : (
             <>
               <div>
-                <Title>Enumerators</Title>
+                <Title>Targets</Title>
                 <br />
-                <RowCountBox total={987} correct={858} error={62} warning={0} />
+                <RowCountBox
+                  total={12000}
+                  correct={11838}
+                  error={42}
+                  warning={20}
+                />
                 <DescriptionContainer>
                   <ol style={{ paddingLeft: "15px" }}>
                     <li>
@@ -417,59 +388,91 @@ function EnumeratorsMap() {
                     </li>
                     <li>
                       <span style={{ fontWeight: 700 }}>Manage</span>: The final
-                      list of enumerators is present in a table and that can
-                      also be downloaded.
+                      list of targets is present in a table and that can also be
+                      downloaded.
                     </li>
                   </ol>
                 </DescriptionContainer>
               </div>
-              <div style={{ marginTop: 22 }}>
-                <p
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: "14px",
-                    fontWeight: "700",
-                    lineHeight: "22px",
-                  }}
-                >
-                  Errors and warnings table
-                </p>
-                <Row>
-                  <Col span={23}>
-                    <ErrorTable
-                      dataSource={errorList}
-                      columns={errorTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
-              </div>
+              {hasError ? (
+                <div style={{ marginTop: 22 }}>
+                  <p
+                    style={{
+                      fontFamily: "Inter",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      lineHeight: "22px",
+                    }}
+                  >
+                    Errors table
+                  </p>
+                  <Row>
+                    <Col span={23}>
+                      <ErrorTable
+                        dataSource={errorList}
+                        columns={errorTableColumn}
+                        pagination={false}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ) : null}
+              {hasWarning ? (
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "Inter",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      lineHeight: "22px",
+                    }}
+                  >
+                    Warnings table
+                  </p>
+                  <Row>
+                    <Col span={23}>
+                      <WarningTable
+                        dataSource={warningList}
+                        columns={warningTableColumn}
+                        pagination={false}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ) : null}
               <div style={{ display: "flex" }}>
                 <Button
                   type="primary"
                   icon={<CloudDownloadOutlined />}
                   style={{ backgroundColor: "#2f54eB" }}
                 >
-                  Download erroneous rows
+                  Download errors and warnings
                 </Button>
                 <Button
                   type="primary"
                   icon={<CloudUploadOutlined />}
                   style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
                 >
-                  Upload CSV again
+                  Upload corrected CSV
                 </Button>
               </div>
             </>
           )}
-        </EnumeratorsMapFormWrapper>
+        </TargetsMapFormWrapper>
       </div>
       <FooterWrapper>
         <SaveButton>Save</SaveButton>
-        <ContinueButton>Continue</ContinueButton>
+        <ContinueButton
+          onClick={() =>
+            // Add the logic while integeration to validation
+            message.error("Map the mandatory columns before proceeding!")
+          }
+        >
+          Continue
+        </ContinueButton>
       </FooterWrapper>
     </>
   );
 }
 
-export default EnumeratorsMap;
+export default TargetsMap;
