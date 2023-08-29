@@ -30,6 +30,12 @@ const CountBox = ({ color, title, count, Icon }: ICountBox) => {
     </div>
   );
 };
+interface IRowCountBox {
+  total: number;
+  correct: number;
+  error: number;
+  warning: number;
+}
 
 interface RowCountBox {
   totalRows: number;

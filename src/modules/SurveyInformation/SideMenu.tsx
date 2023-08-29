@@ -267,8 +267,12 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={isActive(`/survey-information/targets/${survey_uid}`)}
-          to="#"
+          className={`${
+            isActive(`/survey-information/targets/upload/${survey_uid}`) ||
+            isActive(`/survey-information/targets/map/${survey_uid}`) ||
+            isActive(`/survey-information/targets/manage/${survey_uid}`)
+          }`}
+          to={`/survey-information/targets/upload/${survey_uid}`}
         >
           <IconWrapper>
             <NumberOutlined />
@@ -277,7 +281,56 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyTargets",
-      disabled: true,
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/targets/upload/${survey_uid}`
+              )}
+              to={`/survey-information/targets/upload/${survey_uid}`}
+            >
+              <IconWrapper>
+                <UploadOutlined />
+              </IconWrapper>
+              Upload csv
+            </MenuItem>
+          ),
+          key: "surveyTargetsUpload",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/targets/map/${survey_uid}`
+              )}
+              to={`/survey-information/targets/map/${survey_uid}`}
+            >
+              <IconWrapper>
+                <SelectOutlined />
+              </IconWrapper>
+              Map csv columns
+            </MenuItem>
+          ),
+          key: "surveyTargetsMap",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/targets/manage/${survey_uid}`
+              )}
+              to={`/survey-information/targets/manage/${survey_uid}`}
+            >
+              <IconWrapper>
+                <FormOutlined />
+              </IconWrapper>
+              Manage targets
+            </MenuItem>
+          ),
+          key: "surveyTargetsManage",
+        },
+      ],
     },
     {
       label: (
