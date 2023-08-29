@@ -6,12 +6,14 @@ interface EnumeratorsState {
   csvColumnNames: string[];
   csvBase64Data: string;
   fileUploaded: boolean;
+  csvRows: string[];
 }
 
 const initialState: EnumeratorsState = {
   loading: false,
   error: null,
   csvColumnNames: [],
+  csvRows: [],
   csvBase64Data: "",
   fileUploaded: false,
 };
@@ -38,6 +40,9 @@ const enumeratorsSlice = createSlice({
     setEnumeratorCSVColumns: (state, action: PayloadAction<any>) => {
       state.csvColumnNames = action.payload;
     },
+    setEnumeratorCSVRows: (state, action: PayloadAction<any>) => {
+      state.csvRows = action.payload;
+    },
     setEnumeratorFileUpload: (state, action: PayloadAction<any>) => {
       state.fileUploaded = action.payload;
     },
@@ -51,6 +56,7 @@ export const {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
+  setEnumeratorCSVRows,
   setLoading,
   postEnumeratorsMappingFailure,
   postEnumeratorsMappingRequest,

@@ -193,8 +193,8 @@ function FieldSupervisorRolesHierarchy() {
       ) : (
         <MainWrapper
           style={{
-            width: "74.5%",
-            height: "75vh",
+            width: "70%",
+            minHeight: "75vh",
             float: "right",
             display: "inline-block",
           }}

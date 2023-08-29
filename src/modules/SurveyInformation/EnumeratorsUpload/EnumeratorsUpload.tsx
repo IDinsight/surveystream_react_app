@@ -30,6 +30,7 @@ import {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
+  setEnumeratorCSVRows,
   setLoading,
 } from "../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -95,12 +96,16 @@ function EnumeratorsUpload() {
   const handleFileUpload = (
     file: File,
     columnNames: string[],
+    rows: string[],
     base64Data: string
   ) => {
     // Access the file upload results
     console.log("File:", file);
     console.log("Column Names:", columnNames);
+    console.log("rows:", rows);
+
     dispatch(setEnumeratorCSVColumns(columnNames));
+    dispatch(setEnumeratorCSVRows(rows));
     dispatch(setEnumeratorFileUpload(true));
     dispatch(setEnumeratorBase64Data(base64Data));
     moveToMapping();

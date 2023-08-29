@@ -10,7 +10,12 @@ const { Dragger } = Upload;
 
 interface IFileUpload {
   setUploadStatus: Dispatch<SetStateAction<boolean>>;
-  onFileUpload: (file: File, columnNames: string[], base64Data: string) => void;
+  onFileUpload: (
+    file: File,
+    columnNames: string[],
+    rows: string[],
+    base64Data: string
+  ) => void;
   hasError: boolean;
   setHasError: Dispatch<SetStateAction<any>>;
   setErrorList: Dispatch<SetStateAction<any>>;
@@ -275,7 +280,7 @@ function FileUpload({
         .map((columnName) => columnName.trim()); // Trim the column names
 
       setTimeout(() => {
-        onFileUpload(file, columnNames, encodedData);
+        onFileUpload(file, columnNames, rows, encodedData);
         onSuccess("ok", new XMLHttpRequest());
         message.success(`${file.name} file uploaded successfully.`);
         setUploadStatus(true);

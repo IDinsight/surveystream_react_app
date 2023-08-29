@@ -49,6 +49,9 @@ function EnumeratorsMap() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
+    if (hasError) {
+      return setHasError(false);
+    }
     navigate(-1);
   };
 
@@ -60,6 +63,7 @@ function EnumeratorsMap() {
   };
   const [enumeratorMappingForm] = Form.useForm();
   const [hasError, setHasError] = useState<boolean>(false);
+  const [errorCount, setErrorCount] = useState<number>(0);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
@@ -75,6 +79,10 @@ function EnumeratorsMap() {
 
   const csvHeaders = useAppSelector(
     (state: RootState) => state.enumerators.csvColumnNames
+  );
+
+  const csvRows = useAppSelector(
+    (state: RootState) => state.enumerators.csvRows
   );
 
   const csvBase64Data = useAppSelector(
@@ -191,12 +199,44 @@ function EnumeratorsMap() {
         console.log("mappingsRes", mappingsRes);
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
-          console.log(mappingsRes.payload);
+
+          console.log("errors", mappingsRes?.payload?.errors);
+          //set error list
+          if (mappingsRes.payload.success === false) {
+            message.error(mappingsRes.payload.message);
+
+            console.log("errors", mappingsRes?.payload?.errors);
+
+            if (mappingsRes?.payload?.errors) {
+              const transformedErrors: CSVError[] = [];
+
+              for (const errorKey in mappingsRes.payload.errors) {
+                console.log("errorKey", errorKey);
+
+                const errorObj = mappingsRes.payload.errors[errorKey];
+
+                transformedErrors.push({
+                  type: errorKey,
+                  count: errorObj.length,
+                  rows: errorObj,
+                });
+
+                setErrorCount(errorCount + errorObj.length);
+              }
+              console.log("transformedErrors", transformedErrors);
+              setErrorList(transformedErrors);
+            }
+          }
           setHasError(true);
           return;
         }
-        message.success("Enumerators uploaded and mapped successfully.");
-        setHasError(false);
+        if (mappingsRes.payload.success) {
+          message.success("Enumerators uploaded and mapped successfully.");
+          setHasError(false);
+        } else {
+          message.error("Failed to upload kindly check and try again");
+          setHasError(true);
+        }
       } else {
         message.error(
           "Kindly check that form_uid is provided in the url to proceed."
@@ -478,7 +518,12 @@ function EnumeratorsMap() {
                 <div>
                   <Title>Enumerators</Title>
                   <br />
-                  <RowCountBox />
+                  <RowCountBox
+                    totalRows={csvRows.length}
+                    correctRows={csvRows.length - errorCount}
+                    errorRows={errorCount}
+                    warningRows={0}
+                  />
                   <DescriptionContainer>
                     <ol style={{ paddingLeft: "15px" }}>
                       <li>
@@ -508,27 +553,30 @@ function EnumeratorsMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                <div style={{ marginTop: 22 }}>
-                  <p
-                    style={{
-                      fontFamily: "Inter",
-                      fontSize: "14px",
-                      fontWeight: "700",
-                      lineHeight: "22px",
-                    }}
-                  >
-                    Errors and warnings table
-                  </p>
-                  <Row>
-                    <Col span={23}>
-                      <ErrorTable
-                        dataSource={errorList}
-                        columns={errorTableColumn}
-                        pagination={false}
-                      />
-                    </Col>
-                  </Row>
-                </div>
+                {errorList !== null && (
+                  <div style={{ marginTop: 22 }}>
+                    <p
+                      style={{
+                        fontFamily: "Inter",
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        lineHeight: "22px",
+                      }}
+                    >
+                      Errors and warnings table
+                    </p>
+                    <Row>
+                      <Col span={23}>
+                        <ErrorTable
+                          dataSource={errorList}
+                          columns={errorTableColumn}
+                          pagination={false}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+
                 <div style={{ display: "flex" }}>
                   <Button
                     onClick={moveToUpload}
