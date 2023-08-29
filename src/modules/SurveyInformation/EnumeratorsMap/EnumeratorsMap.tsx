@@ -519,10 +519,10 @@ function EnumeratorsMap() {
                   <Title>Enumerators</Title>
                   <br />
                   <RowCountBox
-                    totalRows={csvRows.length}
-                    correctRows={csvRows.length - errorCount}
-                    errorRows={errorCount}
-                    warningRows={0}
+                    total={csvRows.length}
+                    correct={csvRows.length - errorCount}
+                    error={errorCount}
+                    warning={0}
                   />
                   <DescriptionContainer>
                     <ol style={{ paddingLeft: "15px" }}>

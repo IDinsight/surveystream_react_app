@@ -37,46 +37,34 @@ interface IRowCountBox {
   warning: number;
 }
 
-interface RowCountBox {
-  totalRows: number;
-  correctRows: number;
-  errorRows: number;
-  warningRows: number;
-}
-
-const RowCountBox = ({
-  totalRows,
-  correctRows,
-  errorRows,
-  warningRows,
-}: RowCountBox) => {
+const RowCountBox = ({ total, correct, error, warning }: IRowCountBox) => {
   return (
     <RowCountBoxContainer>
       <CountBox
         color="#000"
         title="Total rows found"
-        count={totalRows}
+        count={total}
         Icon={InsertRowAboveOutlined}
       />
       <RowCountDivider type="vertical" />
       <CountBox
         color="#389E0D"
         title="Correct rows"
-        count={correctRows}
+        count={correct}
         Icon={CheckCircleFilled}
       />
       <RowCountDivider type="vertical" />
       <CountBox
         color="#CF1322"
         title="Rows with errors"
-        count={errorRows}
+        count={error}
         Icon={CloseCircleFilled}
       />
       <RowCountDivider type="vertical" />
       <CountBox
         color="#FA8C16"
         title="Rows with warnings"
-        count={warningRows}
+        count={warning}
         Icon={WarningFilled}
       />
     </RowCountBoxContainer>
