@@ -64,7 +64,7 @@ const enumeratorsSlice = createSlice({
     getEnumeratorsSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.enumeratorList = action.payload;
+      state.enumeratorList = action.payload.data;
     },
     getEnumeratorsFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
