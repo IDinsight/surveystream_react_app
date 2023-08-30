@@ -29,6 +29,8 @@ const enumeratorsSlice = createSlice({
     postEnumeratorsMappingSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
+      state.csvBase64Data = "";
+      state.fileUploaded = false;
     },
     postEnumeratorsMappingFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;

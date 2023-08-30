@@ -178,8 +178,9 @@ function EnumeratorsMap() {
 
   const handleEnumeratorUploadMapping = async () => {
     try {
-      const values = await enumeratorMappingForm.validateFields();
-      console.log("handleEnumeratorUploadMapping", values);
+      //start with an empty error count
+      setErrorCount(0);
+      // const values = await enumeratorMappingForm.validateFields();
       const column_mapping = enumeratorMappingForm.getFieldsValue();
 
       const requestData: EnumeratorMapping = {
@@ -211,19 +212,61 @@ function EnumeratorsMap() {
               const transformedErrors: CSVError[] = [];
 
               for (const errorKey in mappingsRes.payload.errors) {
-                console.log("errorKey", errorKey);
+                let errorObj = mappingsRes.payload.errors[errorKey];
 
-                const errorObj = mappingsRes.payload.errors[errorKey];
+                if (errorKey === "record_errors") {
+                  errorObj =
+                    mappingsRes.payload.errors[errorKey][
+                      "summary_by_error_type"
+                    ];
 
-                transformedErrors.push({
-                  type: errorKey,
-                  count: errorObj.length,
-                  rows: errorObj,
-                });
+                  for (let i = 0; i < errorObj.length; i++) {
+                    const summaryError: any = errorObj[i];
 
-                setErrorCount(errorCount + errorObj.length);
+                    transformedErrors.push({
+                      type: summaryError["error_type"]
+                        ? summaryError["error_type"]
+                        : errorKey,
+                      count: summaryError["error_count"]
+                        ? summaryError["error_count"]
+                        : errorObj.length,
+                      rows: summaryError["error_message"]
+                        ? summaryError["error_message"]
+                        : errorObj,
+                    });
+                  }
+                } else if (errorKey === "column_mapping") {
+                  const columnErrors = mappingsRes.payload.errors[errorKey];
+                  errorObj = columnErrors;
+
+                  for (const columnError in columnErrors) {
+                    transformedErrors.push({
+                      type: errorKey,
+                      count: columnErrors[columnError].length,
+                      rows: `${columnError} - ${columnErrors[columnError]}`,
+                    });
+                  }
+                } else {
+                  transformedErrors.push({
+                    type: errorObj["error_type"]
+                      ? errorObj["error_type"]
+                      : errorKey,
+                    count: errorObj.length,
+                    rows: errorObj,
+                  });
+                }
+
+                setErrorCount(
+                  mappingsRes.payload.errors[errorKey]["summary"]
+                    ? mappingsRes.payload.errors[errorKey]["summary"][
+                        "error_count"
+                      ]
+                    : errorCount + errorObj.length
+                );
               }
-              console.log("transformedErrors", transformedErrors);
+              if (errorCount >= csvRows.length) {
+                setErrorCount(csvRows.length - 1);
+              }
               setErrorList(transformedErrors);
             }
           }
@@ -519,8 +562,12 @@ function EnumeratorsMap() {
                   <Title>Enumerators</Title>
                   <br />
                   <RowCountBox
-                    total={csvRows.length}
-                    correct={csvRows.length - errorCount}
+                    total={csvRows.length - 1}
+                    correct={
+                      csvRows.length - 1 - errorCount > 0
+                        ? csvRows.length - 1 - errorCount
+                        : 0
+                    }
                     error={errorCount}
                     warning={0}
                   />
