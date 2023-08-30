@@ -49,6 +49,10 @@ function EnumeratorsManage() {
     (state: RootState) => state.enumerators.enumeratorList
   );
 
+  const [activeEnums, setActiveEnums] = useState<number>(0);
+  const [droppedEnums, setDroppedEnums] = useState<number>(0);
+  const [inactiveEnums, setInactiveEnums] = useState<number>(0);
+
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
@@ -142,6 +146,23 @@ function EnumeratorsManage() {
       //create rowbox data
       const originalData = enumeratorRes.payload.data.data;
 
+      // Initialize counters
+      let activeCount = 0;
+      let inactiveCount = 0;
+
+      // Iterate through the data
+      originalData.forEach((row: any) => {
+        if (
+          row.surveyor_status === "Active" ||
+          row.monitor_status === "Active"
+        ) {
+          activeCount++;
+        } else {
+          inactiveCount++;
+        }
+      });
+      setActiveEnums(activeCount);
+      setInactiveEnums(inactiveCount);
       const columnsToExclude = [
         "enumerator_uid",
         "surveyor_status",
@@ -246,11 +267,16 @@ function EnumeratorsManage() {
               </div>
             </div>
             <br />
-            {/* <EnumeratorsCountBox /> */}
+            <EnumeratorsCountBox
+              active={activeEnums}
+              dropped={droppedEnums}
+              inactive={inactiveEnums}
+            />
             <EnumeratorsTable
               rowSelection={editMode ? rowSelection : undefined}
               columns={dataTableColumn}
               dataSource={tableDataSource}
+              style={{ marginTop: 30 }}
               pagination={{
                 pageSize: paginationPageSize,
                 pageSizeOptions: [10, 25, 50, 100],
