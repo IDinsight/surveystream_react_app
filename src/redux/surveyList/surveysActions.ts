@@ -8,7 +8,7 @@ import * as api from "./apiService";
 
 export const fetchSurveys = createAsyncThunk(
   "survey/fetchSurveys",
-  async (params: any, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       dispatch(fetchSurveysRequest());
       const surveys = await api.fetchSurveys();

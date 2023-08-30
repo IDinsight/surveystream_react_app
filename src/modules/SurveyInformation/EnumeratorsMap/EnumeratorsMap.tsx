@@ -197,85 +197,82 @@ function EnumeratorsMap() {
           })
         );
 
-        console.log("mappingsRes", mappingsRes);
+        //set error list
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
           console.log("errors", mappingsRes?.payload?.errors);
-          //set error list
-          if (mappingsRes.payload.success === false) {
-            message.error(mappingsRes.payload.message);
 
-            console.log("errors", mappingsRes?.payload?.errors);
+          if (mappingsRes?.payload?.errors) {
+            const transformedErrors: CSVError[] = [];
 
-            if (mappingsRes?.payload?.errors) {
-              const transformedErrors: CSVError[] = [];
+            for (const errorKey in mappingsRes.payload.errors) {
+              let errorObj = mappingsRes.payload.errors[errorKey];
 
-              for (const errorKey in mappingsRes.payload.errors) {
-                let errorObj = mappingsRes.payload.errors[errorKey];
+              if (errorKey === "record_errors") {
+                errorObj =
+                  mappingsRes.payload.errors[errorKey]["summary_by_error_type"];
 
-                if (errorKey === "record_errors") {
-                  errorObj =
-                    mappingsRes.payload.errors[errorKey][
-                      "summary_by_error_type"
-                    ];
+                for (let i = 0; i < errorObj.length; i++) {
+                  const summaryError: any = errorObj[i];
 
-                  for (let i = 0; i < errorObj.length; i++) {
-                    const summaryError: any = errorObj[i];
-
-                    transformedErrors.push({
-                      type: summaryError["error_type"]
-                        ? summaryError["error_type"]
-                        : errorKey,
-                      count: summaryError["error_count"]
-                        ? summaryError["error_count"]
-                        : errorObj.length,
-                      rows: summaryError["error_message"]
-                        ? summaryError["error_message"]
-                        : errorObj,
-                    });
-                  }
-                } else if (errorKey === "column_mapping") {
-                  const columnErrors = mappingsRes.payload.errors[errorKey];
-                  errorObj = columnErrors;
-
-                  for (const columnError in columnErrors) {
-                    transformedErrors.push({
-                      type: errorKey,
-                      count: columnErrors[columnError].length,
-                      rows: `${columnError} - ${columnErrors[columnError]}`,
-                    });
-                  }
-                } else {
                   transformedErrors.push({
-                    type: errorObj["error_type"]
-                      ? errorObj["error_type"]
+                    type: summaryError["error_type"]
+                      ? summaryError["error_type"]
                       : errorKey,
-                    count: errorObj.length,
-                    rows: errorObj,
+                    count: summaryError["error_count"]
+                      ? summaryError["error_count"]
+                      : errorObj.length,
+                    rows: summaryError["error_message"]
+                      ? summaryError["error_message"]
+                      : errorObj,
                   });
                 }
+              } else if (errorKey === "column_mapping") {
+                const columnErrors = mappingsRes.payload.errors[errorKey];
+                errorObj = columnErrors;
 
-                setErrorCount(
-                  mappingsRes.payload.errors[errorKey]["summary"]
-                    ? mappingsRes.payload.errors[errorKey]["summary"][
-                        "error_count"
-                      ]
-                    : errorCount + errorObj.length
-                );
+                for (const columnError in columnErrors) {
+                  transformedErrors.push({
+                    type: errorKey,
+                    count: columnErrors[columnError].length,
+                    rows: `${columnError} - ${columnErrors[columnError]}`,
+                  });
+                }
+              } else {
+                transformedErrors.push({
+                  type: errorObj["error_type"]
+                    ? errorObj["error_type"]
+                    : errorKey,
+                  count: errorObj.length,
+                  rows: errorObj,
+                });
               }
-              if (errorCount >= csvRows.length) {
-                setErrorCount(csvRows.length - 1);
-              }
-              setErrorList(transformedErrors);
+
+              setErrorCount(
+                mappingsRes.payload.errors[errorKey]["summary"]
+                  ? mappingsRes.payload.errors[errorKey]["summary"][
+                      "error_count"
+                    ]
+                  : errorCount + errorObj.length
+              );
             }
+            if (errorCount >= csvRows.length) {
+              setErrorCount(csvRows.length - 1);
+            }
+            setErrorList(transformedErrors);
           }
           setHasError(true);
           return;
         }
+
         if (mappingsRes.payload.success) {
           message.success("Enumerators uploaded and mapped successfully.");
           setHasError(false);
+          //route to manage
+          navigate(
+            `/survey-information/enumerators/manage/${survey_uid}/${form_uid}`
+          );
         } else {
           message.error("Failed to upload kindly check and try again");
           setHasError(true);

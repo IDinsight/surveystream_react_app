@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, message } from "antd";
 import Header from "../../../components/Header";
 import {
@@ -14,8 +14,12 @@ import {
 } from "./EnumeratorsManage.styled";
 import { CloudUploadOutlined, EditOutlined } from "@ant-design/icons";
 import EnumeratorsCountBox from "../../../components/EnumeratorsCountBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { RootState } from "../../../redux/store";
+import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 
 function EnumeratorsManage() {
   const navigate = useNavigate();
@@ -23,6 +27,19 @@ function EnumeratorsManage() {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+
+  const dispatch = useAppDispatch();
+
+  const isLoading = useAppSelector(
+    (state: RootState) => state.enumerators.loading
+  );
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
@@ -106,6 +123,38 @@ function EnumeratorsManage() {
     // Write logic to update the records
     setEditData(false);
   };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    //TODO: update this for configured surveys already
+
+    const handleFormUID = async () => {
+      if (form_uid == "" || form_uid == undefined) {
+        try {
+          dispatch(setLoading(true));
+          const sctoForm = await dispatch(
+            getSurveyCTOForm({ survey_uid: survey_uid })
+          );
+          if (sctoForm?.payload[0]?.form_uid) {
+            navigate(
+              `/survey-information/enumerators/manage/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            );
+          } else {
+            message.error("Kindly configure SCTO Form to proceed");
+            navigate(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            );
+          }
+          dispatch(setLoading(false));
+        } catch (error) {
+          dispatch(setLoading(false));
+          console.log("Error fetching sctoForm:", error);
+        }
+      }
+    };
+
+    handleFormUID();
+  }, []);
 
   return (
     <>
