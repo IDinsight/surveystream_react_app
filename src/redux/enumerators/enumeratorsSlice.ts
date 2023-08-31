@@ -119,7 +119,7 @@ const enumeratorsSlice = createSlice({
     },
 
     getEnumeratorsColumnConfigRequest: (state) => {
-      state.loading = true;
+      state.loading = false; //keep this false to avoid modal from reloading
       state.error = null;
     },
     getEnumeratorsColumnConfigSuccess: (state, action: PayloadAction<any>) => {

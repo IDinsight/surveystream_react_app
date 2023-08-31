@@ -231,7 +231,7 @@ function EnumeratorsManage() {
     if (form_uid) {
       getEnumeratorsList(form_uid);
     }
-  }, [dispatch]);
+  }, []);
 
   return (
     <>

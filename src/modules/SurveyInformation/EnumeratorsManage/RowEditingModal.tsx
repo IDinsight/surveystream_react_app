@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getEnumeratorsColumnConfig } from "../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../redux/hooks";
+import { use } from "chai";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -24,6 +25,11 @@ interface Field {
 interface DataItem {
   [key: string]: any;
 }
+interface ConfigField {
+  bulk_editable: boolean;
+  column_name: string;
+  column_type: string;
+}
 
 function RowEditingModal({
   data,
@@ -39,9 +45,14 @@ function RowEditingModal({
 
   const [editForm] = Form.useForm();
   const [formData, setFormData] = useState<DataItem>([]);
-  const [updatedFields, setUpdatedFields] = useState<Field>();
+  const [updatedFields, setUpdatedFields] = useState<Field[]>([]);
   const [bulkFieldsToInclude, setBulkFieldsToInclude] = useState<any>([]);
-
+  const [bulkFieldsToExclude, setBulkFieldsToExclude] = useState<any>([
+    "enumerator_id",
+    "name",
+    "email",
+    "mobile_primary",
+  ]);
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
@@ -52,37 +63,69 @@ function RowEditingModal({
     onUpdate();
   };
 
-  const fieldsToExclude = ["status"];
+  const fieldsToExclude = ["status"]; //always exclude status
 
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
-    console.log("fetchEnumeratorsColumnConfig - called");
-    if (data.length > 1) {
-      //more than one record so editing in bulk
-      if (form_uid) {
-        const configRes = await dispatch(
-          getEnumeratorsColumnConfig({ formUID: form_uid })
-        );
-        console.log("configRes", configRes);
-        if (configRes.payload.status == 200) {
-          console.log("configRes", configRes);
-        }
+    //more than one record so editing in bulk
+    const configRes = await dispatch(
+      getEnumeratorsColumnConfig({ formUID: form_uid })
+    );
+    if (configRes.payload.status == 200) {
+      const configData = configRes.payload?.data?.data;
+
+      if (configData) {
+        const editableFields = configData
+          .filter((field: ConfigField) => field.bulk_editable)
+          .map((field: ConfigField) => field.column_name);
+
+        setBulkFieldsToInclude(editableFields);
+
+        const nonEditableFields = configData
+          .filter((field: ConfigField) => !field.bulk_editable)
+          .map((field: ConfigField) => field.column_name);
+
+        setBulkFieldsToExclude({
+          ...bulkFieldsToExclude,
+          ...nonEditableFields,
+        });
       }
     }
     return;
   };
 
   const initializeFormData = async () => {
-    console.log("initializeFormData - called");
-    if (form_uid) {
-      console.log("form_uid", form_uid);
-      fetchEnumeratorsColumnConfig(form_uid);
-    }
-    const initialData: DataItem = data;
-    console.log("initialData", initialData);
+    //exclude the mandatory fields
+    let filteredFields = fields.filter(
+      (field: Field) => !fieldsToExclude.includes(field.labelKey)
+    );
 
-    fields.forEach((field) => {
+    if (form_uid && data.length > 1) {
+      //must wait for config before fields filtering
+      await fetchEnumeratorsColumnConfig(form_uid);
+
+      //exclude bulk non editable as well as the personal fields
+      filteredFields = fields.filter(
+        (field: Field) =>
+          !bulkFieldsToExclude.includes(field.labelKey) &&
+          !fieldsToExclude.includes(field.labelKey)
+      );
+
+      //include if a field is contracting
+      const additionalFieldsToInclude = fields.filter((field: Field) =>
+        bulkFieldsToInclude.includes(field.labelKey)
+      );
+
+      filteredFields = [...filteredFields, ...additionalFieldsToInclude];
+    }
+
+    setUpdatedFields(filteredFields);
+
+    const initialData: DataItem = [];
+
+    filteredFields.forEach((field) => {
       initialData[field.labelKey] = data[0][field.labelKey];
     });
+
     setFormData(initialData);
     return;
   };
@@ -103,7 +146,7 @@ function RowEditingModal({
       </RowEditingModalHeading>
       {data && data.length > 1 ? (
         <OptionText style={{ width: 410, display: "inline-block" }}>
-          {`Bulk editing is only allowed for ${fields
+          {`Bulk editing is only allowed for ${updatedFields
             .map((item: any) => item.label)
             .join(", ")}.`}
         </OptionText>
@@ -112,7 +155,7 @@ function RowEditingModal({
       {data && data.length > 0 ? (
         <>
           <Form labelCol={{ span: 7 }} form={editForm}>
-            {fields.map((field: Field, idx: number) => (
+            {updatedFields.map((field: Field, idx: number) => (
               <Form.Item
                 required
                 key={idx}
