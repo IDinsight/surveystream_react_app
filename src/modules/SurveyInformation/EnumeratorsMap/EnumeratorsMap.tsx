@@ -21,7 +21,15 @@ import {
   HeadingText,
   OptionText,
 } from "./EnumeratorsMap.styled";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
@@ -42,6 +50,8 @@ import {
 import { EnumeratorMapping } from "../../../redux/enumerators/types";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
+import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 
 interface CSVError {
   type: string;
@@ -70,6 +80,9 @@ function EnumeratorsMap() {
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
+  const [locationBatchField, setLocationBatchField] = useState<any>([]);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+
   const dispatch = useAppDispatch();
 
   const activeSurvey = useAppSelector(
@@ -78,6 +91,14 @@ function EnumeratorsMap() {
 
   const isLoading = useAppSelector(
     (state: RootState) => state.enumerators.loading
+  );
+
+  const quesLoading = useAppSelector(
+    (state: RootState) => state.surveyConfig.loading
+  );
+
+  const locLoading = useAppSelector(
+    (state: RootState) => state.surveyLocations.loading
   );
 
   const csvHeaders = useAppSelector(
@@ -90,6 +111,12 @@ function EnumeratorsMap() {
 
   const csvBase64Data = useAppSelector(
     (state: RootState) => state.enumerators.csvBase64Data
+  );
+  const moduleQuestionnaire = useAppSelector(
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
+  );
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const errorTableColumn = [
@@ -151,34 +178,14 @@ function EnumeratorsMap() {
     "name",
     "email",
     "mobile_primary",
-  ];
-  const locationBatchField = [
-    "location_id_column",
-    "state_id",
-    "district_id",
-    "block_id",
-  ];
-
-  const customBatchField = ["home_address", "gender", "language"];
-
-  const locationDetailsField = [
-    {
-      title: "State",
-      key: "state_id",
-    },
-    {
-      title: "District",
-      key: "",
-    },
-    {
-      title: "Block",
-      key: "block_id",
-    },
+    "home_address",
+    "gender",
+    "language",
   ];
 
   const keysToExclude = [
     ...personalDetailsField.map((item) => item.key),
-    ...locationDetailsField.map((item) => item.key),
+    ...locationDetailsField.map((item: { key: any }) => item.key),
   ];
 
   const extraCSVHeader = csvHeaders.filter(
@@ -201,6 +208,16 @@ function EnumeratorsMap() {
       setErrorCount(0);
       const values = await enumeratorMappingForm.validateFields();
       const column_mapping = enumeratorMappingForm.getFieldsValue();
+      column_mapping.custom_fields = {};
+      if (customHeaderSelection) {
+        for (const [column_name, shouldInclude] of Object.entries(
+          customHeaderSelection
+        )) {
+          if (shouldInclude) {
+            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+          }
+        }
+      }
 
       const requestData: EnumeratorMapping = {
         column_mapping: column_mapping,
@@ -294,22 +311,13 @@ function EnumeratorsMap() {
           const customConfig = Object.keys(column_mapping).map((key) => {
             if (key !== null && key !== "" && key !== undefined) {
               const personal = personalBatchField.includes(key);
-              const custom = customBatchField.includes(key);
               const location = locationBatchField.includes(key);
 
               return {
-                bulk_editable: personal
-                  ? false
-                  : custom
-                  ? true
-                  : location
-                  ? true
-                  : true,
+                bulk_editable: personal ? false : location ? true : true,
                 column_name: key,
                 column_type: personal
                   ? "personal_details"
-                  : custom
-                  ? "custom_fields"
                   : location
                   ? "location"
                   : "custom_fields",
@@ -400,7 +408,52 @@ function EnumeratorsMap() {
     };
 
     handleFormUID();
+    fetchSurveyModuleQuestionnaire();
   }, []);
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
+      ) {
+        if (
+          moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+            "Location"
+          )
+        ) {
+          setLocationBatchField([...locationBatchField, "location_id_column"]);
+          //fetch location and then set the other fields
+          const locationRes = await dispatch(
+            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+          );
+
+          if (locationRes?.payload.length > 0) {
+            const updatedLocationFieldData = locationRes.payload.map(
+              (location: any) => ({
+                title: location.geo_level_name,
+                key: `${location.geo_level_name.toLowerCase()}_id`,
+              })
+            );
+
+            const updatedLocationFieldKeys = updatedLocationFieldData.map(
+              (locationField: { key: any }) => locationField.key
+            );
+
+            // Update locationBatchField with the new keys
+            setLocationBatchField([
+              ...locationBatchField,
+              ...updatedLocationFieldKeys,
+            ]);
+
+            setLocationDetailsField(updatedLocationFieldData);
+          }
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -411,7 +464,7 @@ function EnumeratorsMap() {
         </BackLink>
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      {isLoading ? (
+      {isLoading || quesLoading || locLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -430,7 +483,7 @@ function EnumeratorsMap() {
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns
                     </HeadingText>
-                    <HeadingText>Personal Details and contact</HeadingText>
+                    <HeadingText>Personal and contact details</HeadingText>
                     {personalDetailsField.map((item, idx) => {
                       return (
                         <Form.Item
@@ -440,7 +493,10 @@ function EnumeratorsMap() {
                           rules={[
                             {
                               required:
-                                item.key === "language" ||
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                    "Language"
+                                  )) ||
                                 item.key === "home_address"
                                   ? false
                                   : true,
@@ -483,16 +539,112 @@ function EnumeratorsMap() {
                         </Form.Item>
                       );
                     })}
-                    <HeadingText>Location Details</HeadingText>
-                    {locationDetailsField.map((item, idx) => {
-                      return (
+                    {locationDetailsField.length > 0 ? (
+                      <>
+                        <HeadingText>Location Details</HeadingText>
+                        {locationDetailsField.map(
+                          (
+                            item: {
+                              title: any;
+                              key: any;
+                            },
+                            idx: any
+                          ) => {
+                            return (
+                              <Form.Item
+                                label={item.title}
+                                name={item.key}
+                                key={idx}
+                                required
+                                labelCol={{ span: 5 }}
+                                labelAlign="left"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      "Kindly select column to map value!",
+                                  },
+                                  {
+                                    validator: async (_, value) => {
+                                      if (!value) {
+                                        return Promise.resolve(); // No need to check if value is empty
+                                      }
+                                      const formValues =
+                                        enumeratorMappingForm.getFieldsValue();
+
+                                      const valuesArray =
+                                        Object.values(formValues);
+                                      // Count occurrences of the selected value in the valuesArray
+                                      const selectedValueCount =
+                                        valuesArray.filter(
+                                          (val) => val === value
+                                        ).length;
+
+                                      // Check if the selected value is contained more than once
+                                      if (selectedValueCount > 1) {
+                                        return Promise.reject(
+                                          "Column is already mapped. The same column cannot be mapped twice!"
+                                        );
+                                      }
+
+                                      return Promise.resolve();
+                                    },
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  style={{ width: 180 }}
+                                  filterOption={true}
+                                  placeholder="Choose column"
+                                  options={csvHeaderOptions}
+                                />
+                              </Form.Item>
+                            );
+                          }
+                        )}
+                      </>
+                    ) : null}
+                    {locationBatchField.length > 0 ? (
+                      <>
+                        <HeadingText>Location ID</HeadingText>
+
                         <Form.Item
-                          label={item.title}
-                          name={item.key}
-                          key={idx}
-                          required={true}
-                          labelCol={{ span: 5 }}
+                          label="Prime geo location:"
+                          name="location_id_column"
+                          key="location_id_column"
+                          required
                           labelAlign="left"
+                          labelCol={{ span: 5 }}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Kindly select column to map value!",
+                            },
+                            {
+                              validator: async (_, value) => {
+                                if (!value) {
+                                  return Promise.resolve(); // No need to check if value is empty
+                                }
+                                const formValues =
+                                  enumeratorMappingForm.getFieldsValue();
+
+                                const valuesArray = Object.values(formValues);
+                                // Count occurrences of the selected value in the valuesArray
+                                const selectedValueCount = valuesArray.filter(
+                                  (val) => val === value
+                                ).length;
+
+                                // Check if the selected value is contained more than once
+                                if (selectedValueCount > 1) {
+                                  return Promise.reject(
+                                    "Column is already mapped. The same column cannot be mapped twice!"
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
                         >
                           <Select
                             style={{ width: 180 }}
@@ -501,25 +653,8 @@ function EnumeratorsMap() {
                             options={csvHeaderOptions}
                           />
                         </Form.Item>
-                      );
-                    })}
-                    <HeadingText>Location ID</HeadingText>
-
-                    <Form.Item
-                      label="Prime geo location:"
-                      name="location_id_column"
-                      key="location_id_column"
-                      required={true}
-                      labelAlign="left"
-                      labelCol={{ span: 5 }}
-                    >
-                      <Select
-                        style={{ width: 180 }}
-                        filterOption={true}
-                        placeholder="Choose column"
-                        options={csvHeaderOptions}
-                      />
-                    </Form.Item>
+                      </>
+                    ) : null}
 
                     {customHeader ? (
                       <>
