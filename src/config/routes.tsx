@@ -98,15 +98,15 @@ const AppRoutes = () => {
           element={<EnumeratorsManage />}
         />
         <Route
-          path="/survey-information/targets/upload/:survey_uid?"
+          path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
           element={<TargetsUpload />}
         />
         <Route
-          path="/survey-information/targets/map/:survey_uid?"
+          path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
         />
         <Route
-          path="/survey-information/targets/manage/:survey_uid?"
+          path="/survey-information/targets/manage/:survey_uid?/:form_uid?"
           element={<TargetsManage />}
         />
       </Route>

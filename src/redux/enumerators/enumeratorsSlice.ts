@@ -77,7 +77,7 @@ const enumeratorsSlice = createSlice({
       state.error = null;
     },
     updateEnumeratorSuccess: (state, action: PayloadAction<any>) => {
-      state.loading = true;
+      state.loading = false;
       state.error = null;
     },
     updateEnumeratorFailure: (state, action: PayloadAction<any>) => {
@@ -91,7 +91,7 @@ const enumeratorsSlice = createSlice({
     },
 
     bulkUpdateEnumeratorsSuccess: (state, action: PayloadAction<any>) => {
-      state.loading = true;
+      state.loading = false;
       state.error = null;
     },
     bulkUpdateEnumeratorsFailure: (state, action: PayloadAction<any>) => {
@@ -107,7 +107,7 @@ const enumeratorsSlice = createSlice({
       state,
       action: PayloadAction<any>
     ) => {
-      state.loading = true;
+      state.loading = false;
       state.error = null;
     },
     bulkUpdateEnumeratorsLocationMappingFailure: (
@@ -123,7 +123,7 @@ const enumeratorsSlice = createSlice({
       state.error = null;
     },
     getEnumeratorsColumnConfigSuccess: (state, action: PayloadAction<any>) => {
-      state.loading = true;
+      state.loading = false;
       state.error = null;
       state.enumeratorColumnConfig = action.payload;
     },
@@ -140,7 +140,7 @@ const enumeratorsSlice = createSlice({
       state,
       action: PayloadAction<any>
     ) => {
-      state.loading = true;
+      state.loading = false;
       state.error = null;
     },
     updateEnumeratorColumnConfigFailure: (

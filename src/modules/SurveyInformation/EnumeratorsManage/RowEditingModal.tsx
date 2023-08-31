@@ -1,15 +1,28 @@
-import { Button, Col, Input, Row } from "antd";
+import { Button, Form, Input } from "antd";
 import {
   OptionText,
   RowEditingModalContainer,
   RowEditingModalHeading,
 } from "./RowEditingModal.styled";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getEnumeratorsColumnConfig } from "../../../redux/enumerators/enumeratorsActions";
+import { useAppDispatch } from "../../../redux/hooks";
 
 interface IRowEditingModal {
-  data: any;
-  fields: any;
+  data: DataItem[];
+  fields: Field[];
   onCancel: () => void;
   onUpdate: () => void;
+}
+
+interface Field {
+  label: string;
+  labelKey: string;
+}
+
+interface DataItem {
+  [key: string]: any;
 }
 
 function RowEditingModal({
@@ -18,6 +31,17 @@ function RowEditingModal({
   onCancel,
   onUpdate,
 }: IRowEditingModal) {
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+
+  const dispatch = useAppDispatch();
+
+  const [editForm] = Form.useForm();
+  const [formData, setFormData] = useState<DataItem>([]);
+  const [updatedFields, setUpdatedFields] = useState<Field>();
+  const [bulkFieldsToInclude, setBulkFieldsToInclude] = useState<any>([]);
+
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
@@ -27,6 +51,48 @@ function RowEditingModal({
     // Write here for passing the data to update the record
     onUpdate();
   };
+
+  const fieldsToExclude = ["status"];
+
+  const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
+    console.log("fetchEnumeratorsColumnConfig - called");
+    if (data.length > 1) {
+      //more than one record so editing in bulk
+      if (form_uid) {
+        const configRes = await dispatch(
+          getEnumeratorsColumnConfig({ formUID: form_uid })
+        );
+        console.log("configRes", configRes);
+        if (configRes.payload.status == 200) {
+          console.log("configRes", configRes);
+        }
+      }
+    }
+    return;
+  };
+
+  const initializeFormData = async () => {
+    console.log("initializeFormData - called");
+    if (form_uid) {
+      console.log("form_uid", form_uid);
+      fetchEnumeratorsColumnConfig(form_uid);
+    }
+    const initialData: DataItem = data;
+    console.log("initialData", initialData);
+
+    fields.forEach((field) => {
+      initialData[field.labelKey] = data[0][field.labelKey];
+    });
+    setFormData(initialData);
+    return;
+  };
+
+  useEffect(() => {
+    //handle bulk fields
+    if (formData.length == 0) {
+      initializeFormData();
+    }
+  }, []);
 
   return (
     <RowEditingModalContainer>
@@ -45,27 +111,29 @@ function RowEditingModal({
       <br />
       {data && data.length > 0 ? (
         <>
-          {fields.map((field: any, idx: number) => {
-            return (
-              <Row key={idx}>
-                <Col span={10}>
-                  <p>
-                    <span style={{ color: "red" }}>*</span>{" "}
-                    <OptionText>{field.label}:</OptionText>
-                  </p>
-                </Col>
-                <Col
-                  span={12}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
-                  <Input
-                    style={{ width: 250 }}
-                    placeholder={data[0][field.labelKey]}
-                  />
-                </Col>
-              </Row>
-            );
-          })}
+          <Form labelCol={{ span: 7 }} form={editForm}>
+            {fields.map((field: Field, idx: number) => (
+              <Form.Item
+                required
+                key={idx}
+                id={`${field.labelKey}-id`}
+                name={field.labelKey}
+                initialValue={field.labelKey ? data[0][field.labelKey] : ""}
+                label={<span>{field.labelKey}</span>}
+                rules={[
+                  {
+                    required: true,
+                    message: `Please enter ${field.label}`,
+                  },
+                ]}
+              >
+                <Input
+                  placeholder={`Enter ${field.label}`}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            ))}
+          </Form>
         </>
       ) : null}
       <div style={{ marginTop: 20 }}>

@@ -247,7 +247,7 @@ function SurveyLocationHierarchy() {
             </div>
             <div style={{ marginTop: "20px" }}>
               <DescriptionText>Select the prime geo location</DescriptionText>
-              <StyledFormItem name={`prime_geo_level`}>
+              <StyledFormItem name={`prime_geo_level`} style={{ width: "40%" }}>
                 <Select defaultValue="no_location">
                   <Select.Option value="no_location">
                     No location mapping
