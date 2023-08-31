@@ -180,7 +180,7 @@ function EnumeratorsMap() {
     try {
       //start with an empty error count
       setErrorCount(0);
-      // const values = await enumeratorMappingForm.validateFields();
+      const values = await enumeratorMappingForm.validateFields();
       const column_mapping = enumeratorMappingForm.getFieldsValue();
 
       const requestData: EnumeratorMapping = {
