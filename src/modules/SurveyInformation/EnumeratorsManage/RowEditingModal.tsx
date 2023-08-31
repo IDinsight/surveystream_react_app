@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import {
   OptionText,
   RowEditingModalContainer,
@@ -6,7 +6,11 @@ import {
 } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEnumeratorsColumnConfig } from "../../../redux/enumerators/enumeratorsActions";
+import {
+  bulkUpdateEnumerators,
+  getEnumeratorsColumnConfig,
+  updateEnumerator,
+} from "../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { use } from "chai";
 
@@ -52,18 +56,96 @@ function RowEditingModal({
     "name",
     "email",
     "mobile_primary",
+    "monitor_locations",
+    "monitor_status",
+    "surveyor_locations",
+    "surveyor_status",
   ]);
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
   };
 
-  const updateHandler = () => {
-    // Write here for passing the data to update the record
-    onUpdate();
+  const updateHandler = async () => {
+    //validate form
+    const values = await editForm.validateFields();
+
+    console.log("values", values);
+
+    const updateData = await editForm.getFieldsValue();
+    console.log("updateData", updateData);
+
+    const originalData = data;
+
+    const patchKeys = {
+      ...updateData,
+    };
+    //create request data
+    if (originalData.length > 1 && form_uid) {
+      //create a batch request
+      const formUID = form_uid;
+      const enumeratorUIDs = Array.from(
+        new Set(originalData.map((item) => item["enumerator_uid"]))
+      );
+      const requestData = {
+        enumeratorUIDs,
+        formUID,
+        patchKeys,
+      };
+      console.log("requestData", requestData);
+      const batchRes = await dispatch(
+        bulkUpdateEnumerators({ enumeratorUIDs, formUID, patchKeys })
+      );
+
+      console.log("batchRes", batchRes);
+
+      if (batchRes?.payload?.status === 200) {
+        message.success("Enumerators updated successfully");
+        onUpdate();
+        return;
+      }
+      batchRes?.payload?.errors
+        ? message.error(batchRes?.payload?.errors)
+        : message.error(
+            "Failed to updated enumerators, kindly check and try again"
+          );
+    } else {
+      const enumeratorUID = originalData[0]["enumerator_uid"];
+      //create a single update request
+      // Find the index of the row to update in originalData
+      const indexToUpdate = originalData.findIndex(
+        (item) => item["enumerator_uid"] === enumeratorUID
+      );
+
+      if (indexToUpdate !== -1) {
+        // Create a new object with updated values
+        const updatedRow = {
+          ...originalData[indexToUpdate],
+          ...updateData,
+        };
+
+        // Update the originalData array with the new object
+        originalData[indexToUpdate] = updatedRow;
+      }
+
+      const enumeratorData = { ...originalData[0] };
+      const updateRes = await dispatch(
+        updateEnumerator({ enumeratorUID, enumeratorData })
+      );
+      if (updateRes?.payload?.status === 200) {
+        message.success("Enumerator updated successfully");
+        onUpdate();
+        return;
+      }
+      updateRes?.payload?.errors
+        ? message.error(updateRes?.payload?.errors)
+        : message.error(
+            "Failed to updated enumerator, kindly check and try again"
+          );
+    }
   };
 
-  const fieldsToExclude = ["status"]; //always exclude status
+  const fieldsToExclude = ["status", "custom_fields", "enumerator_uid"]; //always exclude these
 
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
     //more than one record so editing in bulk
@@ -145,16 +227,22 @@ function RowEditingModal({
           : "Edit enumerator"}
       </RowEditingModalHeading>
       {data && data.length > 1 ? (
-        <OptionText style={{ width: 410, display: "inline-block" }}>
+        <OptionText
+          style={{ width: 410, display: "inline-block", marginBottom: 20 }}
+        >
           {`Bulk editing is only allowed for ${updatedFields
-            .map((item: any) => item.label)
+            .map((item: any) => item.labelKey)
             .join(", ")}.`}
         </OptionText>
       ) : null}
       <br />
       {data && data.length > 0 ? (
         <>
-          <Form labelCol={{ span: 7 }} form={editForm}>
+          <Form
+            labelCol={{ span: 7 }}
+            form={editForm}
+            style={{ textAlign: "left" }}
+          >
             {updatedFields.map((field: Field, idx: number) => (
               <Form.Item
                 required

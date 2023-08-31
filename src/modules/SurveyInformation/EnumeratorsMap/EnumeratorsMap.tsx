@@ -35,7 +35,10 @@ import RowCountBox from "../../../components/RowCountBox";
 import { RootState } from "../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { postEnumeratorsMapping } from "../../../redux/enumerators/enumeratorsActions";
+import {
+  postEnumeratorsMapping,
+  updateEnumeratorColumnConfig,
+} from "../../../redux/enumerators/enumeratorsActions";
 import { EnumeratorMapping } from "../../../redux/enumerators/types";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
@@ -142,6 +145,22 @@ function EnumeratorsMap() {
       key: "enumerator_type",
     },
   ];
+
+  const personalBatchField = [
+    "enumerator_id",
+    "name",
+    "email",
+    "mobile_primary",
+  ];
+  const locationBatchField = [
+    "location_id_column",
+    "state_id",
+    "district_id",
+    "block_id",
+  ];
+
+  const customBatchField = ["home_address", "gender", "language"];
+
   const locationDetailsField = [
     {
       title: "State",
@@ -149,7 +168,7 @@ function EnumeratorsMap() {
     },
     {
       title: "District",
-      key: "district_id",
+      key: "",
     },
     {
       title: "Block",
@@ -268,6 +287,51 @@ function EnumeratorsMap() {
 
         if (mappingsRes.payload.success) {
           message.success("Enumerators uploaded and mapped successfully.");
+
+          //auto configure columns for users setting personal as non_batch and the rest as batch
+          //use the column mapping to do this
+
+          const customConfig = Object.keys(column_mapping).map((key) => {
+            if (key !== null && key !== "" && key !== undefined) {
+              const personal = personalBatchField.includes(key);
+              const custom = customBatchField.includes(key);
+              const location = locationBatchField.includes(key);
+
+              return {
+                bulk_editable: personal
+                  ? false
+                  : custom
+                  ? true
+                  : location
+                  ? true
+                  : true,
+                column_name: key,
+                column_type: personal
+                  ? "personal_details"
+                  : custom
+                  ? "custom_fields"
+                  : location
+                  ? "location"
+                  : "custom_fields",
+              };
+            }
+          });
+
+          const filteredCustomConfig = customConfig.filter(
+            (config) => config !== null && config !== undefined
+          );
+
+          console.log("filteredCustomConfig", filteredCustomConfig);
+
+          dispatch(
+            updateEnumeratorColumnConfig({
+              formUID: form_uid,
+              columnConfig: filteredCustomConfig,
+            })
+          );
+
+          console.log(customConfig);
+
           setHasError(false);
           //route to manage
           navigate(

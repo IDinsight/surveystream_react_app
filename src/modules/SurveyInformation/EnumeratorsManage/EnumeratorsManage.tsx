@@ -62,8 +62,17 @@ function EnumeratorsManage() {
 
   // Row selection state and handler
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const onSelectChange = (_: any, newSelectedRow: any) => {
-    setSelectedRows(newSelectedRow);
+
+  const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
+    const selectedEnumeratorIds = selectedRows.map(
+      (row: any) => row.enumerator_id
+    );
+
+    const selectedEnumeratorData = enumeratorList.filter((row: any) =>
+      selectedEnumeratorIds.includes(row.enumerator_id)
+    );
+
+    setSelectedRows(selectedEnumeratorData);
   };
 
   const rowSelection = {
@@ -90,6 +99,7 @@ function EnumeratorsManage() {
             ?.title,
         };
       });
+
     setFieldData(fields);
   };
 
@@ -97,8 +107,10 @@ function EnumeratorsManage() {
     setEditData(false);
   };
 
-  const onEditingUpdate = () => {
-    // Write logic to update the records
+  const onEditingUpdate = async () => {
+    if (form_uid) {
+      await getEnumeratorsList(form_uid);
+    }
     setEditData(false);
   };
 

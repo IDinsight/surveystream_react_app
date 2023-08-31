@@ -82,7 +82,7 @@ export const updateEnumerator = async (
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/enumerators?enumerator_uid=${enumeratorUID}`;
+    const url = `${API_BASE_URL}/enumerators/${enumeratorUID}`;
 
     const res = await axios.put(
       url,
