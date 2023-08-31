@@ -149,20 +149,40 @@ function EnumeratorsManage() {
       // Initialize counters
       let activeCount = 0;
       let inactiveCount = 0;
+      let droppedCount = 0;
 
       // Iterate through the data
-      originalData.forEach((row: any) => {
+      const dataWithStatus = originalData.map((row: any) => {
+        let status = "";
+
         if (
           row.surveyor_status === "Active" ||
           row.monitor_status === "Active"
         ) {
+          status = "Active";
           activeCount++;
-        } else {
+        } else if (
+          row.surveyor_status === "Inactive" ||
+          row.monitor_status === "Inactive"
+        ) {
+          status = "Inactive";
           inactiveCount++;
+        } else if (
+          row.surveyor_status === "Dropout" ||
+          row.monitor_status === "Dropout"
+        ) {
+          status = "Dropout";
+          droppedCount++;
         }
+
+        return {
+          ...row,
+          status,
+        };
       });
       setActiveEnums(activeCount);
       setInactiveEnums(inactiveCount);
+      setDroppedEnums(droppedCount);
       const columnsToExclude = [
         "enumerator_uid",
         "surveyor_status",
@@ -170,10 +190,10 @@ function EnumeratorsManage() {
       ];
 
       // Define column mappings
-      const columnMappings = Object.keys(originalData[0])
+      const columnMappings = Object.keys(dataWithStatus[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
-          originalData.some(
+          dataWithStatus.some(
             (row: { [x: string]: null }) => row[column] !== null
           )
         ) // Filter out columns with all null values
@@ -184,7 +204,7 @@ function EnumeratorsManage() {
 
       setDataTableColumn(columnMappings);
 
-      const tableDataSource = originalData.map((item: any, index: any) => {
+      const tableDataSource = dataWithStatus.map((item: any, index: any) => {
         const rowData: Record<string, any> = {}; // Use index signature
 
         for (const mapping of columnMappings) {
