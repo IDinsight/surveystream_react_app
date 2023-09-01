@@ -37,7 +37,7 @@ interface IRowCountBox {
   warning: number;
 }
 
-function RowCountBox({ total, correct, error, warning }: IRowCountBox) {
+const RowCountBox = ({ total, correct, error, warning }: IRowCountBox) => {
   return (
     <RowCountBoxContainer>
       <CountBox
@@ -69,6 +69,6 @@ function RowCountBox({ total, correct, error, warning }: IRowCountBox) {
       />
     </RowCountBoxContainer>
   );
-}
+};
 
 export default RowCountBox;

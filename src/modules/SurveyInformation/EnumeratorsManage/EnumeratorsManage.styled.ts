@@ -8,10 +8,12 @@ export const EnumeratorsManageFormWrapper = styled.div`
   padding-top: 23px;
   font-family: "Inter", sans-serif;
   position: relative;
-  height: 850px;
+  min-height: 850px;
+  width: 70%;
 `;
 
 export const EnumeratorsTable = styled(Table)`
+  width: 90%;
   & th {
     color: #434343 !important;
     background-color: #fff0f6 !important;

@@ -4,3 +4,5 @@ services:
       image: ${FRONTEND_NAME}:${VERSION}
       ports:
         - "3000:80"
+      extra_hosts:
+            - "host.docker.internal:host-gateway"

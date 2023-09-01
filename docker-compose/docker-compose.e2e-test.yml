@@ -1,0 +1,28 @@
+version: '2.1'
+services:
+    client:
+      image: ${FRONTEND_NAME}:${VERSION}
+      ports:
+        - "3000:80"
+      restart: always
+      extra_hosts:
+          - "host.docker.internal:host-gateway"
+    cypress:
+      image: cypress/included:12.17.0
+      build: ./e2e
+      container_name: cypress
+      depends_on:
+        - client
+      environment:
+      - CYPRESS_baseUrl=http://host.docker.internal:3000
+        CYPRESS_VIDEO=false
+      command: 
+      - |
+        npm install typescript
+        npx cypress run
+      volumes:
+      - ../e2e/integration:/cypress/e2e
+      - ../e2e/support:/cypress/support
+      - ../e2e/cypress.config.ts:/cypress.config.js
+      extra_hosts:
+          - "host.docker.internal:host-gateway"

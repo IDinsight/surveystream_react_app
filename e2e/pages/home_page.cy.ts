@@ -4,7 +4,7 @@ class HomePage {
     contactUsButton: () => cy.get("#home-contact-us-button"),
   };
 
-  navigate(url) {
+  navigate(url: string) {
     cy.visit(url);
   }
 

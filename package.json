@@ -31,7 +31,7 @@
     "react-scripts": "5.0.1",
     "redux": "^4.2.1",
     "styled-components": "^5.3.9",
-    "typescript": "^4.9.5"
+    "typescript": "^5.1.6"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -43,7 +43,7 @@
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "eject": "react-scripts eject",
     "ts-coverage": "typescript-coverage-report",
-    "cypress:run-all": "npx cypress run --spec \"cypress/e2e/*\""
+    "cypress:run-all": "npx cypress run"
   },
   "eslintConfig": {
     "extends": [

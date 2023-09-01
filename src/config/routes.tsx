@@ -86,27 +86,27 @@ const AppRoutes = () => {
           element={<SurveyLocationUpload />}
         />
         <Route
-          path="/survey-information/enumerators/upload/:survey_uid?"
+          path="/survey-information/enumerators/upload/:survey_uid?/:form_uid?"
           element={<EnumeratorsUpload />}
         />
         <Route
-          path="/survey-information/enumerators/map/:survey_uid?"
+          path="/survey-information/enumerators/map/:survey_uid?/:form_uid?"
           element={<EnumeratorsMap />}
         />
         <Route
-          path="/survey-information/enumerators/manage/:survey_uid?"
+          path="/survey-information/enumerators/manage/:survey_uid?/:form_uid?"
           element={<EnumeratorsManage />}
         />
         <Route
-          path="/survey-information/targets/upload/:survey_uid?"
+          path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
           element={<TargetsUpload />}
         />
         <Route
-          path="/survey-information/targets/map/:survey_uid?"
+          path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
         />
         <Route
-          path="/survey-information/targets/manage/:survey_uid?"
+          path="/survey-information/targets/manage/:survey_uid?/:form_uid?"
           element={<TargetsManage />}
         />
       </Route>

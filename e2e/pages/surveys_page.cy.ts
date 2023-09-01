@@ -3,7 +3,7 @@ class SurveysPage {
     configureNewSurveyLink: () => cy.get("#configure-new-survey-link"),
   };
 
-  navigate(url) {
+  navigate(url: string) {
     cy.visit(url);
   }
 

@@ -9,6 +9,7 @@ import fieldSupervisorRolesReducer from "./fieldSupervisorRoles/fieldSupervisorR
 import surveyCTOInformationReducer from "./surveyCTOInformation/surveyCTOInformationSlice";
 import surveyCTOQuestionsReducer from "./surveyCTOQuestions/surveyCTOQuestionsSlice";
 import surveyLocationsReducer from "./surveyLocations/surveyLocationsSlice";
+import enumeratorsReducer from "./enumerators/enumeratorsSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   surveyCTOInformation: surveyCTOInformationReducer,
   surveyCTOQuestions: surveyCTOQuestionsReducer,
   surveyLocations: surveyLocationsReducer,
+  enumerators: enumeratorsReducer,
 });
 
 export default rootReducer;

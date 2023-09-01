@@ -12,11 +12,11 @@ class LoginPage {
           .click(),
     };
   
-    navigate(url) {
+    navigate(url: string) {
       cy.visit(url);
     }
   
-    enterUsername(email) {
+    enterUsername(email: string) {
       this.elements.loginPage_email()
         .first()
         .click()
@@ -27,7 +27,7 @@ class LoginPage {
       return this.elements.loginPage_password().last();
     }
   
-    enterPassword(password) {
+    enterPassword(password: string) {
       this.elements.loginPage_password()
         .last()
         .click()

@@ -1,0 +1,25 @@
+# DESCRIPTION: Dockerfile for surveystream_frontend react app
+
+# Build step #1: build the React front end
+FROM node:16-alpine as build-step
+ARG BUILD_ENV
+
+WORKDIR  /
+ENV PATH /node_modules/.bin:$PATH
+
+COPY package.json package-lock.json tailwind.config.js tsconfig.json cypress.config.ts ./
+RUN npm install --network-timeout=200000
+RUN npx browserslist@latest --update-db
+
+# Copying source code later so that we can avoid npm install everytime
+COPY src src
+COPY public public
+COPY .env.${BUILD_ENV} .env.${BUILD_ENV}
+RUN npm run build:${BUILD_ENV}
+
+# Build step #2: build an nginx container
+FROM nginx:stable-alpine
+COPY --from=build-step /build /usr/share/nginx/html
+COPY ./nginx.test.conf /etc/nginx/conf.d/test.conf
+
+EXPOSE 80

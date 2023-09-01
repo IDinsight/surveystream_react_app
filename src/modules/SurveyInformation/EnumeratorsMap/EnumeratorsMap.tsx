@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Col, Row, Select } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -21,7 +21,15 @@ import {
   HeadingText,
   OptionText,
 } from "./EnumeratorsMap.styled";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
@@ -32,6 +40,18 @@ import {
   SelectOutlined,
 } from "@ant-design/icons";
 import RowCountBox from "../../../components/RowCountBox";
+import { RootState } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import {
+  postEnumeratorsMapping,
+  updateEnumeratorColumnConfig,
+} from "../../../redux/enumerators/enumeratorsActions";
+import { EnumeratorMapping } from "../../../redux/enumerators/types";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
+import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 
 interface CSVError {
   type: string;
@@ -42,13 +62,62 @@ function EnumeratorsMap() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
+    if (hasError) {
+      return setHasError(false);
+    }
     navigate(-1);
   };
 
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+  const [enumeratorMappingForm] = Form.useForm();
   const [hasError, setHasError] = useState<boolean>(false);
+  const [errorCount, setErrorCount] = useState<number>(0);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
+  const [locationBatchField, setLocationBatchField] = useState<any>([]);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+
+  const dispatch = useAppDispatch();
+
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.surveys.activeSurvey
+  );
+
+  const isLoading = useAppSelector(
+    (state: RootState) => state.enumerators.loading
+  );
+
+  const quesLoading = useAppSelector(
+    (state: RootState) => state.surveyConfig.loading
+  );
+
+  const locLoading = useAppSelector(
+    (state: RootState) => state.surveyLocations.loading
+  );
+
+  const csvHeaders = useAppSelector(
+    (state: RootState) => state.enumerators.csvColumnNames
+  );
+
+  const csvRows = useAppSelector(
+    (state: RootState) => state.enumerators.csvRows
+  );
+
+  const csvBase64Data = useAppSelector(
+    (state: RootState) => state.enumerators.csvBase64Data
+  );
+  const moduleQuestionnaire = useAppSelector(
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
+  );
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
+  );
 
   const errorTableColumn = [
     {
@@ -68,92 +137,323 @@ function EnumeratorsMap() {
     },
   ];
 
-  // Dummy data population, Remove it while integreation
-  useEffect(() => {
-    if (hasError) {
-      setErrorList([
-        {
-          type: "Invalid email ID",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
-        },
-        {
-          type: "Invalid mobile no",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
-        },
-        {
-          type: "Duplicate enumerator ID",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294, 328, 364, 430, 543, 657, 789, 799",
-        },
-        {
-          type: "Duplicate email ID",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
-        },
-        {
-          type: "Invalid location ‘State’",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294.",
-        },
-        {
-          type: "Invalid location ‘Block’",
-          count: 12,
-          rows: "2, 7, 9, 20, 39, 32, 48, 84, 128, 294",
-        },
-      ]);
-    }
-  }, []);
-
   // Mandatory Field
   const personalDetailsField = [
-    "Enumerator ID",
-    "Enumerator Name",
-    "Email ID",
-    "Mobile (primary)",
-    "Language (p)",
-    "Address",
-    "Gender",
-    "Enumerator type",
+    {
+      title: "Enumerator ID",
+      key: "enumerator_id",
+    },
+    {
+      title: "Enumerator Name",
+      key: "name",
+    },
+    {
+      title: "Email ID",
+      key: "email",
+    },
+    {
+      title: "Mobile (primary)",
+      key: "mobile_primary",
+    },
+    {
+      title: "Language",
+      key: "language",
+    },
+    {
+      title: "Address",
+      key: "home_address",
+    },
+    {
+      title: "Gender",
+      key: "gender",
+    },
+    {
+      title: "Enumerator type",
+      key: "enumerator_type",
+    },
   ];
-  const locationDetailsField = ["State", "District", "Block"];
 
-  /**
-   * These are the dummy values. Extract all values from CSV header
-   * and store here
-   */
-  const csvHeaders = [
-    "Surveyor ID",
-    "Enumerator name",
+  const personalBatchField = [
+    "enumerator_id",
+    "name",
     "email",
-    "Mobile number",
-    "Primary language",
-    "Surveyor address",
-    "Gender",
-    "enum_type",
-    "State name",
-    "District name",
-    "Block name",
-    "State ID",
-    "District ID",
-    "Block ID",
+    "mobile_primary",
+    "home_address",
+    "gender",
+    "language",
   ];
 
-  /**
-   * This should derrived values. Write a logic to exact the values
-   * from csvHeaders variable whose has been used in dropdown.
-   * So we will have only left over header
-   */
-  const extraCSVHeader = [
-    "Mobile no. (s)",
-    "Employment status",
-    "Secondary language",
+  const keysToExclude = [
+    ...personalDetailsField.map((item) => item.key),
+    ...locationDetailsField.map((item: { key: any }) => item.key),
   ];
+
+  const extraCSVHeader = csvHeaders.filter(
+    (item) => !keysToExclude.includes(item)
+  );
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
   });
+
+  const moveToUpload = () => {
+    navigate(
+      `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+    );
+  };
+
+  const handleEnumeratorUploadMapping = async () => {
+    try {
+      //start with an empty error count
+      setErrorCount(0);
+      const values = await enumeratorMappingForm.validateFields();
+      const column_mapping = enumeratorMappingForm.getFieldsValue();
+      column_mapping.custom_fields = {};
+      if (customHeaderSelection) {
+        for (const [column_name, shouldInclude] of Object.entries(
+          customHeaderSelection
+        )) {
+          if (shouldInclude) {
+            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+          }
+        }
+      }
+
+      const requestData: EnumeratorMapping = {
+        column_mapping: column_mapping,
+        file: csvBase64Data,
+        mode: "overwrite",
+      };
+
+      if (form_uid !== undefined) {
+        const mappingsRes = await dispatch(
+          postEnumeratorsMapping({
+            enumeratorMappingData: requestData,
+            formUID: form_uid,
+          })
+        );
+
+        //set error list
+        if (mappingsRes.payload.success === false) {
+          message.error(mappingsRes.payload.message);
+
+          console.log("errors", mappingsRes?.payload?.errors);
+
+          if (mappingsRes?.payload?.errors) {
+            const transformedErrors: CSVError[] = [];
+
+            for (const errorKey in mappingsRes.payload.errors) {
+              let errorObj = mappingsRes.payload.errors[errorKey];
+
+              if (errorKey === "record_errors") {
+                errorObj =
+                  mappingsRes.payload.errors[errorKey]["summary_by_error_type"];
+
+                for (let i = 0; i < errorObj.length; i++) {
+                  const summaryError: any = errorObj[i];
+
+                  transformedErrors.push({
+                    type: summaryError["error_type"]
+                      ? summaryError["error_type"]
+                      : errorKey,
+                    count: summaryError["error_count"]
+                      ? summaryError["error_count"]
+                      : errorObj.length,
+                    rows: summaryError["error_message"]
+                      ? summaryError["error_message"]
+                      : errorObj,
+                  });
+                }
+              } else if (errorKey === "column_mapping") {
+                const columnErrors = mappingsRes.payload.errors[errorKey];
+                errorObj = columnErrors;
+
+                for (const columnError in columnErrors) {
+                  transformedErrors.push({
+                    type: errorKey,
+                    count: columnErrors[columnError].length,
+                    rows: `${columnError} - ${columnErrors[columnError]}`,
+                  });
+                }
+              } else {
+                transformedErrors.push({
+                  type: errorObj["error_type"]
+                    ? errorObj["error_type"]
+                    : errorKey,
+                  count: errorObj.length,
+                  rows: errorObj,
+                });
+              }
+
+              setErrorCount(
+                mappingsRes.payload.errors[errorKey]["summary"]
+                  ? mappingsRes.payload.errors[errorKey]["summary"][
+                      "error_count"
+                    ]
+                  : errorCount + errorObj.length
+              );
+            }
+            if (errorCount >= csvRows.length) {
+              setErrorCount(csvRows.length - 1);
+            }
+            setErrorList(transformedErrors);
+          }
+          setHasError(true);
+          return;
+        }
+
+        if (mappingsRes.payload.success) {
+          message.success("Enumerators uploaded and mapped successfully.");
+
+          //auto configure columns for users setting personal as non_batch and the rest as batch
+          //use the column mapping to do this
+
+          const customConfig = Object.keys(column_mapping).map((key) => {
+            if (key !== null && key !== "" && key !== undefined) {
+              const personal = personalBatchField.includes(key);
+              const location = locationBatchField.includes(key);
+
+              return {
+                bulk_editable: personal ? false : location ? true : true,
+                column_name: key,
+                column_type: personal
+                  ? "personal_details"
+                  : location
+                  ? "location"
+                  : "custom_fields",
+              };
+            }
+          });
+
+          const filteredCustomConfig = customConfig.filter(
+            (config) => config !== null && config !== undefined
+          );
+
+          console.log("filteredCustomConfig", filteredCustomConfig);
+
+          dispatch(
+            updateEnumeratorColumnConfig({
+              formUID: form_uid,
+              columnConfig: filteredCustomConfig,
+            })
+          );
+
+          console.log(customConfig);
+
+          setHasError(false);
+          //route to manage
+          navigate(
+            `/survey-information/enumerators/manage/${survey_uid}/${form_uid}`
+          );
+        } else {
+          message.error("Failed to upload kindly check and try again");
+          setHasError(true);
+        }
+      } else {
+        message.error(
+          "Kindly check that form_uid is provided in the url to proceed."
+        );
+        setHasError(true);
+      }
+    } catch (error) {
+      console.log("Form validation error:", error);
+
+      const requiredErrors: any = {};
+      const formFields = enumeratorMappingForm.getFieldsValue();
+
+      for (const field in formFields) {
+        const errors = enumeratorMappingForm.getFieldError(field);
+        if (errors && errors.length > 0) {
+          requiredErrors[field] = true;
+        }
+      }
+
+      console.log("Required errors:", requiredErrors);
+    }
+  };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    //TODO: update this for configured surveys already
+    if (csvHeaders.length < 1) {
+      message.error("csvHeaders not found kindly reupload csv file");
+      navigate(
+        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+      );
+    }
+
+    const handleFormUID = async () => {
+      if (form_uid == "" || form_uid == undefined) {
+        try {
+          dispatch(setLoading(true));
+          const sctoForm = await dispatch(
+            getSurveyCTOForm({ survey_uid: survey_uid })
+          );
+          if (sctoForm?.payload[0]?.form_uid) {
+            navigate(
+              `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            );
+          } else {
+            message.error("Kindly configure SCTO Form to proceed");
+            navigate(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            );
+          }
+          dispatch(setLoading(false));
+        } catch (error) {
+          dispatch(setLoading(false));
+          console.log("Error fetching sctoForm:", error);
+        }
+      }
+    };
+
+    handleFormUID();
+    fetchSurveyModuleQuestionnaire();
+  }, []);
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
+      ) {
+        if (
+          moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+            "Location"
+          )
+        ) {
+          setLocationBatchField([...locationBatchField, "location_id_column"]);
+          //fetch location and then set the other fields
+          const locationRes = await dispatch(
+            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+          );
+
+          if (locationRes?.payload.length > 0) {
+            const updatedLocationFieldData = locationRes.payload.map(
+              (location: any) => ({
+                title: location.geo_level_name,
+                key: `${location.geo_level_name.toLowerCase()}_id`,
+              })
+            );
+
+            const updatedLocationFieldKeys = updatedLocationFieldData.map(
+              (locationField: { key: any }) => locationField.key
+            );
+
+            // Update locationBatchField with the new keys
+            setLocationBatchField([
+              ...locationBatchField,
+              ...updatedLocationFieldKeys,
+            ]);
+
+            setLocationDetailsField(updatedLocationFieldData);
+          }
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -162,146 +462,222 @@ function EnumeratorsMap() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> TSDPS </Title>
+        <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
-        <SideMenu />
-        <EnumeratorsMapFormWrapper>
-          {!hasError ? (
-            <>
-              <div>
-                <Title>Enumerators: Map CSV columns</Title>
-                <DescriptionText>
-                  Select corresponding CSV column for the label on the left
-                </DescriptionText>
-              </div>
-              <div>
-                <HeadingText style={{ marginBottom: 22 }}>
-                  Mandatory columns
-                </HeadingText>
-                <HeadingText>Personal Details and contact</HeadingText>
-                {personalDetailsField.map((item, idx) => {
-                  return (
-                    <Row key={idx}>
-                      <Col span={3}>
-                        <p>
-                          <span style={{ color: "red" }}>*</span>{" "}
-                          <OptionText>{item}:</OptionText>
-                        </p>
-                      </Col>
-                      <Col
-                        span={4}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        <Select
-                          style={{ width: 180 }}
-                          placeholder="Choose column"
-                          options={csvHeaderOptions}
-                        />
-                      </Col>
-                      <Col
-                        span={3}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: 30,
-                        }}
-                      >
-                        <Checkbox>Bulk changes</Checkbox>
-                      </Col>
-                    </Row>
-                  );
-                })}
-                <HeadingText>Location Details</HeadingText>
-                {locationDetailsField.map((item, idx) => {
-                  return (
-                    <Row key={idx}>
-                      <Col span={3}>
-                        <p>
-                          <span style={{ color: "red" }}>*</span>{" "}
-                          <OptionText>{item}:</OptionText>
-                        </p>
-                      </Col>
-                      <Col
-                        span={4}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        <Select
-                          style={{ width: 180 }}
-                          placeholder="Choose column"
-                          options={csvHeaderOptions}
-                        />
-                      </Col>
-                      <Col
-                        span={3}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: 30,
-                        }}
-                      >
-                        <Checkbox>Bulk changes</Checkbox>
-                      </Col>
-                    </Row>
-                  );
-                })}
-                <HeadingText>Location ID</HeadingText>
-                <Row>
-                  <Col span={3}>
-                    <p>
-                      <span style={{ color: "red" }}>*</span>{" "}
-                      <OptionText>Prime geo location:</OptionText>
-                    </p>
-                  </Col>
-                  <Col
-                    span={4}
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    <Select
-                      style={{ width: 180 }}
-                      placeholder="Choose column"
-                      options={csvHeaderOptions}
-                    />
-                  </Col>
-                  <Col
-                    span={3}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginLeft: 30,
-                    }}
-                  >
-                    <Checkbox>
-                      <OptionText>Bulk changes</OptionText>
-                    </Checkbox>
-                  </Col>
-                </Row>
-                {customHeader ? (
-                  <>
-                    <HeadingText>Custom columns</HeadingText>
-                    <p
-                      style={{
-                        color: "#434343",
-                        fontFamily: "Inter",
-                        fontSize: 12,
-                        lineHeight: "20px",
-                      }}
-                    >
-                      {extraCSVHeader.length} custom columns found!
-                    </p>
-                    {extraCSVHeader.map((item, idx) => {
+      {isLoading || quesLoading || locLoading ? (
+        <FullScreenLoader />
+      ) : (
+        <div style={{ display: "flex" }}>
+          <SideMenu />
+          <EnumeratorsMapFormWrapper>
+            {!hasError ? (
+              <>
+                <div>
+                  <Title>Enumerators: Map CSV columns</Title>
+                  <DescriptionText>
+                    Select corresponding CSV column for the label on the left
+                  </DescriptionText>
+                </div>
+                <Form form={enumeratorMappingForm}>
+                  <div>
+                    <HeadingText style={{ marginBottom: 22 }}>
+                      Mandatory columns
+                    </HeadingText>
+                    <HeadingText>Personal and contact details</HeadingText>
+                    {personalDetailsField.map((item, idx) => {
                       return (
-                        <Row key={idx}>
-                          <Col span={3}>
-                            <p>
-                              <OptionText>{item}:</OptionText>
-                            </p>
-                          </Col>
-                          <Col
-                            span={4}
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <div>
+                        <Form.Item
+                          label={item.title}
+                          name={item.key}
+                          key={idx}
+                          rules={[
+                            {
+                              required:
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                    "Language"
+                                  )) ||
+                                item.key === "home_address"
+                                  ? false
+                                  : true,
+                              message: "Kindly select column to map value!",
+                            },
+                            {
+                              validator: async (_, value) => {
+                                if (!value) {
+                                  return Promise.resolve(); // No need to check if value is empty
+                                }
+                                const formValues =
+                                  enumeratorMappingForm.getFieldsValue();
+
+                                const valuesArray = Object.values(formValues);
+                                // Count occurrences of the selected value in the valuesArray
+                                const selectedValueCount = valuesArray.filter(
+                                  (val) => val === value
+                                ).length;
+
+                                // Check if the selected value is contained more than once
+                                if (selectedValueCount > 1) {
+                                  return Promise.reject(
+                                    "Column is already mapped. The same column cannot be mapped twice!"
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                          labelCol={{ span: 5 }}
+                          labelAlign="left"
+                        >
+                          <Select
+                            style={{ width: 180 }}
+                            filterOption={true}
+                            placeholder="Choose column"
+                            options={csvHeaderOptions}
+                          />
+                        </Form.Item>
+                      );
+                    })}
+                    {locationDetailsField.length > 0 ? (
+                      <>
+                        <HeadingText>Location Details</HeadingText>
+                        {locationDetailsField.map(
+                          (
+                            item: {
+                              title: any;
+                              key: any;
+                            },
+                            idx: any
+                          ) => {
+                            return (
+                              <Form.Item
+                                label={item.title}
+                                name={item.key}
+                                key={idx}
+                                required
+                                labelCol={{ span: 5 }}
+                                labelAlign="left"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      "Kindly select column to map value!",
+                                  },
+                                  {
+                                    validator: async (_, value) => {
+                                      if (!value) {
+                                        return Promise.resolve(); // No need to check if value is empty
+                                      }
+                                      const formValues =
+                                        enumeratorMappingForm.getFieldsValue();
+
+                                      const valuesArray =
+                                        Object.values(formValues);
+                                      // Count occurrences of the selected value in the valuesArray
+                                      const selectedValueCount =
+                                        valuesArray.filter(
+                                          (val) => val === value
+                                        ).length;
+
+                                      // Check if the selected value is contained more than once
+                                      if (selectedValueCount > 1) {
+                                        return Promise.reject(
+                                          "Column is already mapped. The same column cannot be mapped twice!"
+                                        );
+                                      }
+
+                                      return Promise.resolve();
+                                    },
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  style={{ width: 180 }}
+                                  filterOption={true}
+                                  placeholder="Choose column"
+                                  options={csvHeaderOptions}
+                                />
+                              </Form.Item>
+                            );
+                          }
+                        )}
+                      </>
+                    ) : null}
+                    {locationBatchField.length > 0 ? (
+                      <>
+                        <HeadingText>Location ID</HeadingText>
+
+                        <Form.Item
+                          label="Prime geo location:"
+                          name="location_id_column"
+                          key="location_id_column"
+                          required
+                          labelAlign="left"
+                          labelCol={{ span: 5 }}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Kindly select column to map value!",
+                            },
+                            {
+                              validator: async (_, value) => {
+                                if (!value) {
+                                  return Promise.resolve(); // No need to check if value is empty
+                                }
+                                const formValues =
+                                  enumeratorMappingForm.getFieldsValue();
+
+                                const valuesArray = Object.values(formValues);
+                                // Count occurrences of the selected value in the valuesArray
+                                const selectedValueCount = valuesArray.filter(
+                                  (val) => val === value
+                                ).length;
+
+                                // Check if the selected value is contained more than once
+                                if (selectedValueCount > 1) {
+                                  return Promise.reject(
+                                    "Column is already mapped. The same column cannot be mapped twice!"
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                        >
+                          <Select
+                            style={{ width: 180 }}
+                            filterOption={true}
+                            placeholder="Choose column"
+                            options={csvHeaderOptions}
+                          />
+                        </Form.Item>
+                      </>
+                    ) : null}
+
+                    {customHeader ? (
+                      <>
+                        <HeadingText>Custom columns</HeadingText>
+                        <p
+                          style={{
+                            color: "#434343",
+                            fontFamily: "Inter",
+                            fontSize: 12,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {extraCSVHeader.length} custom columns found!
+                        </p>
+                        {extraCSVHeader.map((item, idx) => {
+                          return (
+                            <Form.Item
+                              label={item}
+                              name={item}
+                              key={idx}
+                              labelCol={{ span: 5 }}
+                              labelAlign="left"
+                            >
                               <Button
                                 icon={
                                   customHeaderSelection[item] !== null &&
@@ -344,129 +720,126 @@ function EnumeratorsMap() {
                               >
                                 Ignore
                               </Button>
-                            </div>
-                          </Col>
-                          <Col
-                            span={3}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginLeft: 30,
-                            }}
-                          >
-                            <Checkbox>
-                              <OptionText>Bulk changes</OptionText>
-                            </Checkbox>
-                          </Col>
-                        </Row>
-                      );
-                    })}
-                  </>
-                ) : (
-                  <>
-                    <HeadingText>
-                      Want to map more columns, which are custom to your survey
-                      and present in the csv? Click on the button below after
-                      mapping the mandatory columns!
-                    </HeadingText>
-                    <Button
-                      type="primary"
-                      icon={<SelectOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                      onClick={() => {
-                        setCustomHeader(true);
-                        // This is temp code to store custom header selection status
-                        const temp: any = {};
-                        extraCSVHeader.forEach((item: string, idx) => {
-                          temp[item] = null;
-                        });
-                        setCustomHeaderSelection(temp);
+                            </Form.Item>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <HeadingText>
+                          Want to map more columns, which are custom to your
+                          survey and present in the csv? Click on the button
+                          below after mapping the mandatory columns!
+                        </HeadingText>
+                        <Button
+                          type="primary"
+                          icon={<SelectOutlined />}
+                          style={{ backgroundColor: "#2f54eB" }}
+                          onClick={() => {
+                            setCustomHeader(true);
+                            // This is temp code to store custom header selection status
+                            const temp: any = {};
+                            extraCSVHeader.forEach((item: string, idx) => {
+                              temp[item] = null;
+                            });
+                            setCustomHeaderSelection(temp);
+                          }}
+                        >
+                          Map custom columns
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Form>
+              </>
+            ) : (
+              <>
+                <div>
+                  <Title>Enumerators</Title>
+                  <br />
+                  <RowCountBox
+                    total={csvRows.length - 1}
+                    correct={
+                      csvRows.length - 1 - errorCount > 0
+                        ? csvRows.length - 1 - errorCount
+                        : 0
+                    }
+                    error={errorCount}
+                    warning={0}
+                  />
+                  <DescriptionContainer>
+                    <ol style={{ paddingLeft: "15px" }}>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>Download</span>: A csv
+                        is ready with all the error rows. Use the button below
+                        to download the csv.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>View errors</span>:
+                        The table below has the list of all the errors and the
+                        corresponding row numbers. The original row numbers are
+                        present as a column in the csv. Use this to edit the
+                        csv.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>
+                          Correct and upload
+                        </span>
+                        : Once you are done with corrections, upload the csv
+                        again.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>Manage</span>: The
+                        final list of enumerators is present in a table and that
+                        can also be downloaded.
+                      </li>
+                    </ol>
+                  </DescriptionContainer>
+                </div>
+                {errorList !== null && (
+                  <div style={{ marginTop: 22 }}>
+                    <p
+                      style={{
+                        fontFamily: "Inter",
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        lineHeight: "22px",
                       }}
                     >
-                      Map custom columns
-                    </Button>
-                  </>
+                      Errors and warnings table
+                    </p>
+                    <Row>
+                      <Col span={23}>
+                        <ErrorTable
+                          dataSource={errorList}
+                          columns={errorTableColumn}
+                          pagination={false}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
                 )}
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <Title>Enumerators</Title>
-                <br />
-                <RowCountBox total={987} correct={858} error={62} warning={0} />
-                <DescriptionContainer>
-                  <ol style={{ paddingLeft: "15px" }}>
-                    <li>
-                      <span style={{ fontWeight: 700 }}>Download</span>: A csv
-                      is ready with all the error rows. Use the button below to
-                      download the csv.
-                    </li>
-                    <li>
-                      <span style={{ fontWeight: 700 }}>View errors</span>: The
-                      table below has the list of all the errors and the
-                      corresponding row numbers. The original row numbers are
-                      present as a column in the csv. Use this to edit the csv.
-                    </li>
-                    <li>
-                      <span style={{ fontWeight: 700 }}>
-                        Correct and upload
-                      </span>
-                      : Once you are done with corrections, upload the csv
-                      again.
-                    </li>
-                    <li>
-                      <span style={{ fontWeight: 700 }}>Manage</span>: The final
-                      list of enumerators is present in a table and that can
-                      also be downloaded.
-                    </li>
-                  </ol>
-                </DescriptionContainer>
-              </div>
-              <div style={{ marginTop: 22 }}>
-                <p
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: "14px",
-                    fontWeight: "700",
-                    lineHeight: "22px",
-                  }}
-                >
-                  Errors and warnings table
-                </p>
-                <Row>
-                  <Col span={23}>
-                    <ErrorTable
-                      dataSource={errorList}
-                      columns={errorTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
-              </div>
-              <div style={{ display: "flex" }}>
-                <Button
-                  type="primary"
-                  icon={<CloudDownloadOutlined />}
-                  style={{ backgroundColor: "#2f54eB" }}
-                >
-                  Download erroneous rows
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<CloudUploadOutlined />}
-                  style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
-                >
-                  Upload CSV again
-                </Button>
-              </div>
-            </>
-          )}
-        </EnumeratorsMapFormWrapper>
-      </div>
+
+                <div style={{ display: "flex" }}>
+                  <Button
+                    onClick={moveToUpload}
+                    type="primary"
+                    icon={<CloudUploadOutlined />}
+                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                  >
+                    Upload CSV again
+                  </Button>
+                </div>
+              </>
+            )}
+          </EnumeratorsMapFormWrapper>
+        </div>
+      )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
-        <ContinueButton>Continue</ContinueButton>
+        <SaveButton disabled>Save</SaveButton>
+        <ContinueButton onClick={handleEnumeratorUploadMapping}>
+          Continue
+        </ContinueButton>
       </FooterWrapper>
     </>
   );

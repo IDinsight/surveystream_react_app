@@ -22,15 +22,23 @@ import {
 import { Menu, MenuProps } from "antd";
 
 import { useEffect, useState } from "react";
+import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { AsyncThunkAction } from "@reduxjs/toolkit";
+import { useAppDispatch } from "../../redux/hooks";
 
 function SideMenu() {
   const location = useLocation();
+  const dispatch = useAppDispatch();
+
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
   const { form_uid } = useParams<{ form_uid?: string }>() ?? {
     form_uid: "",
   };
+
+  const [formUID, setFormUID] = useState<string>();
+
   const isActive = (path: string) => {
     const currentPath = location.pathname;
     return path.includes(currentPath) ? "active" : "";
@@ -200,11 +208,17 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/enumerators/upload/${survey_uid}`) ||
-            isActive(`/survey-information/enumerators/map/${survey_uid}`) ||
-            isActive(`/survey-information/enumerators/manage/${survey_uid}`)
+            isActive(
+              `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
+            ) ||
+            isActive(
+              `/survey-information/enumerators/map/${survey_uid}/${formUID}`
+            ) ||
+            isActive(
+              `/survey-information/enumerators/manage/${survey_uid}/${formUID}`
+            )
           }`}
-          to={`/survey-information/enumerators/upload/${survey_uid}`}
+          to={`/survey-information/enumerators/upload/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <ProfileOutlined />
@@ -218,9 +232,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/enumerators/upload/${survey_uid}`
+                `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/enumerators/upload/${survey_uid}`}
+              to={`/survey-information/enumerators/upload/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <UploadOutlined />
@@ -234,9 +248,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/enumerators/map/${survey_uid}`
+                `/survey-information/enumerators/map/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/enumerators/map/${survey_uid}`}
+              to={`/survey-information/enumerators/map/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <SelectOutlined />
@@ -250,9 +264,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/enumerators/manage/${survey_uid}`
+                `/survey-information/enumerators/manage/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/enumerators/manage/${survey_uid}`}
+              to={`/survey-information/enumerators/manage/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <FormOutlined />
@@ -268,11 +282,17 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/targets/upload/${survey_uid}`) ||
-            isActive(`/survey-information/targets/map/${survey_uid}`) ||
-            isActive(`/survey-information/targets/manage/${survey_uid}`)
+            isActive(
+              `/survey-information/targets/upload/${survey_uid}/${formUID}`
+            ) ||
+            isActive(
+              `/survey-information/targets/map/${survey_uid}/${formUID}`
+            ) ||
+            isActive(
+              `/survey-information/targets/manage/${survey_uid}/${formUID}`
+            )
           }`}
-          to={`/survey-information/targets/upload/${survey_uid}`}
+          to={`/survey-information/targets/upload/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <NumberOutlined />
@@ -286,9 +306,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/targets/upload/${survey_uid}`
+                `/survey-information/targets/upload/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/targets/upload/${survey_uid}`}
+              to={`/survey-information/targets/upload/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <UploadOutlined />
@@ -302,9 +322,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/targets/map/${survey_uid}`
+                `/survey-information/targets/map/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/targets/map/${survey_uid}`}
+              to={`/survey-information/targets/map/${survey_uid}/${formUID}}`}
             >
               <IconWrapper>
                 <SelectOutlined />
@@ -318,9 +338,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/targets/manage/${survey_uid}`
+                `/survey-information/targets/manage/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/targets/manage/${survey_uid}`}
+              to={`/survey-information/targets/manage/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <FormOutlined />
@@ -335,9 +355,9 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to={`/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`}
+          to={`/survey-information/survey-cto-questions/${survey_uid}/${formUID}`}
           className={isActive(
-            `/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`
+            `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
           )}
         >
           <IconWrapper>
@@ -366,7 +386,25 @@ function SideMenu() {
     return "";
   };
 
+  const handleFormUID = async () => {
+    if (form_uid == "" || form_uid == undefined) {
+      try {
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          setFormUID(sctoForm?.payload[0]?.form_uid);
+        }
+      } catch (error) {
+        console.log("Error fetching sctoForm:", error);
+      }
+    } else {
+      setFormUID(form_uid);
+    }
+  };
+
   useEffect(() => {
+    handleFormUID();
     const key: string = getPossibleKey();
     setOpenKeys([key]);
   }, [setOpenKeys]);

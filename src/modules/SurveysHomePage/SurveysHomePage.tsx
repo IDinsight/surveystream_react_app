@@ -43,7 +43,7 @@ function SurveysHomePage() {
       user_uid = profile.payload.user_uid;
     }
 
-    await dispatch(fetchSurveys({ user_uid: user_uid }));
+    await dispatch(fetchSurveys());
   };
 
   useEffect(() => {

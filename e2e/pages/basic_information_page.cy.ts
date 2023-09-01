@@ -14,7 +14,7 @@ class BasicInformationPage {
     endDateInput: () => cy.get("#basic-information-end-date"),
   };
 
-  navigate(url) {
+  navigate(url: string) {
     cy.visit(url);
   }
 
@@ -36,7 +36,7 @@ class BasicInformationPage {
     return this.elements.surveyNameInput();
   }
 
-  enterSurveyName(text) {
+  enterSurveyName(text: string) {
     this.elements.surveyNameInput().first().click().type(text);
   }
 
@@ -44,20 +44,20 @@ class BasicInformationPage {
     return this.elements.surveyIdInput();
   }
 
-  enterSurveyId(text) {
+  enterSurveyId(text: string) {
     this.elements.surveyIdInput().first().click().type(text);
   }
 
   getProjectName() {
     return this.elements.projectNameInput();
   }
-  enterProjectName(text) {
+  enterProjectName(text: string) {
     this.elements.projectNameInput().first().click().type(text);
   }
   getSurveyDescription() {
     return this.elements.surveyDescriptionInput();
   }
-  enterSurveyDescription(text) {
+  enterSurveyDescription(text: string) {
     this.elements.surveyDescriptionInput().first().click().type(text);
   }
   getSurveyMethod() {
