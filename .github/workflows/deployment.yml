@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - dev
-      - SS-*
 
 jobs:
   build-deploy:
-    if: github.event_name == 'push' &&  github.ref == 'refs/heads/dev'
     name: Deploy Callisto Staging
     runs-on: ubuntu-latest
 
