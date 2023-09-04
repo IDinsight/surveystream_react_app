@@ -45,7 +45,7 @@ describe("Surveys page tests", () => {
     cy.url().should("include", "/surveys");
 
     //check that surveys endpoint returns a 200
-    cy.intercept("GET", `${API_BASE}/surveys?user_uid=${userId}`).as(
+    cy.intercept("GET", `${API_BASE}/surveys`).as(
       "surveysRequest"
     );
 
