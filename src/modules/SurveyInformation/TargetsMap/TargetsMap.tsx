@@ -79,6 +79,7 @@ function TargetsMap() {
   const [warningList, setWarningList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
+  const [checkboxValues, setCheckboxValues] = useState<any>();
 
   const [mandatoryDetailsField, setMandatoryDetailsField] = useState<any>([
     { title: "Target ID", key: "target_id" },
@@ -269,49 +270,7 @@ function TargetsMap() {
         if (mappingsRes.payload.success) {
           message.success("Targets uploaded and mapped successfully.");
 
-          //auto configure columns for users setting personal as non_batch and the rest as batch
-          //use the column mapping to do this
-
-          const customConfig = Object.keys(column_mapping).map((key) => {
-            if (key !== null && key !== "" && key !== undefined) {
-              const personal = ["gender", "target_id", "language"].includes(
-                key
-              );
-              const location =
-                locationDetailsField.includes(key) ||
-                ["location_id_column"].includes(key);
-
-              console.log("bottom_geo_level_location", key, personal, location);
-
-              return {
-                bulk_editable: personal ? false : location ? true : true,
-                column_name:
-                  key == "location_id_column"
-                    ? "bottom_geo_level_location"
-                    : key,
-                column_type: personal
-                  ? "basic_details"
-                  : location
-                  ? "location"
-                  : "custom_field",
-              };
-            }
-          });
-
-          const filteredCustomConfig = customConfig.filter(
-            (config) => config !== null && config !== undefined
-          );
-
-          console.log("filteredCustomConfig", filteredCustomConfig);
-
-          dispatch(
-            updateTargetsColumnConfig({
-              formUID: form_uid,
-              columnConfig: filteredCustomConfig,
-            })
-          );
-
-          console.log(customConfig);
+          handleTargetColumnConfig(form_uid, column_mapping);
 
           setHasError(false);
           //route to manage
@@ -343,6 +302,95 @@ function TargetsMap() {
 
       console.log("Required errors:", requiredErrors);
     }
+  };
+
+  const handleCheckboxChange = (name: any) => {
+    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+      ...prevValues,
+      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+    }));
+  };
+
+  const handleTargetColumnConfig = async (
+    formUID: any,
+    column_mapping: any
+  ) => {
+    //auto configure columns for users setting personal as non_batch and the rest as batch
+    //use the column mapping to do this
+
+    const customConfig = Object.keys(column_mapping).map((key) => {
+      if (key !== null && key !== "" && key !== undefined) {
+        const personal = ["target_id"].includes(key);
+        const custom = ["gender", "language"].includes(key);
+
+        const location =
+          locationDetailsField.includes(key) ||
+          ["location_id_column"].includes(key);
+
+        console.log("bottom_geo_level_location", key, personal, location);
+
+        if (key === "custom_fields") {
+          //loop through the custom fields checking for pii
+          const customFields: any = column_mapping[key];
+
+          const fieldsConfig = Object.keys(customFields).map((customKey) => {
+            const bulk = checkboxValues?.[`${customKey}_bulk`]
+              ? checkboxValues?.[`${customKey}_bulk`]
+              : true;
+            const pii = checkboxValues?.[`${customKey}_pii`]
+              ? checkboxValues?.[`${customKey}_pii`]
+              : true;
+
+            return {
+              bulk_editable: bulk,
+              column_name: customKey,
+              column_type: "custom_field",
+              contains_pii: pii,
+            };
+          });
+
+          console.log("fieldsConfig", fieldsConfig);
+        }
+
+        return {
+          bulk_editable: personal
+            ? false
+            : location
+            ? true
+            : custom
+            ? true
+            : true,
+          column_name:
+            key == "location_id_column" ? "bottom_geo_level_location" : key,
+          column_type:
+            personal || custom
+              ? "basic_details"
+              : location
+              ? "location"
+              : "custom_field",
+          contains_pii: true, //TODO: fix
+        };
+      }
+    });
+
+    //TODO: check for custom fields : fix
+    const filteredCustomConfig = customConfig.filter(
+      (config: any) =>
+        config != null &&
+        config !== undefined &&
+        config.column_name !== `custom_fields`
+    );
+
+    console.log("filteredCustomConfig", filteredCustomConfig);
+
+    dispatch(
+      updateTargetsColumnConfig({
+        formUID: formUID,
+        columnConfig: filteredCustomConfig,
+      })
+    );
+
+    console.log(customConfig);
   };
 
   const fetchSurveyModuleQuestionnaire = async () => {
@@ -412,7 +460,6 @@ function TargetsMap() {
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
     if (csvHeaders.length < 1) {
       message.error("csvHeaders not found kindly reupload csv file");
       navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
@@ -661,6 +708,78 @@ function TargetsMap() {
                               >
                                 Ignore
                               </Button>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_mandatory`}
+                                      checked={
+                                        checkboxValues?.[`${item}_mandatory`]
+                                          ? checkboxValues?.[
+                                              `${item}_mandatory`
+                                            ]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(
+                                          `${item}_mandatory`
+                                        )
+                                      }
+                                    >
+                                      Is mandatory?
+                                    </Checkbox>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_bulk`}
+                                      checked={
+                                        checkboxValues?.[`${item}_bulk`]
+                                          ? checkboxValues?.[`${item}_bulk`]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}_bulk`)
+                                      }
+                                    >
+                                      Bulk edit?
+                                    </Checkbox>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_pii`}
+                                      checked={
+                                        checkboxValues?.[`${item}_pii`]
+                                          ? checkboxValues?.[`${item}_pii`]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}_pii`)
+                                      }
+                                    >
+                                      PII?
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
                             </Form.Item>
                           );
                         })}
