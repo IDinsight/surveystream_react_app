@@ -10,6 +10,7 @@ import surveyCTOInformationReducer from "./surveyCTOInformation/surveyCTOInforma
 import surveyCTOQuestionsReducer from "./surveyCTOQuestions/surveyCTOQuestionsSlice";
 import surveyLocationsReducer from "./surveyLocations/surveyLocationsSlice";
 import enumeratorsReducer from "./enumerators/enumeratorsSlice";
+import targetsReducer from "./targets/targetSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   surveyCTOQuestions: surveyCTOQuestionsReducer,
   surveyLocations: surveyLocationsReducer,
   enumerators: enumeratorsReducer,
+  targets: targetsReducer,
 });
 
 export default rootReducer;

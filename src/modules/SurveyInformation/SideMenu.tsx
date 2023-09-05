@@ -324,7 +324,7 @@ function SideMenu() {
               className={isActive(
                 `/survey-information/targets/map/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/targets/map/${survey_uid}/${formUID}}`}
+              to={`/survey-information/targets/map/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <SelectOutlined />
