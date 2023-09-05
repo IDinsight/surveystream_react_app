@@ -115,7 +115,7 @@ function TargetsManage() {
   };
 
   const handleFormUID = async () => {
-    if (form_uid == "" || form_uid == undefined) {
+    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
       try {
         dispatch(setLoading(true));
         const sctoForm = await dispatch(
