@@ -14,6 +14,7 @@ import {
   getTargetsColumnConfigSuccess,
   getTargetsFailure,
   getTargetsRequest,
+  getTargetsSuccess,
   postTargetsMappingFailure,
   postTargetsMappingRequest,
   postTargetsMappingSuccess,
@@ -80,7 +81,7 @@ export const getTargets = createAsyncThunk(
       dispatch(getTargetsRequest());
       const response: any = await api.fetchTargets(formUID);
       if (response.status == 200) {
-        dispatch(getTargetsRequest(response.data));
+        dispatch(getTargetsSuccess(response.data));
         return { ...response, success: true };
       }
 
