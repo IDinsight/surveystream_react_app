@@ -182,7 +182,7 @@ export const bulkUpdateTargets = createAsyncThunk(
       formUID,
       patchKeys,
     }: {
-      targetsUIDs: string[];
+      targetsUIDs: any[];
       formUID: string;
       patchKeys: any;
     },
