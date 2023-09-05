@@ -34,7 +34,7 @@ export const fetchTargets = async (formUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    let url = `${API_BASE_URL}/targets?form_uid=${formUID}`;
+    const url = `${API_BASE_URL}/targets?form_uid=${formUID}`;
 
     const res = await axios.get(url, {
       headers: {
