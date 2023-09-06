@@ -88,6 +88,28 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const handleCheckboxChange = (cardId: string) => {
     setSelectedCards((prevSelectedCards: string[]) => {
       if (prevSelectedCards.includes(cardId)) {
+        // Check if deselected module status is "Not Started"
+        const deselecting_module = modulesStatus.filter((item) => {
+          return item.module_id === parseInt(cardId);
+        });
+        if (deselecting_module[0].config_status !== "Not Started") {
+          message.error(
+            'Only modules with "Not Started" status can be deselected.'
+          );
+          return [...prevSelectedCards];
+        }
+
+        // Check if all modules status is not "Done"
+        const overall_status = modulesStatus.every((item: any) => {
+          return item["config_status"] === "Done";
+        });
+        if (overall_status) {
+          message.error(
+            "Module can't be deselect as all module status has been done."
+          );
+          return [...prevSelectedCards];
+        }
+
         return prevSelectedCards.filter((id) => id !== cardId);
       } else {
         return [...prevSelectedCards, cardId];
