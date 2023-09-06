@@ -169,7 +169,19 @@ function EnumeratorsUpload() {
                 }}
               >
                 <ProfileOutlined style={{ fontSize: "24px" }} />
-                <IconText>csv template</IconText>
+                <IconText
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    window.open(
+                      "https://docs.google.com/spreadsheets/d/1vkvS-r9etZCb5L0Uazr_rO6sE_ZOpVIyYynreiG8Ko8/edit?usp=sharing",
+                      "__blank"
+                    )
+                  }
+                >
+                  csv template
+                </IconText>
               </div>
               <div
                 style={{
@@ -180,7 +192,19 @@ function EnumeratorsUpload() {
                 }}
               >
                 <ProfileOutlined style={{ fontSize: "24px" }} />
-                <IconText>Filled csv sample</IconText>
+                <IconText
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    window.open(
+                      "https://docs.google.com/spreadsheets/d/1-Xuod1xh_hOkovuvIli6wnmR5P7dV7s7Agd46aVaYrE/edit?usp=sharing",
+                      "__blank"
+                    )
+                  }
+                >
+                  Filled csv sample
+                </IconText>
               </div>
             </div>
             <DescriptionContainer>

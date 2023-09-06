@@ -164,7 +164,19 @@ function TargetsUpload() {
                     }}
                   >
                     <ProfileOutlined style={{ fontSize: "24px" }} />
-                    <IconText>csv template</IconText>
+                    <IconText
+                      style={{
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        window.open(
+                          "https://docs.google.com/spreadsheets/d/1SI1LH7zwgYQCeSItbwqJ4vc1QB7vHZ_4S5wbG4f-AGg",
+                          "__blank"
+                        )
+                      }
+                    >
+                      csv template
+                    </IconText>
                   </div>
                   <div
                     style={{
@@ -175,7 +187,19 @@ function TargetsUpload() {
                     }}
                   >
                     <ProfileOutlined style={{ fontSize: "24px" }} />
-                    <IconText>Filled csv sample</IconText>
+                    <IconText
+                      style={{
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        window.open(
+                          "https://docs.google.com/spreadsheets/d/1Le7nQSu3SFME-kJqW-8FP15GVQDyfIhYtq53z4LOcOs",
+                          "__blank"
+                        )
+                      }
+                    >
+                      Filled csv sample
+                    </IconText>
                   </div>
                 </div>
                 <DescriptionContainer>
