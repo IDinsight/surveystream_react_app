@@ -175,7 +175,7 @@ function EnumeratorsUpload() {
                   }}
                   onClick={() =>
                     window.open(
-                      "https://docs.google.com/spreadsheets/d/1vkvS-r9etZCb5L0Uazr_rO6sE_ZOpVIyYynreiG8Ko8/edit?usp=sharing",
+                      "https://docs.google.com/spreadsheets/d/1vkvS-r9etZCb5L0Uazr_rO6sE_ZOpVIyYynreiG8Ko8",
                       "__blank"
                     )
                   }
@@ -198,7 +198,7 @@ function EnumeratorsUpload() {
                   }}
                   onClick={() =>
                     window.open(
-                      "https://docs.google.com/spreadsheets/d/1-Xuod1xh_hOkovuvIli6wnmR5P7dV7s7Agd46aVaYrE/edit?usp=sharing",
+                      "https://docs.google.com/spreadsheets/d/1-Xuod1xh_hOkovuvIli6wnmR5P7dV7s7Agd46aVaYrE",
                       "__blank"
                     )
                   }
