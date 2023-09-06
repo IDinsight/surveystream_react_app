@@ -382,6 +382,7 @@ function SideMenu() {
       return "surveyFieldSupervisorRoles";
     if (path.includes("location/")) return "surveyLocation";
     if (path.includes("enumerators/")) return "surveyEnumerators";
+    if (path.includes("targets/")) return "surveyTargets";
 
     return "";
   };
