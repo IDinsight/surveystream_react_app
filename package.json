@@ -65,6 +65,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "cypress": "^12.16.0",
