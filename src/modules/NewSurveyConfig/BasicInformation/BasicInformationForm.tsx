@@ -176,6 +176,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               >
                 <Select.Option value="in-person">In-person</Select.Option>
                 <Select.Option value="phone">Phone</Select.Option>
+                <Select.Option value="mixed-mode">Mixed Mode</Select.Option>
               </Select>
             </StyledFormItem>
 
