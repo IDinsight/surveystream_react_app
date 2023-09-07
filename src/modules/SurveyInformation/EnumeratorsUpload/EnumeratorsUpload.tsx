@@ -222,7 +222,10 @@ function EnumeratorsUpload() {
                     <li>Mobile (primary)</li>
                     <li>Gender</li>
                     <li>Enumerator type</li>
-                    <li>Location ID</li>
+                    <li>
+                      Prime-Geo Location ID (If location is selected as a mapping
+                      criterion).
+                    </li>
                     <li>
                       Prime-Geo Location (If location is selected as a mapping
                       criterion).
