@@ -33,8 +33,8 @@ import {
   Title,
 } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
-import { Header } from "antd/es/layout/layout";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import Header from "../../../components/Header";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
