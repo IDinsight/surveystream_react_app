@@ -153,6 +153,9 @@ function EnumeratorsManage() {
           : { formUID: form_uid }
       )
     );
+
+    console.log("getEnumeratorsList", enumeratorRes);
+
     if (enumeratorRes.payload.status == 200) {
       message.success("Enumerators loaded successfully.");
       //create rowbox data
@@ -199,6 +202,8 @@ function EnumeratorsManage() {
         "enumerator_uid",
         "surveyor_status",
         "monitor_status",
+        "surveyor_locations",
+        "monitor_locations",
       ];
 
       // Define column mappings

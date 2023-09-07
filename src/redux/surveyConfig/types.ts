@@ -1,4 +1,5 @@
 export type SurveyBasicInformationData = {
+  prime_geo_level_uid?: string;
   survey_id: string;
   survey_name: string;
   project_name: string;
@@ -11,7 +12,8 @@ export type SurveyBasicInformationData = {
   state: string;
   created_by_user_uid: number;
   [key: string]: any; // Index signature allowing any string key
-};
+}
+
 
 export type SurveyModuleQuestionnaireData = {
   survey_uid?: number;

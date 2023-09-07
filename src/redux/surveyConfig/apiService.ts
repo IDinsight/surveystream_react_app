@@ -93,7 +93,7 @@ export const fetchSurveysConfig = async (survey_uid?: string) => {
 };
 
 export const updateSurveyBasicInformation = async (
-  formData: SurveyBasicInformationData,
+  formData: any,
   survey_uid: string
 ) => {
   try {

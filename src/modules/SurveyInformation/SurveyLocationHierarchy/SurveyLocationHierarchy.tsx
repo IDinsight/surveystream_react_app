@@ -32,6 +32,11 @@ import {
   setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import {
+  getSurveyBasicInformation,
+  updateBasicInformation,
+} from "../../../redux/surveyConfig/surveyConfigActions";
+import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -42,6 +47,9 @@ function SurveyLocationHierarchy() {
     survey_uid: "",
   };
   const [loading, setLoading] = useState(false);
+  const [surveyBasicInformation, setSurveyBasicInformation] = useState({});
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
 
   const handleGoBack = () => {
     navigate(-1);
@@ -62,9 +70,56 @@ function SurveyLocationHierarchy() {
     }
   };
 
-  useEffect(() => {
-    fetchSurveyLocationGeoLevels();
+  const fetchSurveyBasicInformation = async () => {
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      setSurveyBasicInformation(surveyBasicInformationRes.payload);
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        console.log(
+          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+      }
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+  };
 
+  const updateSurveyPrimeGeoLocation = async (
+    survey_uid: string,
+    prime_geo_location: string
+  ) => {
+    if (surveyBasicInformation) {
+      const basicInformation: any = {
+        ...surveyBasicInformation,
+        prime_geo_level_uid: prime_geo_location,
+      };
+
+      const updateRes = await dispatch(
+        updateBasicInformation({
+          basicInformationData: basicInformation,
+          surveyUid: survey_uid,
+        })
+      );
+
+      if (updateRes?.payload) {
+        message.success("Updated the survey prime geo location");
+      } else {
+        message.error("Failed to updated the survey prime geo location");
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchSurveyBasicInformation();
+    fetchSurveyLocationGeoLevels();
     return () => {
       dispatch(resetSurveyLocations());
     };
@@ -182,9 +237,15 @@ function SurveyLocationHierarchy() {
     dispatch(setSurveyLocationGeoLevels(updatedLevels));
   };
 
+  const handlePrimeSelectChange = (value: any) => {
+    setSurveyPrimeGeoLocation(value);
+  };
+
   const handleHierarchyContinue = async () => {
     try {
       if (survey_uid != undefined) {
+        console.log("survey_uid", survey_uid);
+
         setLoading(true);
 
         await form.validateFields();
@@ -198,14 +259,22 @@ function SurveyLocationHierarchy() {
           })
         );
 
+        console.log("geoLevelsRes", geoLevelsRes);
+
         if (geoLevelsRes.payload.status === false) {
           message.error(geoLevelsRes.payload.message);
           return;
         } else {
           message.success("Survey GeoLevels updated successfully.");
-        }
+          if (
+            surveyPrimeGeoLocation !== null &&
+            surveyPrimeGeoLocation !== "no_location"
+          ) {
+            updateSurveyPrimeGeoLocation(survey_uid, surveyPrimeGeoLocation);
+          }
 
-        navigate(`/survey-information/location/upload/${survey_uid}`);
+          navigate(`/survey-information/location/upload/${survey_uid}`);
+        }
       } else {
         message.error(
           "Kindly check that survey_uid is provided in the url to proceed."
@@ -248,7 +317,11 @@ function SurveyLocationHierarchy() {
             <div style={{ marginTop: "20px" }}>
               <DescriptionText>Select the prime geo location</DescriptionText>
               <StyledFormItem name={`prime_geo_level`} style={{ width: "40%" }}>
-                <Select defaultValue="no_location">
+                <Select
+                  defaultValue={surveyPrimeGeoLocation}
+                  value={surveyPrimeGeoLocation}
+                  onChange={handlePrimeSelectChange}
+                >
                   <Select.Option value="no_location">
                     No location mapping
                   </Select.Option>

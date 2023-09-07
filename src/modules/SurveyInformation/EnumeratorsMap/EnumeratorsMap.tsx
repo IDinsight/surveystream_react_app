@@ -417,40 +417,11 @@ function EnumeratorsMap() {
         getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
       );
       if (
-        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
+        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+          "Location"
+        )
       ) {
-        if (
-          moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
-            "Location"
-          )
-        ) {
-          setLocationBatchField([...locationBatchField, "location_id_column"]);
-          //fetch location and then set the other fields
-          const locationRes = await dispatch(
-            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
-          );
-
-          if (locationRes?.payload.length > 0) {
-            const updatedLocationFieldData = locationRes.payload.map(
-              (location: any) => ({
-                title: location.geo_level_name,
-                key: `${location.geo_level_name.toLowerCase()}_id`,
-              })
-            );
-
-            const updatedLocationFieldKeys = updatedLocationFieldData.map(
-              (locationField: { key: any }) => locationField.key
-            );
-
-            // Update locationBatchField with the new keys
-            setLocationBatchField([
-              ...locationBatchField,
-              ...updatedLocationFieldKeys,
-            ]);
-
-            setLocationDetailsField(updatedLocationFieldData);
-          }
-        }
+        setLocationBatchField([...locationBatchField, "location_id_column"]);
       }
     }
   };
@@ -825,7 +796,7 @@ function EnumeratorsMap() {
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                    style={{ backgroundColor: "#2f54eB" }}
                   >
                     Upload CSV again
                   </Button>
