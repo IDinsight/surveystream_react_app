@@ -109,7 +109,6 @@ const surveyConfigSlice = createSlice({
     },
     putSurveyBasicInformationFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.basicInfo = null;
       state.error = action.payload;
     },
     postSurveyBasicInformationRequest: (state) => {
@@ -123,7 +122,6 @@ const surveyConfigSlice = createSlice({
     },
     postSurveyBasicInformationFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.basicInfo = null;
       state.error = action.payload;
     },
   },
