@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { InboxOutlined } from "@ant-design/icons";
 import { message, Upload } from "antd";
+import { Buffer } from "buffer";
 const { Dragger } = Upload;
 
 interface IFileUpload {
@@ -48,7 +49,7 @@ function FileUpload({
       reader.onload = () => {
         const csvData = reader.result as string;
         const encodedData = csvData.split(",")[1]; // Extract the base64 data
-        const decodedData = atob(encodedData); // Decode the base64 data
+        const decodedData = Buffer.from(encodedData, "base64").toString(); // Decode the base64 data
         const rows = decodedData.split("\n");
         const columnNames = rows[0]
           .split(",")
