@@ -243,7 +243,7 @@ export const updateBasicInformation = createAsyncThunk(
     {
       basicInformationData,
       surveyUid,
-    }: { basicInformationData: SurveyBasicInformationData; surveyUid: string },
+    }: { basicInformationData: any; surveyUid: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
