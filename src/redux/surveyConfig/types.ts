@@ -12,8 +12,7 @@ export type SurveyBasicInformationData = {
   state: string;
   created_by_user_uid: number;
   [key: string]: any; // Index signature allowing any string key
-}
-
+};
 
 export type SurveyModuleQuestionnaireData = {
   survey_uid?: number;
