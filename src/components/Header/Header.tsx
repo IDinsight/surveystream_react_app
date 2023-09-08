@@ -81,7 +81,12 @@ function Header({ items }: { items?: any }) {
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
         <Link to={userProfile?.user_uid ? "/surveys" : "/"}>
-          <img className="pr-2" src={Logo} alt="SurveyStream Logo" />
+          <img
+            className="pr-2"
+            style={{ margin: "0 1.5rem" }}
+            src={Logo}
+            alt="SurveyStream Logo"
+          />
         </Link>
       </div>
       {items ? <NavItems /> : null}
