@@ -1,7 +1,3 @@
-interface ValidationResult {
-  isValid: boolean;
-  inValidData: string[];
-}
 import CSVFileValidator, {
   FieldSchema,
   ValidatorConfig,
@@ -12,6 +8,11 @@ interface ErrorSummary {
   type: string;
   count: number;
   message: string[];
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  inValidData: string[];
 }
 
 const csvValidationRules: FieldSchema[] = [];
