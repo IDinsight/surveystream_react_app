@@ -1,10 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { CloseCircleOutlined, InboxOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
-import CSVFileValidator, {
-  FieldSchema,
-  ValidatorConfig,
-} from "csv-file-validator";
+import { FieldSchema } from "csv-file-validator";
 
 import { Buffer } from "buffer";
 import {
@@ -103,6 +100,24 @@ function FileUpload({
         return false;
       }
     }
+
+    reader.onload = () => {
+      const csvData = reader.result as string;
+      const encodedData = csvData.split(",")[1]; // Extract the base64 data
+      const decodedData = Buffer.from(encodedData, "base64").toString(); // Decode the base64 data
+      const rows = decodedData.split("\n");
+      const columnNames = rows[0]
+        .split(",")
+        .map((columnName) => columnName.trim()); // Trim the column names
+
+      setTimeout(() => {
+        onFileUpload(file, columnNames, rows, encodedData);
+        onSuccess("ok", new XMLHttpRequest());
+        message.success(`${file.name} file uploaded successfully.`);
+        setUploadStatus(true);
+      }, 1000);
+    };
+    reader.readAsDataURL(file); // Use the 'file' object directly
   };
 
   const handleDrop = (e: React.DragEvent) => {
