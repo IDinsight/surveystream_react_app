@@ -116,6 +116,8 @@ export const validateCSVData = async (file: File) => {
   const text = await readFileAsText(file);
   const lines = text.split("\n");
   const headers = lines[0].split(",");
+  const emptyRows: number[] = [];
+  const emptyColumns: string[] = [];
 
   const headerResults = validateHeaders(headers);
   if (headerResults.length > 0) {
@@ -132,6 +134,21 @@ export const validateCSVData = async (file: File) => {
     ]);
   }
 
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === "") {
+      emptyRows.push(i + 1); // Adding 1 to convert to 1-based index
+    } else {
+      const columns = line.split(",");
+      for (let j = 0; j < columns.length; j++) {
+        const column = columns[j];
+        if (column.trim() === "") {
+          emptyColumns.push(headers[j]);
+        }
+      }
+    }
+  }
+
   // Implement this to cover all fields
   const validationConfig: ValidatorConfig = {
     headers: csvValidationRules,
@@ -141,6 +158,23 @@ export const validateCSVData = async (file: File) => {
 
   try {
     const validationResults = await CSVFileValidator(file, validationConfig);
+    if (emptyRows.length > 0 || emptyColumns.length > 0) {
+      const validationErrors: string[] = [];
+
+      if (emptyRows.length > 0) {
+        validationErrors.push(
+          `Empty rows found at row(s): ${emptyRows.join(", ")}`
+        );
+      }
+
+      if (emptyColumns.length > 0) {
+        validationErrors.push(
+          `Empty columns found in column(s): ${emptyColumns.join(", ")}`
+        );
+      }
+
+      return displayValidationErrors(validationErrors);
+    }
 
     return validationResults;
   } catch (error: any) {
