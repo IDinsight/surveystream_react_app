@@ -81,7 +81,7 @@ function EnumeratorsMap() {
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
   const [locationBatchField, setLocationBatchField] = useState<any>([]);
-  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [extraCSVHeader, setExtraCSVHeader] = useState<any>([]);
 
   const dispatch = useAppDispatch();
 
@@ -182,15 +182,6 @@ function EnumeratorsMap() {
     "gender",
     "language",
   ];
-
-  const keysToExclude = [
-    ...personalDetailsField.map((item) => item.key),
-    ...locationDetailsField.map((item: { key: any }) => item.key),
-  ];
-
-  const extraCSVHeader = csvHeaders.filter(
-    (item) => !keysToExclude.includes(item)
-  );
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
@@ -371,45 +362,40 @@ function EnumeratorsMap() {
       console.log("Required errors:", requiredErrors);
     }
   };
-
-  useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    if (csvHeaders.length < 1) {
-      message.error("csvHeaders not found kindly reupload csv file");
-      navigate(
-        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
-      );
-    }
-
-    const handleFormUID = async () => {
-      if (form_uid == "" || form_uid == undefined) {
-        try {
-          dispatch(setLoading(true));
-          const sctoForm = await dispatch(
-            getSurveyCTOForm({ survey_uid: survey_uid })
+  const handleFormUID = async () => {
+    if (form_uid == "" || form_uid == undefined) {
+      try {
+        dispatch(setLoading(true));
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
           );
-          if (sctoForm?.payload[0]?.form_uid) {
-            navigate(
-              `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
-            );
-          } else {
-            message.error("Kindly configure SCTO Form to proceed");
-            navigate(
-              `/survey-information/survey-cto-information/${survey_uid}`
-            );
-          }
-          dispatch(setLoading(false));
-        } catch (error) {
-          dispatch(setLoading(false));
-          console.log("Error fetching sctoForm:", error);
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
+        dispatch(setLoading(false));
+      } catch (error) {
+        dispatch(setLoading(false));
+        console.log("Error fetching sctoForm:", error);
       }
-    };
+    }
+  };
 
-    handleFormUID();
-    fetchSurveyModuleQuestionnaire();
-  }, []);
+  const updateCustomColumns = (value: string) => {
+    const formValues = enumeratorMappingForm.getFieldsValue();
+
+    const valuesArray = Object.values(formValues);
+
+    const extraHeaders = csvHeaders.filter((item: any) => {
+      return !valuesArray.includes(item);
+    });
+
+    setExtraCSVHeader(extraHeaders);
+  };
 
   const fetchSurveyModuleQuestionnaire = async () => {
     if (survey_uid) {
@@ -425,6 +411,26 @@ function EnumeratorsMap() {
       }
     }
   };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    if (csvHeaders.length < 1) {
+      message.error("csvHeaders not found kindly reupload csv file");
+      navigate(
+        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+      );
+    }
+
+    const keysToExclude = [...personalDetailsField.map((item) => item.key)];
+
+    const extraHeaders = csvHeaders.filter(
+      (item) => !keysToExclude.includes(item)
+    );
+
+    setExtraCSVHeader(extraHeaders);
+    handleFormUID();
+    fetchSurveyModuleQuestionnaire();
+  }, []);
 
   return (
     <>
@@ -502,6 +508,7 @@ function EnumeratorsMap() {
                           labelAlign="left"
                         >
                           <Select
+                            onChange={updateCustomColumns}
                             style={{ width: 180 }}
                             filterOption={true}
                             placeholder="Choose column"
@@ -510,71 +517,6 @@ function EnumeratorsMap() {
                         </Form.Item>
                       );
                     })}
-                    {locationDetailsField.length > 0 ? (
-                      <>
-                        <HeadingText>Location Details</HeadingText>
-                        {locationDetailsField.map(
-                          (
-                            item: {
-                              title: any;
-                              key: any;
-                            },
-                            idx: any
-                          ) => {
-                            return (
-                              <Form.Item
-                                label={item.title}
-                                name={item.key}
-                                key={idx}
-                                required
-                                labelCol={{ span: 5 }}
-                                labelAlign="left"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message:
-                                      "Kindly select column to map value!",
-                                  },
-                                  {
-                                    validator: async (_, value) => {
-                                      if (!value) {
-                                        return Promise.resolve(); // No need to check if value is empty
-                                      }
-                                      const formValues =
-                                        enumeratorMappingForm.getFieldsValue();
-
-                                      const valuesArray =
-                                        Object.values(formValues);
-                                      // Count occurrences of the selected value in the valuesArray
-                                      const selectedValueCount =
-                                        valuesArray.filter(
-                                          (val) => val === value
-                                        ).length;
-
-                                      // Check if the selected value is contained more than once
-                                      if (selectedValueCount > 1) {
-                                        return Promise.reject(
-                                          "Column is already mapped. The same column cannot be mapped twice!"
-                                        );
-                                      }
-
-                                      return Promise.resolve();
-                                    },
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  style={{ width: 180 }}
-                                  filterOption={true}
-                                  placeholder="Choose column"
-                                  options={csvHeaderOptions}
-                                />
-                              </Form.Item>
-                            );
-                          }
-                        )}
-                      </>
-                    ) : null}
                     {locationBatchField.length > 0 ? (
                       <>
                         <HeadingText>Location ID</HeadingText>
@@ -618,6 +560,7 @@ function EnumeratorsMap() {
                           ]}
                         >
                           <Select
+                            onChange={updateCustomColumns}
                             style={{ width: 180 }}
                             filterOption={true}
                             placeholder="Choose column"
@@ -640,7 +583,7 @@ function EnumeratorsMap() {
                         >
                           {extraCSVHeader.length} custom columns found!
                         </p>
-                        {extraCSVHeader.map((item, idx) => {
+                        {extraCSVHeader.map((item: any, idx: any) => {
                           return (
                             <Form.Item
                               label={item}
@@ -710,7 +653,7 @@ function EnumeratorsMap() {
                             setCustomHeader(true);
                             // This is temp code to store custom header selection status
                             const temp: any = {};
-                            extraCSVHeader.forEach((item: string, idx) => {
+                            extraCSVHeader.forEach((item: string, idx: any) => {
                               temp[item] = null;
                             });
                             setCustomHeaderSelection(temp);
