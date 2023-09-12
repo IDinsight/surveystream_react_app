@@ -41,6 +41,7 @@ function FieldSupervisorRolesAdd() {
   const [numRoleFields, setNumRoleFields] = useState(
     supervisorRoles.length !== 0 ? supervisorRoles.length : 1
   );
+  const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ function FieldSupervisorRolesAdd() {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
     setNumRoleFields(res.payload.length === 0 ? 1 : res.payload.length);
     if (res.payload.length > 0) {
+      setIsAllowEdit(false);
       form.setFieldValue("role_0", res.payload[0].role_name);
     }
   };
@@ -109,7 +111,11 @@ function FieldSupervisorRolesAdd() {
             },
           ]}
         >
-          <Input placeholder="Enter role name" style={{ width: "100%" }} />
+          <Input
+            placeholder="Enter role name"
+            style={{ width: "100%" }}
+            disabled={!isAllowedEdit}
+          />
         </StyledFormItem>
       );
     });
@@ -231,6 +237,7 @@ function FieldSupervisorRolesAdd() {
                 onClick={handleAddRole}
                 type="dashed"
                 style={{ width: "100%" }}
+                disabled={!isAllowedEdit}
               >
                 <FileAddOutlined /> Add another role
               </AddAnotherButton>
