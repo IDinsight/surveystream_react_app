@@ -163,13 +163,13 @@ export const validateCSVData = async (file: File) => {
 
       if (emptyRows.length > 0) {
         validationErrors.push(
-          `Empty rows found at row(s): ${emptyRows.join(", ")}`
+          `Empty fields found at row(s): ${emptyRows.join(", ")}`
         );
       }
 
       if (emptyColumns.length > 0) {
         validationErrors.push(
-          `Empty columns found in column(s): ${emptyColumns.join(", ")}`
+          `Empty fields found in column(s): ${emptyColumns.join(", ")}`
         );
       }
 

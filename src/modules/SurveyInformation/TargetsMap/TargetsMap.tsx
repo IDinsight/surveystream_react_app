@@ -80,6 +80,7 @@ function TargetsMap() {
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
   const [checkboxValues, setCheckboxValues] = useState<any>();
+  const [extraCSVHeader, setExtraCSVHeader] = useState<any>();
 
   const [mandatoryDetailsField, setMandatoryDetailsField] = useState<any>([
     { title: "Target ID", key: "target_id" },
@@ -153,15 +154,6 @@ function TargetsMap() {
       key: "rows",
     },
   ];
-
-  const keysToExclude = [
-    ...mandatoryDetailsField.map((item: { key: any }) => item.key),
-    ...locationDetailsField.map((item: { key: any }) => item.key),
-  ];
-
-  const extraCSVHeader = csvHeaders.filter(
-    (item) => !keysToExclude.includes(item)
-  );
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
@@ -458,6 +450,41 @@ function TargetsMap() {
     navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
   };
 
+  const updateCustomColumns = (value: string) => {
+    const formValues = targetMappingForm.getFieldsValue();
+
+    const valuesArray = Object.values(formValues);
+
+    const extraHeaders = csvHeaders.filter((item: any) => {
+      return !valuesArray.includes(item);
+    });
+
+    setExtraCSVHeader(extraHeaders);
+  };
+
+  const handleFormUID = async () => {
+    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
+      try {
+        dispatch(setLoading(true));
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/survey-information/targets/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+          );
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        }
+        dispatch(setLoading(false));
+      } catch (error) {
+        dispatch(setLoading(false));
+        console.log("Error fetching sctoForm:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
     if (csvHeaders.length < 1) {
@@ -465,30 +492,16 @@ function TargetsMap() {
       navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
     }
 
-    const handleFormUID = async () => {
-      if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
-        try {
-          dispatch(setLoading(true));
-          const sctoForm = await dispatch(
-            getSurveyCTOForm({ survey_uid: survey_uid })
-          );
-          if (sctoForm?.payload[0]?.form_uid) {
-            navigate(
-              `/survey-information/targets/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
-            );
-          } else {
-            message.error("Kindly configure SCTO Form to proceed");
-            navigate(
-              `/survey-information/survey-cto-information/${survey_uid}`
-            );
-          }
-          dispatch(setLoading(false));
-        } catch (error) {
-          dispatch(setLoading(false));
-          console.log("Error fetching sctoForm:", error);
-        }
-      }
-    };
+    const keysToExclude = [
+      ...mandatoryDetailsField.map((item: { key: any }) => item.key),
+      ...locationDetailsField.map((item: { key: any }) => item.key),
+    ];
+
+    const extraHeaders = csvHeaders.filter(
+      (item) => !keysToExclude.includes(item)
+    );
+
+    setExtraCSVHeader(extraHeaders);
 
     handleFormUID();
     fetchSurveyModuleQuestionnaire();
@@ -570,6 +583,7 @@ function TargetsMap() {
                           labelAlign="left"
                         >
                           <Select
+                            onChange={updateCustomColumns}
                             style={{ width: 180 }}
                             filterOption={true}
                             placeholder="Choose column"
@@ -632,6 +646,7 @@ function TargetsMap() {
                                 ]}
                               >
                                 <Select
+                                  onChange={updateCustomColumns}
                                   style={{ width: 180 }}
                                   filterOption={true}
                                   placeholder="Choose column"
@@ -657,7 +672,7 @@ function TargetsMap() {
                         >
                           {extraCSVHeader.length} custom columns found!
                         </p>
-                        {extraCSVHeader.map((item, idx) => {
+                        {extraCSVHeader.map((item: any, idx: any) => {
                           return (
                             <Form.Item
                               label={item}
@@ -799,7 +814,7 @@ function TargetsMap() {
                             setCustomHeader(true);
                             // This is temp code to store custom header selection status
                             const temp: any = {};
-                            extraCSVHeader.forEach((item: string, idx) => {
+                            extraCSVHeader.forEach((item: string, idx: any) => {
                               temp[item] = null;
                             });
                             setCustomHeaderSelection(temp);
