@@ -144,6 +144,10 @@ function TargetsManage() {
       const originalData = targetRes.payload.data.data;
       setTargetsCount(originalData.length);
 
+      if (originalData.length == 0) {
+        return;
+      }
+
       const columnsToExclude = ["target_uid", "target_locations"];
 
       // Define column mappings
