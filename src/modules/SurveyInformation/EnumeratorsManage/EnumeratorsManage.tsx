@@ -161,6 +161,10 @@ function EnumeratorsManage() {
       //create rowbox data
       const originalData = enumeratorRes.payload.data.data;
 
+      if (originalData.length == 0) {
+        return;
+      }
+
       // Initialize counters
       let activeCount = 0;
       let inactiveCount = 0;

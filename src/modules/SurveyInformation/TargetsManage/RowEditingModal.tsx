@@ -63,10 +63,7 @@ function RowEditingModal({
     //validate form
     const values = await editForm.validateFields();
 
-    console.log("values", values);
-
     const updateData = await editForm.getFieldsValue();
-    console.log("updateData", updateData);
 
     const originalData = data;
 

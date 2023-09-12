@@ -145,7 +145,13 @@ function RowEditingModal({
     }
   };
 
-  const fieldsToExclude = ["status", "custom_fields", "enumerator_uid"]; //always exclude these
+  const fieldsToExclude = [
+    "status",
+    "custom_fields",
+    "enumerator_uid",
+    "monitor_locations",
+    "surveyor_locations",
+  ]; //always exclude these
 
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
     //more than one record so editing in bulk
