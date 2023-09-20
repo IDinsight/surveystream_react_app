@@ -61,6 +61,9 @@ function SurveyLocationAdd() {
   const [numLocationFields, setNumLocationFields] = useState(
     surveyLocationGeoLevels.length !== 0 ? surveyLocationGeoLevels.length : 1
   );
+
+  const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
+
   const handleFormValuesChange = async () => {
     const formValues = form.getFieldsValue();
 
@@ -85,6 +88,7 @@ function SurveyLocationAdd() {
       );
       setNumLocationFields(res.payload.length === 0 ? 1 : res.payload.length);
       if (res.payload.length > 0) {
+        setIsAllowEdit(false);
         form.setFieldValue("geo_level_0", res.payload[0].geo_level_name);
       }
     }
@@ -130,7 +134,11 @@ function SurveyLocationAdd() {
             },
           ]}
         >
-          <Input placeholder="Enter location label" style={{ width: "100%" }} />
+          <Input
+            placeholder="Enter location label"
+            style={{ width: "100%" }}
+            disabled={!isAllowedEdit}
+          />
         </StyledFormItem>
       );
     });
@@ -267,6 +275,7 @@ function SurveyLocationAdd() {
                     onClick={handleAddGeoLevel}
                     type="dashed"
                     style={{ width: "100%" }}
+                    disabled={!isAllowedEdit}
                   >
                     <FileAddOutlined /> Add another location
                   </AddAnotherButton>
