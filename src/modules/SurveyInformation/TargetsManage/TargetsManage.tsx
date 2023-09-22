@@ -151,17 +151,35 @@ function TargetsManage() {
       const columnsToExclude = ["target_uid", "target_locations"];
 
       // Define column mappings
-      const columnMappings = Object.keys(originalData[0])
+      let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
           originalData.some(
-            (row: { [x: string]: null }) => row[column] !== null
+            (row: any) => row[column] !== null && column !== "custom_fields"
           )
-        ) // Filter out columns with all null values
+        )
         .map((column) => ({
           title: column,
           dataIndex: column,
-        }));
+        })); // Filter out columns with all null values
+
+      const customFieldsSet = new Set(); // Create a set to track unique custom fields
+      const customFields = originalData.reduce((acc: any, row: any) => {
+        if (row.custom_fields && typeof row.custom_fields === "object") {
+          for (const key in row.custom_fields) {
+            if (row.custom_fields[key] !== null && !customFieldsSet.has(key)) {
+              customFieldsSet.add(key); // Add the custom field to the set
+              acc.push({
+                title: key,
+                dataIndex: `custom_fields.${key}`,
+              });
+            }
+          }
+        }
+        return acc;
+      }, []);
+
+      columnMappings = columnMappings.concat(customFields);
 
       setDataTableColumn(columnMappings);
 
@@ -170,7 +188,21 @@ function TargetsManage() {
 
         for (const mapping of columnMappings) {
           const { title, dataIndex } = mapping;
-          rowData[dataIndex] = item[dataIndex];
+
+          // Check if the mapping is for custom_fields
+          if (dataIndex.startsWith("custom_fields.")) {
+            const customFieldKey = dataIndex.split(".")[1];
+            if (
+              item.custom_fields &&
+              item.custom_fields[customFieldKey] !== null
+            ) {
+              rowData[dataIndex] = item.custom_fields[customFieldKey];
+            } else {
+              rowData[dataIndex] = null;
+            }
+          } else {
+            rowData[dataIndex] = item[dataIndex];
+          }
         }
 
         return {
