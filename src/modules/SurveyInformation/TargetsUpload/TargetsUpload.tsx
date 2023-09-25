@@ -167,7 +167,7 @@ function TargetsUpload() {
                     }}
                     onClick={() =>
                       window.open(
-                        "https://docs.google.com/spreadsheets/d/1SI1LH7zwgYQCeSItbwqJ4vc1QB7vHZ_4S5wbG4f-AGg",
+                        "https://drive.google.com/drive/folders/1MJzj2z3d2xIxJekONuyOpkQnkdBorfXP?usp=sharing",
                         "__blank"
                       )
                     }
@@ -190,7 +190,7 @@ function TargetsUpload() {
                     }}
                     onClick={() =>
                       window.open(
-                        "https://docs.google.com/spreadsheets/d/1Le7nQSu3SFME-kJqW-8FP15GVQDyfIhYtq53z4LOcOs",
+                        "https://drive.google.com/drive/folders/1MJzj2z3d2xIxJekONuyOpkQnkdBorfXP?usp=sharing",
                         "__blank"
                       )
                     }
