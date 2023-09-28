@@ -84,17 +84,32 @@ function TargetsManage() {
       return;
     }
     setEditData(true);
-
     // Setting the fields to show on Modal
     const fields = Object.keys({ ...selectedRows[0] })
       .filter((field) => field !== "key")
-      .map((field) => {
+      .map((field: any) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            console.log("selectedRows[0][field]", selectedRows[0][field]);
+            const customFields = selectedRows[0][field];
+
+            return Object.keys(customFields).map((key) => ({
+              labelKey: key,
+              label: `custom_fields.${key}`,
+            }));
+          }
+        }
+
         return {
           labelKey: field,
           label: dataTableColumn.find((col: any) => col.dataIndex === field)
             ?.title,
         };
-      });
+      })
+      .flat();
 
     setFieldData(fields);
   };
@@ -161,6 +176,8 @@ function TargetsManage() {
         .map((column) => ({
           title: column,
           dataIndex: column,
+          width: 90,
+          ellipsis: true,
         })); // Filter out columns with all null values
 
       const customFieldsSet = new Set(); // Create a set to track unique custom fields
@@ -172,6 +189,8 @@ function TargetsManage() {
               acc.push({
                 title: key,
                 dataIndex: `custom_fields.${key}`,
+                width: 90,
+                ellipsis: true,
               });
             }
           }
