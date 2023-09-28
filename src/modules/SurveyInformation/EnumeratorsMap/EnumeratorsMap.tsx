@@ -199,13 +199,17 @@ function EnumeratorsMap() {
       setErrorCount(0);
       const values = await enumeratorMappingForm.validateFields();
       const column_mapping = enumeratorMappingForm.getFieldsValue();
-      column_mapping.custom_fields = {};
+      column_mapping.custom_fields = [];
       if (customHeaderSelection) {
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
           if (shouldInclude) {
-            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+            // Set the column_type to "custom_fields"
+            column_mapping.custom_fields.push({
+              column_name: column_name,
+              field_label: column_name,
+            });
           }
         }
       }
