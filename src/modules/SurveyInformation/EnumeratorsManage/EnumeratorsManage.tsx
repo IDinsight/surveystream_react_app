@@ -12,7 +12,11 @@ import {
   EnumeratorsManageFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsManage.styled";
-import { CloudUploadOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  CloudDownloadOutlined,
+  CloudUploadOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import EnumeratorsCountBox from "../../../components/EnumeratorsCountBox";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
@@ -22,6 +26,7 @@ import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getEnumerators } from "../../../redux/enumerators/enumeratorsActions";
+import { useCSVDownloader } from "react-papaparse";
 
 function EnumeratorsManage() {
   const navigate = useNavigate();
@@ -29,6 +34,8 @@ function EnumeratorsManage() {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -356,6 +363,25 @@ function EnumeratorsManage() {
                 >
                   Add new enumerators
                 </Button>
+              </div>
+              <div style={{ marginLeft: "auto", marginRight: 80 }}>
+                <CSVDownloader
+                  data={tableDataSource}
+                  filename={"enumerators.csv"}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#2F54EB",
+                    color: "#FFF",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+                  Download Enumerators
+                </CSVDownloader>
               </div>
             </div>
             <br />
