@@ -1,28 +1,64 @@
 version: '2.1'
 services:
-    client:
+  postgres:
+    image: postgres:15.3 
+    restart: always
+    environment:
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=asdf
+      - POSTGRES_DB=surveystream
+
+    volumes:
+      - ../surveystream_flask_api/tests/unit/data/launch_local_db/data:/docker-entrypoint-initdb.d/data
+      - ../surveystream_flask_api/scripts/postgres:/docker-entrypoint-initdb.d/
+    ports:
+      - "5433:5433"
+    command:
+      -p 5433
+  api:
+    image: ${BACKEND_NAME}:${VERSION}
+    environment:
+      - CONFIG_TYPE=app.config.E2ETestConfig
+      - PYTHONUNBUFFERED=0
+      - AWS_REGION=ap-south-1
+      - ADMIN_ACCOUNT=${ADMIN_ACCOUNT}
+    ports:
+      - "5001:5001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["api", "deploy"]
+  client:
       image: ${FRONTEND_NAME}:${VERSION}
       ports:
         - "3000:80"
+      depends_on:
+        api:
+          condition: service_healthy
       restart: always
       extra_hosts:
-          - "host.docker.internal:host-gateway"
-    cypress:
+        - "host.docker.internal:host-gateway"
+  cypress:
       image: cypress/included:12.17.0
-      build: ./e2e
+      build: ../e2e
       container_name: cypress
       depends_on:
-        - client
+        api:
+          condition: service_healthy
+      links:
+        - api
       environment:
-      - CYPRESS_baseUrl=http://host.docker.internal:3000
-        CYPRESS_VIDEO=false
+      - CYPRESS_baseUrl=http://client
+    
       command: 
       - |
-        npm install typescript
         npx cypress run
       volumes:
       - ../e2e/integration:/cypress/e2e
       - ../e2e/support:/cypress/support
+      - ../e2e/pages:/cypress/pages
+      - ../e2e/screenshots:/cypress/screenshots
       - ../e2e/cypress.config.ts:/cypress.config.js
+      - ../e2e/tsconfig.json:/tsconfig.json
+      - ../e2e/cypress.env.json:/cypress.env.json
       extra_hosts:
-          - "host.docker.internal:host-gateway"
+        - "host.docker.internal:host-gateway"

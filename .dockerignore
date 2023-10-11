@@ -21,3 +21,4 @@ coverage
 # Ignore other files and directories
 .DS_Store
 Thumbs.db
+surveystream_flask_api
