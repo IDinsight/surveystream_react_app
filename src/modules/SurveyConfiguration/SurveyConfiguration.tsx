@@ -219,7 +219,14 @@ const SurveyConfiguration: React.FC = () => {
         </BackLink>
         <Title>
           Survey configuration
-          {activeSurvey?.survey_name ? ` : ${activeSurvey?.survey_name}` : ""}
+          {(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return ` : ${
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
+              ""
+            }`;
+          })()}
         </Title>
       </NavWrapper>
       {isLoading ? (

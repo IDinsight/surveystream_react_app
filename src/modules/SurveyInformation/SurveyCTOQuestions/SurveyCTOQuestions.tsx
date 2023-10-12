@@ -101,7 +101,11 @@ function SurveyCTOQuestions() {
       if (refresh) {
         await dispatch(getCTOFormQuestions({ formUid: form_uid }));
       }
-      console.log("questionsRes", questionsRes);
+      if (questionsRes.payload == null) {
+        message.error(
+          `Could not find SCTO form questions, kindly check the information provided and try again.`
+        );
+      }
     } else {
       message.error(
         "Kindly check if the form_uid is provided on the url to proceed."
@@ -113,8 +117,13 @@ function SurveyCTOQuestions() {
   const loadFormMappings = async () => {
     if (form_uid != undefined) {
       const res = await dispatch(getSCTOFormMapping({ formUid: form_uid }));
-      const formData = res.payload;
+      const formData: any = res.payload;
       console.log("res", formData);
+      if (formData?.error) {
+        message.error(
+          `${formData?.error} kindly click load questions from SCTO to retry.`
+        );
+      }
       await setSurveySCTOQuestionsData(formData);
     } else {
       message.error(
@@ -289,7 +298,16 @@ function SurveyCTOQuestions() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> {activeSurvey?.survey_name} </Title>
+        <Title>
+          {(() => {
+            const activeSurveyData = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              ""
+            );
+          })()}
+        </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
         <SideMenu />

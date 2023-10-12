@@ -111,14 +111,22 @@ function SurveysHomePage() {
                     <div key={survey.survey_uid}>
                       <div className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
                         <Link
-                          onClick={() =>
+                          onClick={() => {
                             dispatch(
                               setActiveSurvey({
                                 survey_uid: survey.survey_uid,
                                 survey_name: survey.survey_name,
                               })
-                            )
-                          }
+                            );
+
+                            localStorage.setItem(
+                              "activeSurvey",
+                              JSON.stringify({
+                                survey_uid: survey.survey_uid,
+                                survey_name: survey.survey_name,
+                              })
+                            );
+                          }}
                           to={`/survey-configuration/${survey.survey_uid.toString()}`}
                           className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
                         >

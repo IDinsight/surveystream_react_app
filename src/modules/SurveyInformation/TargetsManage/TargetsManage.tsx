@@ -24,6 +24,7 @@ import { RootState } from "../../../redux/store";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { getTargets } from "../../../redux/targets/targetActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { useCSVDownloader } from "react-papaparse";
 
 function TargetsManage() {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ function TargetsManage() {
   const handleGoBack = () => {
     navigate(-1);
   };
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -252,7 +254,16 @@ function TargetsManage() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> {activeSurvey?.survey_name} </Title>
+        <Title>
+          {(() => {
+            const activeSurveyData = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              ""
+            );
+          })()}
+        </Title>
       </NavWrapper>
       {isLoading ? (
         <FullScreenLoader />
@@ -302,13 +313,23 @@ function TargetsManage() {
             <div style={{ display: "flex" }}>
               <TargetsCountBox total={targetsCount} />
               <div style={{ marginLeft: "auto", marginRight: 80 }}>
-                <Button
-                  type="primary"
-                  icon={<CloudDownloadOutlined />}
-                  style={{ backgroundColor: "#2f54eB" }}
+                <CSVDownloader
+                  data={tableDataSource}
+                  filename={"targets.csv"}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#2F54EB",
+                    color: "#FFF",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                  }}
                 >
-                  Download targets
-                </Button>
+                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+                  Download Targets
+                </CSVDownloader>
               </div>
             </div>
             <TargetsTable
