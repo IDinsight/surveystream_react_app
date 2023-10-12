@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const SideMenuWrapper = styled.div`
   background-color: #f5f5f5;
   width: 250px;
-  height: 120vh;
+  min-height: 120vh;
   padding: 1rem;
   padding-top: 20px;
   display: flex;
