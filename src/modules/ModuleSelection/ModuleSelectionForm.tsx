@@ -175,7 +175,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     <>
       <MainWrapper
         style={{
-          width: "70%",
+          width: "calc(100% - 368px)",
           minHeight: "75vh",
           float: "right",
           display: "inline-block",
