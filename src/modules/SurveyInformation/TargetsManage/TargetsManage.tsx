@@ -24,6 +24,7 @@ import { RootState } from "../../../redux/store";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { getTargets } from "../../../redux/targets/targetActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { useCSVDownloader } from "react-papaparse";
 
 function TargetsManage() {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ function TargetsManage() {
   const handleGoBack = () => {
     navigate(-1);
   };
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -84,17 +86,32 @@ function TargetsManage() {
       return;
     }
     setEditData(true);
-
     // Setting the fields to show on Modal
     const fields = Object.keys({ ...selectedRows[0] })
       .filter((field) => field !== "key")
-      .map((field) => {
+      .map((field: any) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            console.log("selectedRows[0][field]", selectedRows[0][field]);
+            const customFields = selectedRows[0][field];
+
+            return Object.keys(customFields).map((key) => ({
+              labelKey: key,
+              label: `custom_fields.${key}`,
+            }));
+          }
+        }
+
         return {
           labelKey: field,
           label: dataTableColumn.find((col: any) => col.dataIndex === field)
             ?.title,
         };
-      });
+      })
+      .flat();
 
     setFieldData(fields);
   };
@@ -151,17 +168,39 @@ function TargetsManage() {
       const columnsToExclude = ["target_uid", "target_locations"];
 
       // Define column mappings
-      const columnMappings = Object.keys(originalData[0])
+      let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
           originalData.some(
-            (row: { [x: string]: null }) => row[column] !== null
+            (row: any) => row[column] !== null && column !== "custom_fields"
           )
-        ) // Filter out columns with all null values
+        )
         .map((column) => ({
           title: column,
           dataIndex: column,
-        }));
+          width: 90,
+          ellipsis: true,
+        })); // Filter out columns with all null values
+
+      const customFieldsSet = new Set(); // Create a set to track unique custom fields
+      const customFields = originalData.reduce((acc: any, row: any) => {
+        if (row.custom_fields && typeof row.custom_fields === "object") {
+          for (const key in row.custom_fields) {
+            if (row.custom_fields[key] !== null && !customFieldsSet.has(key)) {
+              customFieldsSet.add(key); // Add the custom field to the set
+              acc.push({
+                title: key,
+                dataIndex: `custom_fields.${key}`,
+                width: 90,
+                ellipsis: true,
+              });
+            }
+          }
+        }
+        return acc;
+      }, []);
+
+      columnMappings = columnMappings.concat(customFields);
 
       setDataTableColumn(columnMappings);
 
@@ -170,7 +209,21 @@ function TargetsManage() {
 
         for (const mapping of columnMappings) {
           const { title, dataIndex } = mapping;
-          rowData[dataIndex] = item[dataIndex];
+
+          // Check if the mapping is for custom_fields
+          if (dataIndex.startsWith("custom_fields.")) {
+            const customFieldKey = dataIndex.split(".")[1];
+            if (
+              item.custom_fields &&
+              item.custom_fields[customFieldKey] !== null
+            ) {
+              rowData[dataIndex] = item.custom_fields[customFieldKey];
+            } else {
+              rowData[dataIndex] = null;
+            }
+          } else {
+            rowData[dataIndex] = item[dataIndex];
+          }
         }
 
         return {
@@ -201,7 +254,16 @@ function TargetsManage() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> {activeSurvey?.survey_name} </Title>
+        <Title>
+          {(() => {
+            const activeSurveyData = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              ""
+            );
+          })()}
+        </Title>
       </NavWrapper>
       {isLoading ? (
         <FullScreenLoader />
@@ -251,13 +313,23 @@ function TargetsManage() {
             <div style={{ display: "flex" }}>
               <TargetsCountBox total={targetsCount} />
               <div style={{ marginLeft: "auto", marginRight: 80 }}>
-                <Button
-                  type="primary"
-                  icon={<CloudDownloadOutlined />}
-                  style={{ backgroundColor: "#2f54eB" }}
+                <CSVDownloader
+                  data={tableDataSource}
+                  filename={"targets.csv"}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#2F54EB",
+                    color: "#FFF",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                  }}
                 >
-                  Download targets
-                </Button>
+                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+                  Download Targets
+                </CSVDownloader>
               </div>
             </div>
             <TargetsTable

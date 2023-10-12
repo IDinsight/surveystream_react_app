@@ -12,7 +12,11 @@ import {
   EnumeratorsManageFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsManage.styled";
-import { CloudUploadOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  CloudDownloadOutlined,
+  CloudUploadOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import EnumeratorsCountBox from "../../../components/EnumeratorsCountBox";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
@@ -22,6 +26,7 @@ import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getEnumerators } from "../../../redux/enumerators/enumeratorsActions";
+import { useCSVDownloader } from "react-papaparse";
 
 function EnumeratorsManage() {
   const navigate = useNavigate();
@@ -29,6 +34,8 @@ function EnumeratorsManage() {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -92,13 +99,28 @@ function EnumeratorsManage() {
     // Setting the fields to show on Modal
     const fields = Object.keys({ ...selectedRows[0] })
       .filter((field) => field !== "key")
-      .map((field) => {
+      .map((field: any) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            const customFields = selectedRows[0][field];
+
+            return Object.keys(customFields).map((key) => ({
+              labelKey: key,
+              label: `custom_fields.${key}`,
+            }));
+          }
+        }
+
         return {
           labelKey: field,
           label: dataTableColumn.find((col: any) => col.dataIndex === field)
             ?.title,
         };
-      });
+      })
+      .flat();
 
     setFieldData(fields);
   };
@@ -211,26 +233,62 @@ function EnumeratorsManage() {
       ];
 
       // Define column mappings
-      const columnMappings = Object.keys(dataWithStatus[0])
+      let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
-          dataWithStatus.some(
-            (row: { [x: string]: null }) => row[column] !== null
+          originalData.some(
+            (row: any) => row[column] !== null && column !== "custom_fields"
           )
-        ) // Filter out columns with all null values
+        )
         .map((column) => ({
           title: column,
           dataIndex: column,
-        }));
+          width: 90,
+          ellipsis: true,
+        })); // Filter out columns with all null values
+
+      const customFieldsSet = new Set(); // Create a set to track unique custom fields
+      const customFields = originalData.reduce((acc: any, row: any) => {
+        if (row.custom_fields && typeof row.custom_fields === "object") {
+          for (const key in row.custom_fields) {
+            if (row.custom_fields[key] !== null && !customFieldsSet.has(key)) {
+              customFieldsSet.add(key); // Add the custom field to the set
+              acc.push({
+                title: key,
+                dataIndex: `custom_fields.${key}`,
+                width: 90,
+                ellipsis: true,
+              });
+            }
+          }
+        }
+        return acc;
+      }, []);
+
+      columnMappings = columnMappings.concat(customFields);
 
       setDataTableColumn(columnMappings);
 
-      const tableDataSource = dataWithStatus.map((item: any, index: any) => {
+      const tableDataSource = originalData.map((item: any, index: any) => {
         const rowData: Record<string, any> = {}; // Use index signature
 
         for (const mapping of columnMappings) {
           const { title, dataIndex } = mapping;
-          rowData[dataIndex] = item[dataIndex];
+
+          // Check if the mapping is for custom_fields
+          if (dataIndex.startsWith("custom_fields.")) {
+            const customFieldKey = dataIndex.split(".")[1];
+            if (
+              item.custom_fields &&
+              item.custom_fields[customFieldKey] !== null
+            ) {
+              rowData[dataIndex] = item.custom_fields[customFieldKey];
+            } else {
+              rowData[dataIndex] = null;
+            }
+          } else {
+            rowData[dataIndex] = item[dataIndex];
+          }
         }
 
         return {
@@ -261,7 +319,16 @@ function EnumeratorsManage() {
         <BackLink onClick={handleGoBack}>
           <BackArrow />
         </BackLink>
-        <Title> {activeSurvey?.survey_name} </Title>
+        <Title>
+          {(() => {
+            const activeSurveyData = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              ""
+            );
+          })()}
+        </Title>
       </NavWrapper>
       {isLoading ? (
         <FullScreenLoader />
@@ -305,6 +372,25 @@ function EnumeratorsManage() {
                 >
                   Add new enumerators
                 </Button>
+              </div>
+              <div style={{ marginLeft: "auto", marginRight: 80 }}>
+                <CSVDownloader
+                  data={tableDataSource}
+                  filename={"enumerators.csv"}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#2F54EB",
+                    color: "#FFF",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+                  Download Enumerators
+                </CSVDownloader>
               </div>
             </div>
             <br />

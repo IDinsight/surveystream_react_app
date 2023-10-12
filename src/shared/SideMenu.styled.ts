@@ -83,17 +83,14 @@ export const IconWrapper = styled.div`
 export const InfoIcon = styled(InfoCircleOutlined)`
   width: 1.5rem;
   height: 1.5rem;
-  margin-top: 0.5rem;
 `;
 
 export const QuestionIcon = styled(QuestionCircleOutlined)`
   width: 1.5rem;
   height: 1.5rem;
-  margin-top: 0.5rem;
 `;
 
 export const ListIcon = styled(UnorderedListOutlined)`
   width: 1.5rem;
   height: 1.5rem;
-  margin-top: 0.5rem;
 `;

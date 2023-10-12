@@ -25,6 +25,7 @@
     "pbkdf2": "^3.1.2",
     "pg": "^8.11.3",
     "react": "^18.2.0",
+    "react-csv": "^2.2.2",
     "react-dom": "^18.2.0",
     "react-ga4": "^1.4.1",
     "react-papaparse": "^4.1.0",
@@ -68,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/pg": "^8.10.3",
+    "@types/react-csv": "^1.1.6",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "cypress": "^12.17.4",
