@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="21.714" tests="2" failures="0">
+  <testsuite name="Root Suite" timestamp="2023-09-19T11:17:31" tests="0" file="e2e/integration/surveys_page_spec.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Surveys page tests" timestamp="2023-09-19T11:17:31" tests="2" time="21.692" failures="0">
+    <testcase name="Surveys page tests Checking page load for logged out users" time="2.494" classname="Checking page load for logged out users">
+    </testcase>
+    <testcase name="Surveys page tests Checking page load for logged in users" time="18.934" classname="Checking page load for logged in users">
+    </testcase>
+  </testsuite>
+</testsuites>
