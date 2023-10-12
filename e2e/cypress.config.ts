@@ -42,33 +42,7 @@ module.exports = defineConfig({
   e2e: {
     specPattern: '/cypress/e2e',
     baseUrl: 'http://host.docker.internal:3000', // this works for docker container testing
-    setupNodeEvents(on, config) {
-      on('task', {
-        async connectDB(){
-          const client = new Client(config.env.db)
-          await client.connect()
-          const valid_test_email = config.env.user.TEST_USER_EMAIL;
-          const valid_test_password = config.env.user.TEST_USER_PASSWORD;
-          
-          var algorithm = 'pbkdf2-sha256';
-          var iterations = 29000;
-          var salt = "WitFCKH03htDKAVA6L3Xmg";
-          const hash = crypto.pbkdf2Sync(valid_test_password, salt, iterations, 32, 'sha256');;
-          var valid_test_password_hash = `$${algorithm}$${iterations}$${salt}$${hash.toString('base64')}`;
-          
-          // const valid_test_password_hash = pbkdf2.pbkdf2Sync(valid_test_password, 'sha256')
-          // console.log(valid_test_password_hash)
-          console.log("valid_test_password_hash");
-          console.log(valid_test_password_hash);
-          let userId = config.env.user.TEST_USER_ID;
-          var query = "UPDATE webapp.users SET email=$1, password_secure=$2 WHERE user_uid=$3";
-          var values = [valid_test_email, valid_test_password_hash, userId];
-          const res = await client.query(query, values);
-          await client.end()
-          return "finished updating user"
-        }
-      });
-  },
+  
   },
 });
 
