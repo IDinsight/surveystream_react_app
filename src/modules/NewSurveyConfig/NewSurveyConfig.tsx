@@ -322,7 +322,14 @@ function NewSurveyConfig() {
         </BackLink>
         <Title>
           New survey config
-          {activeSurvey?.survey_name ? ` : ${activeSurvey?.survey_name}` : ""}
+          {(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return ` : ${
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
+              ""
+            }`;
+          })()}
         </Title>
       </NavWrapper>
       <div style={{ display: "flex" }}>
