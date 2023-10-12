@@ -33,13 +33,41 @@ services:
     # Here we reference the application container that we are testing
     # You can test multiple containers at a time, simply duplicate this section
     # and customize it for each container, and give it a unique IP in 'credentials_network'.
-    client:
-        depends_on:
-            - ecs-local-endpoints
+    postgres:
         networks:
             credentials_network:
-                ipv4_address: "169.254.170.5"
+                ipv4_address: "169.254.170.3"
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "surveystream" , "-p", "5433"]
+            timeout: 5s
+            retries: 5
+            start_period: 5s
+
+    api:
+        depends_on:
+            postgres:
+                condition: service_healthy
+        healthcheck:
+            test: wget --no-verbose -O /dev/null --tries=1 http://api:5001/api/healthcheck || exit 1
+            timeout: 10s
+            start_period: 20s
+        networks:
+            credentials_network:
+                ipv4_address: "169.254.170.4"
         environment:
           AWS_DEFAULT_REGION: "ap-south-1"
           AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/role/web-task-role"
-    
+    client:
+        depends_on:
+            api:
+                condition: service_healthy
+        networks:
+            credentials_network:
+                ipv4_address: "169.254.170.5"
+    cypress:
+        depends_on:
+            api:
+                condition: service_healthy
+        networks:
+            credentials_network:
+                ipv4_address: "169.254.170.6"
