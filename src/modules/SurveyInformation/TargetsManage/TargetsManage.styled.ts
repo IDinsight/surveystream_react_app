@@ -12,8 +12,6 @@ export const TargetsManageFormWrapper = styled.div`
 `;
 
 export const TargetsTable = styled(Table)`
-  overflow: auto;
-  width: 90%;
   & th {
     color: #434343 !important;
     background-color: #feffe6 !important;

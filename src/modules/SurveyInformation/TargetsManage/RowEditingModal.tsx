@@ -82,15 +82,6 @@ function RowEditingModal({
         formUID,
         patchKeys,
       };
-
-      for (const key in patchKeys) {
-        if (key.startsWith("custom_fields.")) {
-          const fieldName = key.split("custom_fields.")[1];
-          patchKeys[fieldName] = patchKeys[key];
-          delete patchKeys[key];
-        }
-      }
-
       console.log("requestData", requestData);
       const batchRes = await dispatch(
         bulkUpdateTargets({ targetsUIDs, formUID, patchKeys })
@@ -122,30 +113,12 @@ function RowEditingModal({
           ...originalData[indexToUpdate],
           ...updateData,
         };
-        // Extract the custom fields from the updatedRow
-        const { custom_fields, ...rest } = updatedRow;
 
-        const removedCustomFields: any = {};
-        for (const key in rest) {
-          if (key.startsWith("custom_fields.")) {
-            const fieldName = key.split("custom_fields.")[1];
-            removedCustomFields[fieldName] = rest[key];
-            delete rest[key];
-          }
-        }
-
-        // Update the custom_fields object within the main object with the removed values
-        rest.custom_fields = {
-          ...custom_fields,
-          ...removedCustomFields,
-        };
-
-        // Update the originalData array with the modified main object
-        originalData[indexToUpdate] = rest;
+        // Update the originalData array with the new object
+        originalData[indexToUpdate] = updatedRow;
       }
 
       const targetData = { ...originalData[0] };
-
       const updateRes = await dispatch(updateTarget({ targetUID, targetData }));
       if (updateRes?.payload?.status === 200) {
         message.success("Target record updated successfully");
@@ -159,6 +132,7 @@ function RowEditingModal({
   };
 
   const fieldsToExclude = [
+    "custom_fields",
     "target_uid",
     "completed_flag",
     "form_uid",
@@ -180,6 +154,7 @@ function RowEditingModal({
     );
     if (configRes.payload.status == 200) {
       const configData = configRes.payload?.data?.data;
+
       if (configData) {
         const editableFields = configData
           .filter((field: ConfigField) => field.bulk_editable)
@@ -191,17 +166,10 @@ function RowEditingModal({
           .filter((field: ConfigField) => !field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        //remove fields not defined on the custom config
-        fields.forEach((field: Field) => {
-          if (
-            !editableFields.includes(field.labelKey) &&
-            !nonEditableFields.includes(field.labelKey)
-          ) {
-            bulkFieldsToExclude.push(field.labelKey);
-          }
+        setBulkFieldsToExclude({
+          ...bulkFieldsToExclude,
+          ...nonEditableFields,
         });
-
-        setBulkFieldsToExclude([...bulkFieldsToExclude, ...nonEditableFields]);
       }
     }
     return;
@@ -224,6 +192,7 @@ function RowEditingModal({
           !fieldsToExclude.includes(field.labelKey)
       );
 
+      //include if a field is contracting
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
       );
@@ -235,19 +204,10 @@ function RowEditingModal({
 
     const initialData: DataItem = [];
 
-    filteredFields.forEach((field: Field) => {
-      if (field.label.startsWith("custom_fields")) {
-        initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-
-        const label = field?.label;
-        const _field: any = {};
-        _field[label] = initialData[field.label];
-
-        editForm.setFieldsValue({ ..._field });
-      } else {
-        initialData[field.labelKey] = data[0][field.labelKey];
-      }
+    filteredFields.forEach((field) => {
+      initialData[field.labelKey] = data[0][field.labelKey];
     });
+
     setFormData(initialData);
     return;
   };
@@ -287,19 +247,19 @@ function RowEditingModal({
               <Form.Item
                 required
                 key={idx}
-                id={`${field.label}-id`}
-                name={field.label}
-                initialValue={field.label ? data[0][field.label] : ""}
+                id={`${field.labelKey}-id`}
+                name={field.labelKey}
+                initialValue={field.labelKey ? data[0][field.labelKey] : ""}
                 label={<span>{field.labelKey}</span>}
                 rules={[
                   {
                     required: true,
-                    message: `Please enter ${field.labelKey}`,
+                    message: `Please enter ${field.label}`,
                   },
                 ]}
               >
                 <Input
-                  placeholder={`Enter ${field.labelKey}`}
+                  placeholder={`Enter ${field.label}`}
                   style={{ width: "100%" }}
                 />
               </Form.Item>

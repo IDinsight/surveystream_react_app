@@ -100,14 +100,9 @@ function FieldSupervisorRolesHierarchy() {
                   return false; // No cycle detected
                 };
 
-                if (value === null) {
-                  return Promise.resolve();
-                }
-
                 if (value && value === role.role_uid) {
                   return Promise.reject("A role cannot report to itself!");
                 }
-
                 if (
                   value &&
                   supervisorRoles.some(
@@ -154,7 +149,6 @@ function FieldSupervisorRolesHierarchy() {
     };
 
     dispatch(setSupervisorRoles(updatedRoles));
-    form.validateFields();
   };
 
   const handleContinue = async () => {

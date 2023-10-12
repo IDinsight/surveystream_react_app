@@ -5,7 +5,6 @@ import { FieldSchema } from "csv-file-validator";
 
 import { Buffer } from "buffer";
 import {
-  basicCSVValidations,
   classifyErrorsForColumns,
   validateCSVData,
 } from "../../../utils/csvValidator";
@@ -42,51 +41,65 @@ function FileUpload({
 
   const handleCustomRequest = async (options: any) => {
     const { file, onSuccess } = options;
-    // Reset errors
+    //reset errors;
     setHasError(false);
     setErrorList([]);
 
-    const basicChecks = await basicCSVValidations(file);
+    // Validate file type
+    const allowedFileTypes = ["text/csv"];
+    const fileType = file.type;
+    if (!allowedFileTypes.includes(fileType)) {
+      message.error("Only CSV files are allowed.");
+      clearUpload();
+      setHasError(true);
+      return false;
+    }
+    // Validate file size (number of rows)
+    const maxRows = process.env.REACT_APP_MAX_UPLOAD_ROWS
+      ? parseInt(process.env.REACT_APP_MAX_UPLOAD_ROWS)
+      : 2000;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const csvData = reader.result as string;
+      const rows = csvData.split("\n");
+      if (rows.length > maxRows) {
+        message.error(`CSV file should have a maximum of ${maxRows} rows.`);
+        clearUpload();
+        setHasError(true);
+        return false;
+      }
+    };
+    reader.readAsText(file);
+
     const result = await validateCSVData(file);
 
-    const handleValidationResult = (validationResult: any) => {
-      if (
-        validationResult !== undefined &&
-        validationResult.inValidData.length > 0
-      ) {
-        const errors: string[] = [];
-
-        for (const error of validationResult.inValidData) {
-          if (typeof error === "string") {
-            errors.push(error);
-          }
-        }
-
-        console.log("errors", errors);
-
-        const errorsList = classifyErrorsForColumns(errors, csvValidationRules);
-
-        console.log("errorsList", errorsList);
-
-        if (errorsList.length > 0) {
-          setHasError(true);
-          setErrorList(errorsList);
-          onSuccess("ok", new XMLHttpRequest());
-          clearUpload();
-          return false;
-        }
-      }
-      return true;
-    };
-
-    if (
-      !handleValidationResult(basicChecks) ||
-      !handleValidationResult(result)
-    ) {
-      return;
+    if (result) {
+      console.log("validateCSVData", result.inValidData.length > 0);
     }
 
-    const reader = new FileReader();
+    if (result !== undefined && result.inValidData.length > 0) {
+      const errors: string[] = [];
+
+      for (const error of result.inValidData) {
+        if (typeof error === "string") {
+          errors.push(error);
+        }
+      }
+
+      console.log("errors", errors);
+
+      const errorsList = classifyErrorsForColumns(errors, csvValidationRules);
+
+      console.log("errorsList", errorsList);
+
+      if (errorsList.length > 0) {
+        setHasError(true);
+        setErrorList(errorsList);
+        onSuccess("ok", new XMLHttpRequest());
+        clearUpload();
+        return false;
+      }
+    }
 
     reader.onload = () => {
       const csvData = reader.result as string;
@@ -104,7 +117,6 @@ function FileUpload({
         setUploadStatus(true);
       }, 1000);
     };
-
     reader.readAsDataURL(file); // Use the 'file' object directly
   };
 

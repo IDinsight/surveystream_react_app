@@ -50,19 +50,16 @@ function RowEditingModal({
   const [editForm] = Form.useForm();
   const [formData, setFormData] = useState<DataItem>([]);
   const [updatedFields, setUpdatedFields] = useState<Field[]>([]);
-  const [bulkFieldsToInclude, setBulkFieldsToInclude] = useState<string[]>([]);
-  const [bulkFieldsToExclude, setBulkFieldsToExclude] = useState<string[]>([
+  const [bulkFieldsToInclude, setBulkFieldsToInclude] = useState<any>([]);
+  const [bulkFieldsToExclude, setBulkFieldsToExclude] = useState<any>([
     "enumerator_id",
     "name",
     "email",
-    "monitor_status",
-    "surveyor_status",
-    "surveyor_locations",
-    "gender",
     "mobile_primary",
     "monitor_locations",
-    "home_address",
-    "language",
+    "monitor_status",
+    "surveyor_locations",
+    "surveyor_status",
   ]);
   const cancelHandler = () => {
     // Write code here for any cleanup
@@ -73,7 +70,10 @@ function RowEditingModal({
     //validate form
     const values = await editForm.validateFields();
 
+    console.log("values", values);
+
     const updateData = await editForm.getFieldsValue();
+    console.log("updateData", updateData);
 
     const originalData = data;
 
@@ -92,14 +92,7 @@ function RowEditingModal({
         formUID,
         patchKeys,
       };
-      for (const key in patchKeys) {
-        if (key.startsWith("custom_fields.")) {
-          const fieldName = key.split("custom_fields.")[1];
-          patchKeys[fieldName] = patchKeys[key];
-          delete patchKeys[key];
-        }
-      }
-
+      console.log("requestData", requestData);
       const batchRes = await dispatch(
         bulkUpdateEnumerators({ enumeratorUIDs, formUID, patchKeys })
       );
@@ -131,26 +124,8 @@ function RowEditingModal({
           ...updateData,
         };
 
-        // Extract the custom fields from the updatedRow
-        const { custom_fields, ...rest } = updatedRow;
-
-        const removedCustomFields: any = {};
-        for (const key in rest) {
-          if (key.startsWith("custom_fields.")) {
-            const fieldName = key.split("custom_fields.")[1];
-            removedCustomFields[fieldName] = rest[key];
-            delete rest[key];
-          }
-        }
-
-        // Update the custom_fields object within the main object with the removed values
-        rest.custom_fields = {
-          ...custom_fields,
-          ...removedCustomFields,
-        };
-
-        // Update the originalData array with the modified main object
-        originalData[indexToUpdate] = rest;
+        // Update the originalData array with the new object
+        originalData[indexToUpdate] = updatedRow;
       }
 
       const enumeratorData = { ...originalData[0] };
@@ -176,8 +151,6 @@ function RowEditingModal({
     "enumerator_uid",
     "monitor_locations",
     "surveyor_locations",
-    "monitor_status",
-    "surveyor_status",
   ]; //always exclude these
 
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
@@ -199,21 +172,10 @@ function RowEditingModal({
           .filter((field: ConfigField) => !field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        //remove fields not defined on the custom config
-        fields.forEach((field: Field) => {
-          console.log("field.labelKey", field.labelKey);
-
-          if (
-            !editableFields.includes(field.labelKey) &&
-            !nonEditableFields.includes(field.labelKey)
-          ) {
-            bulkFieldsToExclude.push(field.labelKey);
-          }
+        setBulkFieldsToExclude({
+          ...bulkFieldsToExclude,
+          ...nonEditableFields,
         });
-
-        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
-
-        setBulkFieldsToExclude(excludeFields);
       }
     }
     return;
@@ -228,6 +190,7 @@ function RowEditingModal({
     if (form_uid && data.length > 1) {
       //must wait for config before fields filtering
       await fetchEnumeratorsColumnConfig(form_uid);
+
       //exclude bulk non editable as well as the personal fields
       filteredFields = fields.filter(
         (field: Field) =>
@@ -247,18 +210,8 @@ function RowEditingModal({
 
     const initialData: DataItem = [];
 
-    filteredFields.forEach((field: Field) => {
-      if (field.label.startsWith("custom_fields")) {
-        initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-
-        const label = field?.label;
-        const _field: any = {};
-        _field[label] = initialData[field.label];
-
-        editForm.setFieldsValue({ ..._field });
-      } else {
-        initialData[field.labelKey] = data[0][field.labelKey];
-      }
+    filteredFields.forEach((field) => {
+      initialData[field.labelKey] = data[0][field.labelKey];
     });
 
     setFormData(initialData);
@@ -300,19 +253,19 @@ function RowEditingModal({
               <Form.Item
                 required
                 key={idx}
-                id={`${field.label}-id`}
-                name={field.label}
-                initialValue={field.label ? data[0][field.label] : ""}
+                id={`${field.labelKey}-id`}
+                name={field.labelKey}
+                initialValue={field.labelKey ? data[0][field.labelKey] : ""}
                 label={<span>{field.labelKey}</span>}
                 rules={[
                   {
                     required: true,
-                    message: `Please enter ${field.labelKey}`,
+                    message: `Please enter ${field.label}`,
                   },
                 ]}
               >
                 <Input
-                  placeholder={`Enter ${field.labelKey}`}
+                  placeholder={`Enter ${field.label}`}
                   style={{ width: "100%" }}
                 />
               </Form.Item>
