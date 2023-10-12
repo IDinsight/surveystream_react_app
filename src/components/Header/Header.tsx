@@ -93,7 +93,7 @@ function Header({ items }: { items?: any }) {
 
       {userProfile?.user_uid && (
         <ProfileWrapper className="flex items-center ml-auto mr-6">
-          <Dropdown menu={{ items: helpMenu }} trigger={["hover", "click"]}>
+          {/* <Dropdown menu={{ items: helpMenu }} trigger={["hover", "click"]}>
             <div className="mr-4">
               <span>Help</span>
               <DownOutlined style={{ marginLeft: "4px" }} />
@@ -102,7 +102,7 @@ function Header({ items }: { items?: any }) {
 
           <div className="mr-4">
             <BellOutlined style={{ color: "white" }} />
-          </div>
+          </div> */}
 
           <Dropdown menu={{ items: avatarMenu }} trigger={["hover", "click"]}>
             <a id="user_profile_avatar">
