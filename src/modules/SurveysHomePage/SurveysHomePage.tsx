@@ -144,6 +144,13 @@ function SurveysHomePage() {
                     className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
                   >
                     <Link
+                      onClick={() => {
+                        dispatch(setActiveSurvey({}));
+                        localStorage.setItem(
+                          "activeSurvey",
+                          JSON.stringify({})
+                        );
+                      }}
                       id="configure-new-survey-link"
                       to="/new-survey-config"
                       className="no-underline flex items-center"

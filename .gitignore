@@ -32,3 +32,4 @@ cypress/videos/*
 cypress/screenshots/*
 cypress.env.json
 cypress/results/output.xml
+e2e/screenshots/*

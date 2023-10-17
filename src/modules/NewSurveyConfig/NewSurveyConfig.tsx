@@ -324,11 +324,11 @@ function NewSurveyConfig() {
           New survey config
           {(() => {
             const activeSurveyData: any = localStorage.getItem("activeSurvey");
-            return ` : ${
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
-              ""
-            }`;
+            const surveyName =
+              (activeSurvey && activeSurvey.survey_name) ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              "";
+            return surveyName ? ` : ${surveyName}` : "";
           })()}
         </Title>
       </NavWrapper>
