@@ -373,6 +373,14 @@ function EnumeratorsManage() {
                   Add new enumerators
                 </Button>
               </div>
+            </div>
+            <br />
+            <div style={{ display: "flex" }}>
+              <EnumeratorsCountBox
+                active={activeEnums}
+                dropped={droppedEnums}
+                inactive={inactiveEnums}
+              />
               <div style={{ marginLeft: "auto", marginRight: 80 }}>
                 <CSVDownloader
                   data={tableDataSource}
@@ -393,12 +401,6 @@ function EnumeratorsManage() {
                 </CSVDownloader>
               </div>
             </div>
-            <br />
-            <EnumeratorsCountBox
-              active={activeEnums}
-              dropped={droppedEnums}
-              inactive={inactiveEnums}
-            />
             <EnumeratorsTable
               rowSelection={editMode ? rowSelection : undefined}
               columns={dataTableColumn}
