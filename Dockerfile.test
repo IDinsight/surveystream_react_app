@@ -8,7 +8,7 @@ WORKDIR  /
 ENV PATH /node_modules/.bin:$PATH
 
 COPY package.json package-lock.json tailwind.config.js tsconfig.json cypress.config.ts ./
-RUN npm install --network-timeout=200000
+RUN npm install --network-timeout=400000
 RUN npx browserslist@latest --update-db
 
 # Copying source code later so that we can avoid npm install everytime

@@ -68,11 +68,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-<<<<<<< HEAD
     "@types/react-csv": "^1.1.6",
-=======
     "@types/pg": "^8.10.3",
->>>>>>> c1d236a5d64488851d019571ef4760fe11c7227c
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "cypress": "^12.17.4",
