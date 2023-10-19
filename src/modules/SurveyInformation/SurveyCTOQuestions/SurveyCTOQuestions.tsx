@@ -97,15 +97,19 @@ function SurveyCTOQuestions() {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
+      if(!refresh && questionsRes.payload == null){
+        message.error('Could not find SCTO form questions, kindly click Load questions from SCTO to retry.')
+
+      }
       //dispatch twice if refresh
       if (refresh) {
-        await dispatch(getCTOFormQuestions({ formUid: form_uid }));
-      }
-      if (questionsRes.payload == null) {
-        message.error(
-          `Could not find SCTO form questions, kindly check the information provided and try again.`
+        const refreshRes = await dispatch(
+          getCTOFormQuestions({ formUid: form_uid })
         );
+
+        console.log("refreshRes", refreshRes);
       }
+      console.log("questionsRes", questionsRes);
     } else {
       message.error(
         "Kindly check if the form_uid is provided on the url to proceed."
@@ -119,11 +123,6 @@ function SurveyCTOQuestions() {
       const res = await dispatch(getSCTOFormMapping({ formUid: form_uid }));
       const formData: any = res.payload;
       console.log("res", formData);
-      if (formData?.error) {
-        message.error(
-          `${formData?.error} kindly click load questions from SCTO to retry.`
-        );
-      }
       await setSurveySCTOQuestionsData(formData);
     } else {
       message.error(
@@ -289,7 +288,7 @@ function SurveyCTOQuestions() {
     loadFormQuestions();
     fetchSurveyLocationGeoLevels();
     loadFormMappings();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>
