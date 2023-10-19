@@ -179,8 +179,6 @@ function EnumeratorsMap() {
     "email",
     "mobile_primary",
     "home_address",
-    "gender",
-    "language",
   ];
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
