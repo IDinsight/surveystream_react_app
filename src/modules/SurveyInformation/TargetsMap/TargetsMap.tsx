@@ -37,7 +37,10 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { setLoading } from "../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
+import {
+  getSurveyBasicInformation,
+  getSurveyModuleQuestionnaire,
+} from "../../../redux/surveyConfig/surveyConfigActions";
 import { TargetMapping } from "../../../redux/targets/types";
 import {
   postTargetsMapping,
@@ -391,6 +394,23 @@ function TargetsMap() {
     console.log(customConfig);
   };
 
+  const fetchSurveyPrimeGeoLocation = async () => {
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        console.log(
+          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+        return surveyBasicInformationRes.payload?.prime_geo_level_uid;
+      }
+    } else {
+      return null;
+    }
+  };
+
   const fetchSurveyModuleQuestionnaire = async () => {
     if (survey_uid) {
       const moduleQQuestionnaireRes = await dispatch(
@@ -399,48 +419,32 @@ function TargetsMap() {
       if (
         moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
       ) {
-        console.log("moduleQQuestionnaireRes", moduleQQuestionnaireRes);
-
         if (
           moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
             "Location"
           )
         ) {
-          //fetch location and then set the other fields
+          //fetch prime geo location and then set it as field
+
+          const primeGeoLocation = await fetchSurveyPrimeGeoLocation();
+
           const locationRes = await dispatch(
             getSurveyLocationGeoLevels({ survey_uid: survey_uid })
           );
 
-          console.log("locationRes", locationRes);
-
           const locationData = locationRes?.payload;
 
-          console.log("locationData", locationData);
-
-          let lowestLevel: string | null = null;
-
-          for (const item of locationData) {
-            if (item.parent_geo_level_uid === null) {
-              continue; // Skip top-level hierarchy
-            }
-
-            if (
-              !lowestLevel ||
-              item.geo_level_uid <
-                locationData.find(
-                  (i: any) => i.geo_level_uid === item.parent_geo_level_uid
-                )!.geo_level_uid
-            ) {
-              lowestLevel = item.geo_level_name;
-            }
+          let primeGeoLevel: string | null = null;
+          if (primeGeoLocation !== null) {
+            primeGeoLevel = locationData.find(
+              (i: any) => i.geo_level_uid === primeGeoLocation
+            )?.geo_level_name;
           }
 
-          console.log("lowestLevelName", lowestLevel);
-
-          if (lowestLevel) {
+          if (primeGeoLevel) {
             setLocationDetailsField([
               {
-                title: `${lowestLevel} ID`,
+                title: `${primeGeoLevel} ID`,
                 key: `location_id_column`,
               },
             ]);
