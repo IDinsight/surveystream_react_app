@@ -41,20 +41,14 @@ function FieldSupervisorRoles() {
           })()}
         </Title>
       </NavWrapper>
-      <div
-        style={{
-          float: "left",
-          display: "inline-block",
-        }}
-      >
+      <div style={{ display: "flex" }}>
         <SideMenu />
+        {path === "hierarchy" ? (
+          <FieldSupervisorRolesHierarchy />
+        ) : (
+          <FieldSupervisorRolesAdd />
+        )}
       </div>
-
-      {path === "hierarchy" ? (
-        <FieldSupervisorRolesHierarchy />
-      ) : (
-        <FieldSupervisorRolesAdd />
-      )}
     </>
   );
 }

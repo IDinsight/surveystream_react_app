@@ -213,48 +213,47 @@ function FieldSupervisorRolesAdd() {
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <MainWrapper
-          style={{
-            width: "calc(100% - 369px)",
-            minHeight: "75vh",
-            float: "right",
-            display: "inline-block",
-          }}
-        >
-          <DescriptionWrap>
-            <DescriptionTitle>
-              Field Supervisor Roles: Add Roles
-            </DescriptionTitle>
-            <DescriptionText>
-              Please create the field supervisor roles for your survey. Examples
-              of roles: core team, regional coordinator, cluster coordinator.
-            </DescriptionText>
-          </DescriptionWrap>
-          <DynamicItemsForm form={form} onValuesChange={handleFormValuesChange}>
-            {renderRolesField()}
-            <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
-              <AddAnotherButton
-                onClick={handleAddRole}
-                type="dashed"
-                style={{ width: "100%" }}
-                disabled={!isAllowedEdit}
-              >
-                <FileAddOutlined /> Add another role
-              </AddAnotherButton>
-            </StyledFormItem>
-          </DynamicItemsForm>
-        </MainWrapper>
+        <div style={{ width: "100%" }}>
+          <MainWrapper style={{ minHeight: "75vh" }}>
+            <DescriptionWrap>
+              <DescriptionTitle>
+                Field Supervisor Roles: Add Roles
+              </DescriptionTitle>
+              <DescriptionText>
+                Please create the field supervisor roles for your survey.
+                Examples of roles: core team, regional coordinator, cluster
+                coordinator.
+              </DescriptionText>
+            </DescriptionWrap>
+            <DynamicItemsForm
+              form={form}
+              onValuesChange={handleFormValuesChange}
+            >
+              {renderRolesField()}
+              <StyledFormItem labelCol={{ span: 5 }} wrapperCol={{ span: 11 }}>
+                <AddAnotherButton
+                  onClick={handleAddRole}
+                  type="dashed"
+                  style={{ width: "100%" }}
+                  disabled={!isAllowedEdit}
+                >
+                  <FileAddOutlined /> Add another role
+                </AddAnotherButton>
+              </StyledFormItem>
+            </DynamicItemsForm>
+          </MainWrapper>
+          <FooterWrapper>
+            <SaveButton>Save</SaveButton>
+            <ContinueButton
+              loading={loading}
+              onClick={handleContinue}
+              disabled={supervisorRoles.length === 0}
+            >
+              Continue
+            </ContinueButton>{" "}
+          </FooterWrapper>
+        </div>
       )}
-      <FooterWrapper style={{ flexBasis: "auto" }}>
-        <SaveButton>Save</SaveButton>
-        <ContinueButton
-          loading={loading}
-          onClick={handleContinue}
-          disabled={supervisorRoles.length === 0}
-        >
-          Continue
-        </ContinueButton>{" "}
-      </FooterWrapper>
     </>
   );
 }
