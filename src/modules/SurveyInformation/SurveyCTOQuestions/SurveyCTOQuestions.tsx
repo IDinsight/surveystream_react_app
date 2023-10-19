@@ -104,7 +104,7 @@ function SurveyCTOQuestions() {
           getCTOFormQuestions({ formUid: form_uid })
         );
 
-        if (refreshRes.payload == null) {
+        if (refreshRes.payload?.message) {
           message.error(
             "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
           );
