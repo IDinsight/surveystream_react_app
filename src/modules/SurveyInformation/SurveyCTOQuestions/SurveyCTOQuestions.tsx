@@ -97,16 +97,18 @@ function SurveyCTOQuestions() {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
-      if (!refresh && questionsRes.payload == null) {
-        message.error(
-          "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
-        );
-      }
+
       //dispatch twice if refresh
       if (refresh) {
         const refreshRes = await dispatch(
           getCTOFormQuestions({ formUid: form_uid })
         );
+
+        if (refreshRes.payload == null) {
+          message.error(
+            "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
+          );
+        }
 
         console.log("refreshRes", refreshRes);
       }
