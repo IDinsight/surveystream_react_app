@@ -58,11 +58,9 @@ function RowEditingModal({
     "monitor_status",
     "surveyor_status",
     "surveyor_locations",
-    "gender",
     "mobile_primary",
     "monitor_locations",
     "home_address",
-    "language",
   ]);
   const cancelHandler = () => {
     // Write code here for any cleanup
