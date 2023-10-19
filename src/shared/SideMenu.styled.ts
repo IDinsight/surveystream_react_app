@@ -9,12 +9,13 @@ import {
 
 export const SideMenuWrapper = styled.div`
   background-color: #fff;
-  width: 270px;
+  min-width: 270px;
   height: 75vh;
   position: relative;
   left: 0;
   z-index: 1;
   overflow-x: hidden;
+  overflow-y: hidden;
   padding-top: 20px;
   display: flex;
   flex-direction: column;
