@@ -37,10 +37,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { setLoading } from "../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import {
-  getSurveyBasicInformation,
-  getSurveyModuleQuestionnaire,
-} from "../../../redux/surveyConfig/surveyConfigActions";
+import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import { TargetMapping } from "../../../redux/targets/types";
 import {
   postTargetsMapping,
@@ -50,6 +47,7 @@ import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surve
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
+import { it } from "mocha";
 
 interface CSVError {
   type: string;
@@ -394,21 +392,19 @@ function TargetsMap() {
     console.log(customConfig);
   };
 
-  const fetchSurveyPrimeGeoLocation = async () => {
-    const surveyBasicInformationRes = await dispatch(
-      getSurveyBasicInformation({ survey_uid: survey_uid })
-    );
-    if (surveyBasicInformationRes?.payload) {
-      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
-        console.log(
-          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
-          surveyBasicInformationRes.payload?.prime_geo_level_uid
-        );
-        return surveyBasicInformationRes.payload?.prime_geo_level_uid;
+  const findLowestGeoLevel = (locationData: any) => {
+    let lowestGeoLevel = null;
+
+    for (const item of locationData) {
+      if (
+        !lowestGeoLevel ||
+        item.parent_geo_level_uid > lowestGeoLevel.parent_geo_level_uid
+      ) {
+        lowestGeoLevel = item;
       }
-    } else {
-      return null;
     }
+
+    return lowestGeoLevel;
   };
 
   const fetchSurveyModuleQuestionnaire = async () => {
@@ -424,27 +420,19 @@ function TargetsMap() {
             "Location"
           )
         ) {
-          //fetch prime geo location and then set it as field
-
-          const primeGeoLocation = await fetchSurveyPrimeGeoLocation();
-
+          // use lowest geo level for target mapping location
           const locationRes = await dispatch(
             getSurveyLocationGeoLevels({ survey_uid: survey_uid })
           );
 
           const locationData = locationRes?.payload;
 
-          let primeGeoLevel: string | null = null;
-          if (primeGeoLocation !== null) {
-            primeGeoLevel = locationData.find(
-              (i: any) => i.geo_level_uid === primeGeoLocation
-            )?.geo_level_name;
-          }
+          const lowestGeoLevel = findLowestGeoLevel(locationData);
 
-          if (primeGeoLevel) {
+          if (lowestGeoLevel?.geo_level_name) {
             setLocationDetailsField([
               {
-                title: `${primeGeoLevel} ID`,
+                title: `${lowestGeoLevel.geo_level_name} ID`,
                 key: `location_id_column`,
               },
             ]);
