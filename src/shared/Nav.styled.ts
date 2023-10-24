@@ -37,9 +37,10 @@ export const BackArrow = styled(ArrowLeftOutlined)`
   margin-right: 5px;
 `;
 
-export const MainWrapper = styled.main`
+export const MainWrapper = styled.div`
   flex: 1;
-  padding: 1rem;
-  padding-left: 5rem;
   background-color: #f5f5f5;
+  padding-left: 80px;
+  padding-top: 23px;
+  font-family: "Inter", sans-serif;
 `;

@@ -197,36 +197,31 @@ function FieldSupervisorRolesHierarchy() {
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <MainWrapper
-          style={{
-            width: "calc(100% - 369px)",
-            minHeight: "75vh",
-            float: "right",
-            display: "inline-block",
-          }}
-        >
-          <DescriptionWrap>
-            <DescriptionTitle>
-              Field supervisors: Define role hierarchy
-            </DescriptionTitle>
-            <DescriptionText>
-              Please map the hierarchy among roles. For each role defined in the
-              previous step, select the corresponding reporting role. If there
-              is no reporting role, please select ‘No reporting role’.
-            </DescriptionText>
-          </DescriptionWrap>
+        <div style={{ width: "100%" }}>
+          <MainWrapper style={{ minHeight: "75vh" }}>
+            <DescriptionWrap>
+              <DescriptionTitle>
+                Field supervisors: Define role hierarchy
+              </DescriptionTitle>
+              <DescriptionText>
+                Please map the hierarchy among roles. For each role defined in
+                the previous step, select the corresponding reporting role. If
+                there is no reporting role, please select ‘No reporting role’.
+              </DescriptionText>
+            </DescriptionWrap>
 
-          <DynamicItemsForm form={form}>
-            {renderReportingRolesField()}
-          </DynamicItemsForm>
-        </MainWrapper>
+            <DynamicItemsForm form={form}>
+              {renderReportingRolesField()}
+            </DynamicItemsForm>
+          </MainWrapper>
+          <FooterWrapper>
+            <SaveButton>Save</SaveButton>
+            <ContinueButton loading={loading} onClick={handleContinue}>
+              Continue
+            </ContinueButton>
+          </FooterWrapper>
+        </div>
       )}
-      <FooterWrapper>
-        <SaveButton>Save</SaveButton>
-        <ContinueButton loading={loading} onClick={handleContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

@@ -51,39 +51,13 @@ function SurveyCTOInfomation() {
     navigate(-1);
   };
   const [loading, setLoading] = useState(false);
-
+  const [surveyCTOForm, setSurveyCTOForm] = useState<SurveyCTOForm | null>(
+    null
+  );
   const dispatch = useAppDispatch();
   const timezones = useAppSelector(
     (state: RootState) => state.surveyCTOInformation.timezones
   );
-
-  const surveyCTOForm = useAppSelector(
-    (state: RootState) => state.surveyCTOInformation.surveyCTOForm
-  );
-
-  useEffect(() => {
-    // Set initial form values when surveyCTOForm is available
-    if (surveyCTOForm) {
-      const formFieldData = {
-        scto_form_id: surveyCTOForm.scto_form_id,
-        scto_server_name: surveyCTOForm.scto_server_name,
-        form_name: surveyCTOForm.form_name,
-        tz_name: surveyCTOForm.tz_name,
-        encryption_key_shared: surveyCTOForm.encryption_key_shared,
-        server_access_role_granted: surveyCTOForm.server_access_role_granted,
-        server_access_allowed: surveyCTOForm.server_access_allowed,
-      };
-      form.setFieldsValue(formFieldData);
-      setFormData(formFieldData);
-    }
-  }, [surveyCTOForm, form]);
-
-  const fetchTimezones = async () => {
-    await dispatch(getTimezones());
-  };
-  const fecthSurveyCTOForm = async () => {
-    await dispatch(getSurveyCTOForm({ survey_uid: survey_uid }));
-  };
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const formValues: SurveyCTOForm = {
@@ -158,6 +132,38 @@ function SurveyCTOInfomation() {
       setLoading(false);
     }
   };
+  const fetchTimezones = async () => {
+    await dispatch(getTimezones());
+  };
+
+  const fecthSurveyCTOForm = async () => {
+    setLoading(true);
+
+    const surveyCTOFormRes: any = await dispatch(
+      getSurveyCTOForm({ survey_uid: survey_uid })
+    );
+    const surveyCTOFormResPayload: any =
+      surveyCTOFormRes.payload.length > 0 ? surveyCTOFormRes.payload[0] : null;
+
+    setSurveyCTOForm(surveyCTOFormResPayload);
+
+    if (surveyCTOFormResPayload) {
+      const formFieldData = {
+        scto_form_id: surveyCTOFormResPayload.scto_form_id,
+        scto_server_name: surveyCTOFormResPayload.scto_server_name,
+        form_name: surveyCTOFormResPayload.form_name,
+        tz_name: surveyCTOFormResPayload.tz_name,
+        encryption_key_shared: surveyCTOFormResPayload.encryption_key_shared,
+        server_access_role_granted:
+          surveyCTOFormResPayload.server_access_role_granted,
+        server_access_allowed: surveyCTOFormResPayload.server_access_allowed,
+      };
+      form.setFieldsValue(formFieldData);
+      setFormData(formFieldData);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchTimezones();
@@ -183,7 +189,7 @@ function SurveyCTOInfomation() {
         </Title>
       </NavWrapper>
 
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
         <>
