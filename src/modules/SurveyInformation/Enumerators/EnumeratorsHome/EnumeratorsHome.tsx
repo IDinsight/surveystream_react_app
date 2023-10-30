@@ -334,16 +334,26 @@ function EnumeratorsHome() {
     }
 
     // Redirect to upload fresh enums, in case of fresh upload, otherwise start append mode
-    if (newEnumMode === "fresh") {
+    if (newEnumMode === "overwrite") {
       navigate(
         `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
       );
       return;
-    } else if (newEnumMode === "append") {
+    } else if (newEnumMode === "merge") {
       setScreenMode("reupload");
     }
 
     setNewEnumModal(false);
+  };
+
+  const handlerAddEnumBtn = () => {
+    if (tableDataSource.length > 0) {
+      setNewEnumModal(true);
+    } else {
+      navigate(
+        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+      );
+    }
   };
 
   return (
@@ -401,7 +411,7 @@ function EnumeratorsHome() {
                       {editMode ? "Done editing" : "Edit"}
                     </Button>
                     <Button
-                      onClick={() => setNewEnumModal(true)}
+                      onClick={handlerAddEnumBtn}
                       type="primary"
                       icon={<CloudUploadOutlined />}
                       style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
@@ -468,14 +478,11 @@ function EnumeratorsHome() {
                   value={newEnumMode}
                 >
                   <Space direction="vertical">
-                    <Radio value="fresh" disabled={isEnumInUse}>
+                    <Radio value="overwrite" disabled={isEnumInUse}>
                       I want to start a fresh (enumerators uploaded previously
                       will be deleted)
                     </Radio>
-                    <Radio
-                      value="append"
-                      disabled={tableDataSource.length <= 0}
-                    >
+                    <Radio value="merge">
                       I want to add new enumerators / columns
                     </Radio>
                   </Space>

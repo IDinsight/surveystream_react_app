@@ -48,7 +48,7 @@ export const ErrorTable = styled(Table)`
 
 export const StyledBreadcrumb = styled(Breadcrumb)`
   margin-top: 7px;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
   .ant-breadcrumb-link {
     color: rgba(0, 0, 0, 0.45) !important;
     font-weight: normal;
@@ -57,4 +57,8 @@ export const StyledBreadcrumb = styled(Breadcrumb)`
   .active {
     color: #2f54eb !important;
   }
+`;
+
+export const Mandatory = styled.span`
+  color: #f5222d !important;
 `;

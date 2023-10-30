@@ -5,6 +5,7 @@ import {
   DescriptionContainer,
   EnumeratorsReuploadFormWrapper,
   ErrorTable,
+  Mandatory,
   StyledBreadcrumb,
 } from "./EnumeratorsReupload.styled";
 import { CloseOutlined, ProfileOutlined } from "@ant-design/icons";
@@ -104,6 +105,55 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
           { title: "Update enumerators" },
         ]}
       />
+      <DescriptionContainer>
+        The following columns are existing in the enumerators table currently.
+        The mandatory columns are indicated with a <Mandatory>*</Mandatory>:
+        <ol type="a">
+          <li>
+            Enumerator ID <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Enumerator Name <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Email ID <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Mobile (primary) <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Language <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Address <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Gender <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            State <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            District <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Block <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            State ID <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            District ID <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Block ID <Mandatory>*</Mandatory>
+          </li>
+          <li>
+            Employment status <Mandatory>*</Mandatory>
+          </li>
+          <li>IDi experience</li>
+        </ol>
+      </DescriptionContainer>
       <div style={{ marginTop: "10px", marginBottom: "14px" }}>
         <Form layout="horizontal">
           <Row>
