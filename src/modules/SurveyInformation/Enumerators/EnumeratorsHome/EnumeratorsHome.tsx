@@ -472,7 +472,10 @@ function EnumeratorsHome() {
                       I want to start a fresh (enumerators uploaded previously
                       will be deleted)
                     </Radio>
-                    <Radio value="append">
+                    <Radio
+                      value="append"
+                      disabled={tableDataSource.length <= 0}
+                    >
                       I want to add new enumerators / columns
                     </Radio>
                   </Space>

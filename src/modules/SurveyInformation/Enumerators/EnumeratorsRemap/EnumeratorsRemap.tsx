@@ -34,7 +34,7 @@ interface IEnumeratorsReupload {
 
 function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const [enumeratorMappingForm] = Form.useForm();
-  const [hasError, setHasError] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
