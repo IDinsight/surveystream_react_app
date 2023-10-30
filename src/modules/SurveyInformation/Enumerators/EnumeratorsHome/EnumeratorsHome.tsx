@@ -1,34 +1,37 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, message } from "antd";
-import Header from "../../../components/Header";
+import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../../SideMenu";
 import {
-  EnumeratorsManageFormWrapper,
+  EnumeratorsHomeFormWrapper,
   EnumeratorsTable,
-} from "./EnumeratorsManage.styled";
+} from "./EnumeratorsHome.styled";
 import {
-  CloudDownloadOutlined,
   CloudUploadOutlined,
+  DownloadOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import EnumeratorsCountBox from "../../../components/EnumeratorsCountBox";
+import EnumeratorsCountBox from "../../../../components/EnumeratorsCountBox";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
-import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
-import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { getEnumerators } from "../../../redux/enumerators/enumeratorsActions";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions";
 import { useCSVDownloader } from "react-papaparse";
 
-function EnumeratorsManage() {
+import EnumeratorsReupload from "./../EnumeratorsReupload";
+import EnumeratorsRemap from "../EnumeratorsRemap";
+
+function EnumeratorsHome() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -137,9 +140,9 @@ function EnumeratorsManage() {
   };
 
   const uploadNewEnumerators = () => {
-    navigate(
-      `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
-    );
+    // navigate(
+    //   `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+    // );
   };
 
   const handleFormUID = async () => {
@@ -151,7 +154,7 @@ function EnumeratorsManage() {
         );
         if (sctoForm?.payload[0]?.form_uid) {
           navigate(
-            `/survey-information/enumerators/manage/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            `/survey-information/enumerators/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
           );
         } else {
           message.error("Kindly configure SCTO Form to proceed");
@@ -312,6 +315,37 @@ function EnumeratorsManage() {
     }
   }, []);
 
+  /*
+   * New design configs
+   */
+  const [screenMode, setScreenMode] = useState<string>("manage");
+  const [newEnumModal, setNewEnumModal] = useState<boolean>(false);
+
+  // Mode: fresh or append
+  const [newEnumMode, setNewEnumMode] = useState<string>("");
+
+  const [isEnumInUse, setIsEnumUse] = useState<boolean>(false);
+
+  const handleNewEnumMode = () => {
+    // Emit error if no new enumerator mode is selected
+    if (newEnumMode === "") {
+      message.error("Please select the mode to add new enumerators.");
+      return;
+    }
+
+    // Redirect to upload fresh enums, in case of fresh upload, otherwise start append mode
+    if (newEnumMode === "fresh") {
+      navigate(
+        `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+      );
+      return;
+    } else if (newEnumMode === "append") {
+      setScreenMode("reupload");
+    }
+
+    setNewEnumModal(false);
+  };
+
   return (
     <>
       <Header />
@@ -335,98 +369,127 @@ function EnumeratorsManage() {
       ) : (
         <div style={{ display: "flex" }}>
           <SideMenu />
-          <EnumeratorsManageFormWrapper>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Title>Enumerators</Title>
-              <div
-                style={{
-                  display: "flex",
-                  marginLeft: "auto",
-                  color: "#2F54EB",
-                }}
-              >
-                {editMode ? (
-                  <>
+          {screenMode === "manage" ? (
+            <>
+              <EnumeratorsHomeFormWrapper>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Title>Enumerators</Title>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginLeft: "auto",
+                      color: "#2F54EB",
+                    }}
+                  >
+                    {editMode ? (
+                      <>
+                        <Button
+                          icon={<EditOutlined />}
+                          style={{ marginRight: 20 }}
+                          onClick={onEditDataHandler}
+                        >
+                          Edit data
+                        </Button>
+                      </>
+                    ) : null}
                     <Button
-                      icon={<EditOutlined />}
-                      style={{ marginRight: 20 }}
-                      onClick={onEditDataHandler}
+                      type="primary"
+                      icon={editMode ? null : <EditOutlined />}
+                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                      onClick={() => setEditMode((prev) => !prev)}
                     >
-                      Edit data
+                      {editMode ? "Done editing" : "Edit"}
                     </Button>
-                  </>
-                ) : null}
-                <Button
-                  type="primary"
-                  icon={editMode ? null : <EditOutlined />}
-                  style={{ marginRight: 20, backgroundColor: "#2f54eB" }}
-                  onClick={() => setEditMode((prev) => !prev)}
-                >
-                  {editMode ? "Done editing" : "Edit"}
-                </Button>
-                <Button
-                  onClick={uploadNewEnumerators}
-                  type="primary"
-                  icon={<CloudUploadOutlined />}
-                  style={{ marginRight: 80, backgroundColor: "#2f54eB" }}
-                >
-                  Add new enumerators
-                </Button>
-              </div>
-            </div>
-            <br />
-            <div style={{ display: "flex" }}>
-              <EnumeratorsCountBox
-                active={activeEnums}
-                dropped={droppedEnums}
-                inactive={inactiveEnums}
-              />
-              <div style={{ marginLeft: "auto", marginRight: 80 }}>
-                <CSVDownloader
-                  data={tableDataSource}
-                  filename={"enumerators.csv"}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor: "#2F54EB",
-                    color: "#FFF",
-                    fontSize: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "8px 16px",
-                    borderRadius: "5px",
+                    <Button
+                      onClick={() => setNewEnumModal(true)}
+                      type="primary"
+                      icon={<CloudUploadOutlined />}
+                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                    >
+                      Add enumerators
+                    </Button>
+                    <CSVDownloader
+                      data={tableDataSource}
+                      filename={"enumerators.csv"}
+                      style={{
+                        cursor: "pointer",
+                        backgroundColor: "#2F54EB",
+                        color: "#FFF",
+                        fontSize: "12px",
+                        padding: "8px 16px",
+                        borderRadius: "5px",
+                        marginRight: 80,
+                      }}
+                    >
+                      <DownloadOutlined />
+                    </CSVDownloader>
+                  </div>
+                </div>
+                <br />
+                <EnumeratorsCountBox
+                  active={activeEnums}
+                  dropped={droppedEnums}
+                  inactive={inactiveEnums}
+                />
+                <EnumeratorsTable
+                  rowSelection={editMode ? rowSelection : undefined}
+                  columns={dataTableColumn}
+                  dataSource={tableDataSource}
+                  style={{ marginTop: 30 }}
+                  pagination={{
+                    pageSize: paginationPageSize,
+                    pageSizeOptions: [10, 25, 50, 100],
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    onShowSizeChange: (_, size) => setPaginationPageSize(size),
                   }}
+                />
+                {editData ? (
+                  <RowEditingModal
+                    data={selectedRows}
+                    fields={fieldData}
+                    onCancel={onEditingCancel}
+                    onUpdate={onEditingUpdate}
+                  />
+                ) : null}
+              </EnumeratorsHomeFormWrapper>
+              <Modal
+                title="Add enumerators"
+                open={newEnumModal}
+                onOk={handleNewEnumMode}
+                okText="Continue"
+                onCancel={() => setNewEnumModal(false)}
+              >
+                <Divider />
+                <p>Please select how you want to proceed:</p>
+                <Radio.Group
+                  style={{ marginBottom: 20 }}
+                  onChange={(e) => setNewEnumMode(e.target.value)}
+                  value={newEnumMode}
                 >
-                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
-                  Download Enumerators
-                </CSVDownloader>
-              </div>
-            </div>
-            <EnumeratorsTable
-              rowSelection={editMode ? rowSelection : undefined}
-              columns={dataTableColumn}
-              dataSource={tableDataSource}
-              style={{ marginTop: 30 }}
-              pagination={{
-                pageSize: paginationPageSize,
-                pageSizeOptions: [10, 25, 50, 100],
-                showSizeChanger: true,
-                showQuickJumper: true,
-                onShowSizeChange: (_, size) => setPaginationPageSize(size),
-              }}
-            />
-            {editData ? (
-              <RowEditingModal
-                data={selectedRows}
-                fields={fieldData}
-                onCancel={onEditingCancel}
-                onUpdate={onEditingUpdate}
-              />
-            ) : null}
-          </EnumeratorsManageFormWrapper>
+                  <Space direction="vertical">
+                    <Radio value="fresh" disabled={isEnumInUse}>
+                      I want to start a fresh (enumerators uploaded previously
+                      will be deleted)
+                    </Radio>
+                    <Radio value="append">
+                      I want to add new enumerators / columns
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+              </Modal>
+            </>
+          ) : null}
+          {screenMode === "reupload" ? (
+            <EnumeratorsReupload setScreenMode={setScreenMode} />
+          ) : null}
+          {screenMode === "remap" ? (
+            <EnumeratorsRemap setScreenMode={setScreenMode} />
+          ) : null}
         </div>
       )}
     </>
   );
 }
 
-export default EnumeratorsManage;
+export default EnumeratorsHome;

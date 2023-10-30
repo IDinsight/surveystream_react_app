@@ -15,13 +15,13 @@ import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRo
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
-import EnumeratorsUpload from "../modules/SurveyInformation/EnumeratorsUpload";
-import EnumeratorsMap from "../modules/SurveyInformation/EnumeratorsMap";
+import EnumeratorsUpload from "../modules/SurveyInformation/Enumerators/EnumeratorsUpload";
+import EnumeratorsMap from "../modules/SurveyInformation/Enumerators/EnumeratorsMap";
 import NotFound from "../modules/NotFound";
-import EnumeratorsManage from "../modules/SurveyInformation/EnumeratorsManage";
 import TargetsUpload from "../modules/SurveyInformation/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/TargetsMap";
 import TargetsManage from "../modules/SurveyInformation/TargetsManage";
+import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -86,16 +86,16 @@ const AppRoutes = () => {
           element={<SurveyLocationUpload />}
         />
         <Route
+          path="/survey-information/enumerators/:survey_uid?/:form_uid?"
+          element={<EnumeratorsHome />}
+        />
+        <Route
           path="/survey-information/enumerators/upload/:survey_uid?/:form_uid?"
           element={<EnumeratorsUpload />}
         />
         <Route
           path="/survey-information/enumerators/map/:survey_uid?/:form_uid?"
           element={<EnumeratorsMap />}
-        />
-        <Route
-          path="/survey-information/enumerators/manage/:survey_uid?/:form_uid?"
-          element={<EnumeratorsManage />}
         />
         <Route
           path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
