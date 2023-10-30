@@ -207,18 +207,10 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={`${
-            isActive(
-              `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
-            ) ||
-            isActive(
-              `/survey-information/enumerators/map/${survey_uid}/${formUID}`
-            ) ||
-            isActive(
-              `/survey-information/enumerators/manage/${survey_uid}/${formUID}`
-            )
-          }`}
-          to={`/survey-information/enumerators/upload/${survey_uid}/${formUID}`}
+          to={`/survey-information/enumerators/${survey_uid}`}
+          className={isActive(
+            `/survey-information/enumerators/${survey_uid}/${formUID}`
+          )}
         >
           <IconWrapper>
             <ProfileOutlined />
@@ -227,56 +219,6 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyEnumerators",
-      children: [
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/enumerators/upload/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <UploadOutlined />
-              </IconWrapper>
-              Upload csv
-            </MenuItem>
-          ),
-          key: "surveyEnumeratorsUpload",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/enumerators/map/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/enumerators/map/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <SelectOutlined />
-              </IconWrapper>
-              Map csv columns
-            </MenuItem>
-          ),
-          key: "surveyEnumeratorsMap",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/enumerators/manage/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/enumerators/manage/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <FormOutlined />
-              </IconWrapper>
-              Manage enumerators
-            </MenuItem>
-          ),
-          key: "surveyEnumeratorsManage",
-        },
-      ],
     },
     {
       label: (

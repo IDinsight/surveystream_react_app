@@ -1,39 +1,39 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
-import Header from "../../../components/Header";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
   FooterWrapper,
   SaveButton,
-} from "../../../shared/FooterBar.styled";
+} from "../../../../shared/FooterBar.styled";
 import {
   DescriptionContainer,
   EnumeratorsUploadFormWrapper,
   ErrorTable,
 } from "./EnumeratorsUpload.styled";
 import { ProfileOutlined } from "@ant-design/icons";
-import { IconText } from "../SurveyLocationUpload/SurveyLocationUpload.styled";
+import { IconText } from "../../SurveyLocationUpload/SurveyLocationUpload.styled";
 import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { useAppSelector, useAppDispatch } from "../../../redux/hooks";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { useAppSelector, useAppDispatch } from "../../../../redux/hooks";
 
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../../../redux/store";
 import {
   setEnumeratorBase64Data,
   setEnumeratorCSVColumns,
   setEnumeratorFileUpload,
   setEnumeratorCSVRows,
   setLoading,
-} from "../../../redux/enumerators/enumeratorsSlice";
-import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+} from "../../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 
 interface CSVError {
   type: string;

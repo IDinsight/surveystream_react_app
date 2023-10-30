@@ -8,7 +8,7 @@ import {
   basicCSVValidations,
   classifyErrorsForColumns,
   validateCSVData,
-} from "../../../utils/csvValidator";
+} from "../../../../utils/csvValidator";
 const { Dragger } = Upload;
 
 interface IFileUpload {

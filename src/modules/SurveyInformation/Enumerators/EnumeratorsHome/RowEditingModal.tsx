@@ -10,8 +10,8 @@ import {
   bulkUpdateEnumerators,
   getEnumeratorsColumnConfig,
   updateEnumerator,
-} from "../../../redux/enumerators/enumeratorsActions";
-import { useAppDispatch } from "../../../redux/hooks";
+} from "../../../../redux/enumerators/enumeratorsActions";
+import { useAppDispatch } from "../../../../redux/hooks";
 import { use } from "chai";
 
 interface IRowEditingModal {

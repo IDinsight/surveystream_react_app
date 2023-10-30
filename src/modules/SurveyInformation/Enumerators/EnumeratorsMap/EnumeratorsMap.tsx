@@ -1,18 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
-import Header from "../../../components/Header";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
   FooterWrapper,
   SaveButton,
-} from "../../../shared/FooterBar.styled";
+} from "../../../../shared/FooterBar.styled";
 import {
   DescriptionContainer,
   DescriptionText,
@@ -21,17 +21,8 @@ import {
   HeadingText,
   OptionText,
 } from "./EnumeratorsMap.styled";
+import { useEffect, useState } from "react";
 import {
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactFragment,
-  ReactPortal,
-  useEffect,
-  useState,
-} from "react";
-import {
-  CloudDownloadOutlined,
   CloudUploadOutlined,
   DislikeFilled,
   DislikeOutlined,
@@ -39,19 +30,18 @@ import {
   LikeOutlined,
   SelectOutlined,
 } from "@ant-design/icons";
-import RowCountBox from "../../../components/RowCountBox";
-import { RootState } from "../../../redux/store";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import RowCountBox from "../../../../components/RowCountBox";
+import { RootState } from "../../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import {
   postEnumeratorsMapping,
   updateEnumeratorColumnConfig,
-} from "../../../redux/enumerators/enumeratorsActions";
-import { EnumeratorMapping } from "../../../redux/enumerators/types";
-import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
-import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
-import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
+} from "../../../../redux/enumerators/enumeratorsActions";
+import { EnumeratorMapping } from "../../../../redux/enumerators/types";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 
 interface CSVError {
   type: string;
@@ -334,10 +324,8 @@ function EnumeratorsMap() {
           console.log(customConfig);
 
           setHasError(false);
-          //route to manage
-          navigate(
-            `/survey-information/enumerators/manage/${survey_uid}/${form_uid}`
-          );
+          //route to home
+          navigate(`/survey-information/enumerators/${survey_uid}/${form_uid}`);
         } else {
           message.error("Failed to upload kindly check and try again");
           setHasError(true);
