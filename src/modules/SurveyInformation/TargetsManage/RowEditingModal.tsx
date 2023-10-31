@@ -185,6 +185,9 @@ function RowEditingModal({
       //must wait for config before fields filtering
       await fetchTargetColumnConfig(form_uid);
 
+      console.log("filteredFields", filteredFields);
+      console.log("bulkFieldsToExclude", bulkFieldsToExclude);
+
       //exclude bulk non editable as well as the personal fields
       filteredFields = fields.filter(
         (field: Field) =>
@@ -192,7 +195,8 @@ function RowEditingModal({
           !fieldsToExclude.includes(field.labelKey)
       );
 
-      //include if a field is contracting
+      console.log("filteredFields", filteredFields);
+
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
       );

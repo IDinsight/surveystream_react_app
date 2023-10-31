@@ -46,6 +46,9 @@ import {
 import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { useState, useEffect } from "react";
 
+import { CSVLink } from "react-csv";
+import { it } from "mocha";
+
 interface CSVError {
   type: string;
   count: number;
@@ -385,6 +388,21 @@ function TargetsMap() {
     console.log(customConfig);
   };
 
+  const findLowestGeoLevel = (locationData: any) => {
+    let lowestGeoLevel = null;
+
+    for (const item of locationData) {
+      if (
+        !lowestGeoLevel ||
+        item.parent_geo_level_uid > lowestGeoLevel.parent_geo_level_uid
+      ) {
+        lowestGeoLevel = item;
+      }
+    }
+
+    return lowestGeoLevel;
+  };
+
   const fetchSurveyModuleQuestionnaire = async () => {
     if (survey_uid) {
       const moduleQQuestionnaireRes = await dispatch(
@@ -393,48 +411,24 @@ function TargetsMap() {
       if (
         moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
       ) {
-        console.log("moduleQQuestionnaireRes", moduleQQuestionnaireRes);
-
         if (
           moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
             "Location"
           )
         ) {
-          //fetch location and then set the other fields
+          // use lowest geo level for target mapping location
           const locationRes = await dispatch(
             getSurveyLocationGeoLevels({ survey_uid: survey_uid })
           );
 
-          console.log("locationRes", locationRes);
-
           const locationData = locationRes?.payload;
 
-          console.log("locationData", locationData);
+          const lowestGeoLevel = findLowestGeoLevel(locationData);
 
-          let lowestLevel: string | null = null;
-
-          for (const item of locationData) {
-            if (item.parent_geo_level_uid === null) {
-              continue; // Skip top-level hierarchy
-            }
-
-            if (
-              !lowestLevel ||
-              item.geo_level_uid <
-                locationData.find(
-                  (i: any) => i.geo_level_uid === item.parent_geo_level_uid
-                )!.geo_level_uid
-            ) {
-              lowestLevel = item.geo_level_name;
-            }
-          }
-
-          console.log("lowestLevelName", lowestLevel);
-
-          if (lowestLevel) {
+          if (lowestGeoLevel?.geo_level_name) {
             setLocationDetailsField([
               {
-                title: `${lowestLevel} ID`,
+                title: `${lowestGeoLevel.geo_level_name} ID`,
                 key: `location_id_column`,
               },
             ]);

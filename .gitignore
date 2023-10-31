@@ -34,3 +34,4 @@ e2e/videos/*
 e2e/screenshots/*
 **/surveystream_flask_api
 cypress/results/output.xml
+e2e/screenshots/*

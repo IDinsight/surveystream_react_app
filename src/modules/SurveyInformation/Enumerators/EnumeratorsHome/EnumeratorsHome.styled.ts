@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Table } from "antd";
 
-export const EnumeratorsManageFormWrapper = styled.div`
+export const EnumeratorsHomeFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   padding-left: 80px;

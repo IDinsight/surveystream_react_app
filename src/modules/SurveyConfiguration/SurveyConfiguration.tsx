@@ -65,7 +65,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     "SurveyCTO information": "survey-cto-information",
     "Field supervisor roles": "field-supervisor-roles/add",
     "Survey locations": "location/add",
-    Enumerators: "enumerators/upload",
+    Enumerators: "enumerators",
     Targets: "targets/upload",
   },
 };
