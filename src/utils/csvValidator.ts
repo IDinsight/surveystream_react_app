@@ -46,6 +46,53 @@ export const readFileAsText = (file: File): Promise<string> => {
     reader.readAsText(file);
   });
 };
+
+export const checkCSVRows = (file: File) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    const maxRows = process.env.REACT_APP_MAX_UPLOAD_ROWS
+      ? parseInt(process.env.REACT_APP_MAX_UPLOAD_ROWS)
+      : 2000;
+
+    reader.onload = () => {
+      const csvData = reader.result as string;
+      const rows = csvData.split("\n");
+      if (rows.length > maxRows) {
+        const error = `CSV file should have a maximum of ${maxRows} rows; found ${rows.length}`;
+        message.error(error);
+        resolve({ status: false, rows: rows.length, error: error });
+      } else {
+        resolve({ status: true, rows: rows.length });
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new Error("An error occurred while reading the CSV file."));
+    };
+
+    reader.readAsText(file);
+  });
+};
+
+export const basicCSVValidations = async (file: File) => {
+  const reader = new FileReader();
+  // Validate file type
+  const allowedFileTypes = ["text/csv"];
+  const fileType = file.type;
+  if (!allowedFileTypes.includes(fileType)) {
+    message.error("Only CSV files are allowed.");
+    return displayValidationErrors([
+      `Only CSV files are allowed; found ${fileType}`,
+    ]);
+  }
+  // Validate file size (number of rows)
+
+  const maxRowsCheck: any = await checkCSVRows(file);
+  if (!maxRowsCheck.status) {
+    return displayValidationErrors([maxRowsCheck.error]);
+  }
+};
+
 export const findDuplicateColumns = (headers: string[]): string[] => {
   const duplicateColumns: string[] = [];
   const seenColumns: Set<string> = new Set();

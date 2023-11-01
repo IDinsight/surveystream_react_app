@@ -14,6 +14,7 @@ export const EnumeratorsHomeFormWrapper = styled.div`
 
 export const EnumeratorsTable = styled(Table)`
   width: 90%;
+  overflow: auto;
   & th {
     color: #434343 !important;
     background-color: #fff0f6 !important;

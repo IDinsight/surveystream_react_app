@@ -102,13 +102,30 @@ function EnumeratorsHome() {
     // Setting the fields to show on Modal
     const fields = Object.keys({ ...selectedRows[0] })
       .filter((field) => field !== "key")
-      .map((field) => {
+      .map((field: any) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            const customFields = selectedRows[0][field];
+
+            return Object.keys(customFields)
+              .filter((key) => key !== "column_mapping") // Filter out "column_mapping"
+              .map((key) => ({
+                labelKey: key,
+                label: `custom_fields.${key}`,
+              }));
+          }
+        }
         return {
           labelKey: field,
           label: dataTableColumn.find((col: any) => col.dataIndex === field)
             ?.title,
         };
-      });
+      })
+      .flat();
+    console.log("fields", fields);
 
     setFieldData(fields);
   };
@@ -221,26 +238,66 @@ function EnumeratorsHome() {
       ];
 
       // Define column mappings
-      const columnMappings = Object.keys(dataWithStatus[0])
+      let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
-          dataWithStatus.some(
-            (row: { [x: string]: null }) => row[column] !== null
+          originalData.some(
+            (row: any) => row[column] !== null && column !== "custom_fields"
           )
-        ) // Filter out columns with all null values
+        )
         .map((column) => ({
           title: column,
           dataIndex: column,
-        }));
+          width: 90,
+          ellipsis: true,
+        })); // Filter out columns with all null values
+
+      const customFieldsSet = new Set(); // Create a set to track unique custom fields
+      const customFields = originalData.reduce((acc: any, row: any) => {
+        if (row.custom_fields && typeof row.custom_fields === "object") {
+          for (const key in row.custom_fields) {
+            if (
+              row.custom_fields[key] !== null &&
+              !customFieldsSet.has(key) &&
+              key !== "column_mapping"
+            ) {
+              customFieldsSet.add(key); // Add the custom field to the set
+              acc.push({
+                title: key,
+                dataIndex: `custom_fields.${key}`,
+                width: 90,
+                ellipsis: true,
+              });
+            }
+          }
+        }
+        return acc;
+      }, []);
+
+      columnMappings = columnMappings.concat(customFields);
 
       setDataTableColumn(columnMappings);
 
-      const tableDataSource = dataWithStatus.map((item: any, index: any) => {
+      const tableDataSource = originalData.map((item: any, index: any) => {
         const rowData: Record<string, any> = {}; // Use index signature
 
         for (const mapping of columnMappings) {
           const { title, dataIndex } = mapping;
-          rowData[dataIndex] = item[dataIndex];
+
+          // Check if the mapping is for custom_fields
+          if (dataIndex.startsWith("custom_fields.")) {
+            const customFieldKey = dataIndex.split(".")[1];
+            if (
+              item.custom_fields &&
+              item.custom_fields[customFieldKey] !== null
+            ) {
+              rowData[dataIndex] = item.custom_fields[customFieldKey];
+            } else {
+              rowData[dataIndex] = null;
+            }
+          } else {
+            rowData[dataIndex] = item[dataIndex];
+          }
         }
 
         return {
