@@ -5,6 +5,8 @@ WORKDIR /
 COPY package.json .
 COPY package-lock.json .
 
+RUN npm install
+
 # by setting CI environment variable we switch the Cypress install messages
 # to small "started / finished" and avoid 1000s of lines of progress messages
 # https://github.com/cypress-io/cypress/issues/1243

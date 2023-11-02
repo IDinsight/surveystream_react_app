@@ -98,10 +98,12 @@ function TargetsManage() {
             console.log("selectedRows[0][field]", selectedRows[0][field]);
             const customFields = selectedRows[0][field];
 
-            return Object.keys(customFields).map((key) => ({
-              labelKey: key,
-              label: `custom_fields.${key}`,
-            }));
+            return Object.keys(customFields)
+              .filter((key) => key !== "column_mapping") // Filter out "column_mapping"
+              .map((key) => ({
+                labelKey: key,
+                label: `custom_fields.${key}`,
+              }));
           }
         }
 
@@ -186,7 +188,11 @@ function TargetsManage() {
       const customFields = originalData.reduce((acc: any, row: any) => {
         if (row.custom_fields && typeof row.custom_fields === "object") {
           for (const key in row.custom_fields) {
-            if (row.custom_fields[key] !== null && !customFieldsSet.has(key)) {
+            if (
+              row.custom_fields[key] !== null &&
+              !customFieldsSet.has(key) &&
+              key !== "column_mapping"
+            ) {
               customFieldsSet.add(key); // Add the custom field to the set
               acc.push({
                 title: key,
@@ -197,6 +203,7 @@ function TargetsManage() {
             }
           }
         }
+
         return acc;
       }, []);
 

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { CloseCircleOutlined, InboxOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
-import CSVFileValidator, { FieldSchema } from "csv-file-validator";
+import { FieldSchema } from "csv-file-validator";
 
 import { Buffer } from "buffer";
 import {

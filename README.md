@@ -54,4 +54,15 @@ Testing for E2E has been setup using cypress, to setup this locally setup a cypr
 To run E2E tests use 
 
 `npm run cypress:run-all`
+
+# Running E2E on Docker
+- Clone the backend code using `git clone https://github.com/IDinsight/surveystream_flask_api.git`
+- Run `make login`
+- Run `make image-test` to build the images. This will build both frontend and backend
+- Run `make test-container-up` to start docker containers
+- Run `make test-container-down` to remove the docker containers
+
+To add new packages to cypress:
+- Change directory to e2e
+- Run `npm install <package>`
  

@@ -1,3 +1,5 @@
+
+
 import SurveysPage from "../pages/surveys_page.cy";
 import LoginPage from "../pages/login_page.cy";
 import BasicInformationPage from "../pages/basic_information_page.cy";

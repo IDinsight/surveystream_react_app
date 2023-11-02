@@ -7,7 +7,7 @@ ARG BUILD_ENV
 WORKDIR  /
 ENV PATH /node_modules/.bin:$PATH
 
-COPY package.json  tailwind.config.js /tsconfig.json ./
+COPY package.json tailwind.config.js /tsconfig.json ./
 RUN npm install --network-timeout=100000
 RUN npx browserslist@latest --update-db
 
