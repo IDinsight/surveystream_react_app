@@ -1,73 +1,44 @@
 version: "2"
 networks:
-    # This special network is configured so that the local metadata
-    # service can bind to the specific IP address that ECS uses
-    # in production
-    credentials_network:
-        driver: bridge
-        ipam:
-            config:
-                - subnet: "169.254.170.0/24"
-                  gateway: 169.254.170.1
+  # This special network is configured so that the local metadata
+  # service can bind to the specific IP address that ECS uses
+  # in production
+  credentials_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.0/24"
+          gateway: 169.254.170.1
 services:
-    # This container vends credentials to your containers
-    ecs-local-endpoints:
-        # The Amazon ECS Local Container Endpoints Docker Image
-        image: amazon/amazon-ecs-local-container-endpoints:latest-amd64
-        volumes:
-          # Mount /var/run so we can access docker.sock and talk to Docker
-          - /var/run:/var/run
-          # Mount the shared configuration directory, used by the AWS CLI and AWS SDKs
-          # On Windows, this directory can be found at "%UserProfile%\.aws"
-          - $HOME/.aws/:/home/.aws/
-        environment:
-          # define the home folder; credentials will be read from $HOME/.aws
-          HOME: "/home"
-          # You can change which AWS CLI Profile is used
-          AWS_PROFILE: "surveystream_dev"
-        networks:
-            credentials_network:
-                # This special IP address is recognized by the AWS SDKs and AWS CLI 
-                ipv4_address: "169.254.170.2"
-                
-    # Here we reference the application container that we are testing
-    # You can test multiple containers at a time, simply duplicate this section
-    # and customize it for each container, and give it a unique IP in 'credentials_network'.
-    postgres:
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.3"
-        healthcheck:
-            test: ["CMD", "pg_isready", "-U", "surveystream" , "-p", "5433"]
-            timeout: 5s
-            retries: 5
-            start_period: 5s
+  # This container vends credentials to your containers
+  ecs-local-endpoints:
+    # The Amazon ECS Local Container Endpoints Docker Image
+    image: amazon/amazon-ecs-local-container-endpoints:latest-amd64
+    volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
+      # Mount the shared configuration directory, used by the AWS CLI and AWS SDKs
+      # On Windows, this directory can be found at "%UserProfile%\.aws"
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      # define the home folder; credentials will be read from $HOME/.aws
+      HOME: "/home"
+      # You can change which AWS CLI Profile is used
+      AWS_PROFILE: "surveystream_dev"
+    networks:
+      credentials_network:
+        # This special IP address is recognized by the AWS SDKs and AWS CLI
+        ipv4_address: "169.254.170.2"
 
-    api:
-        depends_on:
-            postgres:
-                condition: service_healthy
-        healthcheck:
-            test: wget --no-verbose -O /dev/null --tries=1 http://api:5001/api/healthcheck || exit 1
-            timeout: 10s
-            start_period: 20s
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.4"
-        environment:
-          AWS_DEFAULT_REGION: "ap-south-1"
-          AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/role/web-task-role"
-    client:
-        depends_on:
-            api:
-                condition: service_healthy
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.5"
-    cypress:
-        depends_on:
-            api:
-                condition: service_healthy
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.6"
+  # Here we reference the application container that we are testing
+  # You can test multiple containers at a time, simply duplicate this section
+  # and customize it for each container, and give it a unique IP in 'credentials_network'.
+  client:
+    depends_on:
+      - ecs-local-endpoints
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.5"
+    environment:
+      AWS_DEFAULT_REGION: "ap-south-1"
+      AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/role/web-task-role"
