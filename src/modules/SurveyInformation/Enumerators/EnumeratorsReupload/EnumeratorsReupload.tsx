@@ -30,6 +30,7 @@ interface IEnumeratorsReupload {
 }
 
 function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
+ 
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
@@ -108,11 +109,14 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
       />
       <DescriptionContainer>
         The following columns are existing in the enumerators table currently.
-        <ul>
-          {Object.keys(enumeratorColumnMapping).map((key) => (
-            <li key={key}>{key}</li>
-          ))}
-        </ul>
+        {enumeratorColumnMapping !== null &&
+          Object.keys(enumeratorColumnMapping).length > 0 && (
+            <ul>
+              {Object.keys(enumeratorColumnMapping).map((key) => (
+                <li key={key}>{key}</li>
+              ))}
+            </ul>
+          )}
       </DescriptionContainer>
       <div style={{ marginTop: "10px", marginBottom: "14px" }}>
         <Form layout="horizontal">
