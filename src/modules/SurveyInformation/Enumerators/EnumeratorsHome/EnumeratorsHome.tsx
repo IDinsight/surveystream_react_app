@@ -238,11 +238,25 @@ function EnumeratorsHome() {
         "column_mapping",
         originalData[0]?.custom_fields?.column_mapping
       );
-      dispatch(
-        setEnumeratorColumnMapping(
-          originalData[0]?.custom_fields?.column_mapping
-        )
-      );
+      if (originalData[0]?.custom_fields?.column_mapping !== null) {
+        dispatch(
+          setEnumeratorColumnMapping(
+            originalData[0]?.custom_fields?.column_mapping
+          )
+        );
+      } else {
+        const columnMapping: any = {};
+
+        for (const key in originalData[0]) {
+          if (Object.prototype.hasOwnProperty.call(originalData[0], key)) {
+            columnMapping[key] = key;
+          }
+        }
+
+        console.log("columnMapping", columnMapping);
+
+        setEnumeratorColumnMapping(columnMapping);
+      }
 
       // Define column mappings
       let columnMappings = Object.keys(originalData[0])
