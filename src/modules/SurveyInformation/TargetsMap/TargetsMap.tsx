@@ -169,12 +169,16 @@ function TargetsMap() {
       const values = await targetMappingForm.validateFields();
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
-        column_mapping.custom_fields = {};
+        column_mapping.custom_fields = [];
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
           if (shouldInclude) {
-            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+            // Set the column_type to "custom_fields"
+            column_mapping.custom_fields.push({
+              column_name: column_name,
+              field_label: column_name,
+            });
           }
         }
       }
