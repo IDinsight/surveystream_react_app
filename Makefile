@@ -6,11 +6,6 @@ $(eval PROD_NEW_ACCOUNT=923242859002)
 $(eval STAGING_ACCOUNT=210688620213)
 $(eval ADMIN_ACCOUNT=077878936716)
 $(eval DEV_ACCOUNT=453207568606)
-$(eval BACKEND_NAME=surveystream_backend)
-$(eval BACKEND_PORT=5001)
-$(eval VERSION=0.1)
-$(eval ADMIN_ACCOUNT=077878936716)
-$(eval DEV_ACCOUNT=453207568606)
 
 
 login:
@@ -21,12 +16,7 @@ image:
 	@docker build -f Dockerfile.client --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 
 image-test:
-	# Build frontend
 	@docker build -f Dockerfile.test --build-arg BUILD_ENV="development" --rm --platform=linux/arm64/v8 -t $(FRONTEND_NAME):$(VERSION) . 
-
-	# Build Backend
-	@cd surveystream_flask_api; \
-	docker build -f Dockerfile.api --rm --build-arg NAME=$(BACKEND_NAME) --build-arg PORT=$(BACKEND_PORT) --platform=linux/amd64 -t $(BACKEND_NAME):$(VERSION) .
 
 web-db-tunnel:
 	# Open a connection to the remote db via the bastion host
@@ -41,28 +31,10 @@ container-up:
 	# Start a local version of the web app that uses the DoD dev database
 	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
-	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml up -d
+	docker-compose -f docker-compose/docker-compose.e2e-test.yml -f docker-compose/docker-compose.override.yml up --exit-code-from cypress;
+
 
 container-down:
 	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
 	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml down
-
-test-container-up:
-	# Start a local version of the web app that uses the DoD dev database
-	@FRONTEND_NAME=${FRONTEND_NAME} \
-	VERSION=${VERSION} \
-	BACKEND_NAME=${BACKEND_NAME} \
-	BACKEND_PORT=${BACKEND_PORT} \
-	VERSION=${VERSION} \
-	ADMIN_ACCOUNT=${ADMIN_ACCOUNT} \
-	docker-compose -f docker-compose/docker-compose.e2e-test.yml -f docker-compose/docker-compose.override.yml up --build
-
-test-container-down:
-	@FRONTEND_NAME=${FRONTEND_NAME} \
-	VERSION=${VERSION} \
-	BACKEND_NAME=${BACKEND_NAME} \
-	BACKEND_PORT=${BACKEND_PORT} \
-	VERSION=${VERSION} \
-	ADMIN_ACCOUNT=${ADMIN_ACCOUNT} \
-	docker-compose -f docker-compose/docker-compose.e2e-test.yml -f docker-compose/docker-compose.override.yml down
