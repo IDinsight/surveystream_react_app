@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import Header from "../../../../components/Header";
@@ -21,7 +22,6 @@ import {
   HeadingText,
   OptionText,
 } from "./EnumeratorsMap.styled";
-import { useEffect, useState } from "react";
 import {
   CloudUploadOutlined,
   DislikeFilled,
@@ -181,6 +181,45 @@ function EnumeratorsMap() {
     );
   };
 
+  const handleFormUID = async (survey_uid: any, form_uid: any) => {
+    if (form_uid == "" || form_uid == undefined) {
+      try {
+        dispatch(setLoading(true));
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+          );
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        }
+        dispatch(setLoading(false));
+      } catch (error) {
+        dispatch(setLoading(false));
+        console.log("Error fetching sctoForm:", error);
+      }
+    }
+  };
+  const fetchSurveyModuleQuestionnaire = async (
+    survey_uid: any,
+    locationBatchField: any
+  ) => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+          "Location"
+        )
+      ) {
+        setLocationBatchField([...locationBatchField, "location_id_column"]);
+      }
+    }
+  };
   const handleEnumeratorUploadMapping = async () => {
     try {
       //start with an empty error count
@@ -348,28 +387,6 @@ function EnumeratorsMap() {
       console.log("Required errors:", requiredErrors);
     }
   };
-  const handleFormUID = async () => {
-    if (form_uid == "" || form_uid == undefined) {
-      try {
-        dispatch(setLoading(true));
-        const sctoForm = await dispatch(
-          getSurveyCTOForm({ survey_uid: survey_uid })
-        );
-        if (sctoForm?.payload[0]?.form_uid) {
-          navigate(
-            `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
-          );
-        } else {
-          message.error("Kindly configure SCTO Form to proceed");
-          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
-        }
-        dispatch(setLoading(false));
-      } catch (error) {
-        dispatch(setLoading(false));
-        console.log("Error fetching sctoForm:", error);
-      }
-    }
-  };
 
   const updateCustomColumns = (value: string) => {
     const formValues = enumeratorMappingForm.getFieldsValue();
@@ -381,21 +398,6 @@ function EnumeratorsMap() {
     });
 
     setExtraCSVHeader(extraHeaders);
-  };
-
-  const fetchSurveyModuleQuestionnaire = async () => {
-    if (survey_uid) {
-      const moduleQQuestionnaireRes = await dispatch(
-        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
-      );
-      if (
-        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
-          "Location"
-        )
-      ) {
-        setLocationBatchField([...locationBatchField, "location_id_column"]);
-      }
-    }
   };
 
   useEffect(() => {
@@ -414,8 +416,8 @@ function EnumeratorsMap() {
     );
 
     setExtraCSVHeader(extraHeaders);
-    handleFormUID();
-    fetchSurveyModuleQuestionnaire();
+    handleFormUID(survey_uid, form_uid);
+    fetchSurveyModuleQuestionnaire(survey_uid, locationBatchField);
   }, []);
 
   return (

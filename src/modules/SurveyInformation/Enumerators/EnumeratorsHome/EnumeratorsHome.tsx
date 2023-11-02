@@ -22,7 +22,10 @@ import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
+import {
+  setEnumeratorColumnMapping,
+  setLoading,
+} from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions";
@@ -141,12 +144,6 @@ function EnumeratorsHome() {
     setEditData(false);
   };
 
-  const uploadNewEnumerators = () => {
-    // navigate(
-    //   `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
-    // );
-  };
-
   const handleFormUID = async () => {
     if (form_uid == "" || form_uid == undefined) {
       try {
@@ -236,6 +233,16 @@ function EnumeratorsHome() {
         "surveyor_locations",
         "monitor_locations",
       ];
+
+      console.log(
+        "column_mapping",
+        originalData[0]?.custom_fields?.column_mapping
+      );
+      dispatch(
+        setEnumeratorColumnMapping(
+          originalData[0]?.custom_fields?.column_mapping
+        )
+      );
 
       // Define column mappings
       let columnMappings = Object.keys(originalData[0])
