@@ -20,4 +20,4 @@ coverage
 
 # Ignore other files and directories
 .DS_Store
-Thumbs.db
+Thumbs.db   

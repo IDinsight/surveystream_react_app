@@ -238,7 +238,7 @@ function EnumeratorsHome() {
         "column_mapping",
         originalData[0]?.custom_fields?.column_mapping
       );
-      if (originalData[0]?.custom_fields?.column_mapping !== null) {
+      if (originalData[0]?.custom_fields?.column_mapping) {
         dispatch(
           setEnumeratorColumnMapping(
             originalData[0]?.custom_fields?.column_mapping
