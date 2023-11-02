@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Table } from "antd";
 
-export const TargetsManageFormWrapper = styled.div`
+export const TargetsHomeFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   padding-left: 80px;

@@ -207,10 +207,16 @@ function SideMenu() {
     {
       label: (
         <MenuItem
+          className={`${
+            isActive(
+              `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
+            ) ||
+            isActive(
+              `/survey-information/enumerators/map/${survey_uid}/${formUID}`
+            ) ||
+            isActive(`/survey-information/enumerators/${survey_uid}/${formUID}`)
+          }`}
           to={`/survey-information/enumerators/${survey_uid}`}
-          className={isActive(
-            `/survey-information/enumerators/${survey_uid}/${formUID}`
-          )}
         >
           <IconWrapper>
             <ProfileOutlined />
@@ -230,11 +236,9 @@ function SideMenu() {
             isActive(
               `/survey-information/targets/map/${survey_uid}/${formUID}`
             ) ||
-            isActive(
-              `/survey-information/targets/manage/${survey_uid}/${formUID}`
-            )
+            isActive(`/survey-information/targets/${survey_uid}/${formUID}`)
           }`}
-          to={`/survey-information/targets/upload/${survey_uid}/${formUID}`}
+          to={`/survey-information/targets/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <NumberOutlined />
@@ -243,56 +247,6 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyTargets",
-      children: [
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/targets/upload/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/targets/upload/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <UploadOutlined />
-              </IconWrapper>
-              Upload csv
-            </MenuItem>
-          ),
-          key: "surveyTargetsUpload",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/targets/map/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/targets/map/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <SelectOutlined />
-              </IconWrapper>
-              Map csv columns
-            </MenuItem>
-          ),
-          key: "surveyTargetsMap",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/targets/manage/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/targets/manage/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <FormOutlined />
-              </IconWrapper>
-              Manage targets
-            </MenuItem>
-          ),
-          key: "surveyTargetsManage",
-        },
-      ],
     },
     {
       label: (

@@ -1,18 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
-import Header from "../../../components/Header";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
   FooterWrapper,
   SaveButton,
-} from "../../../shared/FooterBar.styled";
+} from "../../../../shared/FooterBar.styled";
 import {
   DescriptionContainer,
   DescriptionText,
@@ -31,19 +31,19 @@ import {
   LikeOutlined,
   SelectOutlined,
 } from "@ant-design/icons";
-import RowCountBox from "../../../components/RowCountBox";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
-import { setLoading } from "../../../redux/targets/targetSlice";
-import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
-import { TargetMapping } from "../../../redux/targets/types";
+import RowCountBox from "../../../../components/RowCountBox";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import { setLoading } from "../../../../redux/targets/targetSlice";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { TargetMapping } from "../../../../redux/targets/types";
 import {
   postTargetsMapping,
   updateTargetsColumnConfig,
-} from "../../../redux/targets/targetActions";
-import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
+} from "../../../../redux/targets/targetActions";
+import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";

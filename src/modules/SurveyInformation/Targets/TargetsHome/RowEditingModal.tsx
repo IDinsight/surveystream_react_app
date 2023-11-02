@@ -10,9 +10,8 @@ import {
   bulkUpdateTargets,
   getTargetsColumnConfig,
   updateTarget,
-} from "../../../redux/targets/targetActions";
-import { useAppDispatch } from "../../../redux/hooks";
-import { use } from "chai";
+} from "../../../../redux/targets/targetActions";
+import { useAppDispatch } from "../../../../redux/hooks";
 
 interface IRowEditingModal {
   data: DataItem[];

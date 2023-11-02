@@ -18,9 +18,9 @@ import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpl
 import EnumeratorsUpload from "../modules/SurveyInformation/Enumerators/EnumeratorsUpload";
 import EnumeratorsMap from "../modules/SurveyInformation/Enumerators/EnumeratorsMap";
 import NotFound from "../modules/NotFound";
-import TargetsUpload from "../modules/SurveyInformation/TargetsUpload";
-import TargetsMap from "../modules/SurveyInformation/TargetsMap";
-import TargetsManage from "../modules/SurveyInformation/TargetsManage";
+import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
+import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
+import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -98,16 +98,16 @@ const AppRoutes = () => {
           element={<EnumeratorsMap />}
         />
         <Route
+          path="/survey-information/targets/:survey_uid?/:form_uid?"
+          element={<TargetsHome />}
+        />
+        <Route
           path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
           element={<TargetsUpload />}
         />
         <Route
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
-        />
-        <Route
-          path="/survey-information/targets/manage/:survey_uid?/:form_uid?"
-          element={<TargetsManage />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />
