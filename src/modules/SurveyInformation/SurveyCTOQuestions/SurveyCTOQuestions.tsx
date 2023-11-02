@@ -178,9 +178,7 @@ function SurveyCTOQuestions() {
           return;
         } else {
           message.success("surveyCTOForm mapping updated successfully");
-          navigate(
-            `/survey-information/field-supervisor-roles/add/${survey_uid}`
-          );
+          navigate(`/survey-configuration/${survey_uid}`);
         }
       } else {
         message.error(

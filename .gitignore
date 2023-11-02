@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-**/node_modules
+/node_modules
 /.pnp
 .pnp.js
 
@@ -30,8 +30,5 @@ yarn-error.log*
 .idea/workspace.xml
 cypress/videos/*
 cypress/screenshots/*
-e2e/videos/*
-e2e/screenshots/*
-**/surveystream_flask_api
 cypress/results/output.xml
 e2e/screenshots/*

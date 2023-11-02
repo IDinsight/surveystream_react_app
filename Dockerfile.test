@@ -8,7 +8,7 @@ WORKDIR  /
 ENV PATH /node_modules/.bin:$PATH
 
 COPY package.json package-lock.json tailwind.config.js tsconfig.json cypress.config.ts ./
-RUN npm install --network-timeout=400000
+RUN npm install --network-timeout=200000
 RUN npx browserslist@latest --update-db
 
 # Copying source code later so that we can avoid npm install everytime
@@ -21,6 +21,6 @@ RUN npm run build:${BUILD_ENV}
 FROM nginx:stable-alpine
 RUN rm -rf /etc/nginx/conf.d
 COPY --from=build-step /build /usr/share/nginx/html
-COPY ./nginx.test.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.test.conf /etc/nginx/conf.d/test.conf
 
 EXPOSE 3000 80
