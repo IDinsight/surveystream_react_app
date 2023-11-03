@@ -509,7 +509,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                       ]}
                     >
                       <Select
-                        value={enumeratorColumnMapping["location_id_column"]}
                         onChange={updateCustomColumns}
                         style={{ width: 180 }}
                         filterOption={true}

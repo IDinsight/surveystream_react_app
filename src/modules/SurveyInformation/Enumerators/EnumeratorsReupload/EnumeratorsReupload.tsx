@@ -30,7 +30,6 @@ interface IEnumeratorsReupload {
 }
 
 function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
- 
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);

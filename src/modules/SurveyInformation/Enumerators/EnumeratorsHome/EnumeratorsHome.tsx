@@ -248,14 +248,16 @@ function EnumeratorsHome() {
         const columnMapping: any = {};
 
         for (const key in originalData[0]) {
-          if (Object.prototype.hasOwnProperty.call(originalData[0], key) && key !== 'custom_fields') {
+          if (
+            Object.prototype.hasOwnProperty.call(originalData[0], key) &&
+            key !== "custom_fields"
+          ) {
             columnMapping[key] = key;
           }
         }
 
         console.log("columnMapping", columnMapping);
-
-        setEnumeratorColumnMapping(columnMapping);
+        dispatch(setEnumeratorColumnMapping(columnMapping));
       }
 
       // Define column mappings
@@ -340,7 +342,7 @@ function EnumeratorsHome() {
     if (form_uid) {
       getEnumeratorsList(form_uid);
     }
-  }, []);
+  }, [tableDataSource]);
 
   /*
    * New design configs
