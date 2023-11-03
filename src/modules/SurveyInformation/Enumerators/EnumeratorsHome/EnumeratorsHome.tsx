@@ -335,15 +335,6 @@ function EnumeratorsHome() {
     }
   };
 
-  useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    handleFormUID();
-    if (form_uid) {
-      getEnumeratorsList(form_uid);
-    }
-  }, [tableDataSource]);
-
   /*
    * New design configs
    */
@@ -384,6 +375,15 @@ function EnumeratorsHome() {
       );
     }
   };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    //TODO: update this for configured surveys already
+    handleFormUID();
+    if (form_uid) {
+      getEnumeratorsList(form_uid);
+    }
+  }, []);
 
   return (
     <>
