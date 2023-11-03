@@ -248,14 +248,16 @@ function EnumeratorsHome() {
         const columnMapping: any = {};
 
         for (const key in originalData[0]) {
-          if (Object.prototype.hasOwnProperty.call(originalData[0], key)) {
+          if (
+            Object.prototype.hasOwnProperty.call(originalData[0], key) &&
+            key !== "custom_fields"
+          ) {
             columnMapping[key] = key;
           }
         }
 
         console.log("columnMapping", columnMapping);
-
-        setEnumeratorColumnMapping(columnMapping);
+        dispatch(setEnumeratorColumnMapping(columnMapping));
       }
 
       // Define column mappings
@@ -333,15 +335,6 @@ function EnumeratorsHome() {
     }
   };
 
-  useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    handleFormUID();
-    if (form_uid) {
-      getEnumeratorsList(form_uid);
-    }
-  }, []);
-
   /*
    * New design configs
    */
@@ -382,6 +375,15 @@ function EnumeratorsHome() {
       );
     }
   };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    //TODO: update this for configured surveys already
+    handleFormUID();
+    if (form_uid) {
+      getEnumeratorsList(form_uid);
+    }
+  }, []);
 
   return (
     <>
