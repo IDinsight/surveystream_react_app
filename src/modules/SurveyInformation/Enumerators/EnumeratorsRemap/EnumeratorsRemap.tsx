@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import {
@@ -13,7 +14,6 @@ import {
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
@@ -32,8 +32,13 @@ import {
 } from "@ant-design/icons";
 import RowCountBox from "../../../../components/RowCountBox";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
-import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
+import {
+  setLoading,
+  setMappingErrorList,
+  setMappingErrorStatus,
+} from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { ContinueButton } from "../../../../shared/FooterBar.styled";
 
 interface CSVError {
   type: string;
@@ -48,15 +53,6 @@ interface IEnumeratorsReupload {
 function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const navigate = useNavigate();
 
-  const [enumeratorMappingForm] = Form.useForm();
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [errorCount, setErrorCount] = useState<number>(0);
-  const [errorList, setErrorList] = useState<CSVError[]>([]);
-  const [customHeader, setCustomHeader] = useState<boolean>(false);
-  const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
-  const [locationBatchField, setLocationBatchField] = useState<any>([]);
-  const [extraCSVHeader, setExtraCSVHeader] = useState<any>([]);
-
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
   };
@@ -64,10 +60,25 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     survey_uid: "",
   };
 
+  const [enumeratorMappingForm] = Form.useForm();
+  const [errorCount, setErrorCount] = useState<number>(0);
+  const [customHeader, setCustomHeader] = useState<boolean>(false);
+  const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
+  const [locationBatchField, setLocationBatchField] = useState<any>([]);
+  const [extraCSVHeader, setExtraCSVHeader] = useState<any>([]);
+
   const dispatch = useAppDispatch();
 
   const enumeratorColumnMapping = useAppSelector(
     (state: RootState) => state.enumerators.enumeratorColumnMapping
+  );
+
+  const mappingErrorStatus = useAppSelector(
+    (state: RootState) => state.enumerators.mappingErrorStatus
+  );
+
+  const mappingErrorList = useAppSelector(
+    (state: RootState) => state.enumerators.mappingErrorList
   );
 
   const csvHeaders = useAppSelector(
@@ -153,6 +164,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   });
 
   const moveToUpload = () => {
+    dispatch(setMappingErrorStatus(false));
     setScreenMode("reupload");
   };
 
@@ -209,7 +221,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     setExtraCSVHeader(extraHeaders);
   };
 
-  const handleContinueBtn = async () => {
+  const handleEnumeratorUploadMapping = async () => {
     try {
       //start with an empty error count
       setErrorCount(0);
@@ -303,9 +315,10 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
             if (errorCount >= csvRows.length) {
               setErrorCount(csvRows.length - 1);
             }
-            setErrorList(transformedErrors);
-            setHasError(true);
+            dispatch(setMappingErrorList(transformedErrors));
           }
+          dispatch(setMappingErrorStatus(true));
+          console.log("hasError", mappingErrorStatus);
           return;
         }
 
@@ -316,18 +329,18 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           //use the column mapping to do this
           //TODO: add column config here if needed on merge
 
-          setHasError(false);
+          dispatch(setMappingErrorStatus(false));
           //route to home
           setScreenMode("manage");
         } else {
           message.error("Failed to upload kindly check and try again");
-          setHasError(true);
+          dispatch(setMappingErrorStatus(true));
         }
       } else {
         message.error(
           "Kindly check that form_uid is provided in the url to proceed."
         );
-        setHasError(true);
+        dispatch(setMappingErrorStatus(true));
       }
     } catch (error) {
       console.log("Form validation error:", error);
@@ -385,7 +398,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           </Button>
         </div>
 
-        {!hasError ? (
+        {!mappingErrorStatus ? (
           <>
             <StyledBreadcrumb
               separator=">"
@@ -455,6 +468,8 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                       labelAlign="left"
                     >
                       <Select
+                        showSearch={true}
+                        allowClear={true}
                         onChange={(value: any) => {
                           updateCustomColumns(value); // Manually call the function
                         }}
@@ -509,6 +524,8 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                       ]}
                     >
                       <Select
+                        showSearch={true}
+                        allowClear={true}
                         onChange={updateCustomColumns}
                         style={{ width: 180 }}
                         filterOption={true}
@@ -613,13 +630,9 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 )}
               </div>
             </Form>
-            <Button
-              type="primary"
-              style={{ backgroundColor: "#2f54eB", marginTop: 20 }}
-              onClick={handleContinueBtn}
-            >
+            <ContinueButton onClick={handleEnumeratorUploadMapping}>
               Continue
-            </Button>
+            </ContinueButton>
           </>
         ) : (
           <>
@@ -667,7 +680,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 </ol>
               </DescriptionContainer>
             </div>
-            {errorList !== null && (
+            {mappingErrorList !== null && (
               <div style={{ marginTop: 22 }}>
                 <p
                   style={{
@@ -682,7 +695,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 <Row>
                   <Col span={23}>
                     <ErrorTable
-                      dataSource={errorList}
+                      dataSource={mappingErrorList}
                       columns={errorTableColumn}
                       pagination={false}
                     />

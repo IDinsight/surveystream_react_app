@@ -208,6 +208,8 @@ function SurveyLocationHierarchy() {
           ]}
         >
           <Select
+            showSearch={true}
+            allowClear={true}
             placeholder="Choose hierarchy"
             style={{ width: "100%" }}
             onChange={(value) => handleSelectChange(value, index)}
