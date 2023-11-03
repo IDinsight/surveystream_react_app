@@ -505,6 +505,8 @@ function EnumeratorsMap() {
                           labelAlign="left"
                         >
                           <Select
+                            showSearch={true}
+                            allowClear={true}
                             onChange={updateCustomColumns}
                             style={{ width: 180 }}
                             filterOption={true}
@@ -557,6 +559,8 @@ function EnumeratorsMap() {
                           ]}
                         >
                           <Select
+                            showSearch={true}
+                            allowClear={true}
                             onChange={updateCustomColumns}
                             style={{ width: 180 }}
                             filterOption={true}
