@@ -248,7 +248,7 @@ function EnumeratorsHome() {
         const columnMapping: any = {};
 
         for (const key in originalData[0]) {
-          if (Object.prototype.hasOwnProperty.call(originalData[0], key)) {
+          if (Object.prototype.hasOwnProperty.call(originalData[0], key) && key !== 'custom_fields') {
             columnMapping[key] = key;
           }
         }
