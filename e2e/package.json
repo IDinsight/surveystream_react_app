@@ -1,0 +1,23 @@
+{
+    "name": "cypress-postgres",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "cypress open --e2e --browser=chrome",
+        "test:run": "cypress run"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "cypress": "^10.8.0",
+        "pg": "^8.8.0"
+    },
+    "dependencies": {
+        "crypto": "^1.0.1",
+        "pbkdf2": "^3.1.2",
+        "sjcl": "^1.0.8",
+        "typescript": "^5.2.2"
+    }
+}

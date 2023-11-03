@@ -127,6 +127,8 @@ function FieldSupervisorRolesHierarchy() {
           ]}
         >
           <Select
+            showSearch={true}
+            allowClear={true}
             placeholder="Select reporting role"
             style={{ width: "100%" }}
             onChange={(value) => handleSelectChange(value, index)}

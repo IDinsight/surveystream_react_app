@@ -15,5 +15,5 @@ export type EnumeratorMapping = {
     name: string;
   };
   file: string;
-  mode: "overwrite" | "append";
+  mode: "overwrite" | "merge";
 };

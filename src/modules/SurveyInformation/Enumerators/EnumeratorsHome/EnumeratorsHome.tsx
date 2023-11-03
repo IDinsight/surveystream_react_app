@@ -22,7 +22,10 @@ import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
+import {
+  setEnumeratorColumnMapping,
+  setLoading,
+} from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions";
@@ -110,13 +113,14 @@ function EnumeratorsHome() {
           ) {
             const customFields = selectedRows[0][field];
 
-            return Object.keys(customFields).map((key) => ({
-              labelKey: key,
-              label: `custom_fields.${key}`,
-            }));
+            return Object.keys(customFields)
+              .filter((key) => key !== "column_mapping") // Filter out "column_mapping"
+              .map((key) => ({
+                labelKey: key,
+                label: `custom_fields.${key}`,
+              }));
           }
         }
-
         return {
           labelKey: field,
           label: dataTableColumn.find((col: any) => col.dataIndex === field)
@@ -124,6 +128,7 @@ function EnumeratorsHome() {
         };
       })
       .flat();
+    console.log("fields", fields);
 
     setFieldData(fields);
   };
@@ -137,12 +142,6 @@ function EnumeratorsHome() {
       await getEnumeratorsList(form_uid);
     }
     setEditData(false);
-  };
-
-  const uploadNewEnumerators = () => {
-    // navigate(
-    //   `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
-    // );
   };
 
   const handleFormUID = async () => {
@@ -235,6 +234,32 @@ function EnumeratorsHome() {
         "monitor_locations",
       ];
 
+      console.log(
+        "column_mapping",
+        originalData[0]?.custom_fields?.column_mapping
+      );
+      if (originalData[0]?.custom_fields?.column_mapping) {
+        dispatch(
+          setEnumeratorColumnMapping(
+            originalData[0]?.custom_fields?.column_mapping
+          )
+        );
+      } else {
+        const columnMapping: any = {};
+
+        for (const key in originalData[0]) {
+          if (
+            Object.prototype.hasOwnProperty.call(originalData[0], key) &&
+            key !== "custom_fields"
+          ) {
+            columnMapping[key] = key;
+          }
+        }
+
+        console.log("columnMapping", columnMapping);
+        dispatch(setEnumeratorColumnMapping(columnMapping));
+      }
+
       // Define column mappings
       let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
@@ -254,7 +279,11 @@ function EnumeratorsHome() {
       const customFields = originalData.reduce((acc: any, row: any) => {
         if (row.custom_fields && typeof row.custom_fields === "object") {
           for (const key in row.custom_fields) {
-            if (row.custom_fields[key] !== null && !customFieldsSet.has(key)) {
+            if (
+              row.custom_fields[key] !== null &&
+              !customFieldsSet.has(key) &&
+              key !== "column_mapping"
+            ) {
               customFieldsSet.add(key); // Add the custom field to the set
               acc.push({
                 title: key,
@@ -306,15 +335,6 @@ function EnumeratorsHome() {
     }
   };
 
-  useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    handleFormUID();
-    if (form_uid) {
-      getEnumeratorsList(form_uid);
-    }
-  }, []);
-
   /*
    * New design configs
    */
@@ -355,6 +375,15 @@ function EnumeratorsHome() {
       );
     }
   };
+
+  useEffect(() => {
+    //redirect to upload if missing csvHeaders and cannot perform mapping
+    //TODO: update this for configured surveys already
+    handleFormUID();
+    if (form_uid) {
+      getEnumeratorsList(form_uid);
+    }
+  }, []);
 
   return (
     <>

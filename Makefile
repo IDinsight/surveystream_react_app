@@ -31,7 +31,8 @@ container-up:
 	# Start a local version of the web app that uses the DoD dev database
 	@FRONTEND_NAME=${FRONTEND_NAME} \
 	VERSION=${VERSION} \
-	docker-compose -f docker-compose/docker-compose.remote-dev-db.yml up -d
+	docker-compose -f docker-compose/docker-compose.e2e-test.yml -f docker-compose/docker-compose.override.yml up --exit-code-from cypress;
+
 
 container-down:
 	@FRONTEND_NAME=${FRONTEND_NAME} \

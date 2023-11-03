@@ -1,26 +1,44 @@
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, Checkbox, Col, Form, Row, Select, message } from "antd";
-import { Title } from "../../../../shared/Nav.styled";
 import {
   DescriptionContainer,
-  DescriptionText,
   EnumeratorsRemapFormWrapper,
   ErrorTable,
   HeadingText,
   StyledBreadcrumb,
 } from "./EnumeratorsRemap.styled";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
-  CloseOutlined,
-  CloudUploadOutlined,
-  DislikeFilled,
-  DislikeOutlined,
-  LikeFilled,
-  LikeOutlined,
-  SelectOutlined,
-} from "@ant-design/icons";
-import RowCountBox from "../../../../components/RowCountBox";
+  BackArrow,
+  BackLink,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import {
+  postEnumeratorsMapping,
+  updateEnumeratorColumnConfig,
+} from "../../../../redux/enumerators/enumeratorsActions";
+import { EnumeratorMapping } from "../../../../redux/enumerators/types";
+import {
+  CloseOutlined,
+  LikeFilled,
+  LikeOutlined,
+  DislikeFilled,
+  DislikeOutlined,
+  SelectOutlined,
+  CloudUploadOutlined,
+} from "@ant-design/icons";
+import RowCountBox from "../../../../components/RowCountBox";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import {
+  setLoading,
+  setMappingErrorList,
+  setMappingErrorStatus,
+} from "../../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { ContinueButton } from "../../../../shared/FooterBar.styled";
 
 interface CSVError {
   type: string;
@@ -33,10 +51,17 @@ interface IEnumeratorsReupload {
 }
 
 function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
+  const navigate = useNavigate();
+
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+
   const [enumeratorMappingForm] = Form.useForm();
-  const [hasError, setHasError] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
-  const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
   const [locationBatchField, setLocationBatchField] = useState<any>([]);
@@ -44,20 +69,16 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
   const dispatch = useAppDispatch();
 
-  const activeSurvey = useAppSelector(
-    (state: RootState) => state.surveys.activeSurvey
+  const enumeratorColumnMapping = useAppSelector(
+    (state: RootState) => state.enumerators.enumeratorColumnMapping
   );
 
-  const isLoading = useAppSelector(
-    (state: RootState) => state.enumerators.loading
+  const mappingErrorStatus = useAppSelector(
+    (state: RootState) => state.enumerators.mappingErrorStatus
   );
 
-  const quesLoading = useAppSelector(
-    (state: RootState) => state.surveyConfig.loading
-  );
-
-  const locLoading = useAppSelector(
-    (state: RootState) => state.surveyLocations.loading
+  const mappingErrorList = useAppSelector(
+    (state: RootState) => state.enumerators.mappingErrorList
   );
 
   const csvHeaders = useAppSelector(
@@ -71,11 +92,9 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const csvBase64Data = useAppSelector(
     (state: RootState) => state.enumerators.csvBase64Data
   );
+
   const moduleQuestionnaire = useAppSelector(
     (state: RootState) => state.surveyConfig.moduleQuestionnaire
-  );
-  const surveyLocationGeoLevels = useAppSelector(
-    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const errorTableColumn = [
@@ -140,15 +159,57 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     "home_address",
   ];
 
-  const csvHeaderOptions = csvHeaders.map((item, idx) => {
+  const csvHeaderOptions = csvHeaders.map((item) => {
     return { label: item, value: item };
   });
 
   const moveToUpload = () => {
+    dispatch(setMappingErrorStatus(false));
     setScreenMode("reupload");
   };
 
-  const updateCustomColumns = (value: string) => {
+  const fetchSurveyModuleQuestionnaire = async (
+    survey_uid: any,
+    locationBatchField: any
+  ) => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+          "Location"
+        )
+      ) {
+        setLocationBatchField([...locationBatchField, "location_id_column"]);
+      }
+    }
+  };
+
+  const handleFormUID = async (survey_uid: any, form_uid: any) => {
+    if (form_uid == "" || form_uid == undefined) {
+      try {
+        dispatch(setLoading(true));
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/survey-information/enumerators/upload/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+          );
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        }
+        dispatch(setLoading(false));
+      } catch (error) {
+        dispatch(setLoading(false));
+        console.log("Error fetching sctoForm:", error);
+      }
+    }
+  };
+
+  const updateCustomColumns = (value: any) => {
     const formValues = enumeratorMappingForm.getFieldsValue();
 
     const valuesArray = Object.values(formValues);
@@ -158,6 +219,144 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     });
 
     setExtraCSVHeader(extraHeaders);
+  };
+
+  const handleEnumeratorUploadMapping = async () => {
+    try {
+      //start with an empty error count
+      setErrorCount(0);
+      const values = await enumeratorMappingForm.validateFields();
+      const column_mapping = enumeratorMappingForm.getFieldsValue();
+      column_mapping.custom_fields = {};
+      if (customHeaderSelection) {
+        for (const [column_name, shouldInclude] of Object.entries(
+          customHeaderSelection
+        )) {
+          if (shouldInclude) {
+            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+          }
+        }
+      }
+
+      const requestData: EnumeratorMapping = {
+        column_mapping: column_mapping,
+        file: csvBase64Data,
+        mode: "merge",
+      };
+
+      if (form_uid !== undefined) {
+        const mappingsRes = await dispatch(
+          postEnumeratorsMapping({
+            enumeratorMappingData: requestData,
+            formUID: form_uid,
+          })
+        );
+
+        //set error list
+        if (mappingsRes.payload.success === false) {
+          message.error(mappingsRes.payload.message);
+
+          console.log("errors", mappingsRes?.payload?.errors);
+
+          if (mappingsRes?.payload?.errors) {
+            const transformedErrors: CSVError[] = [];
+
+            for (const errorKey in mappingsRes.payload.errors) {
+              let errorObj = mappingsRes.payload.errors[errorKey];
+
+              if (errorKey === "record_errors") {
+                errorObj =
+                  mappingsRes.payload.errors[errorKey]["summary_by_error_type"];
+
+                for (let i = 0; i < errorObj.length; i++) {
+                  const summaryError: any = errorObj[i];
+
+                  transformedErrors.push({
+                    type: summaryError["error_type"]
+                      ? summaryError["error_type"]
+                      : errorKey,
+                    count: summaryError["error_count"]
+                      ? summaryError["error_count"]
+                      : errorObj.length,
+                    rows: summaryError["error_message"]
+                      ? summaryError["error_message"]
+                      : errorObj,
+                  });
+                }
+              } else if (errorKey === "column_mapping") {
+                const columnErrors = mappingsRes.payload.errors[errorKey];
+                errorObj = columnErrors;
+
+                for (const columnError in columnErrors) {
+                  transformedErrors.push({
+                    type: errorKey,
+                    count: columnErrors[columnError].length,
+                    rows: `${columnError} - ${columnErrors[columnError]}`,
+                  });
+                }
+              } else {
+                transformedErrors.push({
+                  type: errorObj["error_type"]
+                    ? errorObj["error_type"]
+                    : errorKey,
+                  count: errorObj.length,
+                  rows: errorObj,
+                });
+              }
+
+              setErrorCount(
+                mappingsRes.payload.errors[errorKey]["summary"]
+                  ? mappingsRes.payload.errors[errorKey]["summary"][
+                      "error_count"
+                    ]
+                  : errorCount + errorObj.length
+              );
+            }
+            if (errorCount >= csvRows.length) {
+              setErrorCount(csvRows.length - 1);
+            }
+            dispatch(setMappingErrorList(transformedErrors));
+          }
+          dispatch(setMappingErrorStatus(true));
+          console.log("hasError", mappingErrorStatus);
+          return;
+        }
+
+        if (mappingsRes.payload.success) {
+          message.success("Enumerators uploaded and mapped successfully.");
+
+          //auto configure columns for users setting personal as non_batch and the rest as batch
+          //use the column mapping to do this
+          //TODO: add column config here if needed on merge
+
+          dispatch(setMappingErrorStatus(false));
+          //route to home
+          setScreenMode("manage");
+        } else {
+          message.error("Failed to upload kindly check and try again");
+          dispatch(setMappingErrorStatus(true));
+        }
+      } else {
+        message.error(
+          "Kindly check that form_uid is provided in the url to proceed."
+        );
+        dispatch(setMappingErrorStatus(true));
+      }
+    } catch (error) {
+      console.log("Form validation error:", error);
+
+      const requiredErrors: any = {};
+      const formFields = enumeratorMappingForm.getFieldsValue();
+
+      for (const field in formFields) {
+        const errors = enumeratorMappingForm.getFieldError(field);
+        if (errors && errors.length > 0) {
+          requiredErrors[field] = true;
+        }
+      }
+
+      console.log("Required errors:", requiredErrors);
+    }
   };
 
   useEffect(() => {
@@ -173,12 +372,13 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     );
 
     setExtraCSVHeader(extraHeaders);
-  }, []);
+    handleFormUID(survey_uid, form_uid);
+    fetchSurveyModuleQuestionnaire(survey_uid, locationBatchField);
 
-  const handleContinueBtn = () => {
-    // TODO: Integration
-    setScreenMode("manage");
-  };
+    //set default values for the form
+
+    enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
+  }, []);
 
   return (
     <>
@@ -197,7 +397,8 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
             <CloseOutlined /> Cancel
           </Button>
         </div>
-        {!hasError ? (
+
+        {!mappingErrorStatus ? (
           <>
             <StyledBreadcrumb
               separator=">"
@@ -212,12 +413,13 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 <HeadingText style={{ marginBottom: 22 }}>
                   Mandatory columns
                 </HeadingText>
-                <Alert
+                {/* TODO: add logic to show alerts */}
+                {/* <Alert
                   message="Mandatory columns: Email ID and Language (p) unavailable in new csv. Please map them to other columns."
                   type="error"
                   showIcon
                   style={{ width: 754, marginBottom: 20 }}
-                />
+                /> */}
                 <HeadingText>Personal and contact details</HeadingText>
                 {personalDetailsField.map((item, idx) => {
                   return (
@@ -266,7 +468,11 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                       labelAlign="left"
                     >
                       <Select
-                        onChange={updateCustomColumns}
+                        showSearch={true}
+                        allowClear={true}
+                        onChange={(value: any) => {
+                          updateCustomColumns(value); // Manually call the function
+                        }}
                         style={{ width: 180 }}
                         filterOption={true}
                         placeholder="Choose column"
@@ -318,6 +524,8 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                       ]}
                     >
                       <Select
+                        showSearch={true}
+                        allowClear={true}
                         onChange={updateCustomColumns}
                         style={{ width: 180 }}
                         filterOption={true}
@@ -410,7 +618,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                         setCustomHeader(true);
                         // This is temp code to store custom header selection status
                         const temp: any = {};
-                        extraCSVHeader.forEach((item: string, idx: any) => {
+                        extraCSVHeader.forEach((item: string) => {
                           temp[item] = null;
                         });
                         setCustomHeaderSelection(temp);
@@ -422,13 +630,9 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 )}
               </div>
             </Form>
-            <Button
-              type="primary"
-              style={{ backgroundColor: "#2f54eB", marginTop: 20 }}
-              onClick={handleContinueBtn}
-            >
+            <ContinueButton onClick={handleEnumeratorUploadMapping}>
               Continue
-            </Button>
+            </ContinueButton>
           </>
         ) : (
           <>
@@ -476,7 +680,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 </ol>
               </DescriptionContainer>
             </div>
-            {errorList !== null && (
+            {mappingErrorList !== null && (
               <div style={{ marginTop: 22 }}>
                 <p
                   style={{
@@ -491,7 +695,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 <Row>
                   <Col span={23}>
                     <ErrorTable
-                      dataSource={errorList}
+                      dataSource={mappingErrorList}
                       columns={errorTableColumn}
                       pagination={false}
                     />

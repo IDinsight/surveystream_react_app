@@ -9,6 +9,9 @@ interface EnumeratorsState {
   csvRows: string[];
   enumeratorList: string[];
   enumeratorColumnConfig: any;
+  enumeratorColumnMapping: any;
+  mappingErrorStatus: boolean;
+  mappingErrorList: any;
 }
 
 const initialState: EnumeratorsState = {
@@ -20,6 +23,9 @@ const initialState: EnumeratorsState = {
   fileUploaded: false,
   enumeratorList: [],
   enumeratorColumnConfig: null,
+  enumeratorColumnMapping: null,
+  mappingErrorStatus: false,
+  mappingErrorList: null,
 };
 
 const enumeratorsSlice = createSlice({
@@ -54,6 +60,15 @@ const enumeratorsSlice = createSlice({
     },
     setLoading: (state, action: PayloadAction<any>) => {
       state.loading = action.payload;
+    },
+    setEnumeratorColumnMapping: (state, action: PayloadAction<any>) => {
+      state.enumeratorColumnMapping = action.payload;
+    },
+    setMappingErrorStatus: (state, action: PayloadAction<any>) => {
+      state.mappingErrorStatus = action.payload;
+    },
+    setMappingErrorList: (state, action: PayloadAction<any>) => {
+      state.mappingErrorList = action.payload;
     },
 
     getEnumeratorsRequest: (state) => {
@@ -159,6 +174,9 @@ export const {
   setEnumeratorFileUpload,
   setEnumeratorCSVRows,
   setLoading,
+  setEnumeratorColumnMapping,
+  setMappingErrorList,
+  setMappingErrorStatus,
   postEnumeratorsMappingFailure,
   postEnumeratorsMappingRequest,
   postEnumeratorsMappingSuccess,
