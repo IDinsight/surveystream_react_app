@@ -216,7 +216,7 @@ function SideMenu() {
             ) ||
             isActive(`/survey-information/enumerators/${survey_uid}/${formUID}`)
           }`}
-          to={`/survey-information/enumerators/${survey_uid}`}
+          to={`/survey-information/enumerators/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <ProfileOutlined />
