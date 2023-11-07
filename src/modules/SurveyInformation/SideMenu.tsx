@@ -207,7 +207,7 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to={`/survey-information/enumerators/${survey_uid}`}
+          to={`/survey-information/enumerators/${survey_uid}/${formUID}`}
           className={isActive(
             `/survey-information/enumerators/${survey_uid}/${formUID}`
           )}
