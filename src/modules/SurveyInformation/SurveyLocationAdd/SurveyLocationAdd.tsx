@@ -90,6 +90,8 @@ function SurveyLocationAdd() {
       if (res.payload.length > 0) {
         setIsAllowEdit(false);
         form.setFieldValue("geo_level_0", res.payload[0].geo_level_name);
+      } else {
+        form.resetFields();
       }
     }
   };
