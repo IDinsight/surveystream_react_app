@@ -117,14 +117,6 @@ function SurveyLocationHierarchy() {
     }
   };
 
-  useEffect(() => {
-    fetchSurveyBasicInformation();
-    fetchSurveyLocationGeoLevels();
-    return () => {
-      dispatch(resetSurveyLocations());
-    };
-  }, [dispatch]);
-
   const renderHierarchyGeoLevelsField = () => {
     const numGeoLevels = surveyLocationGeoLevels.length;
 
@@ -291,6 +283,14 @@ function SurveyLocationHierarchy() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSurveyBasicInformation();
+    fetchSurveyLocationGeoLevels();
+    return () => {
+      dispatch(resetSurveyLocations());
+    };
+  }, [dispatch]);
 
   return (
     <>

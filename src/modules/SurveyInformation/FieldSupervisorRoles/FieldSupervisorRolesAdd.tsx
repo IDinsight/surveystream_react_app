@@ -53,6 +53,8 @@ function FieldSupervisorRolesAdd() {
     if (res.payload.length > 0) {
       setIsAllowEdit(false);
       form.setFieldValue("role_0", res.payload[0].role_name);
+    } else {
+      form.resetFields();
     }
   };
 
@@ -204,6 +206,7 @@ function FieldSupervisorRolesAdd() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchSupervisorRoles();
   }, [dispatch]);
