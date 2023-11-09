@@ -169,6 +169,22 @@ function NewSurveyConfig() {
               type: "success",
               content: "Survey module questionnaire data updated successfully.",
             });
+            //set active survey
+            dispatch(
+              setActiveSurvey({
+                survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
+                survey_name: basicformData?.survey_name || "",
+              })
+            );
+
+            localStorage.setItem(
+              "activeSurvey",
+              JSON.stringify({
+                survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
+                survey_name: basicformData?.survey_name || "",
+              })
+            );
+
             navigate(
               `/module-selection/${
                 survey_uid !== undefined ? survey_uid : surveyUid
