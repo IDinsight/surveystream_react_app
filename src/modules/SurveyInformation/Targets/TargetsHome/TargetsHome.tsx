@@ -1,14 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, message } from "antd";
-import Header from "../../../components/Header";
+import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
-import { TargetsManageFormWrapper, TargetsTable } from "./TargetsManage.styled";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../../SideMenu";
+import { TargetsHomeFormWrapper, TargetsTable } from "./TargetsHome.styled";
 import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
@@ -16,17 +16,18 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
-import TargetsCountBox from "../../../components/TargetsCountBox";
-import { getEnumerators } from "../../../redux/enumerators/enumeratorsActions";
-import { setLoading } from "../../../redux/enumerators/enumeratorsSlice";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
-import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { getTargets } from "../../../redux/targets/targetActions";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import TargetsCountBox from "../../../../components/TargetsCountBox";
+import { setLoading } from "../../../../redux/targets/targetSlice";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { getTargets } from "../../../../redux/targets/targetActions";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useCSVDownloader } from "react-papaparse";
+import TargetsReupload from "../TargetsReupload";
+import TargetsRemap from "../TargetsRemap";
 
-function TargetsManage() {
+function TargetsHome() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -142,7 +143,7 @@ function TargetsManage() {
         );
         if (sctoForm?.payload[0]?.form_uid) {
           navigate(
-            `/survey-information/targets/manage/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+            `/survey-information/targets/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
           );
         } else {
           message.error("Kindly configure SCTO Form to proceed");
@@ -254,6 +255,43 @@ function TargetsManage() {
     }
   }, []);
 
+  /*
+   * New design configs
+   */
+  const [screenMode, setScreenMode] = useState<string>("manage");
+  const [newTargetModal, setNewTargetModal] = useState<boolean>(false);
+
+  // Mode: overwrite or merge
+  const [newTargetMode, setNewTargetMode] = useState<string>("");
+
+  const [isTargetInUse, setIsTargetInUse] = useState<boolean>(false);
+
+  const handleNewTargetMode = () => {
+    // Emit error if no new targets mode is selected
+    if (newTargetMode === "") {
+      message.error("Please select the mode to add new targets.");
+      return;
+    }
+
+    // Redirect to upload fresh targets, in case of fresh upload, otherwise start append mode
+    if (newTargetMode === "overwrite") {
+      navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
+      return;
+    } else if (newTargetMode === "merge") {
+      setScreenMode("reupload");
+    }
+
+    setNewTargetModal(false);
+  };
+
+  const handlerAddTargetBtn = () => {
+    if (tableDataSource.length > 0) {
+      setNewTargetModal(true);
+    } else {
+      navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -277,94 +315,125 @@ function TargetsManage() {
       ) : (
         <div style={{ display: "flex" }}>
           <SideMenu />
-          <TargetsManageFormWrapper>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Title>Targets</Title>
-              <div
-                style={{
-                  display: "flex",
-                  marginLeft: "auto",
-                  color: "#2F54EB",
-                }}
-              >
-                {editMode ? (
-                  <>
+          {screenMode === "manage" ? (
+            <>
+              <TargetsHomeFormWrapper>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Title>Targets</Title>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginLeft: "auto",
+                      color: "#2F54EB",
+                    }}
+                  >
+                    {editMode ? (
+                      <>
+                        <Button
+                          icon={<EditOutlined />}
+                          style={{ marginRight: 15 }}
+                          onClick={onEditDataHandler}
+                        >
+                          Edit data
+                        </Button>
+                      </>
+                    ) : null}
                     <Button
-                      icon={<EditOutlined />}
-                      style={{ marginRight: 20 }}
-                      onClick={onEditDataHandler}
+                      type="primary"
+                      icon={editMode ? null : <EditOutlined />}
+                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                      onClick={() => setEditMode((prev) => !prev)}
                     >
-                      Edit data
+                      {editMode ? "Done editing" : "Edit"}
                     </Button>
-                  </>
-                ) : null}
-                <Button
-                  type="primary"
-                  icon={editMode ? null : <EditOutlined />}
-                  style={{ marginRight: 20, backgroundColor: "#2f54eB" }}
-                  onClick={() => setEditMode((prev) => !prev)}
-                >
-                  {editMode ? "Done editing" : "Edit"}
-                </Button>
-                <Button
-                  onClick={moveToUpload}
-                  type="primary"
-                  icon={<CloudUploadOutlined />}
-                  style={{ marginRight: 80, backgroundColor: "#2f54eB" }}
-                >
-                  Upload new targets
-                </Button>
-              </div>
-            </div>
-            <br />
-            <div style={{ display: "flex" }}>
-              <TargetsCountBox total={targetsCount} />
-              <div style={{ marginLeft: "auto", marginRight: 80 }}>
-                <CSVDownloader
-                  data={tableDataSource}
-                  filename={"targets.csv"}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor: "#2F54EB",
-                    color: "#FFF",
-                    fontSize: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "8px 16px",
-                    borderRadius: "5px",
+                    <Button
+                      onClick={handlerAddTargetBtn}
+                      type="primary"
+                      icon={<CloudUploadOutlined />}
+                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                    >
+                      Upload targets
+                    </Button>
+                    <CSVDownloader
+                      data={tableDataSource}
+                      filename={"targets.csv"}
+                      style={{
+                        cursor: "pointer",
+                        backgroundColor: "#2F54EB",
+                        color: "#FFF",
+                        fontSize: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "8px 16px",
+                        borderRadius: "5px",
+                        marginRight: 80,
+                      }}
+                    >
+                      <CloudDownloadOutlined />
+                    </CSVDownloader>
+                  </div>
+                </div>
+                <br />
+                <TargetsCountBox total={targetsCount} />
+                <TargetsTable
+                  rowSelection={editMode ? rowSelection : undefined}
+                  columns={dataTableColumn}
+                  dataSource={tableDataSource}
+                  style={{ marginRight: 80, marginTop: 30 }}
+                  pagination={{
+                    pageSize: paginationPageSize,
+                    pageSizeOptions: [10, 25, 50, 100],
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    onShowSizeChange: (_, size) => setPaginationPageSize(size),
                   }}
+                />
+                {editData ? (
+                  <RowEditingModal
+                    data={selectedRows}
+                    fields={fieldData}
+                    onCancel={onEditingCancel}
+                    onUpdate={onEditingUpdate}
+                  />
+                ) : null}
+              </TargetsHomeFormWrapper>
+              <Modal
+                title="Add targets"
+                open={newTargetModal}
+                onOk={handleNewTargetMode}
+                okText="Continue"
+                onCancel={() => setNewTargetModal(false)}
+              >
+                <Divider />
+                <p>Please select how you want to proceed:</p>
+                <Radio.Group
+                  style={{ marginBottom: 20 }}
+                  onChange={(e) => setNewTargetMode(e.target.value)}
+                  value={newTargetMode}
                 >
-                  <CloudDownloadOutlined style={{ marginRight: "8px" }} />
-                  Download Targets
-                </CSVDownloader>
-              </div>
-            </div>
-            <TargetsTable
-              rowSelection={editMode ? rowSelection : undefined}
-              columns={dataTableColumn}
-              dataSource={tableDataSource}
-              style={{ marginRight: 80, marginTop: 30 }}
-              pagination={{
-                pageSize: paginationPageSize,
-                pageSizeOptions: [10, 25, 50, 100],
-                showSizeChanger: true,
-                showQuickJumper: true,
-                onShowSizeChange: (_, size) => setPaginationPageSize(size),
-              }}
-            />
-            {editData ? (
-              <RowEditingModal
-                data={selectedRows}
-                fields={fieldData}
-                onCancel={onEditingCancel}
-                onUpdate={onEditingUpdate}
-              />
-            ) : null}
-          </TargetsManageFormWrapper>
+                  <Space direction="vertical">
+                    <Radio value="overwrite" disabled={isTargetInUse}>
+                      I want to start afresh (targets uploaded previously will
+                      be deleted)
+                    </Radio>
+                    <Radio value="merge">
+                      I want to add new targets / columns
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+              </Modal>
+            </>
+          ) : null}
+          {screenMode === "reupload" ? (
+            <TargetsReupload setScreenMode={setScreenMode} />
+          ) : null}
+          {screenMode === "remap" ? (
+            <TargetsRemap setScreenMode={setScreenMode} />
+          ) : null}
         </div>
       )}
     </>
   );
 }
 
-export default TargetsManage;
+export default TargetsHome;
