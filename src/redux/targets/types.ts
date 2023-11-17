@@ -10,5 +10,5 @@ export type TargetMapping = {
     target_id: string;
   };
   file: string;
-  mode: "overwrite" | "append";
+  mode: "overwrite" | "merge";
 };

@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { RootState } from "../../../../redux/store";
 import { Button, Col, Form, Row, message } from "antd";
 import { Title } from "../../../../shared/Nav.styled";
 import {
@@ -11,7 +12,7 @@ import {
 import { CloseOutlined } from "@ant-design/icons";
 import FileUpload from "./FileUpload";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useAppDispatch } from "../../../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
   setTargetsBase64Data,
   setTargetsCSVColumns,
@@ -33,6 +34,8 @@ interface ITargetsReupload {
 
 function TargetsReupload({ setScreenMode }: ITargetsReupload) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [form] = Form.useForm();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -41,14 +44,14 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
     form_uid: "",
   };
 
-  const [form] = Form.useForm();
-
   const [reupload, setReupload] = useState<boolean>(false);
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
 
-  const dispatch = useAppDispatch();
+  const targetsColumnMapping = useAppSelector(
+    (state: RootState) => state.targets.targetsColumnMapping
+  );
 
   const errorTableColumn = [
     {
@@ -74,11 +77,6 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
     rows: string[],
     base64Data: string
   ) => {
-    // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
-    console.log("rows:", rows);
-
     dispatch(setTargetsCSVColumns(columnNames));
     dispatch(setTargetsCSVRows(rows));
     dispatch(setTargetsFileUpload(true));
@@ -146,51 +144,16 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
             ]}
           />
           <DescriptionContainer>
-            The following columns are existing in the targets table currently.
-            The mandatory columns are indicated with a <Mandatory>*</Mandatory>:
-            <ol type="a">
-              <li>
-                Target ID <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Target Name <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Language <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Address <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Gender <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                State <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                District <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Block <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                PSU <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                State ID <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                District ID <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                Block ID <Mandatory>*</Mandatory>
-              </li>
-              <li>
-                PSU ID <Mandatory>*</Mandatory>
-              </li>
-              <li>Number of household members</li>
-              <li>Female head of household </li>
-            </ol>
+            The following columns are existing in the enumerators table
+            currently.
+            {targetsColumnMapping !== null &&
+              Object.keys(targetsColumnMapping).length > 0 && (
+                <ul>
+                  {Object.keys(targetsColumnMapping).map(
+                    (key) => key !== "custom_fields" && <li key={key}>{key}</li>
+                  )}
+                </ul>
+              )}
           </DescriptionContainer>
         </>
       ) : null}

@@ -111,9 +111,9 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
         {enumeratorColumnMapping !== null &&
           Object.keys(enumeratorColumnMapping).length > 0 && (
             <ul>
-              {Object.keys(enumeratorColumnMapping).map((key) => (
-                <li key={key}>{key}</li>
-              ))}
+              {Object.keys(enumeratorColumnMapping).map(
+                (key) => key !== "custom_fields" && <li key={key}>{key}</li>
+              )}
             </ul>
           )}
       </DescriptionContainer>

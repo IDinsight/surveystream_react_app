@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Button, Checkbox, Col, Row, Select, Form, message, Alert } from "antd";
 import { Title } from "../../../../shared/Nav.styled";
 import {
@@ -21,7 +22,12 @@ import {
 import RowCountBox from "../../../../components/RowCountBox";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { setLoading } from "../../../../redux/targets/targetSlice";
+import {
+  setLoading,
+  setMappingErrorList,
+  setMappingErrorStatus,
+  setMappingErrorCount,
+} from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { TargetMapping } from "../../../../redux/targets/types";
@@ -30,10 +36,11 @@ import {
   updateTargetsColumnConfig,
 } from "../../../../redux/targets/targetActions";
 import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
 
 import { CSVLink } from "react-csv";
 import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
+import { ContinueButton } from "../../../../shared/FooterBar.styled";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 
 interface CSVError {
   type: string;
@@ -58,11 +65,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   };
 
   const [targetMappingForm] = Form.useForm();
-
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [errorCount, setErrorCount] = useState<number>(0);
-
-  const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [hasWarning, setHasWarning] = useState<boolean>(false);
   const [warningList, setWarningList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
@@ -91,6 +93,18 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const mappingErrorStatus = useAppSelector(
+    (state: RootState) => state.targets.mappingErrorStatus
+  );
+
+  const mappingErrorList = useAppSelector(
+    (state: RootState) => state.targets.mappingErrorList
+  );
+
+  const mappingErrorCount = useAppSelector(
+    (state: RootState) => state.targets.mappingErrorCount
+  );
+
   const csvHeaders = useAppSelector(
     (state: RootState) => state.targets.csvColumnNames
   );
@@ -105,6 +119,9 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
+  );
+  const targetsColumnMapping = useAppSelector(
+    (state: RootState) => state.targets.targetsColumnMapping
   );
 
   const errorTableColumn = [
@@ -150,7 +167,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   const handleTargetsUploadMapping = async () => {
     try {
       //start with an empty error count
-      setErrorCount(0);
+      dispatch(setMappingErrorCount(0));
       const values = await targetMappingForm.validateFields();
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
@@ -171,7 +188,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       const requestData: TargetMapping = {
         column_mapping: column_mapping,
         file: csvBase64Data,
-        mode: "overwrite",
+        mode: "merge",
       };
 
       if (form_uid !== undefined) {
@@ -234,20 +251,32 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                 });
               }
 
-              setErrorCount(
+              console.log("errorObj", errorObj);
+
+              console.log(
                 mappingsRes.payload.errors[errorKey]["summary"]
                   ? mappingsRes.payload.errors[errorKey]["summary"][
                       "error_count"
                     ]
-                  : errorCount + errorObj.length
+                  : mappingErrorCount + errorObj.length
+              );
+
+              dispatch(
+                setMappingErrorCount(
+                  mappingsRes.payload.errors[errorKey]["summary"]
+                    ? mappingsRes.payload.errors[errorKey]["summary"][
+                        "error_count"
+                      ]
+                    : mappingErrorCount + errorObj.length
+                )
               );
             }
-            if (errorCount >= csvRows.length) {
-              setErrorCount(csvRows.length - 1);
+            if (mappingErrorCount >= csvRows.length) {
+              dispatch(setMappingErrorCount(csvRows.length - 1));
             }
-            setErrorList(transformedErrors);
+            dispatch(setMappingErrorList(transformedErrors));
           }
-          setHasError(true);
+          dispatch(setMappingErrorStatus(true));
           return;
         }
 
@@ -256,18 +285,19 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
           handleTargetColumnConfig(form_uid, column_mapping);
 
-          setHasError(false);
+          dispatch(setMappingErrorStatus(false));
+
           //route to manage
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
           message.error("Failed to upload kindly check and try again");
-          setHasError(true);
+          dispatch(setMappingErrorStatus(true));
         }
       } else {
         message.error(
           "Kindly check that form_uid is provided in the url to proceed."
         );
-        setHasError(true);
+        dispatch(setMappingErrorStatus(true));
       }
     } catch (error) {
       console.log("Form validation error:", error);
@@ -428,7 +458,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   };
 
   const moveToUpload = () => {
-    navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
+    dispatch(setMappingErrorStatus(false));
+    setScreenMode("reupload");
   };
 
   const updateCustomColumns = (value: string) => {
@@ -467,31 +498,39 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   };
 
   useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    if (csvHeaders.length < 1) {
-      message.error("csvHeaders not found kindly reupload csv file");
-      navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
-    }
+    const fetchData = async () => {
+      try {
+        // Redirect to upload if missing csvHeaders and cannot perform re-mapping
+        if (csvHeaders.length < 1) {
+          message.error("csvHeaders not found; kindly reupload the CSV file");
+          navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
+          return;
+        }
 
-    const keysToExclude = [
-      ...mandatoryDetailsField.map((item: { key: any }) => item.key),
-      ...locationDetailsField.map((item: { key: any }) => item.key),
-    ];
+        const keysToExclude = [
+          ...mandatoryDetailsField.map((item: { key: any }) => item.key),
+          ...locationDetailsField.map((item: { key: any }) => item.key),
+        ];
 
-    const extraHeaders = csvHeaders.filter(
-      (item) => !keysToExclude.includes(item)
-    );
+        const extraHeaders = csvHeaders.filter(
+          (item) => !keysToExclude.includes(item)
+        );
 
-    setExtraCSVHeader(extraHeaders);
+        setExtraCSVHeader(extraHeaders);
 
-    handleFormUID();
-    fetchSurveyModuleQuestionnaire();
+        await handleFormUID();
+        await fetchSurveyModuleQuestionnaire();
+
+        // Set default values for the form
+        targetMappingForm.setFieldsValue({ ...targetsColumnMapping });
+      } catch (error) {
+        // Handle errors appropriately
+        console.error("Error in useEffect:", error);
+      }
+    };
+
+    fetchData();
   }, []);
-
-  const handleContinueBtn = () => {
-    // TODO: Integration
-    setScreenMode("manage");
-  };
 
   return (
     <>
@@ -510,431 +549,446 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
             <CloseOutlined /> Cancel
           </Button>
         </div>
-        {!hasError && !hasWarning ? (
-          <>
-            <StyledBreadcrumb
-              separator=">"
-              items={[
-                { title: "Upload csv" },
-                { title: "Map csv columns", className: "active" },
-                { title: "Update targets" },
-              ]}
-            />
-            <Form form={targetMappingForm}>
-              <div>
-                <HeadingText style={{ marginBottom: 22 }}>
-                  Mandatory columns
-                </HeadingText>
+        {isLoading || quesLoading || locLoading ? (
+          <FullScreenLoader />
+        ) : (
+          <div>
+            {!mappingErrorStatus && !hasWarning ? (
+              <>
+                <StyledBreadcrumb
+                  separator=">"
+                  items={[
+                    { title: "Upload csv" },
+                    { title: "Map csv columns", className: "active" },
+                    { title: "Update targets" },
+                  ]}
+                />
+                <Form form={targetMappingForm}>
+                  <div>
+                    <HeadingText style={{ marginBottom: 22 }}>
+                      Mandatory columns
+                    </HeadingText>
+                    {/* 
+                  TODO: show alerts here
                 <Alert
                   message="Mandatory columns: Target Name and Language (p) not found, please map them. Custom columns: Number of household members not found, please map them."
                   type="error"
                   showIcon
                   style={{ width: 754, marginBottom: 20 }}
-                />
-                {mandatoryDetailsField.map((item: any, idx: any) => {
-                  return (
-                    <Form.Item
-                      label={item.title}
-                      name={item.key}
-                      key={idx}
-                      rules={[
-                        {
-                          required:
-                            (item.key === "location_id_column" &&
-                              !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
-                                "Location"
-                              )) ||
-                            item.key === "gender" ||
-                            item.key === "language"
-                              ? false
-                              : true,
-                          message: "Kindly select column to map value!",
-                        },
-                        {
-                          validator: async (_, value) => {
-                            if (!value) {
-                              return Promise.resolve(); // No need to check if value is empty
-                            }
-                            const formValues =
-                              targetMappingForm.getFieldsValue();
-
-                            const valuesArray = Object.values(formValues);
-                            // Count occurrences of the selected value in the valuesArray
-                            const selectedValueCount = valuesArray.filter(
-                              (val) => val === value
-                            ).length;
-
-                            // Check if the selected value is contained more than once
-                            if (selectedValueCount > 1) {
-                              return Promise.reject(
-                                "Column is already mapped. The same column cannot be mapped twice!"
-                              );
-                            }
-
-                            return Promise.resolve();
-                          },
-                        },
-                      ]}
-                      labelCol={{ span: 5 }}
-                      labelAlign="left"
-                    >
-                      <Select
-                        onChange={updateCustomColumns}
-                        style={{ width: 180 }}
-                        filterOption={true}
-                        placeholder="Choose column"
-                        options={csvHeaderOptions}
-                      />
-                    </Form.Item>
-                  );
-                })}
-                {locationDetailsField.length > 0 ? (
-                  <>
-                    <HeadingText>Location ID</HeadingText>
-                    {locationDetailsField.map(
-                      (
-                        item: {
-                          title: any;
-                          key: any;
-                        },
-                        idx: any
-                      ) => {
-                        return (
-                          <Form.Item
-                            label={item.title}
-                            name={item.key}
-                            key={idx}
-                            required
-                            labelCol={{ span: 5 }}
-                            labelAlign="left"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Kindly select column to map value!",
-                              },
-                              {
-                                validator: async (_, value) => {
-                                  if (!value) {
-                                    return Promise.resolve(); // No need to check if value is empty
-                                  }
-                                  const formValues =
-                                    targetMappingForm.getFieldsValue();
-
-                                  const valuesArray = Object.values(formValues);
-                                  // Count occurrences of the selected value in the valuesArray
-                                  const selectedValueCount = valuesArray.filter(
-                                    (val) => val === value
-                                  ).length;
-
-                                  // Check if the selected value is contained more than once
-                                  if (selectedValueCount > 1) {
-                                    return Promise.reject(
-                                      "Column is already mapped. The same column cannot be mapped twice!"
-                                    );
-                                  }
-
-                                  return Promise.resolve();
-                                },
-                              },
-                            ]}
-                          >
-                            <Select
-                              onChange={updateCustomColumns}
-                              style={{ width: 180 }}
-                              filterOption={true}
-                              placeholder="Choose column"
-                              options={csvHeaderOptions}
-                            />
-                          </Form.Item>
-                        );
-                      }
-                    )}
-                  </>
-                ) : null}
-
-                {customHeader ? (
-                  <>
-                    <HeadingText>Custom columns</HeadingText>
-                    <Alert
-                      message={`Custom columns: ${extraCSVHeader.length} new custom columns found`}
-                      type="warning"
-                      showIcon
-                      style={{ width: 375, marginBottom: 20 }}
-                    />
-                    {extraCSVHeader.map((item: any, idx: any) => {
+                /> */}
+                    {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
-                          label={item}
-                          name={item}
+                          label={item.title}
+                          name={item.key}
                           key={idx}
+                          rules={[
+                            {
+                              required:
+                                (item.key === "location_id_column" &&
+                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                    "Location"
+                                  )) ||
+                                item.key === "gender" ||
+                                item.key === "language"
+                                  ? false
+                                  : true,
+                              message: "Kindly select column to map value!",
+                            },
+                            {
+                              validator: async (_, value) => {
+                                if (!value) {
+                                  return Promise.resolve(); // No need to check if value is empty
+                                }
+                                const formValues =
+                                  targetMappingForm.getFieldsValue();
+
+                                const valuesArray = Object.values(formValues);
+                                // Count occurrences of the selected value in the valuesArray
+                                const selectedValueCount = valuesArray.filter(
+                                  (val) => val === value
+                                ).length;
+
+                                // Check if the selected value is contained more than once
+                                if (selectedValueCount > 1) {
+                                  return Promise.reject(
+                                    "Column is already mapped. The same column cannot be mapped twice!"
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
                           labelCol={{ span: 5 }}
                           labelAlign="left"
                         >
-                          <Button
-                            icon={
-                              customHeaderSelection[item] !== null &&
-                              customHeaderSelection[item] === true ? (
-                                <LikeFilled style={{ color: "green" }} />
-                              ) : (
-                                <LikeOutlined />
-                              )
-                            }
-                            style={{ borderRadius: 0 }}
-                            onClick={() => {
-                              setCustomHeaderSelection((prev: any) => {
-                                return {
-                                  ...prev,
-                                  [item]: true,
-                                };
-                              });
-                            }}
-                          >
-                            Keep
-                          </Button>
-                          <Button
-                            icon={
-                              customHeaderSelection[item] !== null &&
-                              customHeaderSelection[item] === false ? (
-                                <DislikeFilled style={{ color: "red" }} />
-                              ) : (
-                                <DislikeOutlined />
-                              )
-                            }
-                            style={{ borderRadius: 0 }}
-                            onClick={() => {
-                              setCustomHeaderSelection((prev: any) => {
-                                return {
-                                  ...prev,
-                                  [item]: false,
-                                };
-                              });
-                            }}
-                          >
-                            Ignore
-                          </Button>
-                          {customHeaderSelection[item] !== null &&
-                          customHeaderSelection[item] === true ? (
-                            <div style={{ display: "inline-block" }}>
-                              <div
-                                style={{
-                                  display: "inline-block",
-                                  alignItems: "center",
-                                  marginLeft: 30,
-                                }}
-                              >
-                                <Checkbox
-                                  name={`${item}_mandatory`}
-                                  checked={
-                                    checkboxValues?.[`${item}_mandatory`]
-                                      ? checkboxValues?.[`${item}_mandatory`]
-                                      : false
-                                  }
-                                  onChange={() =>
-                                    handleCheckboxChange(`${item}_mandatory`)
-                                  }
-                                >
-                                  Is mandatory?
-                                </Checkbox>
-                              </div>
-                              <div
-                                style={{
-                                  display: "inline-block",
-                                  alignItems: "center",
-                                  marginLeft: 30,
-                                }}
-                              >
-                                <Checkbox
-                                  name={`${item}_bulk`}
-                                  checked={
-                                    checkboxValues?.[`${item}_bulk`]
-                                      ? checkboxValues?.[`${item}_bulk`]
-                                      : false
-                                  }
-                                  onChange={() =>
-                                    handleCheckboxChange(`${item}_bulk`)
-                                  }
-                                >
-                                  Bulk edit?
-                                </Checkbox>
-                              </div>
-                              <div
-                                style={{
-                                  display: "inline-block",
-                                  alignItems: "center",
-                                  marginLeft: 30,
-                                }}
-                              >
-                                <Checkbox
-                                  name={`${item}_pii`}
-                                  checked={
-                                    checkboxValues?.[`${item}_pii`]
-                                      ? checkboxValues?.[`${item}_pii`]
-                                      : false
-                                  }
-                                  onChange={() =>
-                                    handleCheckboxChange(`${item}_pii`)
-                                  }
-                                >
-                                  PII?
-                                </Checkbox>
-                              </div>
-                            </div>
-                          ) : null}
+                          <Select
+                            onChange={updateCustomColumns}
+                            style={{ width: 180 }}
+                            filterOption={true}
+                            placeholder="Choose column"
+                            options={csvHeaderOptions}
+                          />
                         </Form.Item>
                       );
                     })}
-                  </>
-                ) : (
-                  <>
-                    <HeadingText>
-                      Want to map more columns, which are custom to your survey
-                      and present in the csv? Click on the button below after
-                      mapping the mandatory columns!
-                    </HeadingText>
-                    <Button
-                      type="primary"
-                      icon={<SelectOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                      onClick={() => {
-                        setCustomHeader(true);
-                        // This is temp code to store custom header selection status
-                        const temp: any = {};
-                        extraCSVHeader.forEach((item: string, idx: any) => {
-                          temp[item] = null;
-                        });
-                        setCustomHeaderSelection(temp);
+                    {locationDetailsField.length > 0 ? (
+                      <>
+                        <HeadingText>Location ID</HeadingText>
+                        {locationDetailsField.map(
+                          (
+                            item: {
+                              title: any;
+                              key: any;
+                            },
+                            idx: any
+                          ) => {
+                            return (
+                              <Form.Item
+                                label={item.title}
+                                name={item.key}
+                                key={idx}
+                                required
+                                labelCol={{ span: 5 }}
+                                labelAlign="left"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      "Kindly select column to map value!",
+                                  },
+                                  {
+                                    validator: async (_, value) => {
+                                      if (!value) {
+                                        return Promise.resolve(); // No need to check if value is empty
+                                      }
+                                      const formValues =
+                                        targetMappingForm.getFieldsValue();
+
+                                      const valuesArray =
+                                        Object.values(formValues);
+                                      // Count occurrences of the selected value in the valuesArray
+                                      const selectedValueCount =
+                                        valuesArray.filter(
+                                          (val) => val === value
+                                        ).length;
+
+                                      // Check if the selected value is contained more than once
+                                      if (selectedValueCount > 1) {
+                                        return Promise.reject(
+                                          "Column is already mapped. The same column cannot be mapped twice!"
+                                        );
+                                      }
+
+                                      return Promise.resolve();
+                                    },
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  onChange={updateCustomColumns}
+                                  style={{ width: 180 }}
+                                  filterOption={true}
+                                  placeholder="Choose column"
+                                  options={csvHeaderOptions}
+                                />
+                              </Form.Item>
+                            );
+                          }
+                        )}
+                      </>
+                    ) : null}
+
+                    {customHeader ? (
+                      <>
+                        <HeadingText>Custom columns</HeadingText>
+                        <Alert
+                          message={`Custom columns: ${extraCSVHeader.length} new custom columns found`}
+                          type="warning"
+                          showIcon
+                          style={{ width: 375, marginBottom: 20 }}
+                        />
+                        {extraCSVHeader.map((item: any, idx: any) => {
+                          return (
+                            <Form.Item
+                              label={item}
+                              name={item}
+                              key={idx}
+                              labelCol={{ span: 5 }}
+                              labelAlign="left"
+                            >
+                              <Button
+                                icon={
+                                  customHeaderSelection[item] !== null &&
+                                  customHeaderSelection[item] === true ? (
+                                    <LikeFilled style={{ color: "green" }} />
+                                  ) : (
+                                    <LikeOutlined />
+                                  )
+                                }
+                                style={{ borderRadius: 0 }}
+                                onClick={() => {
+                                  setCustomHeaderSelection((prev: any) => {
+                                    return {
+                                      ...prev,
+                                      [item]: true,
+                                    };
+                                  });
+                                }}
+                              >
+                                Keep
+                              </Button>
+                              <Button
+                                icon={
+                                  customHeaderSelection[item] !== null &&
+                                  customHeaderSelection[item] === false ? (
+                                    <DislikeFilled style={{ color: "red" }} />
+                                  ) : (
+                                    <DislikeOutlined />
+                                  )
+                                }
+                                style={{ borderRadius: 0 }}
+                                onClick={() => {
+                                  setCustomHeaderSelection((prev: any) => {
+                                    return {
+                                      ...prev,
+                                      [item]: false,
+                                    };
+                                  });
+                                }}
+                              >
+                                Ignore
+                              </Button>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_mandatory`}
+                                      checked={
+                                        checkboxValues?.[`${item}_mandatory`]
+                                          ? checkboxValues?.[
+                                              `${item}_mandatory`
+                                            ]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(
+                                          `${item}_mandatory`
+                                        )
+                                      }
+                                    >
+                                      Is mandatory?
+                                    </Checkbox>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_bulk`}
+                                      checked={
+                                        checkboxValues?.[`${item}_bulk`]
+                                          ? checkboxValues?.[`${item}_bulk`]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}_bulk`)
+                                      }
+                                    >
+                                      Bulk edit?
+                                    </Checkbox>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}_pii`}
+                                      checked={
+                                        checkboxValues?.[`${item}_pii`]
+                                          ? checkboxValues?.[`${item}_pii`]
+                                          : false
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}_pii`)
+                                      }
+                                    >
+                                      PII?
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
+                            </Form.Item>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <HeadingText>
+                          Want to map more columns, which are custom to your
+                          survey and present in the csv? Click on the button
+                          below after mapping the mandatory columns!
+                        </HeadingText>
+                        <Button
+                          type="primary"
+                          icon={<SelectOutlined />}
+                          style={{ backgroundColor: "#2f54eB" }}
+                          onClick={() => {
+                            setCustomHeader(true);
+                            // This is temp code to store custom header selection status
+                            const temp: any = {};
+                            extraCSVHeader.forEach((item: string, idx: any) => {
+                              temp[item] = null;
+                            });
+                            setCustomHeaderSelection(temp);
+                          }}
+                        >
+                          Map custom columns
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Form>
+                <ContinueButton onClick={handleTargetsUploadMapping}>
+                  Continue
+                </ContinueButton>
+              </>
+            ) : (
+              <>
+                <div>
+                  <StyledBreadcrumb
+                    separator=">"
+                    items={[
+                      { title: "Upload csv" },
+                      { title: "Map csv columns" },
+                      { title: "Update enumerators", className: "active" },
+                    ]}
+                  />
+                  <br />
+                  <RowCountBox
+                    total={csvRows.length - 1}
+                    correct={
+                      csvRows.length - 1 - mappingErrorCount > 0
+                        ? csvRows.length - 1 - mappingErrorCount
+                        : 0
+                    }
+                    error={mappingErrorCount}
+                    warning={0}
+                  />
+                  <DescriptionContainer>
+                    <ol style={{ paddingLeft: "15px" }}>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>Download</span>: A csv
+                        is ready with all the error rows. Use the button below
+                        to download the csv.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>View errors</span>:
+                        The table below has the list of all the errors and the
+                        corresponding row numbers. The original row numbers are
+                        present as a column in the csv. Use this to edit the
+                        csv.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>
+                          Correct and upload
+                        </span>
+                        : Once you are done with corrections, upload the csv
+                        again.
+                      </li>
+                      <li>
+                        <span style={{ fontWeight: 700 }}>Manage</span>: The
+                        final list of targets is present in a table and that can
+                        also be downloaded.
+                      </li>
+                    </ol>
+                  </DescriptionContainer>
+                </div>
+                {mappingErrorStatus ? (
+                  <div style={{ marginTop: 22 }}>
+                    <p
+                      style={{
+                        fontFamily: "Inter",
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        lineHeight: "22px",
                       }}
                     >
-                      Map custom columns
+                      Errors table
+                    </p>
+                    <Row>
+                      <Col span={23}>
+                        <ErrorTable
+                          dataSource={mappingErrorList}
+                          columns={errorTableColumn}
+                          pagination={false}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                ) : null}
+                {hasWarning ? (
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: "Inter",
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        lineHeight: "22px",
+                      }}
+                    >
+                      Warnings table
+                    </p>
+                    <Row>
+                      <Col span={23}>
+                        <WarningTable
+                          dataSource={warningList}
+                          columns={warningTableColumn}
+                          pagination={false}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                ) : null}
+                <div style={{ display: "flex" }}>
+                  <CSVLink
+                    data={[...mappingErrorList, ...warningList]}
+                    filename={"target-error-list.csv"}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<CloudDownloadOutlined />}
+                      style={{ backgroundColor: "#2f54eB" }}
+                    >
+                      Download errors and warnings
                     </Button>
-                  </>
-                )}
-              </div>
-            </Form>
-            <Button
-              type="primary"
-              style={{ backgroundColor: "#2f54eB", marginTop: 20 }}
-              onClick={handleContinueBtn}
-            >
-              Continue
-            </Button>
-          </>
-        ) : (
-          <>
-            <div>
-              <StyledBreadcrumb
-                separator=">"
-                items={[
-                  { title: "Upload csv" },
-                  { title: "Map csv columns" },
-                  { title: "Update enumerators", className: "active" },
-                ]}
-              />
-              <br />
-              <RowCountBox
-                total={csvRows.length - 1}
-                correct={
-                  csvRows.length - 1 - errorCount > 0
-                    ? csvRows.length - 1 - errorCount
-                    : 0
-                }
-                error={errorCount}
-                warning={0}
-              />
-              <DescriptionContainer>
-                <ol style={{ paddingLeft: "15px" }}>
-                  <li>
-                    <span style={{ fontWeight: 700 }}>Download</span>: A csv is
-                    ready with all the error rows. Use the button below to
-                    download the csv.
-                  </li>
-                  <li>
-                    <span style={{ fontWeight: 700 }}>View errors</span>: The
-                    table below has the list of all the errors and the
-                    corresponding row numbers. The original row numbers are
-                    present as a column in the csv. Use this to edit the csv.
-                  </li>
-                  <li>
-                    <span style={{ fontWeight: 700 }}>Correct and upload</span>:
-                    Once you are done with corrections, upload the csv again.
-                  </li>
-                  <li>
-                    <span style={{ fontWeight: 700 }}>Manage</span>: The final
-                    list of targets is present in a table and that can also be
-                    downloaded.
-                  </li>
-                </ol>
-              </DescriptionContainer>
-            </div>
-            {hasError ? (
-              <div style={{ marginTop: 22 }}>
-                <p
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: "14px",
-                    fontWeight: "700",
-                    lineHeight: "22px",
-                  }}
-                >
-                  Errors table
-                </p>
-                <Row>
-                  <Col span={23}>
-                    <ErrorTable
-                      dataSource={errorList}
-                      columns={errorTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
-              </div>
-            ) : null}
-            {hasWarning ? (
-              <div>
-                <p
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: "14px",
-                    fontWeight: "700",
-                    lineHeight: "22px",
-                  }}
-                >
-                  Warnings table
-                </p>
-                <Row>
-                  <Col span={23}>
-                    <WarningTable
-                      dataSource={warningList}
-                      columns={warningTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
-              </div>
-            ) : null}
-            <div style={{ display: "flex" }}>
-              <CSVLink
-                data={[...errorList, ...warningList]}
-                filename={"target-error-list.csv"}
-              >
-                <Button
-                  type="primary"
-                  icon={<CloudDownloadOutlined />}
-                  style={{ backgroundColor: "#2f54eB" }}
-                >
-                  Download errors and warnings
-                </Button>
-              </CSVLink>
-              <Button
-                onClick={moveToUpload}
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
-              >
-                Upload corrected CSV
-              </Button>
-            </div>
-          </>
+                  </CSVLink>
+                  <Button
+                    onClick={moveToUpload}
+                    type="primary"
+                    icon={<CloudUploadOutlined />}
+                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                  >
+                    Upload corrected CSV
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </TargetsRemapFormWrapper>
     </>

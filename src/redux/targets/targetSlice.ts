@@ -9,6 +9,10 @@ interface TagertsState {
   csvRows: string[];
   targetsList: string[];
   targetsColumnConfig: any;
+  targetsColumnMapping: any;
+  mappingErrorStatus: boolean;
+  mappingErrorList: any;
+  mappingErrorCount: number;
   targetDetails: any;
 }
 
@@ -22,6 +26,10 @@ const initialState: TagertsState = {
   targetsList: [],
   targetDetails: {},
   targetsColumnConfig: null,
+  targetsColumnMapping: null,
+  mappingErrorStatus: false,
+  mappingErrorList: null,
+  mappingErrorCount: 0,
 };
 
 const targetsSlice = createSlice({
@@ -56,6 +64,18 @@ const targetsSlice = createSlice({
     },
     setLoading: (state, action: PayloadAction<any>) => {
       state.loading = action.payload;
+    },
+    setTargetsColumnMapping: (state, action: PayloadAction<any>) => {
+      state.targetsColumnMapping = action.payload;
+    },
+    setMappingErrorStatus: (state, action: PayloadAction<any>) => {
+      state.mappingErrorStatus = action.payload;
+    },
+    setMappingErrorList: (state, action: PayloadAction<any>) => {
+      state.mappingErrorList = action.payload;
+    },
+    setMappingErrorCount: (state, action: PayloadAction<any>) => {
+      state.mappingErrorCount = action.payload;
     },
 
     getTargetsRequest: (state) => {
@@ -151,6 +171,10 @@ export const {
   setTargetsFileUpload,
   setTargetsCSVRows,
   setLoading,
+  setTargetsColumnMapping,
+  setMappingErrorList,
+  setMappingErrorCount,
+  setMappingErrorStatus,
   postTargetsMappingFailure,
   postTargetsMappingRequest,
   postTargetsMappingSuccess,
