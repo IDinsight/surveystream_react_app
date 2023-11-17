@@ -186,6 +186,10 @@ function EnumeratorsHome() {
       const originalData = enumeratorRes.payload.data.data;
 
       if (originalData.length == 0) {
+        //move to upload if it is a fresh upload
+        navigate(
+          `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+        );
         return;
       }
 
@@ -377,13 +381,18 @@ function EnumeratorsHome() {
   };
 
   useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    handleFormUID();
-    if (form_uid) {
-      getEnumeratorsList(form_uid);
-    }
-  }, []);
+    const fetchData = async () => {
+      // redirect to upload if missing csvHeaders and cannot perform mapping
+      // TODO: update this for configured surveys already
+      await handleFormUID();
+
+      if (form_uid) {
+        getEnumeratorsList(form_uid);
+      }
+    };
+
+    fetchData();
+  }, [form_uid]);
 
   return (
     <>

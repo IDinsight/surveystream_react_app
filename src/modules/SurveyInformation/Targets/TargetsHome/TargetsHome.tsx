@@ -64,6 +64,17 @@ function TargetsHome() {
   // Row selection state and handler
   const [selectedRows, setSelectedRows] = useState<any>([]);
 
+  /*
+   * New design configs
+   */
+  const [screenMode, setScreenMode] = useState<string>("manage");
+  const [newTargetModal, setNewTargetModal] = useState<boolean>(false);
+
+  // Mode: overwrite or merge
+  const [newTargetMode, setNewTargetMode] = useState<string>("");
+
+  const [isTargetInUse, setIsTargetInUse] = useState<boolean>(false);
+
   const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
     const selectedTargetIds = selectedRows.map((row: any) => row.target_id);
 
@@ -246,14 +257,45 @@ function TargetsHome() {
     }
   };
 
-  useEffect(() => {
-    //redirect to upload if missing csvHeaders and cannot perform mapping
-    //TODO: update this for configured surveys already
-    handleFormUID();
-    if (form_uid) {
-      getTargetsList(form_uid);
+  const handleNewTargetMode = () => {
+    // Emit error if no new targets mode is selected
+    if (newTargetMode === "") {
+      message.error("Please select the mode to add new targets.");
+      return;
     }
-  }, []);
+
+    // Redirect to upload fresh targets, in case of fresh upload, otherwise start append mode
+    if (newTargetMode === "overwrite") {
+      navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
+      return;
+    } else if (newTargetMode === "merge") {
+      setScreenMode("reupload");
+    }
+
+    setNewTargetModal(false);
+  };
+
+  const handlerAddTargetBtn = () => {
+    if (tableDataSource.length > 0) {
+      setNewTargetModal(true);
+    } else {
+      navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // redirect to upload if missing csvHeaders and cannot perform mapping
+      // TODO: update this for configured surveys already
+      await handleFormUID();
+
+      if (form_uid) {
+        getTargetsList(form_uid);
+      }
+    };
+
+    fetchData();
+  }, [form_uid]);
 
   /*
    * New design configs
