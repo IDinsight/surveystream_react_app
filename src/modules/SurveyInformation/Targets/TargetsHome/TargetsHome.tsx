@@ -17,7 +17,10 @@ import {
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
 import TargetsCountBox from "../../../../components/TargetsCountBox";
-import { setLoading } from "../../../../redux/targets/targetSlice";
+import {
+  setLoading,
+  setTargetsColumnMapping,
+} from "../../../../redux/targets/targetSlice";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -26,6 +29,7 @@ import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
 import TargetsRemap from "../TargetsRemap";
+import { includes } from "cypress/types/lodash";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -141,10 +145,6 @@ function TargetsHome() {
     setEditData(false);
   };
 
-  const moveToUpload = () => {
-    navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
-  };
-
   const handleFormUID = async () => {
     if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
       try {
@@ -176,10 +176,47 @@ function TargetsHome() {
       setTargetsCount(originalData.length);
 
       if (originalData.length == 0) {
+        navigate(
+          `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+        );
         return;
       }
 
-      const columnsToExclude = ["target_uid", "target_locations"];
+      const columnsToExclude = [
+        "target_uid",
+        "target_locations",
+        "completed_flag",
+        "last_attempt_survey_status",
+        "last_attempt_survey_status_label",
+        "num_attempts",
+        "refusal_flag",
+        "revisit_sections",
+        "target_assignable",
+        "webapp_tag_color",
+      ];
+      //set targets column mapping
+
+      if (originalData[0]?.custom_fields?.column_mapping) {
+        dispatch(
+          setTargetsColumnMapping(
+            originalData[0]?.custom_fields?.column_mapping
+          )
+        );
+      } else {
+        const columnMapping: any = {};
+
+        for (const key in originalData[0]) {
+          if (
+            Object.prototype.hasOwnProperty.call(originalData[0], key) &&
+            key !== "custom_fields" &&
+            !columnsToExclude.includes(key)
+          ) {
+            columnMapping[key] = key;
+          }
+        }
+
+        dispatch(setTargetsColumnMapping(columnMapping));
+      }
 
       // Define column mappings
       let columnMappings = Object.keys(originalData[0])

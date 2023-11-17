@@ -254,7 +254,8 @@ function EnumeratorsHome() {
         for (const key in originalData[0]) {
           if (
             Object.prototype.hasOwnProperty.call(originalData[0], key) &&
-            key !== "custom_fields"
+            key !== "custom_fields" &&
+            !columnsToExclude.includes(key)
           ) {
             columnMapping[key] = key;
           }

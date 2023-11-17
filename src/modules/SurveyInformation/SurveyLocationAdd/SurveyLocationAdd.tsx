@@ -95,6 +95,7 @@ function SurveyLocationAdd() {
       }
     }
   };
+
   const renderLocationFields = () => {
     const fields = Array.from({ length: numLocationFields }, (_, index) => {
       const geoLevel: {
