@@ -273,9 +273,7 @@ function TargetsMap() {
 
           setHasError(false);
           //route to manage
-          navigate(
-            `/survey-information/targets/manage/${survey_uid}/${form_uid}`
-          );
+          navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
           message.error("Failed to upload kindly check and try again");
           setHasError(true);
@@ -404,6 +402,8 @@ function TargetsMap() {
       }
     }
 
+    console.log("lowestGeoLevel", lowestGeoLevel);
+
     return lowestGeoLevel;
   };
 
@@ -426,6 +426,8 @@ function TargetsMap() {
           );
 
           const locationData = locationRes?.payload;
+
+          console.log("locationData", locationData);
 
           const lowestGeoLevel = findLowestGeoLevel(locationData);
 

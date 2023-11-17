@@ -12,6 +12,7 @@ interface EnumeratorsState {
   enumeratorColumnMapping: any;
   mappingErrorStatus: boolean;
   mappingErrorList: any;
+  mappingErrorCount: number;
 }
 
 const initialState: EnumeratorsState = {
@@ -26,6 +27,7 @@ const initialState: EnumeratorsState = {
   enumeratorColumnMapping: null,
   mappingErrorStatus: false,
   mappingErrorList: null,
+  mappingErrorCount: 0,
 };
 
 const enumeratorsSlice = createSlice({
@@ -69,6 +71,9 @@ const enumeratorsSlice = createSlice({
     },
     setMappingErrorList: (state, action: PayloadAction<any>) => {
       state.mappingErrorList = action.payload;
+    },
+    setMappingErrorCount: (state, action: PayloadAction<any>) => {
+      state.mappingErrorCount = action.payload;
     },
 
     getEnumeratorsRequest: (state) => {
@@ -176,6 +181,7 @@ export const {
   setLoading,
   setEnumeratorColumnMapping,
   setMappingErrorList,
+  setMappingErrorCount,
   setMappingErrorStatus,
   postEnumeratorsMappingFailure,
   postEnumeratorsMappingRequest,
