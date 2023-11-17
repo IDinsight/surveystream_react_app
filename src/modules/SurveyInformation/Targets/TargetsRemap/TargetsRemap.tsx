@@ -286,9 +286,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           handleTargetColumnConfig(form_uid, column_mapping);
 
           dispatch(setMappingErrorStatus(false));
-
           //route to manage
-          navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
+          setScreenMode("manage");
         } else {
           message.error("Failed to upload kindly check and try again");
           dispatch(setMappingErrorStatus(true));

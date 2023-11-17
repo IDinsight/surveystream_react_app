@@ -326,13 +326,13 @@ function TargetsHome() {
       // TODO: update this for configured surveys already
       await handleFormUID();
 
-      if (form_uid) {
+      if (form_uid && screenMode === "manage") {
         getTargetsList(form_uid);
       }
     };
 
     fetchData();
-  }, [form_uid]);
+  }, [form_uid, screenMode]);
 
   return (
     <>

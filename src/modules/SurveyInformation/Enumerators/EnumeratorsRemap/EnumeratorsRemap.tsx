@@ -353,7 +353,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
           dispatch(setMappingErrorStatus(false));
           //route to home
-          navigate(`/survey-information/enumerators/${survey_uid}/${form_uid}`);
+          setScreenMode("manage");
         } else {
           message.error("Failed to upload kindly check and try again");
           dispatch(setMappingErrorStatus(true));
