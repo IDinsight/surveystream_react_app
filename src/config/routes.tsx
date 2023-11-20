@@ -22,6 +22,8 @@ import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
+import UsersManage from "../modules/Users/UsersManage";
+import UsersAdd from "../modules/Users/UsersAdd";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -44,6 +46,8 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
       <Route element={<PrivateRoute />}>
+        <Route path="/users" element={<UsersManage />} />
+        <Route path="/users/add" element={<UsersAdd />} />
         <Route path="/surveys" element={<SurveysHomePage />} />
         <Route
           path="/survey-configuration/:survey_uid?"

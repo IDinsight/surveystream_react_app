@@ -1,5 +1,12 @@
 import { useEffect } from "react";
-import { HomeFilled, PlusOutlined } from "@ant-design/icons";
+import {
+  ApartmentOutlined,
+  CaretDownOutlined,
+  HomeFilled,
+  IdcardOutlined,
+  PlusOutlined,
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { getDayMonth } from "../../utils/helper";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
@@ -10,22 +17,11 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
-import "./SurveysHomePage.css";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { Button, Result } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
-
-const NavItems = () => {
-  return (
-    <div className="nav-menu flex">
-      <div className="w-36 bg-geekblue-5">
-        <HomeFilled className="flex items-center !text-base !text-gray-2" />
-        <span className="!text-gray-2">Surveys</span>
-      </div>
-    </div>
-  );
-};
+import NavItems from "../../components/NavItems";
 
 function SurveysHomePage() {
   const dispatch = useAppDispatch();
