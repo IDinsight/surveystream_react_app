@@ -11,7 +11,7 @@ import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
-import FieldSupervisorRoles from "../modules/SurveyInformation/FieldSupervisorRoles";
+import UserRoles from "../modules/SurveyInformation/UserRoles";
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
@@ -66,16 +66,16 @@ const AppRoutes = () => {
           element={<SurveyCTOInfomation />}
         />
         <Route
+          path="/survey-information/user-roles/:path?/:survey_uid?"
+          element={<UserRoles />}
+        />
+        <Route
           path="/survey-information/survey-cto-information/:survey_uid?"
           element={<SurveyCTOInfomation />}
         />
         <Route
           path="/survey-information/survey-cto-questions/:survey_uid?/:form_uid?"
           element={<SurveyCTOQuestions />}
-        />
-        <Route
-          path="/survey-information/field-supervisor-roles/:path?/:survey_uid?"
-          element={<FieldSupervisorRoles />}
         />
         <Route
           path="/survey-information/location/add/:survey_uid?"
