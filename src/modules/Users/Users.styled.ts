@@ -7,9 +7,9 @@ export const BodyWrapper = styled.div`
 `;
 
 export const MainContainer = styled.div`
-  margin-top: 50px;
-  margin-left: 96px;
-  margin-right: 96px;
+  padding-top: 50px;
+  padding-left: 96px;
+  padding-right: 96px;
 `;
 
 export const DescriptionText = styled.p`
