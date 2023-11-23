@@ -7,13 +7,15 @@ import {
 } from "@ant-design/icons";
 import "./NavItems.css";
 import { Link } from "react-router-dom";
-
-const isActiveItem = (path: string) => {
-  const currentPath = location.pathname;
-  return currentPath.includes(path) ? "bg-geekblue-5" : "";
-};
+import { useLocation } from "react-router-dom";
 
 const NavItems = () => {
+  const location = useLocation();
+
+  const isActiveItem = (path: string) => {
+    return location.pathname.includes(path) ? "bg-geekblue-5" : "";
+  };
+
   return (
     <div className="nav-menu flex">
       <div className={"nav-menu-item  w-36 " + isActiveItem("surveys")}>
