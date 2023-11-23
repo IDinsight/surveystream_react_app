@@ -11,7 +11,9 @@
     display: block;
 }
 
-.nav-menu-item, .nav-menu-item > div:first-child {
+.nav-menu-item,
+.nav-menu-item > div:first-child,
+.nav-menu-item > a {
     display: flex;
     align-items: center;
 }
