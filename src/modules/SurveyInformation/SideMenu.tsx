@@ -189,21 +189,7 @@ function SideMenu() {
         },
       ],
     },
-    {
-      label: (
-        <MenuItem
-          className={isActive(`/survey-information/webapp-users/${survey_uid}`)}
-          to="#"
-        >
-          <IconWrapper>
-            <UserOutlined />
-          </IconWrapper>
-          WebApp Users
-        </MenuItem>
-      ),
-      key: "surveyWebAppUsers",
-      disabled: true,
-    },
+
     {
       label: (
         <MenuItem
