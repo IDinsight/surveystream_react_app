@@ -6,9 +6,16 @@ import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
 import Footer from "../../components/Footer";
 import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import {
+  postAddUser,
+  postCheckUser,
+} from "../../redux/userManagement/userManagementActions";
 
 function UserAdd() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const [verificationForm] = Form.useForm();
   const [roleUpdateForm] = Form.useForm();
 
@@ -27,8 +34,14 @@ function UserAdd() {
     navigate(-1);
   };
 
-  const onCheckUser = () => {
+  const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
+
+    console.log("email", email);
+    //api call
+    const checkResponse = await dispatch(postCheckUser(email));
+
+    console.log("checkResponse", checkResponse);
 
     setUserDetails((prev: any) => {
       return {
@@ -40,8 +53,15 @@ function UserAdd() {
     setIsVerified(true);
   };
 
-  const onAddUserHandler = () => {
+  const onAddUserHandler = async () => {
     console.log("Submitted");
+    const formData = verificationForm.getFieldsValue();
+
+    console.log("formData", formData);
+
+    const addResponse = await dispatch(postAddUser(formData));
+
+    console.log("addResponse", addResponse);
   };
 
   return (
@@ -98,39 +118,44 @@ function UserAdd() {
                     onFinish={onAddUserHandler}
                     style={{ maxWidth: 600 }}
                   >
-                    <Form.Item label="Email ID" rules={[{ required: true }]}>
+                    <Form.Item
+                      name="email"
+                      label="Email ID"
+                      rules={[{ required: true }]}
+                    >
                       <Input value={userDetails["email"]} disabled />
                     </Form.Item>
                     <Form.Item
-                      name="firstname"
+                      name="first_name"
                       label="First name"
                       rules={[{ required: true }]}
                     >
                       <Input required />
                     </Form.Item>
                     <Form.Item
-                      name="lastname"
+                      name="last_name"
                       label="Last name"
                       rules={[{ required: true }]}
                     >
                       <Input required />
                     </Form.Item>
                     <Form.Item
-                      name="role"
+                      name="roles"
                       label="Role"
                       rules={[{ required: true }]}
                     >
                       <Select
                         placeholder="Select role"
-                        onChange={() => console.log("Jay")}
                         options={[
-                          { value: "survey_admin", label: "Survey Admin" },
-                          { value: "super_admin", label: "Super Admin" },
+                          { value: 1, label: "Survey Admin" },
+                          { value: 2, label: "Super Admin" },
                         ]}
+                        mode="multiple"
                       />
                     </Form.Item>
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
+                        onClick={() => onAddUserHandler()}
                         type="primary"
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB" }}

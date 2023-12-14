@@ -27,39 +27,46 @@ import {
   SearchBox,
   UsersTable,
 } from "./Users.styled";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { getAllUsers } from "../../redux/userManagement/userManagementActions";
+import { RootState } from "../../redux/store";
 
 function UsersManage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const isLoading = useAppSelector(
+    (state: RootState) => state.userManagement.loading
+  );
+  const [userTableDataSource, setUserTableDataSource] = useState<any[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [filteredUserTableData, setFilteredUserTableData] =
+    useState(userTableDataSource);
+  const [selectedRows, setSelectedRows] = useState<any>([]);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(20);
 
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
-
-  // This need to be come from redux state
-  const isLoading = false;
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  const userTableDataSource: any = [];
-
-  // Mock data
-  for (let i = 0; i < 500; i++) {
-    userTableDataSource.push({
-      key: i,
-      email: `amit.choudhary${i}@idinsight.org`,
-      firstname: "Amit",
-      lastname: "Choudhary",
-      roles: "[ADP 2.0, FM], [IEIC, Field Manager]",
-      status: "Active",
-    });
-  }
+  const fetchAllUsers = async () => {
+    const usersRes = await dispatch(getAllUsers({}));
+    if (usersRes.payload.length !== 0) {
+      const usersWithKeys = usersRes.payload.map(
+        (user: any, index: { toString: () => any }) => ({
+          ...user,
+          key: index.toString(), // or use a unique identifier if available, like user_id
+        })
+      );
+      setUserTableDataSource(usersWithKeys);
+      setFilteredUserTableData(usersWithKeys);
+    }
+  };
 
   // Row selection state and handler
-  const [selectedRows, setSelectedRows] = useState<any>([]);
-
   const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
     const selectedEmails = selectedRows.map((row: any) => row.email);
 
@@ -100,13 +107,13 @@ function UsersManage() {
     },
     {
       title: "First Name",
-      dataIndex: "firstname",
-      key: "firstname",
+      dataIndex: "first_name",
+      key: "first_name",
     },
     {
       title: "Last Name",
-      dataIndex: "lastname",
-      key: "lastname",
+      dataIndex: "last_name",
+      key: "last_name",
     },
     {
       title: "Roles",
@@ -131,6 +138,21 @@ function UsersManage() {
       disabled: true,
     },
   ];
+  const filterTableData = (searchValue: any) => {
+    const filteredData = userTableDataSource.filter((record) => {
+      return Object.values(record).some(
+        (value) =>
+          value &&
+          value.toString().toLowerCase().includes(searchValue.toLowerCase())
+      );
+    });
+
+    setFilteredUserTableData(filteredData);
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
 
   return (
     <>
@@ -150,8 +172,15 @@ function UsersManage() {
                     placeholder="Search"
                     enterButton
                     style={{ width: 367 }}
-                    onSearch={(val) => console.log(val)}
-                    onChange={(e) => console.log(e.target.value)}
+                    onSearch={(val) => {
+                      setSearchText(val);
+                      filterTableData(val);
+                    }}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setSearchText(value);
+                      filterTableData(value);
+                    }}
                   />
                   <Dropdown
                     menu={{ items: addUserOptions }}
@@ -199,7 +228,7 @@ function UsersManage() {
               <UsersTable
                 rowSelection={rowSelection}
                 columns={usersTableColumn}
-                dataSource={userTableDataSource}
+                dataSource={filteredUserTableData}
                 pagination={{
                   pageSize: paginationPageSize,
                   pageSizeOptions: [10, 25, 50, 100],
