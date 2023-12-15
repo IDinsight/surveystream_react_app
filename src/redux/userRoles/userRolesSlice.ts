@@ -5,12 +5,14 @@ interface UserRolesState {
   loading: boolean;
   error: any;
   supervisorRoles: SupervisorRole[];
+  allPermissions: any[];
 }
 
 const initialState: UserRolesState = {
   loading: false,
   error: null,
   supervisorRoles: [],
+  allPermissions: [],
 };
 
 const userRolesSlice = createSlice({
@@ -43,6 +45,23 @@ const userRolesSlice = createSlice({
       state.error = action.payload;
     },
 
+    getAllPermissionsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getAllPermissionsSuccess: (state, action: PayloadAction<any[]>) => {
+      if (action.payload.length !== 0) {
+        state.allPermissions = action.payload;
+      }
+      state.loading = false;
+      state.error = null;
+    },
+    getAllPermissionsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.allPermissions = [];
+      state.error = action.payload;
+    },
+
     postSupervisorRolesRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -62,6 +81,9 @@ export const {
   getSupervisorRolesRequest,
   getSupervisorRolesFailure,
   getSupervisorRolesSuccess,
+  getAllPermissionsFailure,
+  getAllPermissionsRequest,
+  getAllPermissionsSuccess,
   postSupervisorRolesRequest,
   postSupervisorRolesSuccess,
   postSupervisorRolesFailure,

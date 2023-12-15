@@ -23,6 +23,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { setSupervisorRoles } from "../../../redux/userRoles/userRolesSlice";
 import {
+  getAllPermissions,
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../redux/userRoles/userRolesActions";
@@ -57,6 +58,7 @@ import {
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "./SideMenu";
 import Header from "../../../components/Header";
+import PermissionsTable from "../../../components/PermissionsTable";
 
 function AddRoles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -76,10 +78,10 @@ function AddRoles() {
   );
   const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
-
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
+
+  const [allPermissions, setAllPermissions] = useState<any>([]);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -106,6 +108,12 @@ function AddRoles() {
     } else {
       form.resetFields();
     }
+  };
+
+  const fetchAllPermissions = async () => {
+    const res = await dispatch(getAllPermissions());
+    console.log("getAllPermissions", res.payload);
+    setAllPermissions(res.payload);
   };
   const handleSelectChange = (value: string) => {
     console.log("value", value);
@@ -183,6 +191,10 @@ function AddRoles() {
       setNumRoleFields(numRoleFields + 1);
     });
   };
+  const handlePermissionsChange = async () => {
+    console.log("chnages wooo");
+  };
+
   const handleContinue = async () => {
     try {
       const formValues = form.getFieldsValue();
@@ -260,18 +272,6 @@ function AddRoles() {
     }
   };
 
-  useEffect(() => {
-    fetchSupervisorRoles();
-  }, [dispatch]);
-
-  // Mock data
-  for (let i = 0; i < 500; i++) {
-    permissionsTableDataSource.push({
-      key: i,
-      permission: "Survey locations",
-    });
-  }
-
   // Row selection state and handler
   const [selectedRows, setSelectedRows] = useState<any>([]);
 
@@ -285,61 +285,9 @@ function AddRoles() {
     setSelectedRows(selectedUserData);
   };
 
-  const hasSelected = selectedRows.length > 0;
-
-  // Handler for Edit Data button
-  const onDeleteUser = async () => {
-    if (!hasSelected) {
-      message.error("No row selected for editing");
-      return;
-    }
-
-    const isUserDeletable = true;
-    if (!isUserDeletable) {
-      message.warning("User cannot be deleted as they have active projects");
-      return;
-    }
-
-    setIsOpenDeleteModel(true);
-  };
-
-  const permissionsTableColumn = [
-    {
-      title: "Permission",
-      dataIndex: "permission",
-      key: "permission",
-    },
-    {
-      title: "View",
-      dataIndex: "view",
-      key: "view",
-      render: (text: any, record: any) => (
-        <span>
-          <Checkbox></Checkbox>
-        </span>
-      ),
-    },
-    {
-      title: "Edit",
-      dataIndex: "edit",
-      key: "edit",
-      render: (text: any, record: any) => (
-        <span>
-          <Checkbox></Checkbox>
-        </span>
-      ),
-    },
-    {
-      title: "None",
-      dataIndex: "none",
-      key: "none",
-      render: (text: any, record: any) => (
-        <span>
-          <Checkbox></Checkbox>
-        </span>
-      ),
-    },
-  ];
+  useEffect(() => {
+    fetchAllPermissions();
+  }, [dispatch]);
 
   return (
     <>
@@ -510,16 +458,9 @@ function AddRoles() {
                   view or none against the permission{" "}
                 </DescriptionText>
 
-                <RolesTable
-                  columns={permissionsTableColumn}
-                  dataSource={permissionsTableDataSource}
-                  pagination={{
-                    pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                  }}
+                <PermissionsTable
+                  permissions={allPermissions}
+                  onPermissionsChange={handlePermissionsChange}
                 />
               </Form>
 

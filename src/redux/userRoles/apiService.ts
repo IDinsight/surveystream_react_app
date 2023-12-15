@@ -23,6 +23,25 @@ export const fetchSupervisorRoles = async (survey_uid?: string) => {
   }
 };
 
+export const fetchAllPermissions = async () => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/permissions`;
+
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const postSupervisorRoles = async (
   formData: SupervisorRole[],
   survey_uid: string
@@ -52,4 +71,5 @@ export const postSupervisorRoles = async (
 export const api = {
   postSupervisorRoles,
   fetchSupervisorRoles,
+  fetchAllPermissions,
 };

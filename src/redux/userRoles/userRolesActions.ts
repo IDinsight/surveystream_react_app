@@ -3,6 +3,8 @@ import { compose, createAsyncThunk } from "@reduxjs/toolkit";
 import * as api from "./apiService";
 import { SupervisorRole } from "./types";
 import {
+  getAllPermissionsFailure,
+  getAllPermissionsRequest,
   getSupervisorRolesFailure,
   getSupervisorRolesRequest,
   getSupervisorRolesSuccess,
@@ -12,7 +14,7 @@ import {
 } from "./userRolesSlice";
 
 export const postSupervisorRoles = createAsyncThunk(
-  "fieldSupervisorRoles/postSupervisorRoles",
+  "userRoles/postSupervisorRoles",
   async (
     {
       supervisorRolesData,
@@ -46,7 +48,7 @@ export const postSupervisorRoles = createAsyncThunk(
 );
 
 export const getSupervisorRoles = createAsyncThunk(
-  "fieldSupervisorRoles/getSupervisorRoles",
+  "userRoles/getSupervisorRoles",
   async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getSupervisorRolesRequest());
@@ -67,7 +69,30 @@ export const getSupervisorRoles = createAsyncThunk(
   }
 );
 
+export const getAllPermissions = createAsyncThunk(
+  "userRoles/getAllPermissions",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(getAllPermissionsRequest());
+      const res: any = await api.fetchAllPermissions();
+
+      if (res.status === 200) {
+        dispatch(getSupervisorRolesSuccess(res.data));
+        return res.data;
+      }
+      const error = { ...res.response.data, code: res.response.status };
+      dispatch(getAllPermissionsFailure(error));
+      return res.response.data;
+    } catch (error) {
+      const errorMessage = error || "Failed to get permissions";
+      dispatch(getAllPermissionsFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const userRolesActions = {
   postSupervisorRoles,
   getSupervisorRoles,
+  getAllPermissions,
 };

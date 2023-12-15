@@ -41,7 +41,7 @@ const userMaanagementSlice = createSlice({
       state.error = null;
     },
     getAllUsersSuccess: (state, action: PayloadAction<[]>) => {
-      if (action.payload.length !== 0) {
+      if (action?.payload?.length !== 0) {
         state.userList = action.payload;
       }
       state.loading = false;
