@@ -24,6 +24,8 @@ import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
 import UsersManage from "../modules/Users/UsersManage";
 import UsersAdd from "../modules/Users/UsersAdd";
+import Assignments from "../modules/Assignments/Assignments";
+import CreateAssignments from "../modules/Assignments/CreateAssignments/CreateAssignments";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -112,6 +114,11 @@ const AppRoutes = () => {
         <Route
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
+        />
+        <Route path="/assignments/:survey_uid?" element={<Assignments />} />
+        <Route
+          path="/assignments/create/:survey_uid?"
+          element={<CreateAssignments />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />
