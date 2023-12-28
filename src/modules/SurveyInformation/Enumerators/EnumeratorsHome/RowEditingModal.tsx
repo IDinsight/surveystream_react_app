@@ -246,7 +246,7 @@ function RowEditingModal({
     const initialData: DataItem = [];
 
     filteredFields.forEach((field: Field) => {
-      if (field.label.startsWith("custom_fields")) {
+      if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] = data[0]["custom_fields"][field.labelKey];
 
         const label = field?.label;
