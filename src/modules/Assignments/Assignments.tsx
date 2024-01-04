@@ -90,7 +90,17 @@ function Assignments() {
                     <CheckCircleFilled
                       style={{ fontSize: 16, color: "#389E0D" }}
                     />
-                    <p style={{ marginLeft: 8 }}>100 Completed</p>
+                    <p
+                      style={{
+                        marginLeft: 8,
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        lineHeight: 22,
+                      }}
+                    >
+                      100 Completed
+                    </p>
                   </div>
                   <div
                     style={{
@@ -103,7 +113,17 @@ function Assignments() {
                     }}
                   >
                     <ControlFilled style={{ fontSize: 16, color: "#D46B08" }} />
-                    <p style={{ marginLeft: 8 }}>200 Assigned</p>
+                    <p
+                      style={{
+                        marginLeft: 8,
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        lineHeight: 22,
+                      }}
+                    >
+                      200 Assigned
+                    </p>
                   </div>
                   <div
                     style={{
@@ -116,7 +136,17 @@ function Assignments() {
                     }}
                   >
                     <WarningFilled style={{ fontSize: 16, color: "#CF1322" }} />
-                    <p style={{ marginLeft: 8 }}>700 Unassigned</p>
+                    <p
+                      style={{
+                        marginLeft: 8,
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        lineHeight: 22,
+                      }}
+                    >
+                      700 Unassigned
+                    </p>
                   </div>
                 </div>
               ) : null}

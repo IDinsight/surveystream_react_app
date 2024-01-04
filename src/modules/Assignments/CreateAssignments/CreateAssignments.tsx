@@ -2,9 +2,10 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import Header from "../../../components/Header";
 import NavItems from "../../../components/NavItems";
 import { PushpinOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Radio, Steps, Table, TimePicker } from "antd";
+import { Button, DatePicker, Radio, Table, TimePicker } from "antd";
 import { useState } from "react";
 import SurveyStatus from "../../../components/SurveyStatus";
+import { AssignmentsSteps } from "./CreateAssignments.styled";
 
 function CreateAssignments() {
   const isLoading = false;
@@ -180,7 +181,7 @@ function CreateAssignments() {
                 height: 50,
               }}
             >
-              <Steps
+              <AssignmentsSteps
                 style={{
                   width: 700,
                 }}

@@ -1,4 +1,4 @@
-import { Input, Table, Tabs } from "antd";
+import { Input, Steps, Table, Tabs } from "antd";
 import styled from "styled-components";
 
 export const CustomTab = styled(Tabs)`
@@ -10,5 +10,19 @@ export const CustomTab = styled(Tabs)`
 export const SearchBox = styled(Input.Search)`
   & button {
     background-color: #2f54eb;
+  }
+`;
+
+export const AssignmentsSteps = styled(Steps)`
+  & .ant-steps-item-active .ant-steps-item-icon {
+    background-color: #2f54eb;
+    border-color: #2f54eb;
+  }
+  & .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: #434343;
+  }
+
+  & .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon {
+    color: #ffffff;
   }
 `;
