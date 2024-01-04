@@ -3,10 +3,12 @@ name: deploy
 on:
   push:
     branches:
-      - dev
+      - prod
+      - staging
 
 jobs:
   build-deploy:
+    if: github.event_name == 'push' &&  github.ref == 'refs/heads/staging'
     name: Deploy Callisto Staging
     runs-on: ubuntu-latest
 
@@ -91,6 +93,7 @@ jobs:
           codedeploy-deployment-group: frontend-deploy-group
 
   build-deploy-prod:
+    if: github.event_name == 'push' &&  github.ref == 'refs/heads/prod'
     name: Deploy Callisto Prod
     runs-on: ubuntu-latest
 
