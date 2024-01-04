@@ -32,3 +32,5 @@ cypress/videos/*
 cypress/screenshots/*
 cypress/results/output.xml
 e2e/screenshots/*
+e2e/node_modules/*
+surveystream_flask_api/*
