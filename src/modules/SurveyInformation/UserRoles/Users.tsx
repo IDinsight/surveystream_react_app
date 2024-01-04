@@ -68,10 +68,10 @@ function AddUsers() {
   const [loading, setLoading] = useState(false);
 
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.supervisorRoles
+    (state: RootState) => state.userRoles.supervisorRoles
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.loading
+    (state: RootState) => state.userRoles.loading
   );
 
   const [numRoleFields, setNumRoleFields] = useState(
@@ -207,7 +207,8 @@ function AddUsers() {
 
       const updatedRoles = filteredRoles.map((role) => {
         const matchingRole = supervisorRoles.find(
-          (filteredRole) => filteredRole.role_name === role.role_name
+          (filteredRole: { role_name: any }) =>
+            filteredRole.role_name === role.role_name
         );
 
         if (matchingRole) {

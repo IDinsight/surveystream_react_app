@@ -27,7 +27,15 @@ import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../redux/userRoles/userRolesActions";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import {
   BodyWrapper,
@@ -67,10 +75,10 @@ function AddRoles() {
   const [loading, setLoading] = useState(false);
 
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.supervisorRoles
+    (state: RootState) => state.userRoles.supervisorRoles
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.loading
+    (state: RootState) => state.userRoles.loading
   );
 
   const [numRoleFields, setNumRoleFields] = useState(
@@ -216,7 +224,8 @@ function AddRoles() {
 
       const updatedRoles = filteredRoles.map((role) => {
         const matchingRole = supervisorRoles.find(
-          (filteredRole) => filteredRole.role_name === role.role_name
+          (filteredRole: { role_name: any }) =>
+            filteredRole.role_name === role.role_name
         );
 
         if (matchingRole) {
@@ -367,16 +376,25 @@ function AddRoles() {
                           validator: (_: any, value: string | undefined) => {
                             // Create a mapping of role_uid to reporting_role_uids
                             const rolesMap: { [key: string]: string[] } =
-                              supervisorRoles.reduce((map, role) => {
-                                const { role_uid, reporting_role_uid } = role;
-                                if (reporting_role_uid !== null) {
-                                  if (!map[reporting_role_uid]) {
-                                    map[reporting_role_uid] = [];
+                              supervisorRoles.reduce(
+                                (
+                                  map: { [x: string]: any[] },
+                                  role: {
+                                    role_uid: any;
+                                    reporting_role_uid: any;
                                   }
-                                  map[reporting_role_uid].push(role_uid);
-                                }
-                                return map;
-                              }, {} as { [key: string]: string[] });
+                                ) => {
+                                  const { role_uid, reporting_role_uid } = role;
+                                  if (reporting_role_uid !== null) {
+                                    if (!map[reporting_role_uid]) {
+                                      map[reporting_role_uid] = [];
+                                    }
+                                    map[reporting_role_uid].push(role_uid);
+                                  }
+                                  return map;
+                                },
+                                {} as { [key: string]: string[] }
+                              );
 
                             const hasCycle = (
                               node: string,
@@ -442,11 +460,30 @@ function AddRoles() {
                         <Select.Option value={null}>
                           No reporting role
                         </Select.Option>
-                        {supervisorRoles.map((r, i) => (
-                          <Select.Option key={i} value={r.role_uid}>
-                            {r.role_name}
-                          </Select.Option>
-                        ))}
+                        {supervisorRoles.map(
+                          (
+                            r: {
+                              role_uid: any;
+                              role_name:
+                                | string
+                                | number
+                                | boolean
+                                | ReactElement<
+                                    any,
+                                    string | JSXElementConstructor<any>
+                                  >
+                                | Iterable<ReactNode>
+                                | ReactPortal
+                                | null
+                                | undefined;
+                            },
+                            i: Key | null | undefined
+                          ) => (
+                            <Select.Option key={i} value={r.role_uid}>
+                              {r.role_name}
+                            </Select.Option>
+                          )
+                        )}
                       </Select>
                     </StyledFormItem>
                   </Col>

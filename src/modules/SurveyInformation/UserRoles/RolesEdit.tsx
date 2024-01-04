@@ -23,10 +23,19 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { setSupervisorRoles } from "../../../redux/userRoles/userRolesSlice";
 import {
+  getAllPermissions,
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../redux/userRoles/userRolesActions";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import {
   BodyWrapper,
@@ -57,6 +66,7 @@ import {
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "./SideMenu";
 import Header from "../../../components/Header";
+import PermissionsTable from "../../../components/PermissionsTable";
 
 function EditRoles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -65,10 +75,10 @@ function EditRoles() {
   const [loading, setLoading] = useState(false);
 
   const supervisorRoles = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.supervisorRoles
+    (state: RootState) => state.userRoles.supervisorRoles
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.filedSupervisorRoles.loading
+    (state: RootState) => state.userRoles.loading
   );
 
   const [numRoleFields, setNumRoleFields] = useState(
@@ -77,6 +87,8 @@ function EditRoles() {
   const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
 
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+
+  const [allPermissions, setAllPermissions] = useState<any>([]);
 
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
@@ -97,6 +109,12 @@ function EditRoles() {
 
   const { path } = useParams();
 
+  const fetchAllPermissions = async () => {
+    const res = await dispatch(getAllPermissions());
+    console.log("getAllPermissions", res.payload);
+    setAllPermissions(res.payload);
+  };
+
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
     setNumRoleFields(res.payload.length === 0 ? 1 : res.payload.length);
@@ -111,6 +129,9 @@ function EditRoles() {
     console.log("value", value);
   };
 
+  const handlePermissionsChange = async () => {
+    console.log("chnages wooo");
+  };
   const handleFormValuesChange = async () => {
     const formValues = form.getFieldsValue();
 
@@ -262,6 +283,7 @@ function EditRoles() {
 
   useEffect(() => {
     fetchSupervisorRoles();
+    fetchAllPermissions();
   }, [dispatch]);
 
   // Mock data
@@ -419,16 +441,25 @@ function EditRoles() {
                           validator: (_: any, value: string | undefined) => {
                             // Create a mapping of role_uid to reporting_role_uids
                             const rolesMap: { [key: string]: string[] } =
-                              supervisorRoles.reduce((map, role) => {
-                                const { role_uid, reporting_role_uid } = role;
-                                if (reporting_role_uid !== null) {
-                                  if (!map[reporting_role_uid]) {
-                                    map[reporting_role_uid] = [];
+                              supervisorRoles.reduce(
+                                (
+                                  map: { [x: string]: any[] },
+                                  role: {
+                                    role_uid: any;
+                                    reporting_role_uid: any;
                                   }
-                                  map[reporting_role_uid].push(role_uid);
-                                }
-                                return map;
-                              }, {} as { [key: string]: string[] });
+                                ) => {
+                                  const { role_uid, reporting_role_uid } = role;
+                                  if (reporting_role_uid !== null) {
+                                    if (!map[reporting_role_uid]) {
+                                      map[reporting_role_uid] = [];
+                                    }
+                                    map[reporting_role_uid].push(role_uid);
+                                  }
+                                  return map;
+                                },
+                                {} as { [key: string]: string[] }
+                              );
 
                             const hasCycle = (
                               node: string,
@@ -494,11 +525,30 @@ function EditRoles() {
                         <Select.Option value={null}>
                           No reporting role
                         </Select.Option>
-                        {supervisorRoles.map((r, i) => (
-                          <Select.Option key={i} value={r.role_uid}>
-                            {r.role_name}
-                          </Select.Option>
-                        ))}
+                        {supervisorRoles.map(
+                          (
+                            r: {
+                              role_uid: any;
+                              role_name:
+                                | string
+                                | number
+                                | boolean
+                                | ReactElement<
+                                    any,
+                                    string | JSXElementConstructor<any>
+                                  >
+                                | Iterable<ReactNode>
+                                | ReactPortal
+                                | null
+                                | undefined;
+                            },
+                            i: Key | null | undefined
+                          ) => (
+                            <Select.Option key={i} value={r.role_uid}>
+                              {r.role_name}
+                            </Select.Option>
+                          )
+                        )}
                       </Select>
                     </StyledFormItem>
                   </Col>
@@ -510,16 +560,9 @@ function EditRoles() {
                   view or none against the permission{" "}
                 </DescriptionText>
 
-                <RolesTable
-                  columns={permissionsTableColumn}
-                  dataSource={permissionsTableDataSource}
-                  pagination={{
-                    pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                  }}
+                <PermissionsTable
+                  permissions={allPermissions}
+                  onPermissionsChange={handlePermissionsChange}
                 />
               </Form>
 
