@@ -21,6 +21,7 @@ import {
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "./SideMenu";
 import Header from "../../../components/Header";
+import { setRolePermissions } from "../../../redux/userRoles/userRolesSlice";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -48,7 +49,7 @@ function Roles() {
 
   const [rolesTableData, setRolesTableData] = useState<any>([]);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -107,6 +108,17 @@ function Roles() {
     navigate(
       `/survey-information/user-roles/edit-role/${survey_uid}/${role_uid}`
     );
+  };
+
+  const handleAddNewRole = () => {
+    dispatch(
+      setRolePermissions({
+        survey_uid: survey_uid ?? null,
+        permissions: [],
+        role_uid: null,
+      })
+    );
+    navigate(`/survey-information/user-roles/add-role/${survey_uid}`);
   };
 
   useEffect(() => {
@@ -192,11 +204,7 @@ function Roles() {
                     marginLeft: "25px",
                     backgroundColor: "#2F54EB",
                   }}
-                  onClick={() =>
-                    navigate(
-                      `/survey-information/user-roles/add-role/${survey_uid}`
-                    )
-                  }
+                  onClick={() => handleAddNewRole()}
                 >
                   Add new role{" "}
                 </Button>

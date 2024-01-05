@@ -7,7 +7,6 @@ import {
 } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import { setSupervisorRoles } from "../../../redux/userRoles/userRolesSlice";
 import {
   getAllPermissions,
   getSupervisorRoles,
@@ -145,12 +144,16 @@ function AddRoles() {
           }
 
           formValues.permissions = localPermissions;
+          const otherRoles = [...supervisorRoles];
 
-          console.log("formValues", formValues);
+          otherRoles.push(formValues);
+
+          //combine with other supervisor roles
+          console.log("supervisorRoles", otherRoles);
 
           const rolesRes = await dispatch(
             postSupervisorRoles({
-              supervisorRolesData: formValues, // Pass validated form values
+              supervisorRolesData: otherRoles, // Pass validated form values
               surveyUid: survey_uid,
             })
           );
@@ -159,6 +162,7 @@ function AddRoles() {
             message.error(rolesRes.payload.message);
             return;
           } else {
+            navigate(`/survey-information/user-roles/roles/${survey_uid}`);
             message.success("Roles updated successfully");
           }
         })
@@ -179,7 +183,7 @@ function AddRoles() {
   useEffect(() => {
     fetchSupervisorRoles();
     fetchAllPermissions();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
