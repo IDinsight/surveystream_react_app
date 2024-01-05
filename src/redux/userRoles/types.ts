@@ -3,3 +3,9 @@ export type SupervisorRole = {
   role_name: string;
   reporting_role_uid: string;
 };
+
+export type RolePermissions = {
+  role_uid: string | null;
+  survey_uid: string | null;
+  permissions: Number[];
+};

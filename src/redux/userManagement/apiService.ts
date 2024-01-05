@@ -7,7 +7,7 @@ export const postCheckUser = async (email?: any) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/check-user`;
+    const url = `${API_BASE_URL}/users/check-email-availability`;
 
     const payload = { email: email };
 
@@ -30,7 +30,7 @@ export const postCompleteRegistration = async (userPayload: any) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/complete-registration`;
+    const url = `${API_BASE_URL}/users/complete-registration`;
 
     const payload = { ...userPayload };
 
@@ -53,7 +53,7 @@ export const postNewUser = async (userData?: any) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/add-user`;
+    const url = `${API_BASE_URL}/users`;
 
     const res = await axios.post(
       url,
@@ -80,16 +80,13 @@ export const fetchUser = async (user_uid: any) => {
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
-    const res = await axios.get(
-      `${API_BASE_URL}/get-user?user_uid=${user_uid}`,
-      {
-        headers: {
-          "X-CSRF-Token": csrfToken,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
+    const res = await axios.get(`${API_BASE_URL}/users/${user_uid}`, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
     return res;
   } catch (err: any) {
     return err;
@@ -105,13 +102,13 @@ export const fetchUsers = async (survey_uid?: any) => {
     let url: string;
 
     if (survey_uid) {
-      url = `${API_BASE_URL}/get-all-users?survey_uid=${survey_uid}`;
+      url = `${API_BASE_URL}/users?survey_uid=${survey_uid}`;
     } else {
-      url = `${API_BASE_URL}/get-all-users`;
+      url = `${API_BASE_URL}/users`;
     }
     console.log("url", url);
 
-    const res = await axios.get(`${API_BASE_URL}/get-all-users`, {
+    const res = await axios.get(url, {
       headers: {
         "X-CSRF-Token": csrfToken,
         "Content-Type": "application/json",

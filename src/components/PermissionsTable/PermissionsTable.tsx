@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Checkbox, Table } from "antd";
 import { StyledTable } from "./PermissionsTable.styled";
+import { useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
+import { RolePermissions } from "../../redux/userRoles/types";
+import { setRolePermissions } from "../../redux/userRoles/userRolesSlice";
 
 interface IPermissionsTableProps {
   permissions: any[];
@@ -11,8 +16,18 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
   permissions,
   onPermissionsChange,
 }) => {
+  const dispatch = useAppDispatch();
+
   const [localPermissions, setLocalPermissions] = useState<any[]>([]);
 
+  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+    survey_uid: null,
+  };
+  const { role_uid } = useParams<{ role_uid?: string }>() ?? { role_uid: null };
+
+  const rolePermissions = useAppSelector(
+    (state: RootState) => state.userRoles.rolePermissions
+  );
   const columns = [
     {
       title: "Permission",
@@ -54,76 +69,80 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
     },
   ];
 
-  const handleCheckboxChange = (
+  const handleCheckboxChange = async (
     e: any,
     record: any,
     type: "view" | "edit" | "none"
   ) => {
-    const editPermission = record.permissions.find(
-      (permission: { name: string }) => permission.name.includes("WRITE")
-    );
+    const updatedPermissions = localPermissions.map((group) => {
+      if (group.key === record.key) {
+        const updatedGroup = { ...group };
 
-    const viewPermission = record.permissions.find(
-      (permission: { name: string }) => permission.name.includes("READ")
-    );
-
-    let permissionToUpdate: any = null;
-
-    if (type === "edit") {
-      permissionToUpdate = editPermission;
-    } else if (type === "view") {
-      permissionToUpdate = viewPermission;
-    }
-
-    console.log("editPermission", editPermission?.permission_uid);
-    console.log("viewPermission", viewPermission?.permission_uid);
-
-    const permissionUid: any = permissionToUpdate?.permission_uid;
-
-    console.log("type", type);
-    console.log("permissionUid", permissionUid);
-
-    setLocalPermissions((prevPermissions) =>
-      prevPermissions.map((group) => {
-        if (group.key === record.key) {
-          const updatedGroup = { ...group };
-
-          // Update the specific property in the group based on the type
-          if (type === "none" && e.target.checked) {
-            updatedGroup[type] = e.target.checked;
-
-            updatedGroup["view"] = false;
-            updatedGroup["edit"] = false;
-          } else if (type === "edit" && e.target.checked) {
-            updatedGroup["view"] = true;
-            updatedGroup[type] = e.target.checked;
-            updatedGroup["none"] = false;
-          } else if (type !== "none" && e.target.checked) {
-            updatedGroup["none"] = false;
-            updatedGroup[type] = e.target.checked;
-          } else {
-            updatedGroup[type] = e.target.checked;
-          }
-          console.log(updatedGroup);
-
-          return updatedGroup;
+        // Update the specific property in the group based on the type
+        if (type === "none" && e.target.checked) {
+          updatedGroup[type] = e.target.checked;
+          updatedGroup["view"] = false;
+          updatedGroup["edit"] = false;
+        } else if (type === "edit" && e.target.checked) {
+          updatedGroup["view"] = true;
+          updatedGroup[type] = e.target.checked;
+          updatedGroup["none"] = false;
+        } else if (type !== "none" && e.target.checked) {
+          updatedGroup["none"] = false;
+          updatedGroup[type] = e.target.checked;
+        } else {
+          updatedGroup[type] = e.target.checked;
         }
-        return group;
-      })
-    );
-    if (permissionToUpdate) {
-      // Update the specific permission based on the type
-    } else if (type === "none") {
-      // Handle "none"
-    }
+        console.log(updatedGroup);
+
+        return updatedGroup;
+      }
+      return group;
+    });
+
+    setLocalPermissions(updatedPermissions);
+    const extractedPermissions = extractRolePermissions(updatedPermissions);
+    const rolePermissionsData: RolePermissions = {
+      role_uid: role_uid ?? null,
+      survey_uid: survey_uid ?? null,
+      permissions: extractedPermissions,
+    };
+
+    onPermissionsChange(extractedPermissions);
+
+    const setRolesRes = await dispatch(setRolePermissions(rolePermissionsData));
+
+    console.log("setRolesRes", setRolesRes);
   };
 
-  useEffect(() => {
-    // Notify parent component when localPermissions change
-    onPermissionsChange(localPermissions);
-  }, [localPermissions, onPermissionsChange]);
+  const extractRolePermissions = (localPermissions: any) => {
+    const extractedPermissions: any[] = [];
 
-  useEffect(() => {
+    localPermissions.forEach((permission: any) => {
+      const permissionsArray = permission.permissions
+        .filter((p: any) => {
+          if (permission.view === true && p.name.includes("READ")) {
+            return true;
+          } else if (permission.edit === true && p.name.includes("WRITE")) {
+            return true;
+          }
+          return false;
+        })
+        .map((p: any) => p.permission_uid);
+
+      extractedPermissions.push(permissionsArray);
+    });
+
+    return extractedPermissions.flat();
+  };
+
+  const renderPermissionData = () => {
+    if (!Array.isArray(permissions)) {
+      // Handle the case where permissions is not an array
+      console.error("Invalid permissions data:", permissions);
+      return;
+    }
+
     // Group permissions by a common identifier (e.g., 'Enumerators')
     const groupedData = permissions.reduce((acc, item) => {
       const groupNameParts = item.name.split(" ");
@@ -143,16 +162,56 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
     }, {});
 
     let counter = 1;
-    const transformedData = Object.values(groupedData).map((group: any) => ({
-      ...group,
-      key: counter++,
-      edit: false,
-      view: false,
-    }));
 
+    // Get the keys of the rolePermissions.permissions array
+    const rolePermissionsKeys = rolePermissions.permissions.map(
+      (permission: any) => permission
+    );
+
+    // Transform the data and update local state
+    const transformedData = Object.values(groupedData).map((group: any) => {
+      const permissionsKeys = group.permissions.map(
+        (permission: { permission_uid: any }) => permission.permission_uid
+      );
+
+      const hasPermissions = permissionsKeys.some((key: any) =>
+        rolePermissionsKeys.includes(key)
+      );
+
+      const hasViewPermission = permissionsKeys.some(
+        (key: any) =>
+          rolePermissionsKeys.includes(key) &&
+          group.permissions.some((p: { name: string | string[] }) =>
+            p.name.includes("READ")
+          )
+      );
+
+      const hasEditPermission = permissionsKeys.some(
+        (key: any) =>
+          rolePermissionsKeys.includes(key) &&
+          group.permissions.some((p: { name: string | string[] }) =>
+            p.name.includes("WRITE")
+          )
+      );
+
+      return {
+        ...group,
+        key: counter++,
+        edit: hasEditPermission,
+        view: hasViewPermission,
+        none:
+          rolePermissionsKeys.length > 0 &&
+          !hasViewPermission &&
+          !hasEditPermission,
+      };
+    });
     // Update local state when permissions prop changes
     setLocalPermissions(Object.values(transformedData));
-  }, [permissions]);
+  };
+
+  useEffect(() => {
+    renderPermissionData();
+  }, [dispatch, permissions]);
 
   return (
     <div>

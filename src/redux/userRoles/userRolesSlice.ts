@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SupervisorRole } from "./types";
+import { RolePermissions, SupervisorRole } from "./types";
 
 interface UserRolesState {
   loading: boolean;
   error: any;
   supervisorRoles: SupervisorRole[];
   allPermissions: any[];
+  rolePermissions: RolePermissions;
 }
 
 const initialState: UserRolesState = {
@@ -13,6 +14,11 @@ const initialState: UserRolesState = {
   error: null,
   supervisorRoles: [],
   allPermissions: [],
+  rolePermissions: {
+    role_uid: null,
+    survey_uid: null,
+    permissions: [],
+  },
 };
 
 const userRolesSlice = createSlice({
@@ -25,6 +31,11 @@ const userRolesSlice = createSlice({
     setSupervisorRoles: (state, action: PayloadAction<SupervisorRole[]>) => {
       state.supervisorRoles = action.payload;
     },
+
+    setRolePermissions: (state, action: PayloadAction<RolePermissions>) => {
+      state.rolePermissions = action.payload;
+    },
+
     getSupervisorRolesRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -89,6 +100,7 @@ export const {
   postSupervisorRolesFailure,
   addSupervisorRole,
   setSupervisorRoles,
+  setRolePermissions,
 } = userRolesSlice.actions;
 
 export default userRolesSlice.reducer;

@@ -42,24 +42,13 @@ function Roles() {
   };
   const [loading, setLoading] = useState(false);
 
-  const supervisorRoles = useAppSelector(
-    (state: RootState) => state.userRoles.supervisorRoles
-  );
   const isLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
 
-  const [numRoleFields, setNumRoleFields] = useState(
-    supervisorRoles.length !== 0 ? supervisorRoles.length : 1
-  );
-  const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
-
   const [rolesTableData, setRolesTableData] = useState<any>([]);
 
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
-
-  // Delete confirmation
-  const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
   const handleGoBack = () => {
     navigate(-1);
