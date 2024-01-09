@@ -18,6 +18,7 @@ const initialState: UserRolesState = {
     role_uid: null,
     survey_uid: null,
     permissions: [],
+    duplicate: false
   },
 };
 

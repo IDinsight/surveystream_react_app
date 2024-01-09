@@ -9,4 +9,5 @@ export type RolePermissions = {
   role_uid: string | null;
   survey_uid: string | null;
   permissions: Number[];
+  duplicate?: boolean
 };

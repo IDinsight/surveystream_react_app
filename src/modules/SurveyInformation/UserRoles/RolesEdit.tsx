@@ -114,11 +114,14 @@ function EditRoles() {
         (role) => role.role_uid == role_uid
       );
 
+      setLocalPermissions(filteredRole?.permissions);
+
       dispatch(
         setRolePermissions({
           survey_uid: survey_uid ?? null,
           permissions: filteredRole?.permissions ?? [],
           role_uid: filteredRole?.role_uid ?? "",
+          duplicate: rolePermissions?.duplicate,
         })
       );
 
@@ -178,19 +181,21 @@ function EditRoles() {
             return;
           }
 
-          formValues.role_uid = role_uid;
           formValues.permissions = localPermissions;
-          //remove edited role from the initial list
-          const otherRoles = [
-            ...supervisorRoles.filter(
-              (role) => role.role_uid != formValues.role_uid
-            ),
-          ];
+          //remove edited role from the initial list if not duplicate
+          let otherRoles = [...supervisorRoles];
 
+          if (!rolePermissions.duplicate) {
+            formValues.role_uid = role_uid;
+            otherRoles = [
+              ...supervisorRoles.filter(
+                (role) => role.role_uid != formValues.role_uid
+              ),
+            ];
+          }
           otherRoles.push(formValues);
 
           //combine with other supervisor roles
-          console.log("supervisorRoles", otherRoles);
 
           const rolesRes = await dispatch(
             postSupervisorRoles({
@@ -260,8 +265,12 @@ function EditRoles() {
             <SideMenu />
             <BodyWrapper>
               <DescriptionTitle>Roles</DescriptionTitle>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Edit role
+              <DescriptionText>
+                {rolePermissions.duplicate ? (
+                  <>Duplicate Role</>
+                ) : (
+                  <>Edit Role</>
+                )}
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>

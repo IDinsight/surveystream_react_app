@@ -121,6 +121,8 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
     localPermissions.forEach((permission: any) => {
       const permissionsArray = permission.permissions
         .filter((p: any) => {
+          console.log("permission", permission);
+
           if (permission.view === true && p.name.includes("READ")) {
             return true;
           } else if (permission.edit === true && p.name.includes("WRITE")) {
@@ -174,23 +176,19 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
         (permission: { permission_uid: any }) => permission.permission_uid
       );
 
-      const hasPermissions = permissionsKeys.some((key: any) =>
-        rolePermissionsKeys.includes(key)
-      );
-
       const hasViewPermission = permissionsKeys.some(
         (key: any) =>
           rolePermissionsKeys.includes(key) &&
-          group.permissions.some((p: { name: string | string[] }) =>
-            p.name.includes("READ")
+          group.permissions.some(
+            (p: any) => p.name.includes("READ") && p.permission_uid == key
           )
       );
 
       const hasEditPermission = permissionsKeys.some(
         (key: any) =>
           rolePermissionsKeys.includes(key) &&
-          group.permissions.some((p: { name: string | string[] }) =>
-            p.name.includes("WRITE")
+          group.permissions.some(
+            (p: any) => p.name.includes("WRITE") && p.permission_uid == key
           )
       );
 

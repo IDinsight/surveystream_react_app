@@ -1,4 +1,4 @@
-import { Button, Form, Modal } from "antd";
+import { Button } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -7,7 +7,7 @@ import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, RolesTable } from "./UserRoles.styled";
-import { ExclamationCircleFilled, FileAddOutlined } from "@ant-design/icons";
+import { FileAddOutlined } from "@ant-design/icons";
 import {
   BackArrow,
   BackLink,
@@ -98,11 +98,28 @@ function Roles() {
         users_assigned: "N/A",
       }));
 
-
       setRolesTableData(transformedData);
     } else {
       setRolesTableData([]);
     }
+  };
+
+  const handleDuplicate = (role_uid: any): void => {
+    const filteredRole = supervisorRoles.find(
+      (role) => role.role_uid == role_uid
+    );
+
+    dispatch(
+      setRolePermissions({
+        survey_uid: survey_uid ?? null,
+        permissions: filteredRole?.permissions ?? [],
+        role_uid: role_uid,
+        duplicate: true,
+      })
+    );
+    navigate(
+      `/survey-information/user-roles/edit-role/${survey_uid}/${role_uid}`
+    );
   };
 
   const handleEdit = (role_uid: any): void => {
@@ -115,6 +132,7 @@ function Roles() {
         survey_uid: survey_uid ?? null,
         permissions: filteredRole?.permissions ?? [],
         role_uid: role_uid,
+        duplicate: false,
       })
     );
     navigate(
@@ -162,14 +180,14 @@ function Roles() {
           <Button type="link" onClick={() => handleEdit(record?.role_uid)}>
             Edit
           </Button>
-          <Button type="link" onClick={() => handleDuplicate(record)}>
+          <Button type="link" onClick={() => handleDuplicate(record?.role_uid)}>
             Duplicate
           </Button>
 
           <Button
             danger
             type="text"
-            onClick={() => handleDelete(record)}
+            onClick={() => handleDuplicate(record?.role_uid)}
             style={{ marginLeft: 8 }}
           >
             Delete
@@ -247,10 +265,6 @@ function Roles() {
 }
 
 export default Roles;
-
-function handleDuplicate(record: any): void {
-  throw new Error("Function not implemented.");
-}
 
 function handleDelete(record: any): void {
   throw new Error("Function not implemented.");
