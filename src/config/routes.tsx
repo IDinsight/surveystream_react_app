@@ -72,7 +72,7 @@ const AppRoutes = () => {
           element={<SurveyCTOInfomation />}
         />
         <Route
-          path="/survey-information/user-roles/:path?/:survey_uid?"
+          path="/survey-information/user-roles/:path?/:survey_uid?/:role_uid?"
           element={<UserRoles />}
         />
         <Route

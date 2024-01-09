@@ -28,6 +28,7 @@ interface OriginalRolesData {
   role_name: string;
   role_uid: number;
   survey_uid: number;
+  permissions: any;
 }
 
 interface TransformedRolesData {
@@ -38,10 +39,12 @@ interface TransformedRolesData {
 }
 
 function Roles() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const [loading, setLoading] = useState(false);
 
   const isLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
@@ -51,13 +54,13 @@ function Roles() {
 
   const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
 
+  const supervisorRoles = useAppSelector(
+    (state: RootState) => state.userRoles.supervisorRoles
+  );
+
   const handleGoBack = () => {
     navigate(-1);
   };
-
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -70,7 +73,6 @@ function Roles() {
 
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
-      console.log("originalRolesData", originalRolesData);
 
       const findItemByRoleUid = (roleUid: number): string | null => {
         if (Array.isArray(originalRolesData)) {
@@ -96,7 +98,6 @@ function Roles() {
         users_assigned: "N/A",
       }));
 
-      console.log("transformedData", transformedData);
 
       setRolesTableData(transformedData);
     } else {
@@ -105,6 +106,17 @@ function Roles() {
   };
 
   const handleEdit = (role_uid: any): void => {
+    const filteredRole = supervisorRoles.find(
+      (role) => role.role_uid == role_uid
+    );
+
+    dispatch(
+      setRolePermissions({
+        survey_uid: survey_uid ?? null,
+        permissions: filteredRole?.permissions ?? [],
+        role_uid: role_uid,
+      })
+    );
     navigate(
       `/survey-information/user-roles/edit-role/${survey_uid}/${role_uid}`
     );
@@ -226,7 +238,7 @@ function Roles() {
 
           <FooterWrapper>
             <SaveButton>Save</SaveButton>
-            <ContinueButton loading={loading}>Finalize roles</ContinueButton>
+            <ContinueButton>Finalize roles</ContinueButton>
           </FooterWrapper>
         </>
       )}

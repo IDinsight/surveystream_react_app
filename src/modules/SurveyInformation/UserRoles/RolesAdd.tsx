@@ -77,9 +77,6 @@ function AddRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-
-  const { path } = useParams();
-
   const handleRadioChange = (value: boolean) => {
     setHasReportingRole(value);
   };
@@ -153,7 +150,7 @@ function AddRoles() {
 
           const rolesRes = await dispatch(
             postSupervisorRoles({
-              supervisorRolesData: otherRoles, // Pass validated form values
+              supervisorRolesData: otherRoles,
               surveyUid: survey_uid,
             })
           );

@@ -5,6 +5,7 @@ import { SupervisorRole } from "./types";
 import {
   getAllPermissionsFailure,
   getAllPermissionsRequest,
+  getAllPermissionsSuccess,
   getSupervisorRolesFailure,
   getSupervisorRolesRequest,
   getSupervisorRolesSuccess,
@@ -77,7 +78,7 @@ export const getAllPermissions = createAsyncThunk(
       const res: any = await api.fetchAllPermissions();
 
       if (res.status === 200) {
-        dispatch(getSupervisorRolesSuccess(res.data));
+        dispatch(getAllPermissionsSuccess(res.data));
         return res.data;
       }
       const error = { ...res.response.data, code: res.response.status };
