@@ -1,13 +1,16 @@
-import { Button } from "antd";
+import { Button, Modal, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
+import {
+  getSupervisorRoles,
+  postSupervisorRoles,
+} from "../../../redux/userRoles/userRolesActions";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, RolesTable } from "./UserRoles.styled";
-import { FileAddOutlined } from "@ant-design/icons";
+import { ExclamationCircleFilled, FileAddOutlined } from "@ant-design/icons";
 import {
   BackArrow,
   BackLink,
@@ -45,28 +48,28 @@ function Roles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-
   const isLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
-
-  const [rolesTableData, setRolesTableData] = useState<any>([]);
-
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
-
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
   );
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
+  const [rolesTableData, setRolesTableData] = useState<any>([]);
+
+  const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
+
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+
+  const [deleteRoleId, setDeleteRoleId] = useState<number>();
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
 
-  const { path } = useParams();
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
@@ -151,9 +154,44 @@ function Roles() {
     navigate(`/survey-information/user-roles/add-role/${survey_uid}`);
   };
 
+  const handleDelete = (role_uid: any): void => {
+    setDeleteRoleId(role_uid);
+    setIsOpenDeleteModel(true);
+  };
+
+  const handleDeleteRole = async () => {
+    //to delete roles update roles for the survey without the deleted role
+    //this is to ensure hierarchy validations on the backend
+    const userRoles = supervisorRoles;
+
+    const filteredRoles = [
+      ...supervisorRoles.filter(
+        (role) => role.role_uid != deleteRoleId?.toString()
+      ),
+    ];
+
+    const rolesRes = await dispatch(
+      postSupervisorRoles({
+        supervisorRolesData: filteredRoles,
+        surveyUid: survey_uid ?? "",
+      })
+    );
+
+    if (rolesRes.payload.status === false) {
+      message.error(rolesRes.payload.message);
+      return;
+    } else {
+      await fetchSupervisorRoles();
+      message.success("Roles deleted successfully");
+    }
+
+    setDeleteRoleId(undefined);
+    setIsOpenDeleteModel(false);
+  };
+
   useEffect(() => {
     fetchSupervisorRoles();
-  }, []);
+  }, [dispatch]);
 
   const rolesTableColumn = [
     {
@@ -187,7 +225,7 @@ function Roles() {
           <Button
             danger
             type="text"
-            onClick={() => handleDuplicate(record?.role_uid)}
+            onClick={() => handleDelete(record?.role_uid)}
             style={{ marginLeft: 8 }}
           >
             Delete
@@ -252,6 +290,23 @@ function Roles() {
                 }}
               />
             </BodyWrapper>
+
+            <Modal
+              open={isOpenDeleteModel}
+              title={
+                <div style={{ display: "flex" }}>
+                  <ExclamationCircleFilled
+                    style={{ color: "orange", fontSize: 20 }}
+                  />
+                  <p style={{ marginLeft: "10px" }}>Delete the role</p>
+                </div>
+              }
+              okText="Yes, delete role"
+              onOk={() => handleDeleteRole()}
+              onCancel={() => setIsOpenDeleteModel(false)}
+            >
+              <p>Are you sure you want to delete this role?</p>
+            </Modal>
           </div>
 
           <FooterWrapper>
@@ -265,7 +320,3 @@ function Roles() {
 }
 
 export default Roles;
-
-function handleDelete(record: any): void {
-  throw new Error("Function not implemented.");
-}

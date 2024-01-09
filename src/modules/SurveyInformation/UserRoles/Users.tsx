@@ -79,7 +79,7 @@ function AddUsers() {
   );
   const [isAllowedEdit, setIsAllowEdit] = useState<boolean>(true);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
 
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
