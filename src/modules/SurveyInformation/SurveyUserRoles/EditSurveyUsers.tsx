@@ -53,6 +53,24 @@ function EditSurveyUsers() {
   const handleUpdateUser = async () => {
     console.log("handleUpdateUser");
     setLoading(true);
+
+    console.log("editUser", editUser);
+
+    const initialUserData = editUser;
+    const commonRoles = rolesTableData.filter((r: any) =>
+      initialUserData.roles.includes(r.role_uid)
+    );
+    if (commonRoles.length > 0) {
+      userDetails.roles = userDetails.roles.filter(
+        (role: any) => !commonRoles.map((r: any) => r.role_uid).includes(role)
+      );
+    } else {
+      // Updating role for a different survey
+      userDetails.roles.push(...initialUserData.roles);
+    }
+
+    console.log("userDetails.roles", userDetails.roles);
+
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
       const updateRes = await dispatch(
@@ -197,7 +215,14 @@ function EditSurveyUsers() {
                   <Form.Item
                     name="roles"
                     label="Role"
-                    initialValue={userDetails?.roles}
+                    initialValue={
+                      userDetails?.roles &&
+                      rolesTableData.some((r: any) =>
+                        userDetails.roles.includes(r.role_uid)
+                      )
+                        ? userDetails.roles[0]
+                        : undefined
+                    }
                     rules={[{ required: true }]}
                     hasFeedback
                   >
@@ -209,7 +234,7 @@ function EditSurveyUsers() {
                         setUserDetails((prev: any) => {
                           return {
                             ...prev,
-                            roles: [value],
+                            roles: [...editUser.roles, value],
                           };
                         });
                       }}

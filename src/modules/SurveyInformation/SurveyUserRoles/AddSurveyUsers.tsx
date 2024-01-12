@@ -85,37 +85,24 @@ function AddSurveyUsers() {
   };
 
   const handleUpdateUser = async () => {
-    console.log("handleUpdateUser");
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
-        console.log("isExistingUser", isExistingUser);
         const initialUserData = checkedUser?.user;
-        console.log("initialUserData", initialUserData);
-        console.log("userDetails", userDetails);
-
-        if (!userDetails.roles.length > initialUserData.roles.length) {
-          const commonRoles = rolesTableData.filter((r: any) =>
-            initialUserData.roles.includes(r.role_uid)
+        const commonRoles = rolesTableData.filter((r: any) =>
+          initialUserData.roles.includes(r.role_uid)
+        );
+        if (commonRoles.length > 0) {
+          userDetails.roles = userDetails.roles.filter(
+            (role: any) =>
+              !commonRoles.map((r: any) => r.role_uid).includes(role)
           );
-
-          console.log("commonRoles", commonRoles);
-
-          if (commonRoles.length > 0) {
-            userDetails.roles = userDetails.roles.filter(
-              (role: any) =>
-                !commonRoles.map((r: any) => r.role_uid).includes(role)
-            );
-
-            userDetails.roles.push(...initialUserData.roles);
-          } else {
-            // Updating role for a different survey
-            userDetails.roles.push(...initialUserData.roles);
-          }
+        } else {
+          // Updating role for a different survey
+          userDetails.roles.push(...initialUserData.roles);
         }
 
         console.log("userDetails.roles", userDetails.roles);
-
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -346,14 +333,10 @@ function AddSurveyUsers() {
                         placeholder="Select role"
                         onChange={(value) => {
                           setUserDetails((prev: any) => {
-                            if (!prev.roles.includes(value)) {
-                              return {
-                                ...prev,
-                                roles: [...prev.roles, value],
-                              };
-                            } else {
-                              return prev;
-                            }
+                            return {
+                              ...prev,
+                              roles: [...checkedUser.user.roles, value],
+                            };
                           });
                         }}
                       >
