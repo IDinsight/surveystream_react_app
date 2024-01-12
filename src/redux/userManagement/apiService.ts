@@ -144,10 +144,30 @@ export const fetchUsers = async (survey_uid?: any) => {
     return err;
   }
 };
+
+export const deleteUser = async (user_uid: any) => {
+  try {
+    await getCSRFToken();
+
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/users/${user_uid}`;
+    const res = await axios.delete(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (err: any) {
+    return err;
+  }
+};
 export const api = {
   updateUser,
   postCheckUser,
   fetchUser,
   postNewUser,
   fetchUsers,
+  deleteUser,
 };

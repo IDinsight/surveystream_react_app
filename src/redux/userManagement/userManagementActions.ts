@@ -5,6 +5,9 @@ import {
   checkUserFailure,
   checkUserRequest,
   checkUserSuccess,
+  deleteUserFailure,
+  deleteUserRequest,
+  deleteUserSuccess,
   getAllUsersFailure,
   getAllUsersRequest,
   getAllUsersSuccess,
@@ -18,7 +21,6 @@ import {
   putUpdateUserRequest,
   putUpdateUserSuccess,
 } from "./userManagementSlice";
-import { param } from "cypress/types/jquery";
 
 export const postCheckUser = createAsyncThunk(
   "userManagement/postCheckUser",
@@ -173,6 +175,27 @@ export const getAllUsers = createAsyncThunk(
   }
 );
 
+export const deleteUser = createAsyncThunk(
+  "userManagement/deleteUser",
+  async (params: { user_uid: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(deleteUserRequest());
+      const res: any = await api.deleteUser(params?.user_uid);
+
+      if (res.status === 200) {
+        dispatch(deleteUserSuccess(res.data));
+        return res.data;
+      }
+      const error = { ...res.data, code: res.status };
+      dispatch(deleteUserFailure(error));
+      return res.data;
+    } catch (error) {
+      const errorMessage = error || "Failed to delete user";
+      dispatch(deleteUserFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 export const userRolesActions = {
   postAddUser,
   getUser,

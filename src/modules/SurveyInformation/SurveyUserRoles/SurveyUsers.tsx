@@ -123,7 +123,7 @@ function SurveyUsers() {
       message.success("User removed from project successfully");
       fetchAllUsers();
     } else {
-      message.error("Failed to update user kindly check");
+      message.error("Failed to remove user from project, kindly try again");
       console.log("error", updateRes.payload);
     }
 

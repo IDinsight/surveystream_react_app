@@ -1,20 +1,10 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Dropdown, MenuProps, Modal, message } from "antd";
 import {
-  Button,
-  Dropdown,
-  Input,
-  MenuProps,
-  Modal,
-  Table,
-  message,
-} from "antd";
-import {
-  CloudDownloadOutlined,
   CloudUploadOutlined,
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleFilled,
-  SearchOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -29,7 +19,10 @@ import {
   UsersTable,
 } from "./Users.styled";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { getAllUsers } from "../../redux/userManagement/userManagementActions";
+import {
+  deleteUser,
+  getAllUsers,
+} from "../../redux/userManagement/userManagementActions";
 import { RootState } from "../../redux/store";
 import Column from "antd/lib/table/Column";
 import { setEditUser } from "../../redux/userManagement/userManagementSlice";
@@ -50,6 +43,46 @@ function UsersManage() {
 
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
+
+  const usersTableColumn = [
+    {
+      title: "Email ID",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "First Name",
+      dataIndex: "first_name",
+      key: "first_name",
+    },
+    {
+      title: "Last Name",
+      dataIndex: "last_name",
+      key: "last_name",
+    },
+    {
+      title: "Roles",
+      key: "user_roles",
+      dataIndex: "user_roles",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+  ];
+
+  const addUserOptions: MenuProps["items"] = [
+    {
+      key: "1",
+      label: <Link to="/users/add">Add manually</Link>,
+    },
+    {
+      key: "2",
+      label: <Link to="/users/add">Upload CSV</Link>,
+      disabled: true,
+    },
+  ];
 
   const fetchAllUsers = async () => {
     const usersRes = await dispatch(getAllUsers({}));
@@ -107,45 +140,28 @@ function UsersManage() {
     setIsOpenDeleteModel(true);
   };
 
-  const usersTableColumn = [
-    {
-      title: "Email ID",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "First Name",
-      dataIndex: "first_name",
-      key: "first_name",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "last_name",
-      key: "last_name",
-    },
-    {
-      title: "Roles",
-      key: "user_roles",
-      dataIndex: "user_roles",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
-  ];
+  const handleDeleteUser = async () => {
+    selectedRows.forEach(async (row: any) => {
+      const selectedUserData = row;
+      const deleteRes = await dispatch(
+        deleteUser({
+          user_uid: selectedUserData.user_id,
+        })
+      );
+      console.log("deleteRes", deleteRes);
+      if (deleteRes.payload?.message) {
+        fetchAllUsers();
+        message.success("User removed from the system successfully");
+      } else {
+        message.error(
+          "User cannot be deleted from the system,kindly check active projects."
+        );
+        console.log("error", deleteRes.payload);
+      }
+    });
+    setIsOpenDeleteModel(false);
+  };
 
-  const addUserOptions: MenuProps["items"] = [
-    {
-      key: "1",
-      label: <Link to="/users/add">Add manually</Link>,
-    },
-    {
-      key: "2",
-      label: <Link to="/users/add">Upload CSV</Link>,
-      disabled: true,
-    },
-  ];
   const filterTableData = (searchValue: any) => {
     const filteredData = userTableDataSource.filter((record) => {
       return Object.values(record).some(
@@ -160,6 +176,11 @@ function UsersManage() {
 
   const handleEditUser = () => {
     console.log(selectedRows);
+    if (selectedRows.length > 1) {
+      message.error("Kindly select only one user to edit");
+      return;
+    }
+
     if (selectedRows.length < 1) {
       message.error("Kindly select user to edit");
       return;
@@ -280,7 +301,7 @@ function UsersManage() {
                   </div>
                 }
                 okText="Yes, delete user"
-                onOk={() => setIsOpenDeleteModel(false)} // Write the logic to delete
+                onOk={() => handleDeleteUser()} // Write the logic to delete
                 onCancel={() => setIsOpenDeleteModel(false)}
               >
                 <p>Are you sure you want to delete this user?</p>

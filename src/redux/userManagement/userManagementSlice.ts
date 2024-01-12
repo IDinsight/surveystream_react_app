@@ -22,13 +22,27 @@ const userManagementSlice = createSlice({
   name: "userManagement",
   initialState,
   reducers: {
+    setEditUser: (state, action: PayloadAction<any>) => {
+      state.editUser = action.payload;
+    },
+    deleteUserRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+
+    deleteUserSuccess: (state, action: PayloadAction<[]>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    deleteUserFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     checkUserRequest: (state) => {
       state.loading = true;
       state.error = null;
     },
-    setEditUser: (state, action: PayloadAction<any>) => {
-      state.editUser = action.payload;
-    },
+
     checkUserSuccess: (state, action: PayloadAction<[]>) => {
       if (action.payload.length !== 0) {
         state.userChecked = action.payload;
@@ -117,6 +131,9 @@ export const {
   putUpdateUserRequest,
   putUpdateUserSuccess,
   setEditUser,
+  deleteUserFailure,
+  deleteUserRequest,
+  deleteUserSuccess,
 } = userManagementSlice.actions;
 
 export default userManagementSlice.reducer;
