@@ -23,8 +23,12 @@ import SideMenu from "./SideMenu";
 import Header from "../../../components/Header";
 import Column from "antd/lib/table/Column";
 import { FilterConfirmProps } from "antd/lib/table/interface";
-import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
+import {
+  getAllUsers,
+  putUpdateUser,
+} from "../../../redux/userManagement/userManagementActions";
 import { setEditUser } from "../../../redux/userManagement/userManagementSlice";
+import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
 
 function SurveyUsers() {
   const navigate = useNavigate();
@@ -43,6 +47,7 @@ function SurveyUsers() {
   const isLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
+  const [rolesTableData, setRolesTableData] = useState<any>([]);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -89,14 +94,40 @@ function SurveyUsers() {
       message.error("No row selected for editing");
       return;
     }
+    setIsOpenDeleteModel(true);
+  };
 
-    const isUserDeletable = true;
-    if (!isUserDeletable) {
-      message.warning("User cannot be deleted as they have active projects");
-      return;
+  const handleDeleteUser = async () => {
+    const selectedUserData = selectedRows[0];
+
+    console.log("selectedUserData", selectedUserData);
+    const rolesToRemove = rolesTableData.filter((r: any) =>
+      selectedUserData.roles.includes(r.role_uid)
+    );
+
+    console.log("rolesToRemove", rolesToRemove);
+
+    selectedUserData.roles = selectedUserData.roles.filter(
+      (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
+    );
+
+    console.log(" selectedUserData.roles ", selectedUserData.roles);
+
+    const updateRes = await dispatch(
+      putUpdateUser({
+        userUId: selectedUserData.user_id,
+        userData: selectedUserData,
+      })
+    );
+    if (updateRes.payload?.user_data) {
+      message.success("User removed from project successfully");
+      fetchAllUsers();
+    } else {
+      message.error("Failed to update user kindly check");
+      console.log("error", updateRes.payload);
     }
 
-    setIsOpenDeleteModel(true);
+    setIsOpenDeleteModel(false);
   };
 
   const usersTableColumn = [
@@ -158,9 +189,27 @@ function SurveyUsers() {
 
     navigate(`/survey-information/user-roles/edit-user/${survey_uid}`);
   };
+  const fetchSupervisorRoles = async () => {
+    const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
+    console.log("res", res);
+
+    if (Array.isArray(res.payload) && res.payload.length > 0) {
+      const transformedData: any[] = (
+        Array.isArray(res.payload) ? res.payload : [res.payload]
+      ).map((item: any) => ({
+        role_uid: item.role_uid,
+        role: item.role_name,
+        has_reporting_role: item.reporting_role_uid ? true : false,
+      }));
+      setRolesTableData(transformedData);
+    } else {
+      console.log("missing roles");
+    }
+  };
 
   useEffect(() => {
     fetchAllUsers();
+    fetchSupervisorRoles();
   }, [dispatch]);
 
   return (
@@ -299,11 +348,13 @@ function SurveyUsers() {
                     <p style={{ marginLeft: "10px" }}>Delete the user</p>
                   </div>
                 }
-                okText="Yes, delete user"
-                onOk={() => setIsOpenDeleteModel(false)} // Write the logic to delete
+                okText="Yes, remove user"
+                onOk={() => handleDeleteUser()} // Write the logic to delete
                 onCancel={() => setIsOpenDeleteModel(false)}
               >
-                <p>Are you sure you want to delete this user?</p>
+                <p>
+                  Are you sure you want to remove this user from this project?
+                </p>
               </Modal>
             </BodyWrapper>
           </div>
