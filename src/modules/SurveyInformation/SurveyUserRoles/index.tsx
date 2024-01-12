@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
-import Roles from "./Roles";
-import RolesAdd from "./RolesAdd";
-import Users from "./Users";
-import UsersAdd from "./UsersAdd";
-import EditUser from "./UsersEdit";
-import EditRoles from "./RolesEdit";
+import Roles from "./SurveyRoles";
+import RolesAdd from "./AddSurveyRoles";
+import Users from "./SurveyUsers";
+import UsersAdd from "./AddSurveyUsers";
+import EditUser from "./EditSurveyUsers";
+import EditRoles from "./EditSurveyRoles";
 
 function UserRoles() {
   const { path } = useParams();

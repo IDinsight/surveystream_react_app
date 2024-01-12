@@ -42,11 +42,10 @@ interface TransformedRolesData {
   role_uid: number;
 }
 
-function AddRoles() {
+function AddSurveyRoles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const [loading, setLoading] = useState(false);
 
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
@@ -58,6 +57,9 @@ function AddRoles() {
   const rolePermissions = useAppSelector(
     (state: RootState) => state.userRoles.rolePermissions
   );
+
+  const [loading, setLoading] = useState(false);
+
   const [rolesTableData, setRolesTableData] = useState<any>([]);
 
   const [hasReportingRole, setHasReportingRole] = useState(false);
@@ -322,4 +324,4 @@ function AddRoles() {
   );
 }
 
-export default AddRoles;
+export default AddSurveyRoles;

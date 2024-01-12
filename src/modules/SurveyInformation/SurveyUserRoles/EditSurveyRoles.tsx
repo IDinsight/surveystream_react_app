@@ -47,7 +47,7 @@ interface TransformedRolesData {
   role_uid: number;
 }
 
-function EditRoles() {
+function EditSurveyRoles() {
   const [editRolesForm] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -312,6 +312,7 @@ function EditRoles() {
                       <Radio.Group
                         style={{ display: "flex", width: "100px" }}
                         onChange={(e) => handleRadioChange(e.target.value)}
+                        
                         defaultValue={false}
                       >
                         <Radio.Button value={true}>Yes</Radio.Button>
@@ -383,4 +384,4 @@ function EditRoles() {
   );
 }
 
-export default EditRoles;
+export default EditSurveyRoles;

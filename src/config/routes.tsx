@@ -11,7 +11,7 @@ import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
-import UserRoles from "../modules/SurveyInformation/UserRoles";
+import SurveyUserRoles from "../modules/SurveyInformation/SurveyUserRoles";
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
@@ -73,7 +73,7 @@ const AppRoutes = () => {
         />
         <Route
           path="/survey-information/user-roles/:path?/:survey_uid?/:role_uid?"
-          element={<UserRoles />}
+          element={<SurveyUserRoles />}
         />
         <Route
           path="/survey-information/survey-cto-information/:survey_uid?"

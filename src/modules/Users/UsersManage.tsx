@@ -14,6 +14,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleFilled,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -30,6 +31,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { getAllUsers } from "../../redux/userManagement/userManagementActions";
 import { RootState } from "../../redux/store";
+import Column from "antd/lib/table/Column";
 
 function UsersManage() {
   const navigate = useNavigate();
@@ -48,17 +50,18 @@ function UsersManage() {
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const fetchAllUsers = async () => {
-    const usersRes = await dispatch(getAllUsers({}));
-    if (usersRes.payload.length !== 0) {
-      const usersWithKeys = usersRes.payload.map(
+    const usersRes = await dispatch(getAllUsers({ survey_uid: "146" }));
+    if (usersRes?.payload?.length !== 0) {
+      const usersWithKeys = usersRes?.payload?.map(
         (user: any, index: { toString: () => any }) => ({
           ...user,
           key: index.toString(), // or use a unique identifier if available, like user_id
+          user_roles: user.user_role_names
+            .map(
+              (role: any, i: any) => `[ ${role}, ${user.user_survey_names[i]} ]`
+            )
+            .join(", "),
         })
       );
       setUserTableDataSource(usersWithKeys);
@@ -117,8 +120,8 @@ function UsersManage() {
     },
     {
       title: "Roles",
-      dataIndex: "roles",
-      key: "roles",
+      key: "user_roles",
+      dataIndex: "user_roles",
     },
     {
       title: "Status",
@@ -226,9 +229,8 @@ function UsersManage() {
                 </div>
               </div>
               <UsersTable
-                rowSelection={rowSelection}
-                columns={usersTableColumn}
                 dataSource={filteredUserTableData}
+                rowSelection={rowSelection}
                 pagination={{
                   pageSize: paginationPageSize,
                   pageSizeOptions: [10, 25, 50, 100],
@@ -236,7 +238,19 @@ function UsersManage() {
                   showQuickJumper: true,
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
                 }}
-              />
+              >
+                {usersTableColumn.map((column) => (
+                  <Column
+                    key={column.dataIndex}
+                    title={column.title}
+                    dataIndex={column.dataIndex}
+                    sorter={{
+                      compare: (a: any, b: any) =>
+                        a[column.key] - b[column.key],
+                    }}
+                  />
+                ))}
+              </UsersTable>
               <Modal
                 open={isOpenDeleteModel}
                 title={

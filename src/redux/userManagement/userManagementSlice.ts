@@ -66,6 +66,19 @@ const userMaanagementSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    putUpdateUserRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putUpdateUserSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.newUser = action.payload;
+      state.error = null;
+    },
+    putUpdateUserFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
 
     postCompleteRegistrationRequest: (state) => {
       state.loading = true;
@@ -95,6 +108,9 @@ export const {
   postCompleteRegistrationFailure,
   postCompleteRegistrationRequest,
   postCompleteRegistrationSuccess,
+  putUpdateUserFailure,
+  putUpdateUserRequest,
+  putUpdateUserSuccess,
 } = userMaanagementSlice.actions;
 
 export default userMaanagementSlice.reducer;

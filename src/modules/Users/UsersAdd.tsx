@@ -139,20 +139,7 @@ function UserAdd() {
                     >
                       <Input required />
                     </Form.Item>
-                    <Form.Item
-                      name="roles"
-                      label="Role"
-                      rules={[{ required: true }]}
-                    >
-                      <Select
-                        placeholder="Select role"
-                        options={[
-                          { value: 1, label: "Survey Admin" },
-                          { value: 2, label: "Super Admin" },
-                        ]}
-                        mode="multiple"
-                      />
-                    </Form.Item>
+
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
                         onClick={() => onAddUserHandler()}

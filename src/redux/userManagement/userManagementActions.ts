@@ -14,7 +14,11 @@ import {
   postNewUserFailure,
   postNewUserRequest,
   postNewUserSuccess,
+  putUpdateUserFailure,
+  putUpdateUserRequest,
+  putUpdateUserSuccess,
 } from "./userManagementSlice";
+import { param } from "cypress/types/jquery";
 
 export const postCheckUser = createAsyncThunk(
   "userManagement/postCheckUser",
@@ -43,12 +47,42 @@ export const postCheckUser = createAsyncThunk(
   }
 );
 
+export const putUpdateUser = createAsyncThunk(
+  "userManagement/postUpdateUser",
+  async (
+    params: { userUId: string; userData: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putUpdateUserRequest());
+      const response: any = await api.updateUser(
+        parseInt(params.userUId),
+        params.userData
+      );
+
+      if (response.status >= 200 && response.status < 300) {
+        dispatch(putUpdateUserSuccess(response.data));
+        return response.data;
+      }
+
+      const error = {
+        message: response.message || "Failed to update user",
+        status: false,
+      };
+      dispatch(putUpdateUserFailure(error));
+      return rejectWithValue(error);
+    } catch (error: any) {
+      const errorMessage = error.message || "Failed to update user";
+      dispatch(putUpdateUserFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const postAddUser = createAsyncThunk(
   "userManagement/postAddUser",
   async (userData: any, { dispatch, rejectWithValue }) => {
     try {
-      console.log("userData", userData);
-
       dispatch(postNewUserRequest());
       const response: any = await api.postNewUser(userData);
       if (response.status == 200) {
@@ -74,8 +108,6 @@ export const postCompleteRegistration = createAsyncThunk(
   "userManagement/postCompleteRegistration",
   async (userData: any, { dispatch, rejectWithValue }) => {
     try {
-      console.log("userData", userData);
-
       dispatch(postCompleteRegistrationRequest());
       const response: any = await api.postCompleteRegistration(userData);
       if (response.status == 200) {
@@ -124,7 +156,7 @@ export const getAllUsers = createAsyncThunk(
   async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getAllUsersRequest());
-      const res: any = await api.fetchUsers();
+      const res: any = await api.fetchUsers(params?.survey_uid);
 
       if (res.status === 200) {
         dispatch(getAllUsersSuccess(res.data));
@@ -144,4 +176,8 @@ export const getAllUsers = createAsyncThunk(
 export const userRolesActions = {
   postAddUser,
   getUser,
+  postCheckUser,
+  getAllUsers,
+  postCompleteRegistration,
+  putUpdateUser,
 };

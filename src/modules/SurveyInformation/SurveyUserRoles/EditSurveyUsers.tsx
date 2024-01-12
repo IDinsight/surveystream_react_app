@@ -16,12 +16,12 @@ import { useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import SideMenu from "./SideMenu";
 
-function AddUsers() {
+function EditSurveyUsers() {
   const navigate = useNavigate();
   const [verificationForm] = Form.useForm();
   const [roleUpdateForm] = Form.useForm();
 
-  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [isVerified, setIsVerified] = useState<boolean>(true);
   const [userDetails, setUserDetails] = useState<any>({
     email: null,
     firstname: null,
@@ -83,7 +83,7 @@ function AddUsers() {
             <BodyWrapper>
               <DescriptionTitle>Users</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
-                Add new user
+                Edit user
               </DescriptionText>
               <div>
                 {!isVerified ? (
@@ -164,7 +164,7 @@ function AddUsers() {
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB" }}
                       >
-                        Add user
+                        Edit user
                       </Button>
                       <Button
                         onClick={() => navigate("/users")}
@@ -184,4 +184,4 @@ function AddUsers() {
   );
 }
 
-export default AddUsers;
+export default EditSurveyUsers;

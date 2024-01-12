@@ -41,7 +41,7 @@ interface TransformedRolesData {
   users_assigned: string | null;
 }
 
-function Roles() {
+function SurveyRoles() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -310,8 +310,14 @@ function Roles() {
           </div>
 
           <FooterWrapper>
-            <SaveButton>Save</SaveButton>
-            <ContinueButton>Finalize roles</ContinueButton>
+            <SaveButton disabled>Save</SaveButton>
+            <ContinueButton
+              onClick={() => {
+                navigate(`/survey-information/user-roles/users/${survey_uid}`);
+              }}
+            >
+              Finalize roles
+            </ContinueButton>
           </FooterWrapper>
         </>
       )}
@@ -319,4 +325,4 @@ function Roles() {
   );
 }
 
-export default Roles;
+export default SurveyRoles;

@@ -49,6 +49,30 @@ export const postCompleteRegistration = async (userPayload: any) => {
   }
 };
 
+export const updateUser = async (userUId: number, userData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/users/${userUId}`;
+
+    const res = await axios.put(
+      url,
+      {
+        ...userData,
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
 export const postNewUser = async (userData?: any) => {
   try {
     await getCSRFToken();
@@ -102,7 +126,7 @@ export const fetchUsers = async (survey_uid?: any) => {
     let url: string;
 
     if (survey_uid) {
-      url = `${API_BASE_URL}/users?survey_uid=${survey_uid}`;
+      url = `${API_BASE_URL}/users?survey_id=${survey_uid}`;
     } else {
       url = `${API_BASE_URL}/users`;
     }
@@ -121,6 +145,7 @@ export const fetchUsers = async (survey_uid?: any) => {
   }
 };
 export const api = {
+  updateUser,
   postCheckUser,
   fetchUser,
   postNewUser,
