@@ -47,8 +47,9 @@ function AddSurveyUsers() {
     (state: RootState) => state.surveys.activeSurvey
   );
 
-  // This need to be come from redux state
-  const isLoading = false;
+  const isLoading = useAppSelector(
+    (state: RootState) => state.userRoles.loading
+  );
 
   const handleGoBack = () => {
     navigate(-1);

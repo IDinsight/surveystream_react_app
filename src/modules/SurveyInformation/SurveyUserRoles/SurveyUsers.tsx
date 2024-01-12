@@ -24,6 +24,7 @@ import Header from "../../../components/Header";
 import Column from "antd/lib/table/Column";
 import { FilterConfirmProps } from "antd/lib/table/interface";
 import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
+import { setEditUser } from "../../../redux/userManagement/userManagementSlice";
 
 function SurveyUsers() {
   const navigate = useNavigate();
@@ -147,13 +148,15 @@ function SurveyUsers() {
     setFilteredUserTableData(filteredData);
   };
 
-  const clearFilters = () => {
-    // Clear the filters and display the original dataSource
-    setFilteredUserTableData(userTableDataSource);
-  };
+  const handleEditUser = () => {
+    console.log(selectedRows);
+    if (selectedRows.length < 1) {
+      message.error("Kindly select user to edit");
+      return;
+    }
+    dispatch(setEditUser({ ...selectedRows[0] }));
 
-  const handleReset = (clearFilters: (() => void) | undefined) => {
-    clearFilters?.();
+    navigate(`/survey-information/user-roles/edit-user/${survey_uid}`);
   };
 
   useEffect(() => {
@@ -233,11 +236,7 @@ function SurveyUsers() {
                           marginLeft: "25px",
                           backgroundColor: "#2F54EB",
                         }}
-                        onClick={() =>
-                          navigate(
-                            `/survey-information/user-roles/edit-user/${survey_uid}`
-                          )
-                        }
+                        onClick={handleEditUser}
                       >
                         Edit user
                       </Button>

@@ -6,6 +6,7 @@ interface UserRolesState {
   userChecked: any;
   userList: any;
   newUser: any;
+  editUser: any;
 }
 
 const initialState: UserRolesState = {
@@ -14,15 +15,19 @@ const initialState: UserRolesState = {
   userChecked: null,
   userList: [],
   newUser: null,
+  editUser: null,
 };
 
-const userMaanagementSlice = createSlice({
+const userManagementSlice = createSlice({
   name: "userManagement",
   initialState,
   reducers: {
     checkUserRequest: (state) => {
       state.loading = true;
       state.error = null;
+    },
+    setEditUser: (state, action: PayloadAction<any>) => {
+      state.editUser = action.payload;
     },
     checkUserSuccess: (state, action: PayloadAction<[]>) => {
       if (action.payload.length !== 0) {
@@ -72,7 +77,7 @@ const userMaanagementSlice = createSlice({
     },
     putUpdateUserSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.newUser = action.payload;
+      state.editUser = action.payload;
       state.error = null;
     },
     putUpdateUserFailure: (state, action: PayloadAction<any>) => {
@@ -111,6 +116,7 @@ export const {
   putUpdateUserFailure,
   putUpdateUserRequest,
   putUpdateUserSuccess,
-} = userMaanagementSlice.actions;
+  setEditUser,
+} = userManagementSlice.actions;
 
-export default userMaanagementSlice.reducer;
+export default userManagementSlice.reducer;

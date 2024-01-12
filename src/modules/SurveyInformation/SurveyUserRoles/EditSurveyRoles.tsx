@@ -312,7 +312,6 @@ function EditSurveyRoles() {
                       <Radio.Group
                         style={{ display: "flex", width: "100px" }}
                         onChange={(e) => handleRadioChange(e.target.value)}
-                        
                         defaultValue={false}
                       >
                         <Radio.Button value={true}>Yes</Radio.Button>
