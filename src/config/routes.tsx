@@ -26,6 +26,7 @@ import UsersManage from "../modules/Users/ManageUsers";
 import CompleteRegistration from "../modules/Users/CompleteRegistration";
 import AddUser from "../modules/Users/AddUser";
 import ManageUsers from "../modules/Users/ManageUsers";
+import EditUser from "../modules/Users/EditUser";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -55,6 +56,8 @@ const AppRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/users" element={<ManageUsers />} />
         <Route path="/users/add" element={<AddUser />} />
+        <Route path="/users/edit" element={<EditUser />} />
+
         <Route path="/surveys" element={<SurveysHomePage />} />
         <Route
           path="/survey-configuration/:survey_uid?"

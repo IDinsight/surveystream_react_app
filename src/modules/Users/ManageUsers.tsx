@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { getAllUsers } from "../../redux/userManagement/userManagementActions";
 import { RootState } from "../../redux/store";
 import Column from "antd/lib/table/Column";
+import { setEditUser } from "../../redux/userManagement/userManagementSlice";
 
 function UsersManage() {
   const navigate = useNavigate();
@@ -157,9 +158,20 @@ function UsersManage() {
     setFilteredUserTableData(filteredData);
   };
 
+  const handleEditUser = () => {
+    console.log(selectedRows);
+    if (selectedRows.length < 1) {
+      message.error("Kindly select user to edit");
+      return;
+    }
+    dispatch(setEditUser({ ...selectedRows[0] }));
+
+    navigate(`/users/edit/`);
+  };
+
   useEffect(() => {
     fetchAllUsers();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
@@ -214,6 +226,7 @@ function UsersManage() {
                             marginLeft: "25px",
                             backgroundColor: "#2F54EB",
                           }}
+                          onClick={handleEditUser}
                         >
                           Edit user
                         </Button>

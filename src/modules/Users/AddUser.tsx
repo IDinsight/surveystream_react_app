@@ -55,18 +55,12 @@ function AddUser() {
         );
       });
 
-      console.log("userRolesData", {
-        ...checkResponse.payload.data.user,
-        user_role_names: userRolesData[0].user_role_names,
-        user_survey_names: userRolesData[0].user_survey_names,
-      });
-
       setUserDetails((prev: any) => {
         return {
           ...prev,
           ...checkResponse.payload.data.user,
-          user_role_names: userRolesData[0].user_role_names,
-          user_survey_names: userRolesData[0].user_survey_names,
+          user_role_names: userRolesData[0]?.user_role_names,
+          user_survey_names: userRolesData[0]?.user_survey_names,
         };
       });
     } else {
@@ -263,49 +257,53 @@ function AddUser() {
                       />
                     </Form.Item>
 
-                    {isExistingUser && userDetails?.user_role_names && (
-                      <>
-                        <DescriptionText>Existing Roles</DescriptionText>
-                        {userDetails.user_role_names.map(
-                          (role: any, i: any) => (
-                            <>
-                              <Form.Item
-                                label="Project name"
-                                initialValue={userDetails.user_survey_names[i]}
-                                hasFeedback
-                                rules={[
-                                  {
-                                    required: true,
-                                  },
-                                ]}
-                              >
-                                <Input
-                                  value={userDetails.user_survey_names[i]}
-                                  required
-                                  disabled={isExistingUser}
-                                />
-                              </Form.Item>
-                              <Form.Item
-                                label="Role"
-                                initialValue={role}
-                                hasFeedback
-                                rules={[
-                                  {
-                                    required: true,
-                                  },
-                                ]}
-                              >
-                                <Input
-                                  value={role}
-                                  required
-                                  disabled={isExistingUser}
-                                />
-                              </Form.Item>
-                            </>
-                          )
-                        )}
-                      </>
-                    )}
+                    {isExistingUser &&
+                      userDetails?.user_role_names &&
+                      userDetails?.user_role_names[0] != null && (
+                        <>
+                          <DescriptionText>Existing Roles</DescriptionText>
+                          {userDetails.user_role_names.map(
+                            (role: any, i: any) => (
+                              <>
+                                <Form.Item
+                                  label="Project name"
+                                  initialValue={
+                                    userDetails.user_survey_names[i]
+                                  }
+                                  hasFeedback
+                                  rules={[
+                                    {
+                                      required: true,
+                                    },
+                                  ]}
+                                >
+                                  <Input
+                                    value={userDetails.user_survey_names[i]}
+                                    required
+                                    disabled={isExistingUser}
+                                  />
+                                </Form.Item>
+                                <Form.Item
+                                  label="Role"
+                                  initialValue={role}
+                                  hasFeedback
+                                  rules={[
+                                    {
+                                      required: true,
+                                    },
+                                  ]}
+                                >
+                                  <Input
+                                    value={role}
+                                    required
+                                    disabled={isExistingUser}
+                                  />
+                                </Form.Item>
+                              </>
+                            )
+                          )}
+                        </>
+                      )}
 
                     {isExistingUser && (
                       <Form.Item
