@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Form, Input, Select, message } from "antd";
+import { Button, Form, Input, Radio, Select, message } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -38,16 +38,35 @@ function AddUser() {
     (state: RootState) => state.userManagement.loading
   );
 
+  const userList = useAppSelector(
+    (state: RootState) => state.userManagement.userList
+  );
+
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
     const checkResponse = await dispatch(postCheckUser(email));
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
       setIsExistingUser(true);
+      //add data for roles
+      const userRolesData = userList.filter((user: any) => {
+        return (
+          user.user_id == parseInt(checkResponse.payload.data.user.user_uid)
+        );
+      });
+
+      console.log("userRolesData", {
+        ...checkResponse.payload.data.user,
+        user_role_names: userRolesData[0].user_role_names,
+        user_survey_names: userRolesData[0].user_survey_names,
+      });
+
       setUserDetails((prev: any) => {
         return {
           ...prev,
           ...checkResponse.payload.data.user,
+          user_role_names: userRolesData[0].user_role_names,
+          user_survey_names: userRolesData[0].user_survey_names,
         };
       });
     } else {
@@ -146,6 +165,7 @@ function AddUser() {
                           message: "Please enter a valid email",
                         },
                       ]}
+                      hasFeedback
                     >
                       <Input placeholder="Enter email" />
                     </Form.Item>
@@ -216,6 +236,7 @@ function AddUser() {
                           }))
                         }
                         placeholder="Enter first name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
                     <Form.Item
@@ -238,38 +259,126 @@ function AddUser() {
                           }))
                         }
                         placeholder="Enter last name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
 
-                    <Form.Item
-                      name="roles"
-                      label="Role"
-                      initialValue={userDetails?.roles}
-                      rules={[{ required: true }]}
-                      hasFeedback
-                    >
-                      <Select
-                        showSearch={true}
-                        allowClear={true}
-                        placeholder="Select role"
-                        onChange={(value) => {
-                          setUserDetails((prev: any) => {
-                            return {
-                              ...prev,
-                              roles: [value],
-                            };
-                          });
-                        }}
-                      >
-                        {rolesTableData.map(
-                          (r: { role_uid: any; role: any }, i: any) => (
-                            <Select.Option key={i} value={r.role_uid}>
-                              {r.role}
-                            </Select.Option>
+                    {isExistingUser && userDetails?.user_role_names && (
+                      <>
+                        <DescriptionText>Existing Roles</DescriptionText>
+                        {userDetails.user_role_names.map(
+                          (role: any, i: any) => (
+                            <>
+                              <Form.Item
+                                label="Project name"
+                                initialValue={userDetails.user_survey_names[i]}
+                                hasFeedback
+                                rules={[
+                                  {
+                                    required: true,
+                                  },
+                                ]}
+                              >
+                                <Input
+                                  value={userDetails.user_survey_names[i]}
+                                  required
+                                  disabled={isExistingUser}
+                                />
+                              </Form.Item>
+                              <Form.Item
+                                label="Role"
+                                initialValue={role}
+                                hasFeedback
+                                rules={[
+                                  {
+                                    required: true,
+                                  },
+                                ]}
+                              >
+                                <Input
+                                  value={role}
+                                  required
+                                  disabled={isExistingUser}
+                                />
+                              </Form.Item>
+                            </>
                           )
                         )}
-                      </Select>
-                    </Form.Item>
+                      </>
+                    )}
+
+                    {isExistingUser && (
+                      <Form.Item
+                        label="Assign Super Admin role to this user??"
+                        labelAlign="right"
+                        labelCol={{ span: 24 }}
+                        style={{ display: "block" }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select if the user is super admin",
+                          },
+                        ]}
+                        hasFeedback
+                        name="is_super_admin"
+                      >
+                        <Radio.Group
+                          style={{ display: "flex", width: "100%" }}
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_super_admin: e.target.value,
+                            }))
+                          }
+                          defaultValue={userDetails?.is_super_admin}
+                        >
+                          <Radio.Button
+                            value={true}
+                            style={{ marginRight: "8px" }}
+                          >
+                            Yes
+                          </Radio.Button>
+                          <Radio.Button
+                            value={false}
+                            style={{ marginRight: "8px" }}
+                          >
+                            No
+                          </Radio.Button>
+                        </Radio.Group>
+                      </Form.Item>
+                    )}
+
+                    {!isExistingUser && (
+                      <Form.Item
+                        name="roles"
+                        label="Role"
+                        initialValue={userDetails?.roles}
+                        rules={[{ required: true }]}
+                        hasFeedback
+                      >
+                        <Select
+                          showSearch={true}
+                          allowClear={true}
+                          placeholder="Select role"
+                          onChange={(value) => {
+                            setUserDetails((prev: any) => {
+                              return {
+                                ...prev,
+                                roles: [value],
+                              };
+                            });
+                          }}
+                        >
+                          {rolesTableData.map(
+                            (r: { role_uid: any; role: any }, i: any) => (
+                              <Select.Option key={i} value={r.role_uid}>
+                                {r.role}
+                              </Select.Option>
+                            )
+                          )}
+                        </Select>
+                      </Form.Item>
+                    )}
 
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
