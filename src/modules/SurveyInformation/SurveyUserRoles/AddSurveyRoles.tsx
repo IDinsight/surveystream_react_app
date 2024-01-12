@@ -51,7 +51,7 @@ function AddSurveyRoles() {
     (state: RootState) => state.userRoles.supervisorRoles
   );
   const isLoading = useAppSelector(
-    (state: RootState) => state.userRoles.loading
+    (state: RootState) => state.userManagement.loading
   );
 
   const rolePermissions = useAppSelector(

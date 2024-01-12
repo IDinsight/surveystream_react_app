@@ -35,7 +35,7 @@ function EditSurveyUsers() {
   );
 
   const isLoading = useAppSelector(
-    (state: RootState) => state.userRoles.loading
+    (state: RootState) => state.userManagement.loading
   );
 
   const editUser = useAppSelector(

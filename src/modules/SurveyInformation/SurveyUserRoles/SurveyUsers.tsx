@@ -41,7 +41,7 @@ function SurveyUsers() {
     useState(userTableDataSource);
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
   const isLoading = useAppSelector(
-    (state: RootState) => state.userRoles.loading
+    (state: RootState) => state.userManagement.loading
   );
 
   const activeSurvey = useAppSelector(

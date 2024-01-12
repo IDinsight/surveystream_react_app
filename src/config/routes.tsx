@@ -22,9 +22,10 @@ import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
-import UsersManage from "../modules/Users/UsersManage";
-import UsersAdd from "../modules/Users/UsersAdd";
+import UsersManage from "../modules/Users/ManageUsers";
 import CompleteRegistration from "../modules/Users/CompleteRegistration";
+import AddUser from "../modules/Users/AddUser";
+import ManageUsers from "../modules/Users/ManageUsers";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -52,8 +53,8 @@ const AppRoutes = () => {
       />
 
       <Route element={<PrivateRoute />}>
-        <Route path="/users" element={<UsersManage />} />
-        <Route path="/users/add" element={<UsersAdd />} />
+        <Route path="/users" element={<ManageUsers />} />
+        <Route path="/users/add" element={<AddUser />} />
         <Route path="/surveys" element={<SurveysHomePage />} />
         <Route
           path="/survey-configuration/:survey_uid?"

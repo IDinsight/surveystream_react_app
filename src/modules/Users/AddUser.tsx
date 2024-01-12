@@ -1,31 +1,19 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 import {
-  postAddUser,
   postCheckUser,
+  postAddUser,
   putUpdateUser,
-} from "../../../redux/userManagement/userManagementActions";
-import { DescriptionText } from "../SurveyInformation.styled";
-import { BodyWrapper } from "./UserRoles.styled";
-import Header from "../../../components/Header";
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "./SideMenu";
-import { RootState } from "../../../redux/store";
-import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
+} from "../../redux/userManagement/userManagementActions";
+import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
+import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import Header from "../../components/Header";
+import NavItems from "../../components/NavItems";
 
-function AddSurveyUsers() {
-  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
-    survey_uid: "",
-  };
-
+function AddUser() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -35,7 +23,10 @@ function AddSurveyUsers() {
 
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
-  const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [rolesTableData, setRolesTableData] = useState<any>([
+    { role_uid: null, role: "Survey Admin" },
+    { role_uid: 1, role: "Super Admin" },
+  ]);
   const [userDetails, setUserDetails] = useState<any>({
     email: null,
     first_name: null,
@@ -43,21 +34,9 @@ function AddSurveyUsers() {
     roles: [],
   });
 
-  const activeSurvey = useAppSelector(
-    (state: RootState) => state.surveys.activeSurvey
-  );
-
-  const checkedUser = useAppSelector(
-    (state: RootState) => state.userManagement.userChecked
-  );
-
   const isLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
@@ -89,33 +68,6 @@ function AddSurveyUsers() {
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
-        console.log("isExistingUser", isExistingUser);
-        const initialUserData = checkedUser?.user;
-        console.log("initialUserData", initialUserData);
-        console.log("userDetails", userDetails);
-
-        if (!userDetails.roles.length > initialUserData.roles.length) {
-          const commonRoles = rolesTableData.filter((r: any) =>
-            initialUserData.roles.includes(r.role_uid)
-          );
-
-          console.log("commonRoles", commonRoles);
-
-          if (commonRoles.length > 0) {
-            userDetails.roles = userDetails.roles.filter(
-              (role: any) =>
-                !commonRoles.map((r: any) => r.role_uid).includes(role)
-            );
-
-            userDetails.roles.push(...initialUserData.roles);
-          } else {
-            // Updating role for a different survey
-            userDetails.roles.push(...initialUserData.roles);
-          }
-        }
-
-        console.log("userDetails.roles", userDetails.roles);
-
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -129,23 +81,31 @@ function AddSurveyUsers() {
         if (updateRes.payload?.user_data) {
           //update user hierarchy here
           message.success("User updated successfully");
-          navigate(`/survey-information/user-roles/users/${survey_uid}`);
+          navigate(`/users`);
         } else {
           message.error("Failed to update user kindly check");
           console.log("error", updateRes.payload);
         }
       } else {
         //perform add user
+        //do not set any roles for new user
+        //update if user is survey_admin
+        if (userDetails.roles[0]) {
+          userDetails.is_super_admin = true;
+        }
+        userDetails.roles = [];
+        console.log("userDetails", userDetails);
+
         const addRes = await dispatch(postAddUser(userDetails));
 
         console.log("addRes", addRes);
 
         if (addRes.payload?.status == 200) {
-          //update user hierarchy here
+          //no need to update user hierarchy
           message.success(
             "User Added! An email has been sent to the user with the login information."
           );
-          navigate(`/survey-information/user-roles/users/${survey_uid}`);
+          navigate(`/users`);
         } else {
           message.error("Failed to add user kindly check");
           console.log("error", addRes.payload);
@@ -156,55 +116,15 @@ function AddSurveyUsers() {
     setLoading(false);
   };
 
-  const fetchSupervisorRoles = async () => {
-    const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
-
-    if (Array.isArray(res.payload) && res.payload.length > 0) {
-      const transformedData: any[] = (
-        Array.isArray(res.payload) ? res.payload : [res.payload]
-      ).map((item: any) => ({
-        role_uid: item.role_uid,
-        role: item.role_name,
-      }));
-
-      console.log("transformedData", transformedData);
-
-      setRolesTableData(transformedData);
-    } else {
-      console.log("missing roles");
-    }
-  };
-
-  useEffect(() => {
-    fetchSupervisorRoles();
-  }, [dispatch]);
-
   return (
     <>
-      <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
-          <div style={{ display: "flex" }}>
-            <SideMenu />
-            <BodyWrapper>
+          <BodyWrapper>
+            <MainContainer>
               <DescriptionText>Add new user</DescriptionText>
               <div>
                 {!isVerified ? (
@@ -226,7 +146,6 @@ function AddSurveyUsers() {
                           message: "Please enter a valid email",
                         },
                       ]}
-                      hasFeedback
                     >
                       <Input placeholder="Enter email" />
                     </Form.Item>
@@ -239,11 +158,7 @@ function AddSurveyUsers() {
                         Check for user
                       </Button>
                       <Button
-                        onClick={() =>
-                          navigate(
-                            `/survey-information/user-roles/users/${survey_uid}`
-                          )
-                        }
+                        onClick={() => navigate(`/users/`)}
                         style={{ marginLeft: 20 }}
                       >
                         Dismiss
@@ -329,14 +244,7 @@ function AddSurveyUsers() {
                     <Form.Item
                       name="roles"
                       label="Role"
-                      initialValue={
-                        userDetails?.roles &&
-                        rolesTableData.some((r: any) =>
-                          userDetails.roles.includes(r.role_uid)
-                        )
-                          ? userDetails.roles[0]
-                          : undefined
-                      }
+                      initialValue={userDetails?.roles}
                       rules={[{ required: true }]}
                       hasFeedback
                     >
@@ -346,22 +254,20 @@ function AddSurveyUsers() {
                         placeholder="Select role"
                         onChange={(value) => {
                           setUserDetails((prev: any) => {
-                            if (!prev.roles.includes(value)) {
-                              return {
-                                ...prev,
-                                roles: [...prev.roles, value],
-                              };
-                            } else {
-                              return prev;
-                            }
+                            return {
+                              ...prev,
+                              roles: [value],
+                            };
                           });
                         }}
                       >
-                        {rolesTableData.map((r: any, i: any) => (
-                          <Select.Option key={i} value={r.role_uid}>
-                            {r.role}
-                          </Select.Option>
-                        ))}
+                        {rolesTableData.map(
+                          (r: { role_uid: any; role: any }, i: any) => (
+                            <Select.Option key={i} value={r.role_uid}>
+                              {r.role}
+                            </Select.Option>
+                          )
+                        )}
                       </Select>
                     </Form.Item>
 
@@ -376,11 +282,7 @@ function AddSurveyUsers() {
                         {!isExistingUser && <>Add User</>}
                       </Button>
                       <Button
-                        onClick={() =>
-                          navigate(
-                            `/survey-information/user-roles/users/${survey_uid}`
-                          )
-                        }
+                        onClick={() => navigate(`/users/`)}
                         style={{ marginLeft: 20 }}
                       >
                         Dismiss
@@ -389,12 +291,12 @@ function AddSurveyUsers() {
                   </Form>
                 )}
               </div>
-            </BodyWrapper>
-          </div>
+            </MainContainer>
+          </BodyWrapper>
         </>
       )}
     </>
   );
 }
 
-export default AddSurveyUsers;
+export default AddUser;
