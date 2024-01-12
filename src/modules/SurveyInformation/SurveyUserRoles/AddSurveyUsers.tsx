@@ -268,7 +268,6 @@ function AddSurveyUsers() {
                             first_name: e.target.value,
                           }))
                         }
-                        disabled={isExistingUser}
                         placeholder="Enter first name"
                       />
                     </Form.Item>
@@ -291,7 +290,6 @@ function AddSurveyUsers() {
                             last_name: e.target.value,
                           }))
                         }
-                        disabled={isExistingUser}
                         placeholder="Enter last name"
                       />
                     </Form.Item>
