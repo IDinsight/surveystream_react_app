@@ -7,6 +7,7 @@ interface UserRolesState {
   supervisorRoles: SupervisorRole[];
   allPermissions: any[];
   rolePermissions: RolePermissions;
+  userHierarchy: any;
 }
 
 const initialState: UserRolesState = {
@@ -20,12 +21,57 @@ const initialState: UserRolesState = {
     permissions: [],
     duplicate: false,
   },
+  userHierarchy: {
+    user_uid: null,
+    survey_uid: null,
+    parent_user_uid: null,
+    role_uid: null,
+  },
 };
 
 const userRolesSlice = createSlice({
   name: "userRoles",
   initialState,
   reducers: {
+    updateUserHierarchyRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateUserHierarchySuccess: (state, action: PayloadAction<any>) => {
+      state.userHierarchy = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    updateUserHierarchyFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    getUserHierarchyRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getUserHierarchySuccess: (state, action: PayloadAction<any>) => {
+      state.userHierarchy = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    getUserHierarchyFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    deleteUserHierarchyRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    deleteUserHierarchySuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    deleteUserHierarchyFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
     addSupervisorRole: (state, action) => {
       state.supervisorRoles.push(action.payload);
     },
@@ -102,6 +148,15 @@ export const {
   addSupervisorRole,
   setSupervisorRoles,
   setRolePermissions,
+  getUserHierarchyFailure,
+  getUserHierarchyRequest,
+  getUserHierarchySuccess,
+  updateUserHierarchyFailure,
+  updateUserHierarchyRequest,
+  updateUserHierarchySuccess,
+  deleteUserHierarchyFailure,
+  deleteUserHierarchyRequest,
+  deleteUserHierarchySuccess,
 } = userRolesSlice.actions;
 
 export default userRolesSlice.reducer;

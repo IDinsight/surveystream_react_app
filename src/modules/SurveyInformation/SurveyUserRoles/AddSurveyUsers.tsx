@@ -19,12 +19,20 @@ import {
 } from "../../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
 import { RootState } from "../../../redux/store";
-import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
+import {
+  deleteUserHierarchy,
+  getSupervisorRoles,
+  getUserHierarchy,
+  putUserHierarchy,
+} from "../../../redux/userRoles/userRolesActions";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const userList = useAppSelector(
+    (state: RootState) => state.userManagement.userList
+  );
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -36,6 +44,11 @@ function AddSurveyUsers() {
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
   const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [newRole, setNewRole] = useState<string>("");
+  const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
+  const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
+
+  const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<any>({
     email: null,
     first_name: null,
@@ -59,11 +72,72 @@ function AddSurveyUsers() {
     navigate(-1);
   };
 
+  const updateUserHierarchy = async (
+    userUid: any,
+    surveyUid: any,
+    roleUid: any,
+    parentUid: any
+  ) => {
+    const payload = {
+      survey_uid: surveyUid,
+      user_uid: userUid,
+      role_uid: roleUid,
+      parent_user_uid: parentUid,
+    };
+
+    if (!hasReportingRole) {
+      const deleteHierarchyRes = await dispatch(
+        deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
+      );
+
+      console.log("deleteHierarchyRes", deleteHierarchyRes);
+    } else {
+      const updateHierarchyRes = await dispatch(
+        putUserHierarchy({ hierarchyData: payload })
+      );
+
+      console.log("updateHierarchyRes", updateHierarchyRes);
+    }
+  };
+
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
     const checkResponse = await dispatch(postCheckUser(email));
+
+    console.log("checkResponse", checkResponse);
+
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
+
+      //find the user hierarchy here
+      const userHierarchyRes = await dispatch(
+        getUserHierarchy({
+          survey_uid: survey_uid ?? "",
+          user_uid: checkResponse.payload.data.user.user_uid,
+        })
+      );
+
+      if (userHierarchyRes?.payload.success) {
+        // set supervisor here
+        setUserDetails((prev: any) => ({
+          ...prev,
+          supervisor: userHierarchyRes?.payload?.data?.parent_user_uid,
+        }));
+        setNewUserHierarchy(false);
+        setExistingUserHierarchy(userHierarchyRes?.payload?.data);
+      }
+
+      const role = rolesTableData.find((r: any) =>
+        checkResponse.payload.data.user.roles.includes(r.role_uid)
+      );
+      setNewRole(role?.role_uid);
+
+      if (role?.has_reporting_role) {
+        setHasReportingRole(true);
+      } else {
+        setHasReportingRole(false);
+      }
+
       setIsExistingUser(true);
       setUserDetails((prev: any) => {
         return {
@@ -89,19 +163,24 @@ function AddSurveyUsers() {
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
         const initialUserData = checkedUser?.user;
-        const commonRoles = rolesTableData.filter((r: any) =>
-          initialUserData.roles.includes(r.role_uid)
-        );
-        if (commonRoles.length > 0) {
-          userDetails.roles = userDetails.roles.filter(
-            (role: any) =>
-              !commonRoles.map((r: any) => r.role_uid).includes(role)
-          );
-        } else {
-          // Updating role for a different survey
-          userDetails.roles.push(...initialUserData.roles);
-        }
 
+        if (
+          initialUserData?.roles &&
+          initialUserData.roles.length >= userDetails.roles.length
+        ) {
+          setNewRole(initialUserData?.roles[0]);
+          userDetails.roles = initialUserData?.roles;
+        } else {
+          const commonRoles = rolesTableData.filter((r: any) =>
+            initialUserData.roles.includes(r.role_uid)
+          );
+          if (commonRoles.length > 0) {
+            userDetails.roles = userDetails.roles.filter(
+              (role: any) =>
+                !commonRoles.map((r: any) => r.role_uid).includes(role)
+            );
+          }
+        }
         console.log("userDetails.roles", userDetails.roles);
         //perform update user
         const updateRes = await dispatch(
@@ -110,11 +189,16 @@ function AddSurveyUsers() {
             userData: userDetails,
           })
         );
-
-        console.log("updateRes", updateRes);
-
         if (updateRes.payload?.user_data) {
-          //update user hierarchy here
+          console.log("updateRes", updateRes);
+          if (newRole && userDetails?.supervisor) {
+            updateUserHierarchy(
+              userDetails?.user_uid,
+              survey_uid,
+              newRole,
+              userDetails?.supervisor
+            );
+          }
           message.success("User updated successfully");
           navigate(`/survey-information/user-roles/users/${survey_uid}`);
         } else {
@@ -127,8 +211,23 @@ function AddSurveyUsers() {
 
         console.log("addRes", addRes);
 
+        const newRole = userDetails.roles[userDetails.roles.length - 1];
+
+        console.log("newRole", newRole);
+
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
+          console.log(
+            "addRes.payload?.data?.user_uid",
+            addRes.payload?.data?.user_uid
+          );
+          updateUserHierarchy(
+            addRes.payload?.data?.user_uid,
+            survey_uid,
+            newRole,
+            userDetails?.supervisor
+          );
+
           message.success(
             "User Added! An email has been sent to the user with the login information."
           );
@@ -153,6 +252,7 @@ function AddSurveyUsers() {
       ).map((item: any) => ({
         role_uid: item.role_uid,
         role: item.role_name,
+        has_reporting_role: item.reporting_role_uid ? true : false,
       }));
 
       console.log("transformedData", transformedData);
@@ -321,7 +421,7 @@ function AddSurveyUsers() {
                         rolesTableData.some((r: any) =>
                           userDetails.roles.includes(r.role_uid)
                         )
-                          ? userDetails.roles[0]
+                          ? userDetails.roles
                           : undefined
                       }
                       rules={[{ required: true }]}
@@ -332,6 +432,17 @@ function AddSurveyUsers() {
                         allowClear={true}
                         placeholder="Select role"
                         onChange={(value) => {
+                          //check if value has reporting role
+                          const role = rolesTableData.find(
+                            (r: any) => r.role_uid === value
+                          );
+                          setNewRole(role?.role_uid);
+                          if (role?.has_reporting_role) {
+                            setHasReportingRole(true);
+                          } else {
+                            setHasReportingRole(false);
+                          }
+
                           setUserDetails((prev: any) => {
                             return {
                               ...prev,
@@ -348,6 +459,33 @@ function AddSurveyUsers() {
                       </Select>
                     </Form.Item>
 
+                    {hasReportingRole && (
+                      <Form.Item
+                        name="supervisor"
+                        label="Supervisor"
+                        initialValue={userDetails?.supervisor}
+                        rules={[{ required: true }]}
+                        hasFeedback
+                      >
+                        <Select
+                          showSearch={true}
+                          allowClear={true}
+                          placeholder="Select supervisor"
+                          onChange={(value) => {
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              supervisor: value,
+                            }));
+                          }}
+                        >
+                          {userList.map((user: any, i: any) => (
+                            <Select.Option key={i} value={user?.user_id}>
+                              {user?.first_name} {user?.last_name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    )}
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
                         loading={loading}

@@ -3,7 +3,7 @@ import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
-import { BodyWrapper, MainContainer } from "./UserRoles.styled";
+import { BodyWrapper } from "./UserRoles.styled";
 import Header from "../../../components/Header";
 import {
   BackArrow,
@@ -14,7 +14,12 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import SideMenu from "./SideMenu";
-import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
+import {
+  getSupervisorRoles,
+  getUserHierarchy,
+  putUserHierarchy,
+  deleteUserHierarchy,
+} from "../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../redux/userManagement/userManagementActions";
 
 function EditSurveyUsers() {
@@ -29,6 +34,11 @@ function EditSurveyUsers() {
   const [loading, setLoading] = useState(false);
 
   const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [newRole, setNewRole] = useState<string>("");
+  const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
+  const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
+
+  const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -42,12 +52,44 @@ function EditSurveyUsers() {
     (state: RootState) => state.userManagement.editUser
   );
 
+  const userList = useAppSelector(
+    (state: RootState) => state.userManagement.userList
+  );
+
   const [userDetails, setUserDetails] = useState<any>({
     ...editUser,
   });
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const updateUserHierarchy = async (
+    userUid: any,
+    surveyUid: any,
+    roleUid: any,
+    parentUid: any
+  ) => {
+    const payload = {
+      survey_uid: surveyUid,
+      user_uid: userUid,
+      role_uid: roleUid,
+      parent_user_uid: parentUid,
+    };
+
+    if (!hasReportingRole) {
+      const deleteHierarchyRes = await dispatch(
+        deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
+      );
+
+      console.log("deleteHierarchyRes", deleteHierarchyRes);
+    } else {
+      const updateHierarchyRes = await dispatch(
+        putUserHierarchy({ hierarchyData: payload })
+      );
+
+      console.log("updateHierarchyRes", updateHierarchyRes);
+    }
   };
 
   const handleUpdateUser = async () => {
@@ -60,13 +102,19 @@ function EditSurveyUsers() {
     const commonRoles = rolesTableData.filter((r: any) =>
       initialUserData.roles.includes(r.role_uid)
     );
-    if (commonRoles.length > 0) {
-      userDetails.roles = userDetails.roles.filter(
-        (role: any) => !commonRoles.map((r: any) => r.role_uid).includes(role)
-      );
+
+    if (
+      initialUserData?.roles &&
+      initialUserData.roles.length >= userDetails.roles.length
+    ) {
+      setNewRole(initialUserData?.roles[0]);
+      userDetails.roles = initialUserData?.roles;
     } else {
-      // Updating role for a different survey
-      userDetails.roles.push(...initialUserData.roles);
+      if (commonRoles.length > 0) {
+        userDetails.roles = userDetails.roles.filter(
+          (role: any) => !commonRoles.map((r: any) => r.role_uid).includes(role)
+        );
+      }
     }
 
     console.log("userDetails.roles", userDetails.roles);
@@ -84,6 +132,17 @@ function EditSurveyUsers() {
 
       if (updateRes.payload?.user_data) {
         //update user hierarchy here
+        console.log(newRole, userDetails);
+
+        if (newRole && userDetails?.supervisor) {
+          console.log("updateUserHierarchy", updateUserHierarchy);
+          updateUserHierarchy(
+            userDetails?.user_uid,
+            survey_uid,
+            newRole,
+            userDetails?.supervisor
+          );
+        }
         message.success("User updated successfully");
         navigate(`/survey-information/user-roles/users/${survey_uid}`);
       } else {
@@ -105,13 +164,42 @@ function EditSurveyUsers() {
       ).map((item: any) => ({
         role_uid: item.role_uid,
         role: item.role_name,
+        has_reporting_role: item.reporting_role_uid ? true : false,
       }));
-
-      console.log("transformedData", transformedData);
-
       setRolesTableData(transformedData);
+
+      const role = transformedData.find((r: any) =>
+        editUser.roles.includes(r.role_uid)
+      );
+      setNewRole(role?.role_uid);
+
+      if (role?.has_reporting_role) {
+        setHasReportingRole(true);
+      } else {
+        setHasReportingRole(false);
+      }
     } else {
       console.log("missing roles");
+    }
+  };
+
+  const fetchUserHierarchy = async () => {
+    //find the user hierarchy here
+    const userHierarchyRes = await dispatch(
+      getUserHierarchy({
+        survey_uid: survey_uid ?? "",
+        user_uid: editUser?.user_id,
+      })
+    );
+
+    if (userHierarchyRes?.payload.success) {
+      // set supervisor here
+      setUserDetails((prev: any) => ({
+        ...prev,
+        supervisor: userHierarchyRes?.payload?.data?.parent_user_uid,
+      }));
+      setNewUserHierarchy(false);
+      setExistingUserHierarchy(userHierarchyRes?.payload?.data);
     }
   };
 
@@ -119,9 +207,12 @@ function EditSurveyUsers() {
     if (!editUser) {
       message.error("Kindly select user to edit");
       navigate(`/survey-information/user-roles/users/${survey_uid}`);
+      return;
+    } else {
+      fetchUserHierarchy();
+      fetchSupervisorRoles();
     }
-    fetchSupervisorRoles();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>
@@ -220,7 +311,7 @@ function EditSurveyUsers() {
                       rolesTableData.some((r: any) =>
                         userDetails.roles.includes(r.role_uid)
                       )
-                        ? userDetails.roles[0]
+                        ? userDetails.roles
                         : undefined
                     }
                     rules={[{ required: true }]}
@@ -231,6 +322,17 @@ function EditSurveyUsers() {
                       allowClear={true}
                       placeholder="Select role"
                       onChange={(value) => {
+                        //check if value has reporting role
+                        const role = rolesTableData.find(
+                          (r: any) => r.role_uid === value
+                        );
+
+                        if (role?.has_reporting_role) {
+                          setHasReportingRole(true);
+                        } else {
+                          setHasReportingRole(false);
+                        }
+
                         setUserDetails((prev: any) => {
                           return {
                             ...prev,
@@ -248,6 +350,30 @@ function EditSurveyUsers() {
                       )}
                     </Select>
                   </Form.Item>
+                  {hasReportingRole && (
+                    <Form.Item
+                      name="supervisor"
+                      label="Supervisor"
+                      initialValue={userDetails?.supervisor}
+                      rules={[{ required: true }]}
+                      hasFeedback
+                    >
+                      <Select
+                        showSearch={true}
+                        allowClear={true}
+                        placeholder="Select supervisor"
+                        onChange={(value) => {
+                          console.log("value", value);
+                        }}
+                      >
+                        {userList.map((user: any, i: any) => (
+                          <Select.Option key={i} value={user?.user_id}>
+                            {user?.first_name} {user?.last_name}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
                   <Form.Item style={{ marginTop: 20 }}>
                     <Button
                       loading={loading}

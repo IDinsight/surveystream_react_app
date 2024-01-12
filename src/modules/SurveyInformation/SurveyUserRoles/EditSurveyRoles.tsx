@@ -7,10 +7,7 @@ import {
 } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
-import {
-  setRolePermissions,
-  setSupervisorRoles,
-} from "../../../redux/userRoles/userRolesSlice";
+import { setRolePermissions } from "../../../redux/userRoles/userRolesSlice";
 import {
   getAllPermissions,
   getSupervisorRoles,
