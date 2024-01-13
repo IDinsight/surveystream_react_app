@@ -11,23 +11,19 @@ import { Link, useLocation } from "react-router-dom";
 const NavItems = () => {
   const location = useLocation();
 
+  const isActiveItem = (path: string) => {
+    return location.pathname.includes(path) ? "bg-geekblue-5" : "";
+  };
+
   return (
     <div className="nav-menu flex">
-      <div
-        className={`nav-menu-item w-36 ${
-          location.pathname.startsWith("/surveys") ? "bg-geekblue-5" : ""
-        }`}
-      >
-        <HomeFilled className="flex items-center !text-base !text-gray-2" />
+      <div className={"nav-menu-item  w-36 " + isActiveItem("surveys")}>
         <Link to="/surveys">
+          <HomeFilled className="flex items-center !text-base !text-gray-2" />
           <span className="!text-gray-2">Surveys</span>
         </Link>
       </div>
-      <div
-        className={`nav-menu-item ${
-          location.pathname.startsWith("/users") ? "bg-geekblue-5" : ""
-        }`}
-      >
+      <div className={"nav-menu-item " + isActiveItem("users")}>
         <div>
           <ApartmentOutlined className="flex items-center !text-base !text-gray-2" />
           <Link to="/users">

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Table } from "antd";
 import styled from "styled-components";
 import { CloudDownloadOutlined } from "@ant-design/icons";
@@ -23,6 +23,7 @@ interface LocationTableProps {
 
 const LocationTable: React.FC<LocationTableProps> = ({ columns, data }) => {
   const { CSVDownloader, Type } = useCSVDownloader();
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   const transformedColumns = columns.map((label: string) => {
     return {
@@ -71,7 +72,13 @@ const LocationTable: React.FC<LocationTableProps> = ({ columns, data }) => {
       <TableA
         columns={transformedColumns}
         dataSource={transformedData}
-        pagination={false}
+        pagination={{
+          pageSize: paginationPageSize,
+          pageSizeOptions: [25, 50, 100],
+          showSizeChanger: true,
+          showQuickJumper: true,
+          onShowSizeChange: (_, size) => setPaginationPageSize(size),
+        }}
         style={{ marginRight: "80px", marginTop: "18px" }}
       />
     </>
