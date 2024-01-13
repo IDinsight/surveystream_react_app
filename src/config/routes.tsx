@@ -27,6 +27,8 @@ import CompleteRegistration from "../modules/Users/CompleteRegistration";
 import AddUser from "../modules/Users/AddUser";
 import ManageUsers from "../modules/Users/ManageUsers";
 import EditUser from "../modules/Users/EditUser";
+import Assignments from "../modules/Assignments/Assignments";
+import CreateAssignments from "../modules/Assignments/CreateAssignments/CreateAssignments";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -122,6 +124,11 @@ const AppRoutes = () => {
         <Route
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
+        />
+        <Route path="/assignments/:survey_uid?" element={<Assignments />} />
+        <Route
+          path="/assignments/create/:survey_uid?"
+          element={<CreateAssignments />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />
