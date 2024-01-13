@@ -22,7 +22,6 @@ import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
-import UsersManage from "../modules/Users/ManageUsers";
 import CompleteRegistration from "../modules/Users/CompleteRegistration";
 import AddUser from "../modules/Users/AddUser";
 import ManageUsers from "../modules/Users/ManageUsers";

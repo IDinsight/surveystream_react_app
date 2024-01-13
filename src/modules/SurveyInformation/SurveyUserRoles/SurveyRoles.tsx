@@ -98,7 +98,7 @@ function SurveyRoles() {
         role_uid: item.role_uid,
         role: item.role_name,
         reporting_role: findItemByRoleUid(item.reporting_role_uid),
-        users_assigned: "N/A",
+        users_assigned: item.user_count ?? "N/A",
       }));
 
       setRolesTableData(transformedData);
