@@ -464,7 +464,7 @@ function AddSurveyUsers() {
                         name="supervisor"
                         label="Supervisor"
                         initialValue={userDetails?.supervisor}
-                        rules={[{ required: true }]}
+                        rules={[{ required: false }]}
                         hasFeedback
                       >
                         <Select
