@@ -1,30 +1,33 @@
 import { Button, Modal, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
+import {
+  DescriptionText,
+  DescriptionTitle,
+} from "../../SurveyInformation.styled";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
 import {
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/userRoles/userRolesActions";
+} from "../../../../redux/userRoles/userRolesActions";
 import { useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper, RolesTable } from "./UserRoles.styled";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { BodyWrapper, RolesTable } from "../SurveyUserRoles.styled";
 import { ExclamationCircleFilled, FileAddOutlined } from "@ant-design/icons";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
+} from "../../../../shared/Nav.styled";
 import {
   FooterWrapper,
   SaveButton,
   ContinueButton,
-} from "../../../shared/FooterBar.styled";
-import SideMenu from "./SideMenu";
-import Header from "../../../components/Header";
-import { setRolePermissions } from "../../../redux/userRoles/userRolesSlice";
+} from "../../../../shared/FooterBar.styled";
+import SideMenu from "../SideMenu";
+import Header from "../../../../components/Header";
+import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -41,7 +44,7 @@ interface TransformedRolesData {
   users_assigned: string | null;
 }
 
-function SurveyRoles() {
+function ManageSurveyRoles() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -120,9 +123,7 @@ function SurveyRoles() {
         duplicate: true,
       })
     );
-    navigate(
-      `/survey-information/user-roles/edit-role/${survey_uid}/${role_uid}`
-    );
+    navigate(`/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`);
   };
 
   const handleEdit = (role_uid: any): void => {
@@ -138,9 +139,7 @@ function SurveyRoles() {
         duplicate: false,
       })
     );
-    navigate(
-      `/survey-information/user-roles/edit-role/${survey_uid}/${role_uid}`
-    );
+    navigate(`/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`);
   };
 
   const handleAddNewRole = () => {
@@ -151,7 +150,7 @@ function SurveyRoles() {
         role_uid: null,
       })
     );
-    navigate(`/survey-information/user-roles/add-role/${survey_uid}`);
+    navigate(`/survey-information/survey-roles/add/${survey_uid}`);
   };
 
   const handleDelete = (role_uid: any): void => {
@@ -313,7 +312,9 @@ function SurveyRoles() {
             <SaveButton disabled>Save</SaveButton>
             <ContinueButton
               onClick={() => {
-                navigate(`/survey-information/user-roles/users/${survey_uid}`);
+                navigate(
+                  `/survey-information/survey-users/users/${survey_uid}`
+                );
               }}
             >
               Finalize roles
@@ -325,4 +326,4 @@ function SurveyRoles() {
   );
 }
 
-export default SurveyRoles;
+export default ManageSurveyRoles;

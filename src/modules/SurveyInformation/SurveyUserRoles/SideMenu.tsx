@@ -29,12 +29,12 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/user-roles/${survey_uid}`) ||
-            isActive(`/survey-information/user-roles/roles/${survey_uid}`) ||
-            isActive(`/survey-information/user-roles/add-role/${survey_uid}`) ||
-            isActive(`/survey-information/user-roles/edit-role/${survey_uid}`)
+            isActive(`/survey-information/survey-roles/${survey_uid}`) ||
+            isActive(`/survey-information/survey-roles/roles/${survey_uid}`) ||
+            isActive(`/survey-information/survey-roles/add/${survey_uid}`) ||
+            isActive(`/survey-information/survey-roles/edit/${survey_uid}`)
           }`}
-          to={`/survey-information/user-roles/roles/${survey_uid}`}
+          to={`/survey-information/survey-roles/roles/${survey_uid}`}
         >
           <IconWrapper>
             <ContactsOutlined />
@@ -48,11 +48,11 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/user-roles/users/${survey_uid}`) ||
-            isActive(`/survey-information/user-roles/add-user/${survey_uid}`) ||
-            isActive(`/survey-information/user-roles/edit-user/${survey_uid}`)
+            isActive(`/survey-information/survey-users/users/${survey_uid}`) ||
+            isActive(`/survey-information/survey-users/add/${survey_uid}`) ||
+            isActive(`/survey-information/survey-users/edit/${survey_uid}`)
           }`}
-          to={`/survey-information/user-roles/users/${survey_uid}`}
+          to={`/survey-information/survey-users/users/${survey_uid}`}
         >
           <IconWrapper>
             <ShareAltOutlined />
@@ -72,7 +72,8 @@ function SideMenu() {
 
   const getPossibleKey = () => {
     const path = location.pathname;
-    if (path.includes("user-roles/")) return "surveyFieldSupervisorRoles";
+    if (path.includes("survey-roles/")) return "surveyRoles";
+    if (path.includes("survey-users/")) return "surveyUsers";
 
     return "";
   };

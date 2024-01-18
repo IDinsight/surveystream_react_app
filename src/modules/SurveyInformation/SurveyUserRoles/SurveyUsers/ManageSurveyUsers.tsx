@@ -1,11 +1,14 @@
-import { Button, Dropdown, Input, MenuProps, Modal, message } from "antd";
+import { Button, Dropdown, MenuProps, Modal, message } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
-import { Key, useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper, SearchBox, UsersTable } from "./UserRoles.styled";
+import {
+  DescriptionText,
+  DescriptionTitle,
+} from "../../SurveyInformation.styled";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import { useEffect, useState } from "react";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { BodyWrapper, SearchBox, UsersTable } from "../SurveyUserRoles.styled";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -18,19 +21,18 @@ import {
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "./SideMenu";
-import Header from "../../../components/Header";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../SideMenu";
+import Header from "../../../../components/Header";
 import Column from "antd/lib/table/Column";
-import { FilterConfirmProps } from "antd/lib/table/interface";
 import {
   getAllUsers,
   putUpdateUser,
-} from "../../../redux/userManagement/userManagementActions";
-import { setEditUser } from "../../../redux/userManagement/userManagementSlice";
-import { getSupervisorRoles } from "../../../redux/userRoles/userRolesActions";
+} from "../../../../redux/userManagement/userManagementActions";
+import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
+import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 
-function SurveyUsers() {
+function ManageSurveyUsers() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -187,7 +189,7 @@ function SurveyUsers() {
     }
     dispatch(setEditUser({ ...selectedRows[0] }));
 
-    navigate(`/survey-information/user-roles/edit-user/${survey_uid}`);
+    navigate(`/survey-information/survey-users/edit/${survey_uid}`);
   };
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
@@ -270,7 +272,7 @@ function SurveyUsers() {
                       }}
                       onClick={() =>
                         navigate(
-                          `/survey-information/user-roles/add-user/${survey_uid}`
+                          `/survey-information/survey-users/add/${survey_uid}`
                         )
                       }
                     >
@@ -364,4 +366,4 @@ function SurveyUsers() {
   );
 }
 
-export default SurveyUsers;
+export default ManageSurveyUsers;

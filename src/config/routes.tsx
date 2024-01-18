@@ -11,7 +11,6 @@ import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
-import SurveyUserRoles from "../modules/SurveyInformation/SurveyUserRoles";
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
@@ -28,6 +27,8 @@ import ManageUsers from "../modules/Users/ManageUsers";
 import EditUser from "../modules/Users/EditUser";
 import Assignments from "../modules/Assignments/Assignments";
 import CreateAssignments from "../modules/Assignments/CreateAssignments/CreateAssignments";
+import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
+import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -77,8 +78,12 @@ const AppRoutes = () => {
           element={<SurveyCTOInfomation />}
         />
         <Route
-          path="/survey-information/user-roles/:path?/:survey_uid?/:role_uid?"
-          element={<SurveyUserRoles />}
+          path="/survey-information/survey-roles/:path?/:survey_uid?/:role_uid?"
+          element={<SurveyRoles />}
+        />
+        <Route
+          path="/survey-information/survey-users/:path?/:survey_uid?"
+          element={<SurveyUsers />}
         />
         <Route
           path="/survey-information/survey-cto-information/:survey_uid?"

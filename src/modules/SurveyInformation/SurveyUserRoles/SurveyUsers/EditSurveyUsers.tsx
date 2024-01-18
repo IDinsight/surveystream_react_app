@@ -1,26 +1,29 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { DescriptionText, DescriptionTitle } from "../SurveyInformation.styled";
-import { BodyWrapper } from "./UserRoles.styled";
-import Header from "../../../components/Header";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import {
+  DescriptionText,
+  DescriptionTitle,
+} from "../../SurveyInformation.styled";
+import { BodyWrapper } from "../SurveyUserRoles.styled";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
-import SideMenu from "./SideMenu";
+} from "../../../../shared/Nav.styled";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import SideMenu from "../SideMenu";
 import {
   getSupervisorRoles,
   getUserHierarchy,
   putUserHierarchy,
   deleteUserHierarchy,
-} from "../../../redux/userRoles/userRolesActions";
-import { putUpdateUser } from "../../../redux/userManagement/userManagementActions";
+} from "../../../../redux/userRoles/userRolesActions";
+import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -144,7 +147,7 @@ function EditSurveyUsers() {
           );
         }
         message.success("User updated successfully");
-        navigate(`/survey-information/user-roles/users/${survey_uid}`);
+        navigate(`/survey-information/survey-users/users/${survey_uid}`);
       } else {
         message.error("Failed to update user kindly check");
         console.log("error", updateRes.payload);
@@ -206,7 +209,7 @@ function EditSurveyUsers() {
   useEffect(() => {
     if (!editUser) {
       message.error("Kindly select user to edit");
-      navigate(`/survey-information/user-roles/users/${survey_uid}`);
+      navigate(`/survey-information/survey-users/users/${survey_uid}`);
       return;
     } else {
       fetchUserHierarchy();
@@ -386,7 +389,7 @@ function EditSurveyUsers() {
                     <Button
                       onClick={() =>
                         navigate(
-                          `/survey-information/user-roles/users/${survey_uid}`
+                          `/survey-information/survey-users/users/${survey_uid}`
                         )
                       }
                       style={{ marginLeft: 20 }}

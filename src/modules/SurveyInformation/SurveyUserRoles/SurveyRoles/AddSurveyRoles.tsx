@@ -4,31 +4,31 @@ import {
   DescriptionText,
   DescriptionTitle,
   StyledFormItem,
-} from "../SurveyInformation.styled";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
+} from "../../SurveyInformation.styled";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
 import {
   getAllPermissions,
   getSupervisorRoles,
   postSupervisorRoles,
-} from "../../../redux/userRoles/userRolesActions";
+} from "../../../../redux/userRoles/userRolesActions";
 import { Key, useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper } from "./UserRoles.styled";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { BodyWrapper } from "../SurveyUserRoles.styled";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
+} from "../../../../shared/Nav.styled";
 import {
   FooterWrapper,
   SaveButton,
   ContinueButton,
-} from "../../../shared/FooterBar.styled";
-import SideMenu from "./SideMenu";
-import Header from "../../../components/Header";
-import PermissionsTable from "../../../components/PermissionsTable";
+} from "../../../../shared/FooterBar.styled";
+import SideMenu from "../SideMenu";
+import Header from "../../../../components/Header";
+import PermissionsTable from "../../../../components/PermissionsTable";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -161,7 +161,7 @@ function AddSurveyRoles() {
             message.error(rolesRes.payload.message);
             return;
           } else {
-            navigate(`/survey-information/user-roles/roles/${survey_uid}`);
+            navigate(`/survey-information/survey-roles/roles/${survey_uid}`);
             message.success("Roles updated successfully");
           }
         })

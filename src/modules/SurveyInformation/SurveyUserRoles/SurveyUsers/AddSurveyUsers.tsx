@@ -1,30 +1,30 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
   postAddUser,
   postCheckUser,
   putUpdateUser,
-} from "../../../redux/userManagement/userManagementActions";
-import { DescriptionText } from "../SurveyInformation.styled";
-import { BodyWrapper } from "./UserRoles.styled";
-import Header from "../../../components/Header";
+} from "../../../../redux/userManagement/userManagementActions";
+import { DescriptionText } from "../../SurveyInformation.styled";
+import { BodyWrapper } from "../SurveyUserRoles.styled";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
-} from "../../../shared/Nav.styled";
-import SideMenu from "./SideMenu";
-import { RootState } from "../../../redux/store";
+} from "../../../../shared/Nav.styled";
+import SideMenu from "../SideMenu";
+import { RootState } from "../../../../redux/store";
 import {
   deleteUserHierarchy,
   getSupervisorRoles,
   getUserHierarchy,
   putUserHierarchy,
-} from "../../../redux/userRoles/userRolesActions";
+} from "../../../../redux/userRoles/userRolesActions";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -200,7 +200,7 @@ function AddSurveyUsers() {
             );
           }
           message.success("User updated successfully");
-          navigate(`/survey-information/user-roles/users/${survey_uid}`);
+          navigate(`/survey-information/survey-users/users/${survey_uid}`);
         } else {
           message.error("Failed to update user kindly check");
           console.log("error", updateRes.payload);
@@ -231,7 +231,7 @@ function AddSurveyUsers() {
           message.success(
             "User Added! An email has been sent to the user with the login information."
           );
-          navigate(`/survey-information/user-roles/users/${survey_uid}`);
+          navigate(`/survey-information/survey-users/users/${survey_uid}`);
         } else {
           message.error("Failed to add user kindly check");
           console.log("error", addRes.payload);
@@ -328,7 +328,7 @@ function AddSurveyUsers() {
                       <Button
                         onClick={() =>
                           navigate(
-                            `/survey-information/user-roles/users/${survey_uid}`
+                            `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
                         style={{ marginLeft: 20 }}
@@ -499,7 +499,7 @@ function AddSurveyUsers() {
                       <Button
                         onClick={() =>
                           navigate(
-                            `/survey-information/user-roles/users/${survey_uid}`
+                            `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
                         style={{ marginLeft: 20 }}
