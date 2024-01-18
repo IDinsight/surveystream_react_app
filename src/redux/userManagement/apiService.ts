@@ -126,7 +126,7 @@ export const fetchUsers = async (survey_uid?: any) => {
     let url: string;
 
     if (survey_uid) {
-      url = `${API_BASE_URL}/users?survey_id=${survey_uid}`;
+      url = `${API_BASE_URL}/users?survey_uid=${survey_uid}`;
     } else {
       url = `${API_BASE_URL}/users`;
     }
