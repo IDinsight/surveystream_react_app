@@ -5,7 +5,7 @@ import modulesReducer from "./moduleSelection/modulesSlice";
 import authReducer from "./auth/authSlice";
 import surveysReducer from "./surveyList/surveysSlice";
 import surveyConfigReducer from "./surveyConfig/surveyConfigSlice";
-import fieldSupervisorRolesReducer from "./fieldSupervisorRoles/fieldSupervisorRolesSlice";
+import fieldSupervisorRolesReducer from "./userRoles/userRolesSlice";
 import surveyCTOInformationReducer from "./surveyCTOInformation/surveyCTOInformationSlice";
 import surveyCTOQuestionsReducer from "./surveyCTOQuestions/surveyCTOQuestionsSlice";
 import surveyLocationsReducer from "./surveyLocations/surveyLocationsSlice";

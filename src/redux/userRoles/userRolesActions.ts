@@ -9,7 +9,7 @@ import {
   postSupervisorRolesFailure,
   postSupervisorRolesRequest,
   postSupervisorRolesSuccess,
-} from "./fieldSupervisorRolesSlice";
+} from "./userRolesSlice";
 
 export const postSupervisorRoles = createAsyncThunk(
   "fieldSupervisorRoles/postSupervisorRoles",
@@ -67,7 +67,7 @@ export const getSupervisorRoles = createAsyncThunk(
   }
 );
 
-export const fieldSupervisorRolesActions = {
+export const userRolesActions = {
   postSupervisorRoles,
   getSupervisorRoles,
 };
