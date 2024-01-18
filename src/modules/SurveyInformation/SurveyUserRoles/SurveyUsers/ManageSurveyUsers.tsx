@@ -159,7 +159,7 @@ function ManageSurveyUsers() {
     {
       key: "1",
       label: (
-        <Link to="/survey-information/user-roles/add-users/">Add manually</Link>
+        <Link to="/survey-information/survey-users/add/">Add manually</Link>
       ),
     },
     {
