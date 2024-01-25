@@ -63,7 +63,7 @@ const sectionRoutes: { [key: string]: string } = {
 const itemRoutes: { [key: string]: { [key: string]: string } } = {
   "Survey information": {
     "SurveyCTO information": "survey-cto-information",
-    "Field supervisor roles": "field-supervisor-roles/add",
+    "User and role management": "survey-roles/roles",
     "Survey locations": "location/add",
     Enumerators: "enumerators",
     Targets: "targets",
