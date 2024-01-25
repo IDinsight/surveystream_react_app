@@ -11,7 +11,6 @@ import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
 import SurveyCTOInfomation from "../modules/SurveyInformation/SurveyCTOInformation";
 import SurveyConfiguration from "../modules/SurveyConfiguration";
-import UserRoles from "../modules/SurveyInformation/UserRoles";
 import SurveyLocationAdd from "../modules/SurveyInformation/SurveyLocationAdd";
 import SurveyLocationHierarchy from "../modules/SurveyInformation/SurveyLocationHierarchy";
 import SurveyLocationUpload from "../modules/SurveyInformation/SurveyLocationUpload";
@@ -22,10 +21,14 @@ import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
-import UsersManage from "../modules/Users/UsersManage";
-import UsersAdd from "../modules/Users/UsersAdd";
+import CompleteRegistration from "../modules/Users/CompleteRegistration";
+import AddUser from "../modules/Users/AddUser";
+import ManageUsers from "../modules/Users/ManageUsers";
+import EditUser from "../modules/Users/EditUser";
 import Assignments from "../modules/Assignments/Assignments";
 import CreateAssignments from "../modules/Assignments/CreateAssignments/CreateAssignments";
+import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
+import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -47,9 +50,16 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
+      <Route
+        path="/complete-registration/:token"
+        element={<CompleteRegistration />}
+      />
+
       <Route element={<PrivateRoute />}>
-        <Route path="/users" element={<UsersManage />} />
-        <Route path="/users/add" element={<UsersAdd />} />
+        <Route path="/users" element={<ManageUsers />} />
+        <Route path="/users/add" element={<AddUser />} />
+        <Route path="/users/edit" element={<EditUser />} />
+
         <Route path="/surveys" element={<SurveysHomePage />} />
         <Route
           path="/survey-configuration/:survey_uid?"
@@ -68,8 +78,12 @@ const AppRoutes = () => {
           element={<SurveyCTOInfomation />}
         />
         <Route
-          path="/survey-information/user-roles/:path?/:survey_uid?"
-          element={<UserRoles />}
+          path="/survey-information/survey-roles/:path?/:survey_uid?/:role_uid?"
+          element={<SurveyRoles />}
+        />
+        <Route
+          path="/survey-information/survey-users/:path?/:survey_uid?"
+          element={<SurveyUsers />}
         />
         <Route
           path="/survey-information/survey-cto-information/:survey_uid?"
