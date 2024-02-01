@@ -61,7 +61,7 @@ function EditUser() {
   };
 
   useEffect(() => {
-    const userRolesData = userList?.filter((user: any) => {
+    const userRolesData = userList.filter((user: any) => {
       return user.user_id == parseInt(editUser?.user_id);
     });
     setUserDetails((prev: any) => {
@@ -134,7 +134,6 @@ function EditUser() {
                         }))
                       }
                       placeholder="Enter first name"
-                      disabled={isExistingUser}
                     />
                   </Form.Item>
                   <Form.Item
@@ -157,7 +156,6 @@ function EditUser() {
                         }))
                       }
                       placeholder="Enter last name"
-                      disabled={isExistingUser}
                     />
                   </Form.Item>
 
@@ -166,7 +164,7 @@ function EditUser() {
                     userDetails?.user_role_names[0] != null && (
                       <>
                         <DescriptionText>Existing Roles</DescriptionText>
-                        {userDetails.user_role_names.map(
+                        {userDetails.user_role_names?.map(
                           (role: any, i: any) => (
                             <>
                               <Form.Item
@@ -249,46 +247,48 @@ function EditUser() {
                           </Radio.Button>
                         </Radio.Group>
                       </Form.Item>
-                      <Form.Item
-                        label="Assign Survey Admin role to this user??"
-                        labelAlign="right"
-                        labelCol={{ span: 24 }}
-                        style={{ display: "block" }}
-                        initialValue={userDetails?.is_survey_admin}
-                        rules={[
-                          {
-                            required: false,
-                            message:
-                              "Please select if the user is a survey admin",
-                          },
-                        ]}
-                        hasFeedback
-                        name="is_survey_admin"
-                      >
-                        <Radio.Group
-                          style={{ display: "flex", width: "100%" }}
-                          onChange={(e) =>
-                            setUserDetails((prev: any) => ({
-                              ...prev,
-                              is_survey_admin: e.target.value,
-                            }))
-                          }
-                          defaultValue={userDetails?.is_survey_admin}
+                      {!userDetails?.is_super_admin && (
+                        <Form.Item
+                          label="Assign Survey Admin role to this user??"
+                          labelAlign="right"
+                          labelCol={{ span: 24 }}
+                          style={{ display: "block" }}
+                          initialValue={userDetails?.is_survey_admin}
+                          rules={[
+                            {
+                              required: false,
+                              message:
+                                "Please select if the user is a survey admin",
+                            },
+                          ]}
+                          hasFeedback
+                          name="is_survey_admin"
                         >
-                          <Radio.Button
-                            value={true}
-                            style={{ marginRight: "8px" }}
+                          <Radio.Group
+                            style={{ display: "flex", width: "100%" }}
+                            onChange={(e) =>
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                is_survey_admin: e.target.value,
+                              }))
+                            }
+                            defaultValue={userDetails?.is_survey_admin}
                           >
-                            Yes
-                          </Radio.Button>
-                          <Radio.Button
-                            value={false}
-                            style={{ marginRight: "8px" }}
-                          >
-                            No
-                          </Radio.Button>
-                        </Radio.Group>
-                      </Form.Item>
+                            <Radio.Button
+                              value={true}
+                              style={{ marginRight: "8px" }}
+                            >
+                              Yes
+                            </Radio.Button>
+                            <Radio.Button
+                              value={false}
+                              style={{ marginRight: "8px" }}
+                            >
+                              No
+                            </Radio.Button>
+                          </Radio.Group>
+                        </Form.Item>
+                      )}
                     </>
                   )}
 
