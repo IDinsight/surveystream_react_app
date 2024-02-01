@@ -40,6 +40,7 @@ function AddSurveyUsers() {
   const [verificationForm] = Form.useForm();
   const [updateUserForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
 
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
@@ -253,6 +254,7 @@ function AddSurveyUsers() {
         role_uid: item.role_uid,
         role: item.role_name,
         has_reporting_role: item.reporting_role_uid ? true : false,
+        reporting_role_uid: item.reporting_role_uid,
       }));
 
       console.log("transformedData", transformedData);
@@ -439,14 +441,37 @@ function AddSurveyUsers() {
                           setNewRole(role?.role_uid);
                           if (role?.has_reporting_role) {
                             setHasReportingRole(true);
+
+                            const _filteredUserList = userList.filter(
+                              (user: any) => {
+                                return user.roles.includes(
+                                  role?.reporting_role_uid
+                                );
+                              }
+                            );
+
+                            setFilteredUserList(_filteredUserList);
                           } else {
                             setHasReportingRole(false);
                           }
 
                           setUserDetails((prev: any) => {
+                            const updatedRoles = [...checkedUser.roles.roles];
+                            const index = updatedRoles.findIndex(
+                              (role: any) => role === value
+                            );
+                            if (index !== -1) {
+                              updatedRoles[index] = value;
+                            } else {
+                              updatedRoles.push(value);
+                            }
+                            console.log("setUserDetails", {
+                              ...prev,
+                              roles: updatedRoles,
+                            });
                             return {
                               ...prev,
-                              roles: [...checkedUser.user.roles, value],
+                              roles: updatedRoles,
                             };
                           });
                         }}
@@ -478,7 +503,7 @@ function AddSurveyUsers() {
                             }));
                           }}
                         >
-                          {userList.map((user: any, i: any) => (
+                          {filteredUserList?.map((user: any, i: any) => (
                             <Select.Option key={i} value={user?.user_id}>
                               {user?.first_name} {user?.last_name}
                             </Select.Option>

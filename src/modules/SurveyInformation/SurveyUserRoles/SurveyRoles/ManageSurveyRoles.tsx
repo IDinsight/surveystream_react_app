@@ -190,7 +190,7 @@ function ManageSurveyRoles() {
 
   useEffect(() => {
     fetchSupervisorRoles();
-  }, [dispatch]);
+  }, []);
 
   const rolesTableColumn = [
     {
