@@ -298,7 +298,7 @@ function EditSurveyRoles() {
                       style={{ display: "block" }}
                       rules={[
                         {
-                          required: true,
+                          required: false,
                           message:
                             "Please select if the role has a reporting role",
                         },

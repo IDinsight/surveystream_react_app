@@ -61,7 +61,7 @@ function EditUser() {
   };
 
   useEffect(() => {
-    const userRolesData = userList.filter((user: any) => {
+    const userRolesData = userList?.filter((user: any) => {
       return user.user_id == parseInt(editUser?.user_id);
     });
     setUserDetails((prev: any) => {
@@ -208,44 +208,88 @@ function EditUser() {
                     )}
 
                   {isExistingUser && (
-                    <Form.Item
-                      label="Assign Super Admin role to this user??"
-                      labelAlign="right"
-                      labelCol={{ span: 24 }}
-                      style={{ display: "block" }}
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select if the user is super admin",
-                        },
-                      ]}
-                      hasFeedback
-                      name="is_super_admin"
-                    >
-                      <Radio.Group
-                        style={{ display: "flex", width: "100%" }}
-                        onChange={(e) =>
-                          setUserDetails((prev: any) => ({
-                            ...prev,
-                            is_super_admin: e.target.value,
-                          }))
-                        }
-                        defaultValue={userDetails?.is_super_admin}
+                    <>
+                      <Form.Item
+                        label="Assign Super Admin role to this user??"
+                        labelAlign="right"
+                        labelCol={{ span: 24 }}
+                        style={{ display: "block" }}
+                        initialValue={userDetails?.is_super_admin}
+                        rules={[
+                          {
+                            required: false,
+                            message:
+                              "Please select if the user is a super admin",
+                          },
+                        ]}
+                        hasFeedback
+                        name="is_super_admin"
                       >
-                        <Radio.Button
-                          value={true}
-                          style={{ marginRight: "8px" }}
+                        <Radio.Group
+                          style={{ display: "flex", width: "100%" }}
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_super_admin: e.target.value,
+                            }))
+                          }
+                          defaultValue={userDetails?.is_super_admin}
                         >
-                          Yes
-                        </Radio.Button>
-                        <Radio.Button
-                          value={false}
-                          style={{ marginRight: "8px" }}
+                          <Radio.Button
+                            value={true}
+                            style={{ marginRight: "8px" }}
+                          >
+                            Yes
+                          </Radio.Button>
+                          <Radio.Button
+                            value={false}
+                            style={{ marginRight: "8px" }}
+                          >
+                            No
+                          </Radio.Button>
+                        </Radio.Group>
+                      </Form.Item>
+                      <Form.Item
+                        label="Assign Survey Admin role to this user??"
+                        labelAlign="right"
+                        labelCol={{ span: 24 }}
+                        style={{ display: "block" }}
+                        initialValue={userDetails?.is_survey_admin}
+                        rules={[
+                          {
+                            required: false,
+                            message:
+                              "Please select if the user is a survey admin",
+                          },
+                        ]}
+                        hasFeedback
+                        name="is_survey_admin"
+                      >
+                        <Radio.Group
+                          style={{ display: "flex", width: "100%" }}
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_survey_admin: e.target.value,
+                            }))
+                          }
+                          defaultValue={userDetails?.is_survey_admin}
                         >
-                          No
-                        </Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
+                          <Radio.Button
+                            value={true}
+                            style={{ marginRight: "8px" }}
+                          >
+                            Yes
+                          </Radio.Button>
+                          <Radio.Button
+                            value={false}
+                            style={{ marginRight: "8px" }}
+                          >
+                            No
+                          </Radio.Button>
+                        </Radio.Group>
+                      </Form.Item>
+                    </>
                   )}
 
                   <Form.Item style={{ marginTop: 20 }}>

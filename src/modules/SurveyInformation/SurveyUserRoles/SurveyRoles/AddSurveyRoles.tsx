@@ -242,7 +242,7 @@ function AddSurveyRoles() {
                       style={{ display: "block" }}
                       rules={[
                         {
-                          required: true,
+                          required: false,
                           message:
                             "Please select if the role has a reporting role",
                         },
@@ -253,7 +253,7 @@ function AddSurveyRoles() {
                       <Radio.Group
                         style={{ display: "flex", width: "100px" }}
                         onChange={(e) => handleRadioChange(e.target.value)}
-                        defaultValue={false}
+                        defaultValue={hasReportingRole}
                       >
                         <Radio.Button value={true}>Yes</Radio.Button>
                         <Radio.Button value={false}>No</Radio.Button>
