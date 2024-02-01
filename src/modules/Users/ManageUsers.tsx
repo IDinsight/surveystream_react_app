@@ -1,7 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Dropdown, MenuProps, Modal, message } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Dropdown, MenuProps, Modal, message } from "antd";
 import {
   CloudUploadOutlined,
   DeleteOutlined,
