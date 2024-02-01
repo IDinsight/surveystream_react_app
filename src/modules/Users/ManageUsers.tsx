@@ -88,19 +88,34 @@ function UsersManage() {
     const usersRes = await dispatch(getAllUsers({}));
     if (usersRes?.payload?.length !== 0) {
       const usersWithKeys = usersRes?.payload?.map(
-        (user: any, index: { toString: () => any }) => ({
-          ...user,
-          key: index.toString(), // or use a unique identifier if available, like user_id
-          user_roles:
-            user?.user_role_names.length > 0 && user?.user_role_names[0] != null
-              ? user.user_role_names
-                  .map(
-                    (role: any, i: any) =>
-                      `[ ${role}, ${user.user_survey_names[i]} ]`
-                  )
+        (user: any, index: { toString: () => any }) => {
+          const roles = user?.user_role_names || [];
+          const surveys = user?.user_survey_names || [];
+
+          const superAdminRole = user.is_super_admin ? "[Super Admin]" : "";
+          const surveyAdminRole = user.is_survey_admin ? "[Survey Admin]" : "";
+
+          const userRoles =
+            roles.length > 0
+              ? [
+                  superAdminRole,
+                  surveyAdminRole,
+                  ...roles.map((role: any, i: any) => {
+                    if (role !== null) {
+                      return `[${role}, ${surveys[i]}]`;
+                    }
+                  }),
+                ]
+                  .filter(Boolean) // Remove empty strings from the array
                   .join(", ")
-              : "",
-        })
+              : [superAdminRole, surveyAdminRole].filter(Boolean).join(", ");
+
+          return {
+            ...user,
+            key: index.toString(),
+            user_roles: userRoles,
+          };
+        }
       );
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);

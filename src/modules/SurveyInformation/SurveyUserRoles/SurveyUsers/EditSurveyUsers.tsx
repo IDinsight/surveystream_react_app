@@ -63,6 +63,8 @@ function EditSurveyUsers() {
     ...editUser,
   });
 
+  const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
+
   const handleGoBack = () => {
     navigate(-1);
   };
@@ -168,11 +170,12 @@ function EditSurveyUsers() {
         role_uid: item.role_uid,
         role: item.role_name,
         has_reporting_role: item.reporting_role_uid ? true : false,
+        reporting_role_uid: item.reporting_role_uid,
       }));
       setRolesTableData(transformedData);
 
-      const role = transformedData.find((r: any) =>
-        editUser.roles.includes(r.role_uid)
+      const role = transformedData?.find((r: any) =>
+        editUser?.roles?.includes(r.role_uid)
       );
       setNewRole(role?.role_uid);
 
@@ -212,6 +215,14 @@ function EditSurveyUsers() {
       navigate(`/survey-information/survey-users/users/${survey_uid}`);
       return;
     } else {
+      //remove the editUser from the userList
+      const _filteredUserList = userList.filter(
+        (user: any) => user.user_id !== editUser?.user_id
+      );
+
+      setFilteredUserList(_filteredUserList);
+
+      setUserDetails({ ...editUser });
       fetchUserHierarchy();
       fetchSupervisorRoles();
     }
@@ -332,19 +343,45 @@ function EditSurveyUsers() {
 
                         if (role?.has_reporting_role) {
                           setHasReportingRole(true);
+                          //filter out users without the reporting role
+                          let _filteredUserList = userList.filter(
+                            (user: any) => user.user_id !== editUser?.user_id
+                          );
+                          _filteredUserList = _filteredUserList.filter(
+                            (user: any) => {
+                              return user.roles.includes(
+                                role?.reporting_role_uid
+                              );
+                            }
+                          );
+
+                          setFilteredUserList(_filteredUserList);
                         } else {
                           setHasReportingRole(false);
                         }
 
                         setUserDetails((prev: any) => {
+                          const updatedRoles = [...editUser.roles];
+                          const index = updatedRoles.findIndex(
+                            (role: any) => role === value
+                          );
+                          if (index !== -1) {
+                            updatedRoles[index] = value;
+                          } else {
+                            updatedRoles.push(value);
+                          }
+                          console.log("setUserDetails", {
+                            ...prev,
+                            roles: updatedRoles,
+                          });
                           return {
                             ...prev,
-                            roles: [...editUser.roles, value],
+                            roles: updatedRoles,
                           };
                         });
                       }}
                     >
-                      {rolesTableData.map(
+                      {rolesTableData?.map(
                         (r: { role_uid: any; role: any }, i: any) => (
                           <Select.Option key={i} value={r.role_uid}>
                             {r.role}
@@ -369,7 +406,7 @@ function EditSurveyUsers() {
                           console.log("value", value);
                         }}
                       >
-                        {userList.map((user: any, i: any) => (
+                        {filteredUserList?.map((user: any, i: any) => (
                           <Select.Option key={i} value={user?.user_id}>
                             {user?.first_name} {user?.last_name}
                           </Select.Option>
