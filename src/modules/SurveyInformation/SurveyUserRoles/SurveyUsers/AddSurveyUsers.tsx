@@ -456,7 +456,9 @@ function AddSurveyUsers() {
                           }
 
                           setUserDetails((prev: any) => {
-                            const updatedRoles = [...checkedUser.roles.roles];
+                            const updatedRoles = [
+                              ...(checkedUser?.roles?.roles || []),
+                            ];
                             const index = updatedRoles.findIndex(
                               (role: any) => role === value
                             );
