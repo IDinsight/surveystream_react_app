@@ -26,7 +26,7 @@ import AddUser from "../modules/Users/AddUser";
 import ManageUsers from "../modules/Users/ManageUsers";
 import EditUser from "../modules/Users/EditUser";
 import Assignments from "../modules/Assignments/Assignments";
-import CreateAssignments from "../modules/Assignments/CreateAssignments/CreateAssignments";
+import CreateAssignments from "../modules/Assignments/AssignmentsTab/CreateAssignments/CreateAssignments";
 import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
 import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
 
@@ -129,9 +129,12 @@ const AppRoutes = () => {
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
         />
-        <Route path="/assignments/:survey_uid?" element={<Assignments />} />
         <Route
-          path="/assignments/create/:survey_uid?"
+          path="/module-configuration/assignments/:survey_uid?/:form_uid?"
+          element={<Assignments />}
+        />
+        <Route
+          path="/module-configuration/assignments/:survey_uid?/:form_uid?/create"
           element={<CreateAssignments />}
         />
       </Route>

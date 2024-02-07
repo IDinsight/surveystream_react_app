@@ -23,7 +23,8 @@
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/explicit-function-return-type": "off",
-      "prettier/prettier": "error"
+      "prettier/prettier": "error",
+      "prefer-const": "off"
     },
     "settings": {
       "react": {
@@ -31,4 +32,3 @@
       }
     }
   }
-  

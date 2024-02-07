@@ -1,43 +1,77 @@
 import { DownOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { Button, Dropdown, MenuProps, Modal, Space, message } from "antd";
 import { useState } from "react";
+import { updateEnumeratorStatus } from "../../redux/assignments/assignmentsActions";
+import { useAppDispatch } from "../../redux/hooks";
 
-function SurveyorStatus({
-  status,
-  onClick,
-}: {
-  status: string;
-  onClick?: () => void;
-}) {
+interface ISurveyorStatusProps {
+  formID: string;
+  record?: any;
+}
+
+function SurveyorStatus({ record, formID }: ISurveyorStatusProps) {
+  const dispatch = useAppDispatch();
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
-    console.log("click", e.key);
+    // If the status is the same as the one clicked, do nothing
+    if (e.key === record["surveyor_status"]) {
+      return;
+    }
+
     switch (e.key) {
-      case "1":
-        message.success("Record updated successfully!");
+      case "Active":
+      case "Temp. Inactive":
+        dispatch(
+          updateEnumeratorStatus({
+            enumeratorUID: record["enumerator_uid"],
+            enumeratorType: "surveyor",
+            formUID: formID,
+            newStatus: e.key,
+          })
+        ).then((response: any) => {
+          console.log(response);
+          if (
+            response.payload.status === 200 &&
+            response.payload.data.success
+          ) {
+            message.success("Record updated successfully!");
+          } else {
+            message.error("Failed to update record!");
+          }
+        });
         break;
-      case "2":
-        message.success("Record updated successfully!");
-        break;
-      case "3":
+      case "Dropout":
         setIsOpenDeleteModel(true);
         break;
     }
   };
 
+  const onDropoutConfirm = () => {
+    setIsOpenDeleteModel(false);
+    dispatch(
+      updateEnumeratorStatus({
+        enumeratorUID: record["enumerator_uid"],
+        enumeratorType: "surveyor",
+        formUID: "27",
+        newStatus: "Dropout",
+      })
+    );
+    message.success("Record updated successfully!");
+  };
+
   const statusItems: MenuProps["items"] = [
     {
       label: "Active",
-      key: "1",
+      key: "Active",
     },
     {
-      label: "Inactive",
-      key: "2",
+      label: "Temp. Inactive",
+      key: "Temp. Inactive",
     },
     {
       label: "Dropout",
-      key: "3",
+      key: "Dropout",
     },
   ];
 
@@ -47,19 +81,19 @@ function SurveyorStatus({
   };
 
   const getMenuStyle = (status: string) => {
-    if (status === "active") {
+    if (status === "Active") {
       return {
         backgroundColor: "#F6FFED",
         color: "#237804",
         border: "1px solid #B7EB8F",
       };
-    } else if (status === "inactive") {
+    } else if (status === "Inactive") {
       return {
         backgroundColor: "#FFF7E6",
         color: "#AD4E00",
         border: "1px solid #FFD591",
       };
-    } else if (status === "dropout") {
+    } else if (status === "Dropout") {
       return {
         backgroundColor: "#FFF1F0",
         color: "#A8071A",
@@ -71,9 +105,9 @@ function SurveyorStatus({
   return (
     <div>
       <Dropdown menu={menuProps}>
-        <Button size="small" style={getMenuStyle(status)}>
+        <Button size="small" style={getMenuStyle(record["surveyor_status"])}>
           <Space>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {record["surveyor_status"]}
             <DownOutlined />
           </Space>
         </Button>
@@ -92,18 +126,15 @@ function SurveyorStatus({
         }
         okText="Confirm"
         okButtonProps={{ danger: true }}
-        onOk={() => {
-          setIsOpenDeleteModel(false);
-          message.success("Record updated successfully!");
-        }}
+        onOk={onDropoutConfirm}
         onCancel={() => setIsOpenDeleteModel(false)}
       >
-        <p>Bahadur Singh has 15 targets assigned to them.</p>
+        <p>Surveyor has targets assigned to them.</p>
         <p>
-          If you confirm to mark Bahadur Singh as dropout, all 15 of their
-          assignments will be unassigned and released.
+          If you confirm to mark Surveyor as dropout, all of their assignments
+          will be unassigned and released.
         </p>
-        <p>Those 15 targets have to be assigned to other surveyors.</p>
+        <p>Those targets have to be assigned to other surveyors.</p>
       </Modal>
     </div>
   );
