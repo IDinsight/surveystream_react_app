@@ -53,7 +53,7 @@ function SurveyorStatus({ record, formID }: ISurveyorStatusProps) {
       updateEnumeratorStatus({
         enumeratorUID: record["enumerator_uid"],
         enumeratorType: "surveyor",
-        formUID: "27",
+        formUID: formID,
         newStatus: "Dropout",
       })
     );

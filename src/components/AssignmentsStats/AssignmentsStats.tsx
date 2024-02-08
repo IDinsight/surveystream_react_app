@@ -11,7 +11,7 @@ interface IAssignmentsStatusProps {
     unassigned?: number;
   };
 }
-function AssignmentsStatus({ stats }: IAssignmentsStatusProps) {
+function AssignmentsStats({ stats }: IAssignmentsStatusProps) {
   const { completed, assigned, unassigned } = stats;
   return (
     <div style={{ display: "flex", gap: 16, marginLeft: 28 }}>
@@ -91,4 +91,4 @@ function AssignmentsStatus({ stats }: IAssignmentsStatusProps) {
   );
 }
 
-export default AssignmentsStatus;
+export default AssignmentsStats;

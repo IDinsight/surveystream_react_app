@@ -91,7 +91,7 @@ export const getDataFromFilters = (
   return filterArr;
 };
 
-export const calculateSearch = (
+export const performSearch = (
   arr: any,
   searchTerm: string,
   key_reference: any

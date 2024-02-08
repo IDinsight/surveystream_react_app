@@ -1,4 +1,4 @@
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Key, useCallback, useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
@@ -29,11 +29,11 @@ import {
   getTargets,
 } from "../../redux/assignments/assignmentsActions";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import AssignmentsStatus from "../../components/AssignmentsStatus";
+import AssignmentsStatus from "../../components/AssignmentsStats";
 import { debounce } from "lodash";
 import NotFound from "../NotFound";
 import { RootState } from "../../redux/store";
-import { calculateSearch, getDataFromFilters, makeKeyRefs } from "./utils";
+import { performSearch, getDataFromFilters, makeKeyRefs } from "./utils";
 import { IAssignmentsStats } from "./types";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 
@@ -154,7 +154,7 @@ function Assignments() {
     console.log("ref", keyRefs);
     if (value === "") {
       if (dataFilter) {
-        let filterArr = getDataFromFilters(dataFilter, getTabData(), keyRefs);
+        const filterArr = getDataFromFilters(dataFilter, getTabData(), keyRefs);
 
         setMainData(filterArr);
         setSearchedData(filterArr);
@@ -177,7 +177,7 @@ function Assignments() {
       tempArr = getDataFromFilters(dataFilter, [...getTabData()], keyRefs);
     }
 
-    const filteredData = calculateSearch(tempArr, value, keyRefs);
+    const filteredData = performSearch(tempArr, value, keyRefs);
     console.log("filteredData", filteredData);
     setMainData(filteredData);
     setSearchedData(filteredData);
@@ -218,7 +218,7 @@ function Assignments() {
     if (isReset) {
       setDataFilter(null);
       if (searchedData?.length && searchValue !== "") {
-        const tempArr = calculateSearch(getTabData(), searchValue, keyRefs);
+        const tempArr = performSearch(getTabData(), searchValue, keyRefs);
         setMainData(tempArr);
       } else {
         setMainData(getTabData());
@@ -344,7 +344,6 @@ function Assignments() {
     targeData,
     tabItemIndex,
   ]);
-
 
   // Checking if the data is loading
   const isLoading: boolean = tableConfigLoading && assignmentsLoading;
