@@ -3,6 +3,7 @@ import { AssignmentsTable } from "./AssignmentsTab.styled";
 import { buildColumnDefinition, makeKeyRefs } from "../utils";
 import { Tag } from "antd";
 import { TablePaginationConfig, FilterValue } from "antd/lib/table/interface";
+import { IAssignmentsTabProps } from "../types";
 
 type TableOnChangeType = (
   pagination: TablePaginationConfig,
@@ -11,23 +12,14 @@ type TableOnChangeType = (
   extra: any
 ) => void;
 
-interface IAssignmentsTabProps {
-  tableConfig: any;
-  mainData: any[];
-  rowSelection: any;
-  keyRefs: any;
-  filter: any;
-  handleTableChange: TableOnChangeType;
-}
-
 function AssignmentsTab({
   tableConfig,
   mainData,
   rowSelection,
-  keyRefs,
   filter,
   handleTableChange,
 }: IAssignmentsTabProps) {
+  // console.log("mainData", mainData);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
 
   /* 
@@ -75,7 +67,6 @@ function AssignmentsTab({
               groupItem,
               mainData,
               filter,
-              keyRefs,
               mainTableSpecialAttrs
             );
           }),
@@ -85,7 +76,6 @@ function AssignmentsTab({
           configItem.columns[0],
           mainData,
           filter,
-          keyRefs,
           mainTableSpecialAttrs
         );
       }

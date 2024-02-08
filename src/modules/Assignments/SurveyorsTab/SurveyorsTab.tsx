@@ -1,29 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SurveyorsTable } from "./SurveyorsTab.styled";
 import SurveyorStatus from "../../../components/SurveyorStatus";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { RootState } from "../../../redux/store";
 import { useParams } from "react-router-dom";
 import { buildColumnDefinition } from "../utils";
-import { getTableConfig } from "../../../redux/assignments/assignmentsActions";
-import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { getEnumerators } from "../../../redux/enumerators/enumeratorsActions";
+import { ISurveyorsTabProps } from "../types";
 
-function SurveyorsTab() {
-  const dispatch = useAppDispatch();
+function SurveyorsTab({
+  tableConfig,
+  mainData,
+  filter,
+  handleTableChange,
+}: ISurveyorsTabProps) {
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
   };
-
-  const { loading: tableConfigLoading, data: tableConfigData } = useAppSelector(
-    (state: RootState) => state.assignments.tableConfig
-  );
-  const { enumeratorList: enumeratorsData, loading } = useAppSelector(
-    (state: RootState) => state.enumerators
-  );
-
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
-  const [mainData, setMainData] = useState<any>([]);
 
   // Build table columns from config
   const specialAttributes = {
@@ -38,7 +30,7 @@ function SurveyorsTab() {
     },
   };
 
-  const enumeratorTableColumns = tableConfigData?.surveyors?.map(
+  const enumeratorTableColumns = tableConfig?.surveyors?.map(
     (configItem: any, i: any) => {
       if (configItem.group_label) {
         return {
@@ -46,9 +38,8 @@ function SurveyorsTab() {
           children: configItem.columns.map((groupItem: any, i: any) => {
             return buildColumnDefinition(
               groupItem,
-              enumeratorsData,
-              null,
-              null,
+              mainData,
+              filter,
               specialAttributes
             );
           }),
@@ -56,62 +47,23 @@ function SurveyorsTab() {
       } else {
         return buildColumnDefinition(
           configItem.columns[0],
-          enumeratorsData,
-          null,
-          null,
+          mainData,
+          filter,
           specialAttributes
         );
       }
     }
   );
 
-  // Row selection state and handler
-  const [selectedRows, setSelectedRows] = useState<any>([]);
-
-  const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
-    const selectedEmails = selectedRows.map((row: any) => row.email);
-
-    const selectedUserData = mainData?.filter((row: any) =>
-      selectedEmails.includes(row.email)
-    );
-
-    setSelectedRows(selectedUserData);
-  };
-
-  const rowSelection = {
-    selectedRows,
-    onChange: onSelectChange,
-  };
-  const hasSelected = selectedRows.length > 0;
-
-  useEffect(() => {
-    if (Object.keys(tableConfigData).length === 0) {
-      dispatch(getTableConfig({ formUID: form_uid ?? "" }));
-    }
-
-    if (enumeratorsData.length === 0) {
-      dispatch(getEnumerators({ formUID: form_uid ?? "" }));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (enumeratorsData.length > 0) {
-      setMainData(enumeratorsData);
-    }
-  }, [enumeratorsData]);
-
-  if (loading) {
-    return <FullScreenLoader />;
-  }
-
   return (
     <>
       <SurveyorsTable
-        rowSelection={rowSelection}
+        rowKey={(record) => record["enumerator_uid"]}
         columns={enumeratorTableColumns}
         dataSource={mainData}
         scroll={{ x: 2200 }}
         bordered={true}
+        onChange={handleTableChange}
         pagination={{
           pageSize: paginationPageSize,
           pageSizeOptions: [10, 25, 50, 100],

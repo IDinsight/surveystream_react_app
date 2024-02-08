@@ -102,9 +102,6 @@ export const calculateSearch = (
       const val = getNestedObjectValue(obj, key_reference[searchKeys[i]]);
       if (val) {
         const columnValue = val.toString().toLowerCase();
-        console.log(columnValue);
-        console.log(searchTerm.toLowerCase());
-        console.log(columnValue.indexOf(searchTerm.toLowerCase()));
         if (columnValue && columnValue.indexOf(searchTerm.toLowerCase()) > -1)
           return true;
       }
@@ -117,13 +114,9 @@ export const buildColumnDefinition = (
   columnItem: IColumnItem,
   dataSource: any,
   dataFilter: any,
-  keyRefs: any,
   specialAttribute?: any
 ) => {
   const colKey = columnItem.column_key;
-
-  // Setting the the reference values for the column to enable search, sort, and filter
-  if (keyRefs) keyRefs[colKey] = [colKey];
 
   // This is the base column definition for non-special columns
   let columnDefinition = {

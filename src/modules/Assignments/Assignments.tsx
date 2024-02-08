@@ -33,9 +33,9 @@ import AssignmentsStatus from "../../components/AssignmentsStatus";
 import { debounce } from "lodash";
 import NotFound from "../NotFound";
 import { RootState } from "../../redux/store";
-import { calculateSearch, getDataFromFilters } from "./utils";
-
-let access_keys: any = {};
+import { calculateSearch, getDataFromFilters, makeKeyRefs } from "./utils";
+import { IAssignmentsStats } from "./types";
+import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -60,21 +60,24 @@ function Assignments() {
   const { loading: assignmentsLoading, data: assignmentsData } = useAppSelector(
     (state: RootState) => state.assignments.assignments
   );
+  const { enumeratorList: enumeratorsData, loading: enumeratorLoading } =
+    useAppSelector((state: RootState) => state.enumerators);
+  const { data: targeData, loading: targetLoading } = useAppSelector(
+    (state: RootState) => state.assignments.targets
+  );
 
   // State variables for component
-  const [assignmentsStats, setAssignmentsStats] = useState<{
-    completed: number;
-    assigned: number;
-    unassigned: number;
-  }>({
+  const [tabItemIndex, setTabItemIndex] = useState<string>("assignments");
+  const [assignmentsStats, setAssignmentsStats] = useState<IAssignmentsStats>({
     completed: 0,
     assigned: 0,
     unassigned: 0,
   });
   const [mainData, setMainData] = useState<any>([]);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [assignmentsFilter, setAssignmentsFilter] = useState(null);
-  const [searchedData, setSearchedData] = useState([]);
+  const [dataFilter, setDataFilter] = useState<any>(null);
+  const [searchedData, setSearchedData] = useState<any>(null);
+  const [keyRefs, setKeyRefs] = useState<any>({});
 
   // Assignment's row selection state and handler
   const [selectedAssignmentRows, setSelectedAssignmentRows] = useState<any>([]);
@@ -114,6 +117,20 @@ function Assignments() {
   };
   const hasRowSelected = selectedAssignmentRows.length > 0;
 
+  // Get the tab data based on the tab item index
+  const getTabData = () => {
+    switch (tabItemIndex) {
+      case "assignments":
+        return assignmentsData;
+      case "surveyors":
+        return enumeratorsData;
+      case "targets":
+        return targeData;
+      default:
+        return [];
+    }
+  };
+
   // Handle the make assignments button
   const handleMakeAssignments = () => {
     navigate(
@@ -127,28 +144,25 @@ function Assignments() {
   // Clear the search and filter
   const onClear = (): void => {
     setSearchValue("");
-    setAssignmentsFilter(null);
-    setSearchedData([]);
-    setMainData(assignmentsData);
+    setDataFilter(null);
+    setSearchedData(null);
+    setMainData(getTabData());
   };
 
   // Search functionality
   const onSearch = (value: string): void => {
+    console.log("ref", keyRefs);
     if (value === "") {
-      if (assignmentsFilter) {
-        let filterArr = getDataFromFilters(
-          assignmentsFilter,
-          assignmentsData,
-          access_keys
-        );
+      if (dataFilter) {
+        let filterArr = getDataFromFilters(dataFilter, getTabData(), keyRefs);
 
         setMainData(filterArr);
         setSearchedData(filterArr);
         setSearchValue("");
         return;
       }
-      setMainData(assignmentsData);
-      setSearchedData([]);
+      setMainData(getTabData());
+      setSearchedData(null);
       setSearchValue("");
       return;
     }
@@ -157,18 +171,14 @@ function Assignments() {
     // tempArr will be pass as the source for calculating search
     let tempArr: any = [];
 
-    if (!assignmentsFilter) {
-      tempArr = [...assignmentsData];
+    if (!dataFilter) {
+      tempArr = [...getTabData()];
     } else {
-      tempArr = getDataFromFilters(
-        assignmentsFilter,
-        assignmentsData,
-        access_keys
-      );
+      tempArr = getDataFromFilters(dataFilter, [...getTabData()], keyRefs);
     }
 
-    const filteredData = calculateSearch(tempArr, value, access_keys);
-    console.log(filteredData);
+    const filteredData = calculateSearch(tempArr, value, keyRefs);
+    console.log("filteredData", filteredData);
     setMainData(filteredData);
     setSearchedData(filteredData);
   };
@@ -178,9 +188,7 @@ function Assignments() {
    * This will ensure that user gets appropriate time to type the keyword
    * and then makes only expensive operations.
    */
-  const debounceCallback = useCallback(debounce(onSearch, 350), [
-    assignmentsData,
-  ]);
+  const debounceCallback = useCallback(debounce(onSearch, 350), [getTabData()]);
   const debounceSearch = (value: string) => {
     setSearchValue(value);
     debounceCallback(value);
@@ -188,7 +196,7 @@ function Assignments() {
 
   // Handle the table change
   const handleTableChange = (_pagination: any, filters: any, _sorter: any) => {
-    setAssignmentsFilter(filters);
+    setDataFilter(filters);
 
     // Set to true if no filters are active but there are filter keys in the filters object (meaning that filters were selected but then reset)
     const isReset = Object.values(filters).every((value) => {
@@ -201,23 +209,19 @@ function Assignments() {
 
     // Subset our filtering to currently searched records (if applicable)
     if (searchedData?.length) {
-      filterArr = getDataFromFilters(filters, searchedData, access_keys);
+      filterArr = getDataFromFilters(filters, searchedData, keyRefs);
     } else {
-      filterArr = getDataFromFilters(filters, assignmentsData, access_keys);
+      filterArr = getDataFromFilters(filters, getTabData(), keyRefs);
     }
     setMainData(filterArr);
 
     if (isReset) {
-      setAssignmentsFilter(null);
+      setDataFilter(null);
       if (searchedData?.length && searchValue !== "") {
-        const tempArr = calculateSearch(
-          assignmentsData,
-          searchValue,
-          access_keys
-        );
+        const tempArr = calculateSearch(getTabData(), searchValue, keyRefs);
         setMainData(tempArr);
       } else {
-        setMainData(assignmentsData);
+        setMainData(getTabData());
       }
     }
   };
@@ -225,35 +229,47 @@ function Assignments() {
   // Create the tab items
   const tabItems: TabsProps["items"] = [
     {
-      key: "1",
+      key: "assignments",
       label: "Assignments",
       children: (
         <AssignmentsTab
           mainData={mainData}
           tableConfig={tableConfigData}
           rowSelection={rowSelection}
-          filter={assignmentsFilter}
-          keyRefs={access_keys}
+          filter={dataFilter}
           handleTableChange={handleTableChange}
         />
       ),
     },
     {
-      key: "2",
+      key: "surveyors",
       label: "Surveyors",
-      children: <SurveyorsTab />,
+      children: (
+        <SurveyorsTab
+          mainData={mainData}
+          tableConfig={tableConfigData}
+          filter={dataFilter}
+          handleTableChange={handleTableChange}
+        />
+      ),
     },
     {
-      key: "3",
+      key: "targets",
       label: "Targets",
-      children: <TargetsTab />,
+      children: (
+        <TargetsTab
+          mainData={mainData}
+          tableConfig={tableConfigData}
+          filter={dataFilter}
+          handleTableChange={handleTableChange}
+        />
+      ),
     },
   ];
 
   // Ensure that the form_uid is available
   useEffect(() => {
     if (form_uid == "" || form_uid == undefined) {
-      console.log(form);
       const resp = dispatch(getSurveyCTOForm({ survey_uid }));
       resp.then((res) => {
         const formUid = res.payload[0]?.form_uid;
@@ -272,13 +288,17 @@ function Assignments() {
     dispatch(getTableConfig({ formUID: form_uid || "" }));
     dispatch(getAssignments({ formUID: form_uid ?? "" }));
     dispatch(getAssignableEnumerators({ formUID: form_uid ?? "" }));
+    dispatch(getEnumerators({ formUID: form_uid ?? "" }));
     dispatch(getTargets({ formUID: form_uid ?? "" }));
   }, [form_uid]);
 
   // Update the main data and stats when the assignments data changes
   useEffect(() => {
-    if (assignmentsData.length > 0) {
+    if (tabItemIndex === "assignments" && assignmentsData.length > 0) {
       setMainData(assignmentsData);
+
+      const keys = makeKeyRefs(tableConfigData?.assignments_main);
+      setKeyRefs(keys);
 
       // Get the number of completed, assigned and unassigned assignments
       let completedAssignments = 0;
@@ -304,8 +324,27 @@ function Assignments() {
         assigned: assignedAssignments,
         unassigned: unassignedAssignments,
       });
+    } else if (tabItemIndex === "surveyors" && enumeratorsData.length > 0) {
+      // Update the main data to the enumerators data
+      setMainData(enumeratorsData);
+
+      const keys = makeKeyRefs(tableConfigData?.surveyors);
+      setKeyRefs(keys);
+    } else if (tabItemIndex === "targets" && targeData.length > 0) {
+      // Update the main data to the targets data
+      setMainData(targeData);
+
+      const keys = makeKeyRefs(tableConfigData?.targets);
+      setKeyRefs(keys);
     }
-  }, [assignmentsData]);
+  }, [
+    tableConfigData,
+    assignmentsData,
+    enumeratorsData,
+    targeData,
+    tabItemIndex,
+  ]);
+
 
   // Checking if the data is loading
   const isLoading: boolean = tableConfigLoading && assignmentsLoading;
@@ -346,20 +385,20 @@ function Assignments() {
                 style={{ marginLeft: "16px" }}
               ></Button>
               <Button
-                disabled={searchValue === "" && assignmentsFilter === null}
+                disabled={searchValue === "" && dataFilter === null}
                 icon={<ClearOutlined />}
                 style={{ marginLeft: "16px" }}
                 onClick={onClear}
               ></Button>
             </HeaderContainer>
 
-            {assignmentsData.length > 0 ? (
+            {getTabData().length > 0 ? (
               <div>
                 <CustomTab
                   style={{ paddingLeft: 48, paddingRight: 48 }}
-                  defaultActiveKey="1"
+                  defaultActiveKey={tabItemIndex}
                   items={tabItems}
-                  onChange={(key) => console.log(key)}
+                  onChange={(key) => setTabItemIndex(key)}
                   tabBarExtraContent={
                     <div style={{ display: "flex" }}>
                       <div
