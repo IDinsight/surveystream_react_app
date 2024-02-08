@@ -92,9 +92,8 @@ function AssignmentsTab({
         bordered={true}
         scroll={{ x: 2500 }}
         onChange={handleTableChange}
-        rowClassName={(record: any) => !record.target_assignable
-          ? "disabled-row"
-          : ""
+        rowClassName={(record: any) =>
+          !record.target_assignable ? "disabled-row" : ""
         }
         pagination={{
           pageSize: paginationPageSize,
