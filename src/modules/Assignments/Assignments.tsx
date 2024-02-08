@@ -91,22 +91,22 @@ function Assignments() {
         record["target_uid"]
       );
       if (existingKey) {
-        // if (record.target_assignable) {
-        const newRowKeys = selecteAssignmentdRowKeys.filter(
-          (k: any) => k !== record["target_uid"]
-        );
+        if (record.target_assignable) {
+          const newRowKeys = selecteAssignmentdRowKeys.filter(
+            (k: any) => k !== record["target_uid"]
+          );
 
-        setSelectedAssignmentRows(selectedRow);
-        setSelectedAssignmentRowKeys(newRowKeys);
-        // }
+          setSelectedAssignmentRows(selectedRow);
+          setSelectedAssignmentRowKeys(newRowKeys);
+        }
       } else {
-        // if (record.target_assignable) {
-        setSelectedAssignmentRows(selectedRow);
-        setSelectedAssignmentRowKeys([
-          ...selecteAssignmentdRowKeys,
-          record["target_uid"],
-        ]);
-        // }
+        if (record.target_assignable) {
+          setSelectedAssignmentRows(selectedRow);
+          setSelectedAssignmentRowKeys([
+            ...selecteAssignmentdRowKeys,
+            record["target_uid"],
+          ]);
+        }
       }
     }
   };
@@ -141,17 +141,20 @@ function Assignments() {
     );
   };
 
-  // Clear the search and filter
-  const onClear = (): void => {
+  const resetData = () => {
     setSearchValue("");
     setDataFilter(null);
     setSearchedData(null);
+  };
+
+  // Clear the search and filter
+  const onClear = (): void => {
+    resetData();
     setMainData(getTabData());
   };
 
   // Search functionality
   const onSearch = (value: string): void => {
-    console.log("ref", keyRefs);
     if (value === "") {
       if (dataFilter) {
         const filterArr = getDataFromFilters(dataFilter, getTabData(), keyRefs);
@@ -178,7 +181,6 @@ function Assignments() {
     }
 
     const filteredData = performSearch(tempArr, value, keyRefs);
-    console.log("filteredData", filteredData);
     setMainData(filteredData);
     setSearchedData(filteredData);
   };
@@ -226,6 +228,91 @@ function Assignments() {
     }
   };
 
+  // Ensure that the form_uid is available
+  useEffect(() => {
+    if (form_uid == "" || form_uid == undefined) {
+      const resp = dispatch(getSurveyCTOForm({ survey_uid }));
+      resp.then((res) => {
+        const formUid = res.payload[0]?.form_uid;
+        if (formUid) {
+          navigate(
+            `/module-configuration/assignments/${survey_uid}/${formUid}`
+          );
+        }
+      });
+    }
+  }, []);
+
+  // Dispatch the actions to populate the data
+  useEffect(() => {
+    if (form_uid == "" || form_uid == undefined) return;
+    dispatch(getSurveyCTOForm({ survey_uid }));
+    dispatch(getTableConfig({ formUID: form_uid || "" }));
+    dispatch(getAssignments({ formUID: form_uid ?? "" }));
+    dispatch(getAssignableEnumerators({ formUID: form_uid ?? "" }));
+    dispatch(getEnumerators({ formUID: form_uid ?? "" }));
+    dispatch(getTargets({ formUID: form_uid ?? "" }));
+  }, [form_uid]);
+
+  // Update the main data and stats when the assignments data changes
+  useEffect(() => {
+    if (tabItemIndex === "assignments" && assignmentsData.length > 0) {
+      setMainData(assignmentsData);
+
+      const keys = makeKeyRefs(tableConfigData?.assignments_main);
+      setKeyRefs(keys);
+
+      // Get the number of completed, assigned and unassigned assignments
+      let completedAssignments = 0;
+      let assignedAssignments = 0;
+      let unassignedAssignments = 0;
+
+      assignmentsData.forEach((assignment: any) => {
+        if (assignment.completed_flag) {
+          completedAssignments++;
+          return;
+        }
+
+        if (assignment.assigned_enumerator_uid !== null) {
+          assignedAssignments++;
+        } else {
+          unassignedAssignments++;
+        }
+      });
+
+      // Update the assignments status
+      setAssignmentsStats({
+        completed: completedAssignments,
+        assigned: assignedAssignments,
+        unassigned: unassignedAssignments,
+      });
+
+      resetData();
+    } else if (tabItemIndex === "surveyors" && enumeratorsData.length > 0) {
+      // Update the main data to the enumerators data
+      setMainData(enumeratorsData);
+
+      const keys = makeKeyRefs(tableConfigData?.surveyors);
+      setKeyRefs(keys);
+
+      resetData();
+    } else if (tabItemIndex === "targets" && targeData.length > 0) {
+      // Update the main data to the targets data
+      setMainData(targeData);
+
+      const keys = makeKeyRefs(tableConfigData?.targets);
+      setKeyRefs(keys);
+
+      resetData();
+    }
+  }, [
+    tableConfigData,
+    assignmentsData,
+    enumeratorsData,
+    targeData,
+    tabItemIndex,
+  ]);
+
   // Create the tab items
   const tabItems: TabsProps["items"] = [
     {
@@ -267,84 +354,6 @@ function Assignments() {
     },
   ];
 
-  // Ensure that the form_uid is available
-  useEffect(() => {
-    if (form_uid == "" || form_uid == undefined) {
-      const resp = dispatch(getSurveyCTOForm({ survey_uid }));
-      resp.then((res) => {
-        const formUid = res.payload[0]?.form_uid;
-        if (formUid) {
-          navigate(
-            `/module-configuration/assignments/${survey_uid}/${formUid}`
-          );
-        }
-      });
-    }
-  }, []);
-
-  // Dispatch the actions to populate the data
-  useEffect(() => {
-    dispatch(getSurveyCTOForm({ survey_uid }));
-    dispatch(getTableConfig({ formUID: form_uid || "" }));
-    dispatch(getAssignments({ formUID: form_uid ?? "" }));
-    dispatch(getAssignableEnumerators({ formUID: form_uid ?? "" }));
-    dispatch(getEnumerators({ formUID: form_uid ?? "" }));
-    dispatch(getTargets({ formUID: form_uid ?? "" }));
-  }, [form_uid]);
-
-  // Update the main data and stats when the assignments data changes
-  useEffect(() => {
-    if (tabItemIndex === "assignments" && assignmentsData.length > 0) {
-      setMainData(assignmentsData);
-
-      const keys = makeKeyRefs(tableConfigData?.assignments_main);
-      setKeyRefs(keys);
-
-      // Get the number of completed, assigned and unassigned assignments
-      let completedAssignments = 0;
-      let assignedAssignments = 0;
-      let unassignedAssignments = 0;
-
-      assignmentsData.forEach((assignment: any) => {
-        if (assignment.completed_flag) {
-          completedAssignments++;
-          return;
-        }
-
-        if (assignment.assigned_enumerator_uid !== null) {
-          assignedAssignments++;
-        } else {
-          unassignedAssignments++;
-        }
-      });
-
-      // Update the assignments status
-      setAssignmentsStats({
-        completed: completedAssignments,
-        assigned: assignedAssignments,
-        unassigned: unassignedAssignments,
-      });
-    } else if (tabItemIndex === "surveyors" && enumeratorsData.length > 0) {
-      // Update the main data to the enumerators data
-      setMainData(enumeratorsData);
-
-      const keys = makeKeyRefs(tableConfigData?.surveyors);
-      setKeyRefs(keys);
-    } else if (tabItemIndex === "targets" && targeData.length > 0) {
-      // Update the main data to the targets data
-      setMainData(targeData);
-
-      const keys = makeKeyRefs(tableConfigData?.targets);
-      setKeyRefs(keys);
-    }
-  }, [
-    tableConfigData,
-    assignmentsData,
-    enumeratorsData,
-    targeData,
-    tabItemIndex,
-  ]);
-
   // Checking if the data is loading
   const isLoading: boolean = tableConfigLoading && assignmentsLoading;
 
@@ -384,7 +393,7 @@ function Assignments() {
                 style={{ marginLeft: "16px" }}
               ></Button>
               <Button
-                disabled={searchValue === "" && dataFilter === null}
+                disabled={searchValue === "" && dataFilter?.length === 0}
                 icon={<ClearOutlined />}
                 style={{ marginLeft: "16px" }}
                 onClick={onClear}

@@ -22,7 +22,7 @@ function SurveyorsTab({
     surveyor_status: {
       render: (_: string, record: any) => (
         <SurveyorStatus
-          key={record.key}
+          key={record["enumerator_uid"]}
           record={record}
           formID={form_uid ?? ""}
         />

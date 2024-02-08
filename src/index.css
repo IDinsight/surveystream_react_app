@@ -6,3 +6,13 @@ body {
     margin: 0;
     padding: 0;
 }
+
+.disabled-row {
+    background-color: #f5f5f5;
+    color: #bbbbbb;
+    pointer-events: none;
+}
+
+.disabled-row .ant-checkbox-wrapper {
+    display: none;
+}
