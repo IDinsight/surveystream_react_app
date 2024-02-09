@@ -87,7 +87,7 @@ function Assignments() {
     Key[]
   >([]);
 
-  const onSelectRow = (record: any, selected: any, selectedRow: any) => {
+  const onAssignmentSelect = (record: any, selected: any, selectedRow: any) => {
     if (record["target_uid"] !== undefined) {
       const existingKey = selecteAssignmentdRowKeys?.includes(
         record["target_uid"]
@@ -113,9 +113,33 @@ function Assignments() {
     }
   };
 
+  const onAssignmentSelectAll = (
+    selected: boolean,
+    selectedRows: any,
+    changeRows: any
+  ) => {
+    if (selected) {
+      if (selectedRows.length === changeRows.length) {
+        const newSelectedRows = mainData?.filter(
+          (row: any) => row.target_assignable
+        );
+        const newKeys = newSelectedRows.map((row: any) => row["target_uid"]);
+        setSelectedAssignmentRowKeys(newKeys);
+        setSelectedAssignmentRows(newSelectedRows);
+      } else {
+        setSelectedAssignmentRowKeys([]);
+        setSelectedAssignmentRows([]);
+      }
+    } else {
+      setSelectedAssignmentRowKeys([]);
+      setSelectedAssignmentRows([]);
+    }
+  };
+
   const rowSelection = {
     selectedAssignmentRows,
-    onSelect: onSelectRow,
+    onSelect: onAssignmentSelect,
+    onSelectAll: onAssignmentSelectAll,
   };
   const hasRowSelected = selectedAssignmentRows.length > 0;
 
