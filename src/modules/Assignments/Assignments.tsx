@@ -36,6 +36,8 @@ import { RootState } from "../../redux/store";
 import { performSearch, getDataFromFilters, makeKeyRefs } from "./utils";
 import { IAssignmentsStats } from "./types";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorHandler from "../../components/ErrorHandler";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -474,4 +476,12 @@ function Assignments() {
   );
 }
 
-export default Assignments;
+function AssignmentsWithErrorBoundary() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler}>
+      <Assignments />
+    </ErrorBoundary>
+  );
+}
+
+export default AssignmentsWithErrorBoundary;

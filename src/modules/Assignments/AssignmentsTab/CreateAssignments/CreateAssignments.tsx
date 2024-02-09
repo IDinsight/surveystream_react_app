@@ -14,6 +14,8 @@ import {
   updateAssignments,
 } from "../../../../redux/assignments/assignmentsActions";
 import { AssignmentPayload } from "../../../../redux/assignments/types";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorHandler from "../../../../components/ErrorHandler";
 
 function CreateAssignments() {
   const location = useLocation();
@@ -491,4 +493,12 @@ function CreateAssignments() {
   );
 }
 
-export default CreateAssignments;
+function CreateAssignmentsWithErrorBoundary() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler}>
+      <CreateAssignments />
+    </ErrorBoundary>
+  );
+}
+
+export default CreateAssignmentsWithErrorBoundary;
