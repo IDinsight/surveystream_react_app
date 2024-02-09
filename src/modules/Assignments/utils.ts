@@ -10,6 +10,15 @@ export interface IConfigItem {
   group_label: string;
 }
 
+function toPath(path: string): (string | number)[] {
+  return _.toPath(path).map((segment) => {
+    if (!isNaN(parseInt(segment))) {
+      return parseInt(segment);
+    }
+    return segment;
+  });
+}
+
 export const defaultSorter = (keys: any) => {
   return (a: any, b: any) => {
     const aValue = _.get(a, keys, null);
@@ -130,10 +139,11 @@ export const buildColumnDefinition = (
     filterSearch: true,
   };
 
-  const keyArray = _.toPath(colKey);
+  const keyArray = toPath(colKey);
   if (keyArray.length > 1) {
     if (
       keyArray[0] === "target_locations" ||
+      keyArray[0] === "surveyor_locations" ||
       keyArray[0] === "form_productivity"
     ) {
       columnDefinition = {
@@ -141,9 +151,9 @@ export const buildColumnDefinition = (
         ...{
           dataIndex: keyArray[0],
           filters: getFilterValues(dataSource, keyArray),
-          onFilter: (value, record) => _.get(record, colKey) === value,
+          onFilter: (value, record) => _.get(record, keyArray) === value,
           render: (val: string, record: any) => {
-            return _.get(record, colKey) || null;
+            return _.get(record, keyArray) || null;
           },
           sorter: defaultSorter(keyArray),
         },
@@ -156,7 +166,7 @@ export const buildColumnDefinition = (
         ...{
           dataIndex: keyArray[0],
           filters: getFilterValues(dataSource, keyArray),
-          onFilter: (value, record) => _.get(record, colKey) === value,
+          onFilter: (value, record) => _.get(record, keyArray) === value,
           sorter: defaultSorter(keyArray),
         },
       };
@@ -177,10 +187,16 @@ export const makeKeyRefs = (config: any) => {
   config.forEach((item: IConfigItem) => {
     if (item.group_label) {
       item.columns.forEach((column: IColumnItem) => {
-        keyRefs[column.column_key] = [column.column_key];
+        const colKey = column.column_key;
+        const keyArray = toPath(colKey);
+
+        keyRefs[colKey] = keyArray.length > 1 ? [...keyArray] : [colKey];
       });
     } else {
-      keyRefs[item.columns[0].column_key] = [item.columns[0].column_key];
+      const colKey = item.columns[0].column_key;
+      const keyArray = toPath(colKey);
+
+      keyRefs[colKey] = keyArray.length > 1 ? [...keyArray] : [colKey];
     }
   });
   return keyRefs;

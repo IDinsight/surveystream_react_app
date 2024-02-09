@@ -38,6 +38,7 @@ function TargetsTab({
         rowKey={(record) => record["target_uid"]}
         columns={targetTableColumns}
         dataSource={mainData}
+        bordered={true}
         scroll={{ x: 2500 }}
         onChange={handleTableChange}
         pagination={{
