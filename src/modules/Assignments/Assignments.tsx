@@ -47,11 +47,6 @@ function Assignments() {
     form_uid: string;
   }>();
 
-  // Ensure that the survey_uid are available
-  if (!survey_uid) {
-    return <NotFound />;
-  }
-
   // Fetch the data from the store
   const form = useAppSelector(
     (state: RootState) => state.surveyCTOInformation.surveyCTOForm
@@ -256,6 +251,8 @@ function Assignments() {
 
   // Ensure that the form_uid is available
   useEffect(() => {
+    if (survey_uid == "" || survey_uid == undefined) return;
+
     if (form_uid == "" || form_uid == undefined) {
       const resp = dispatch(getSurveyCTOForm({ survey_uid }));
       resp.then((res) => {
@@ -271,6 +268,7 @@ function Assignments() {
 
   // Dispatch the actions to populate the data
   useEffect(() => {
+    if (survey_uid == "" || survey_uid == undefined) return;
     if (form_uid == "" || form_uid == undefined) return;
     dispatch(getSurveyCTOForm({ survey_uid }));
     dispatch(getTableConfig({ formUID: form_uid || "" }));
@@ -382,6 +380,11 @@ function Assignments() {
 
   // Checking if the data is loading
   const isLoading: boolean = tableConfigLoading && assignmentsLoading;
+
+  // Ensure that the survey_uid are available
+  if (!survey_uid) {
+    return <NotFound />;
+  }
 
   return (
     <>
