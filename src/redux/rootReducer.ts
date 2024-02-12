@@ -12,6 +12,7 @@ import surveyLocationsReducer from "./surveyLocations/surveyLocationsSlice";
 import enumeratorsReducer from "./enumerators/enumeratorsSlice";
 import targetsReducer from "./targets/targetSlice";
 import userManagementReducer from "./userManagement/userManagementSlice";
+import assignmentsReducer from "./assignments/assignmentsSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   enumerators: enumeratorsReducer,
   targets: targetsReducer,
   userManagement: userManagementReducer,
+  assignments: assignmentsReducer,
 });
 
 export default rootReducer;
