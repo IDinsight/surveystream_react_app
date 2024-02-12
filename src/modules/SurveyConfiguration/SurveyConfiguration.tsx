@@ -68,6 +68,9 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Enumerators: "enumerators",
     Targets: "targets",
   },
+  "Module configuration": {
+    "Assign targets to surveyors": "assignments",
+  },
 };
 
 const SurveyConfiguration: React.FC = () => {

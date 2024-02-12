@@ -1,82 +1,100 @@
 import { useState } from "react";
 import { AssignmentsTable } from "./AssignmentsTab.styled";
+import { buildColumnDefinition, makeKeyRefs } from "../utils";
+import { Tag } from "antd";
+import { TablePaginationConfig, FilterValue } from "antd/lib/table/interface";
+import { IAssignmentsTabProps } from "../types";
 
-function AssignmentsTab() {
+type TableOnChangeType = (
+  pagination: TablePaginationConfig,
+  filters: Record<string, FilterValue | null>,
+  sorter: any,
+  extra: any
+) => void;
+
+function AssignmentsTab({
+  tableConfig,
+  mainData,
+  rowSelection,
+  filter,
+  handleTableChange,
+}: IAssignmentsTabProps) {
+  // console.log("mainData", mainData);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
 
-  const usersTableColumn = [
-    {
-      title: "Surveyor ID",
-      dataIndex: "surveyor_id",
-      key: "surveyor_id",
+  /* 
+    Build the table column with special case where we need to render
+    the value of a column differently
+  */
+  const mainTableSpecialAttrs: any = {
+    last_attempt_survey_status_label: {
+      render(value: any, record: any) {
+        const color = record.webapp_tag_color || "gold";
+        return (
+          <Tag color={color} key={value}>
+            {value}
+          </Tag>
+        );
+      },
     },
-    {
-      title: "Surveyor Address",
-      dataIndex: "surveyor_address",
-      key: "surveyor_address",
+    respondent_names: {
+      render: (names: any) => (
+        <>
+          {names?.map((name: any) => (
+            <Tag key={name}>{name}</Tag>
+          ))}
+        </>
+      ),
     },
-    {
-      title: "Mobile (primary)",
-      dataIndex: "mobile",
-      key: "mobile",
+    revisit_sections: {
+      render: (sections: any) => (
+        <>
+          {sections?.map((section: any) => (
+            <Tag key={section}>{section}</Tag>
+          ))}
+        </>
+      ),
     },
-    {
-      title: "Target type",
-      dataIndex: "target_type",
-      key: "target_type",
-    },
-    {
-      title: "Target GPS",
-      dataIndex: "target_gps",
-      key: "target_gps",
-    },
-    {
-      title: "State",
-      dataIndex: "state",
-      key: "state",
-    },
-  ];
-
-  const userTableDataSource: any = [];
-
-  // Mock data
-  for (let i = 0; i < 500; i++) {
-    userTableDataSource.push({
-      key: i,
-      surveyor_id: `TSDPS00${i}`,
-      surveyor_address: "12, 1st Block, Adilabad",
-      mobile: "7837283758",
-      target_type: "Primary",
-      target_gps: "41.40338, 2.17403",
-      state: "Telangana",
-    });
-  }
-
-  // Row selection state and handler
-  const [selectedRows, setSelectedRows] = useState<any>([]);
-
-  const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
-    const selectedEmails = selectedRows.map((row: any) => row.email);
-
-    const selectedUserData = userTableDataSource?.filter((row: any) =>
-      selectedEmails.includes(row.email)
-    );
-
-    setSelectedRows(selectedUserData);
   };
 
-  const rowSelection = {
-    selectedRows,
-    onChange: onSelectChange,
-  };
-  const hasSelected = selectedRows.length > 0;
+  const mainTableColumns = tableConfig?.assignments_main?.map(
+    (configItem: any, i: any) => {
+      if (configItem.group_label) {
+        return {
+          title: configItem.group_label,
+          children: configItem.columns.map((groupItem: any, i: any) => {
+            return buildColumnDefinition(
+              groupItem,
+              mainData,
+              filter,
+              mainTableSpecialAttrs
+            );
+          }),
+        };
+      } else {
+        return buildColumnDefinition(
+          configItem.columns[0],
+          mainData,
+          filter,
+          mainTableSpecialAttrs
+        );
+      }
+    }
+  );
 
   return (
     <>
       <AssignmentsTable
+        rowKey={(record) => record["target_uid"]}
         rowSelection={rowSelection}
-        columns={usersTableColumn}
-        dataSource={userTableDataSource}
+        columns={mainTableColumns}
+        dataSource={mainData}
+        bordered={true}
+        scroll={{ x: 2500 }}
+        onChange={handleTableChange}
+        rowClassName={(record: any) =>
+          !record.target_assignable ? "disabled-row" : ""
+        }
         pagination={{
           pageSize: paginationPageSize,
           pageSizeOptions: [10, 25, 50, 100],
