@@ -47,7 +47,7 @@ function AddUser() {
       //add data for roles
       const userRolesData = userList?.filter((user: any) => {
         return (
-          user.user_id == parseInt(checkResponse.payload.data.user.user_uid)
+          user.user_uid == parseInt(checkResponse.payload.data.user.user_uid)
         );
       });
 

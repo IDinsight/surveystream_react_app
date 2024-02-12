@@ -128,7 +128,7 @@ function EditSurveyUsers() {
       //perform update user
       const updateRes = await dispatch(
         putUpdateUser({
-          userUId: userDetails.user_id,
+          userUId: userDetails.user_uid,
           userData: userDetails,
         })
       );
@@ -194,7 +194,7 @@ function EditSurveyUsers() {
     const userHierarchyRes = await dispatch(
       getUserHierarchy({
         survey_uid: survey_uid ?? "",
-        user_uid: editUser?.user_id,
+        user_uid: editUser?.user_uid,
       })
     );
 
@@ -217,7 +217,7 @@ function EditSurveyUsers() {
     } else {
       //remove the editUser from the userList
       const _filteredUserList = userList.filter(
-        (user: any) => user.user_id !== editUser?.user_id
+        (user: any) => user.user_uid !== editUser?.user_uid
       );
 
       setFilteredUserList(_filteredUserList);
@@ -345,7 +345,7 @@ function EditSurveyUsers() {
                           setHasReportingRole(true);
                           //filter out users without the reporting role
                           let _filteredUserList = userList.filter(
-                            (user: any) => user.user_id !== editUser?.user_id
+                            (user: any) => user.user_uid !== editUser?.user_uid
                           );
                           _filteredUserList = _filteredUserList.filter(
                             (user: any) => {
@@ -407,7 +407,7 @@ function EditSurveyUsers() {
                         }}
                       >
                         {filteredUserList?.map((user: any, i: any) => (
-                          <Select.Option key={i} value={user?.user_id}>
+                          <Select.Option key={i} value={user?.user_uid}>
                             {user?.first_name} {user?.last_name}
                           </Select.Option>
                         ))}

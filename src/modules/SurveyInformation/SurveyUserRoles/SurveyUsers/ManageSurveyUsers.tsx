@@ -65,7 +65,7 @@ function ManageSurveyUsers() {
       const usersWithKeys = usersRes?.payload?.map(
         (user: any, index: { toString: () => any }) => ({
           ...user,
-          key: index.toString(), // or use a unique identifier if available, like user_id
+          key: index.toString(),
         })
       );
       setUserTableDataSource(usersWithKeys);
@@ -117,7 +117,7 @@ function ManageSurveyUsers() {
 
     const updateRes = await dispatch(
       putUpdateUser({
-        userUId: selectedUserData.user_id,
+        userUId: selectedUserData.user_uid,
         userData: selectedUserData,
       })
     );

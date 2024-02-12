@@ -160,7 +160,7 @@ function UsersManage() {
       const selectedUserData = row;
       const deleteRes = await dispatch(
         deleteUser({
-          user_uid: selectedUserData.user_id,
+          user_uid: selectedUserData.user_uid,
         })
       );
       console.log("deleteRes", deleteRes);
