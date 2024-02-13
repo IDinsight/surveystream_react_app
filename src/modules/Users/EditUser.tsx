@@ -40,7 +40,7 @@ function EditUser() {
       //perform update user
       const updateRes = await dispatch(
         putUpdateUser({
-          userUId: userDetails.user_id,
+          userUId: userDetails.user_uid,
           userData: userDetails,
         })
       );
@@ -61,8 +61,8 @@ function EditUser() {
   };
 
   useEffect(() => {
-    const userRolesData = userList?.filter((user: any) => {
-      return user.user_id == parseInt(editUser?.user_id);
+    const userRolesData = userList.filter((user: any) => {
+      return user.user_uid == parseInt(editUser?.user_uid);
     });
     setUserDetails((prev: any) => {
       return {

@@ -506,7 +506,7 @@ function AddSurveyUsers() {
                           }}
                         >
                           {filteredUserList?.map((user: any, i: any) => (
-                            <Select.Option key={i} value={user?.user_id}>
+                            <Select.Option key={i} value={user?.user_uid}>
                               {user?.first_name} {user?.last_name}
                             </Select.Option>
                           ))}
