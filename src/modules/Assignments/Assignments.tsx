@@ -252,7 +252,6 @@ function Assignments() {
   // Ensure that the form_uid is available
   useEffect(() => {
     if (survey_uid == "" || survey_uid == undefined) return;
-
     if (form_uid == "" || form_uid == undefined) {
       const resp = dispatch(getSurveyCTOForm({ survey_uid }));
       resp.then((res) => {
@@ -268,7 +267,6 @@ function Assignments() {
 
   // Dispatch the actions to populate the data
   useEffect(() => {
-    if (survey_uid == "" || survey_uid == undefined) return;
     if (form_uid == "" || form_uid == undefined) return;
     dispatch(getSurveyCTOForm({ survey_uid }));
     dispatch(getTableConfig({ formUID: form_uid || "" }));
