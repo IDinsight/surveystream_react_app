@@ -129,7 +129,7 @@ function AddSurveyUsers() {
       }
 
       const role = rolesTableData.find((r: any) =>
-        checkResponse.payload.data.user.roles.includes(r.role_uid)
+        checkResponse?.payload?.data?.user?.roles?.includes(r.role_uid)
       );
       setNewRole(role?.role_uid);
 
@@ -173,7 +173,7 @@ function AddSurveyUsers() {
           userDetails.roles = initialUserData?.roles;
         } else {
           const commonRoles = rolesTableData.filter((r: any) =>
-            initialUserData.roles.includes(r.role_uid)
+            initialUserData?.roles?.includes(r.role_uid)
           );
           if (commonRoles.length > 0) {
             userDetails.roles = userDetails.roles.filter(
@@ -421,7 +421,7 @@ function AddSurveyUsers() {
                       initialValue={
                         userDetails?.roles &&
                         rolesTableData.some((r: any) =>
-                          userDetails.roles.includes(r.role_uid)
+                          userDetails?.roles?.includes(r.role_uid)
                         )
                           ? userDetails.roles
                           : undefined
@@ -444,7 +444,7 @@ function AddSurveyUsers() {
 
                             const _filteredUserList = userList.filter(
                               (user: any) => {
-                                return user.roles.includes(
+                                return user?.roles?.includes(
                                   role?.reporting_role_uid
                                 );
                               }

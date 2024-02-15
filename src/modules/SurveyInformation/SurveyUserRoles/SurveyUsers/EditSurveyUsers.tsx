@@ -105,7 +105,7 @@ function EditSurveyUsers() {
 
     const initialUserData = editUser;
     const commonRoles = rolesTableData.filter((r: any) =>
-      initialUserData.roles.includes(r.role_uid)
+      initialUserData?.roles?.includes(r.role_uid)
     );
 
     if (
@@ -323,7 +323,7 @@ function EditSurveyUsers() {
                     initialValue={
                       userDetails?.roles &&
                       rolesTableData.some((r: any) =>
-                        userDetails.roles.includes(r.role_uid)
+                        userDetails?.roles?.includes(r.role_uid)
                       )
                         ? userDetails.roles
                         : undefined
@@ -349,7 +349,7 @@ function EditSurveyUsers() {
                           );
                           _filteredUserList = _filteredUserList.filter(
                             (user: any) => {
-                              return user.roles.includes(
+                              return user?.roles?.includes(
                                 role?.reporting_role_uid
                               );
                             }
