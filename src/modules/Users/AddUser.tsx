@@ -77,6 +77,9 @@ function AddUser() {
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
+        userDetails.can_create_survey = userDetails.is_super_admin
+          ? true
+          : userDetails.can_create_survey;
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -99,6 +102,10 @@ function AddUser() {
         //perform add user
         //do not set any roles for new user
         //update if user is survey_admin
+        userDetails.can_create_survey = userDetails.is_super_admin
+          ? true
+          : userDetails.can_create_survey;
+
         console.log("userDetails", userDetails);
 
         const addRes = await dispatch(postAddUser(userDetails));
@@ -348,17 +355,17 @@ function AddUser() {
                             },
                           ]}
                           hasFeedback
-                          name="is_survey_admin"
+                          name="can_create_survey"
                         >
                           <Radio.Group
                             style={{ display: "flex", width: "100%" }}
                             onChange={(e) =>
                               setUserDetails((prev: any) => ({
                                 ...prev,
-                                is_survey_admin: e.target.value,
+                                can_create_survey: e.target.value,
                               }))
                             }
-                            defaultValue={userDetails?.is_survey_admin}
+                            defaultValue={userDetails?.can_create_survey}
                           >
                             <Radio.Button
                               value={true}

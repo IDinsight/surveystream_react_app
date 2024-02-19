@@ -38,9 +38,16 @@ const isAuthenticated = () => {
   return rememberToken !== "";
 };
 
+const isSuperAdmin = () => {};
+
 const PrivateRoute = () => {
   const isAuthorized = isAuthenticated();
   return isAuthorized ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+const SuperAdminRoute = () => {
+  const isAuthorized = isAuthenticated();
+  return isAuthorized ? <Outlet /> : <Navigate to="/surveys" replace />;
 };
 
 const AppRoutes = () => {
@@ -54,17 +61,19 @@ const AppRoutes = () => {
         path="/complete-registration/:token"
         element={<CompleteRegistration />}
       />
-
-      <Route element={<PrivateRoute />}>
+      <Route element={<SuperAdminRoute />}>
         <Route path="/users" element={<ManageUsers />} />
         <Route path="/users/add" element={<AddUser />} />
         <Route path="/users/edit" element={<EditUser />} />
+      </Route>
 
+      <Route element={<PrivateRoute />}>
         <Route path="/surveys" element={<SurveysHomePage />} />
         <Route
           path="/survey-configuration/:survey_uid?"
           element={<SurveyConfiguration />}
         />
+
         <Route
           path="/new-survey-config/:survey_uid?"
           element={<NewSurveyConfig />}
@@ -81,6 +90,7 @@ const AppRoutes = () => {
           path="/survey-information/survey-roles/:path?/:survey_uid?/:role_uid?"
           element={<SurveyRoles />}
         />
+
         <Route
           path="/survey-information/survey-users/:path?/:survey_uid?"
           element={<SurveyUsers />}
@@ -93,6 +103,7 @@ const AppRoutes = () => {
           path="/survey-information/survey-cto-questions/:survey_uid?/:form_uid?"
           element={<SurveyCTOQuestions />}
         />
+
         <Route
           path="/survey-information/location/add/:survey_uid?"
           element={<SurveyLocationAdd />}

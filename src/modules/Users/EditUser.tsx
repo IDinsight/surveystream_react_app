@@ -38,6 +38,10 @@ function EditUser() {
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
+      userDetails.can_create_survey = userDetails.is_super_admin
+        ? true
+        : userDetails.can_create_survey;
+
       const updateRes = await dispatch(
         putUpdateUser({
           userUId: userDetails.user_uid,
@@ -253,7 +257,7 @@ function EditUser() {
                           labelAlign="right"
                           labelCol={{ span: 24 }}
                           style={{ display: "block" }}
-                          initialValue={userDetails?.is_survey_admin}
+                          initialValue={userDetails?.can_create_survey}
                           rules={[
                             {
                               required: false,
@@ -262,17 +266,17 @@ function EditUser() {
                             },
                           ]}
                           hasFeedback
-                          name="is_survey_admin"
+                          name="can_create_survey"
                         >
                           <Radio.Group
                             style={{ display: "flex", width: "100%" }}
                             onChange={(e) =>
                               setUserDetails((prev: any) => ({
                                 ...prev,
-                                is_survey_admin: e.target.value,
+                                can_create_survey: e.target.value,
                               }))
                             }
-                            defaultValue={userDetails?.is_survey_admin}
+                            defaultValue={userDetails?.can_create_survey}
                           >
                             <Radio.Button
                               value={true}

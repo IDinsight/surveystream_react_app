@@ -212,7 +212,7 @@ function ManageSurveyUsers() {
   useEffect(() => {
     fetchAllUsers();
     fetchSupervisorRoles();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>

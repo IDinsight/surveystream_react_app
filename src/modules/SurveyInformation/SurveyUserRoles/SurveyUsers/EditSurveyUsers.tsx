@@ -370,10 +370,7 @@ function EditSurveyUsers() {
                           } else {
                             updatedRoles.push(value);
                           }
-                          console.log("setUserDetails", {
-                            ...prev,
-                            roles: updatedRoles,
-                          });
+
                           return {
                             ...prev,
                             roles: updatedRoles,

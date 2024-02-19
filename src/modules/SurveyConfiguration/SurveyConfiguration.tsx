@@ -22,6 +22,18 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
 import { Result, Button } from "antd";
+import {
+  InfoCircleFilled,
+  LayoutFilled,
+  MobileOutlined,
+  PushpinFilled,
+  UserOutlined,
+  InsertRowRightOutlined,
+  HomeFilled,
+  MailFilled,
+  ProfileFilled,
+  ReadFilled,
+} from "@ant-design/icons";
 
 interface CheckboxProps {
   checked: boolean;
@@ -140,6 +152,37 @@ const SurveyConfiguration: React.FC = () => {
     return "";
   };
 
+  const renderModuleIcon = (sectionTitle: string) => {
+    const iconProps = { fontSize: "28px" };
+
+    switch (sectionTitle) {
+      case "Basic information":
+        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+      case "Module selection":
+        return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
+      case "SurveyCTO information":
+        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
+      case "User and role management":
+        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+      case "Survey locations":
+        return <PushpinFilled style={{ color: "#D4B106", ...iconProps }} />;
+      case "Enumerators":
+        return (
+          <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
+        );
+      case "Targets":
+        return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Assign targets to surveyors":
+        return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+      case "Track productivity":
+        return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
+      case "Track data quality":
+        return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
+      default:
+        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+    }
+  };
+
   const renderSection = (
     sectionTitle: string,
     sectionConfig: any,
@@ -150,24 +193,34 @@ const SurveyConfiguration: React.FC = () => {
         <div key={index}>
           <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
 
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
+          <div style={{ flexWrap: "wrap", display: "flex" }}>
             {sectionConfig.map((item: any, i: number) => (
-              <StyledCard
+              <Link
                 key={i}
                 style={{
-                  margin: "0.2rem",
+                  color: "#434343",
+                  cursor: "pointer",
                   flex: "0 0 30%",
                   width: "33%",
+                  textDecoration: "none",
                 }}
+                to={generateLink(sectionTitle, item.name)}
               >
-                <Link
-                  style={{ color: "#2F54EB", cursor: "pointer" }}
-                  to={generateLink(sectionTitle, item.name)}
-                >
+                <StyledCard style={{ margin: "0.2rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "left",
+                      alignItems: "left",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {renderModuleIcon(item.name)}
+                  </div>
                   {item.name}
-                </Link>
-                {renderStatus(item.status)}
-              </StyledCard>
+                  {renderStatus(item.status)}
+                </StyledCard>
+              </Link>
             ))}
           </div>
         </div>
@@ -179,20 +232,34 @@ const SurveyConfiguration: React.FC = () => {
       return (
         <div key={index}>
           <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
-
-          <StyledCard
+          <Link
             style={{
-              width: "33%",
+              color: "#434343",
+              cursor: "pointer",
+              textDecoration: "none",
             }}
+            to={generateLink(sectionTitle, "")}
           >
-            <Link
-              style={{ color: "#2F54EB", cursor: "pointer" }}
-              to={generateLink(sectionTitle, "")}
+            <StyledCard
+              style={{
+                width: "33%",
+              }}
             >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "left",
+                  alignItems: "left",
+                  marginBottom: "10px",
+                }}
+              >
+                {renderModuleIcon(sectionTitle)}
+              </div>
+
               {sectionTitle}
-            </Link>
-            {renderStatus(sectionConfig.status)}
-          </StyledCard>
+              {renderStatus(sectionConfig.status)}
+            </StyledCard>
+          </Link>
         </div>
       );
     } else {

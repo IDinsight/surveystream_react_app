@@ -165,6 +165,9 @@ function AddSurveyUsers() {
       if (isExistingUser) {
         const initialUserData = checkedUser?.user;
 
+        console.log("initialUserData.roles", initialUserData.roles);
+        console.log("userDetails.roles", userDetails.roles);
+
         if (
           initialUserData?.roles &&
           initialUserData.roles.length >= userDetails.roles.length
@@ -457,20 +460,18 @@ function AddSurveyUsers() {
 
                           setUserDetails((prev: any) => {
                             const updatedRoles = [
-                              ...(checkedUser?.roles?.roles || []),
+                              ...(checkedUser?.user?.roles || []),
                             ];
+
                             const index = updatedRoles.findIndex(
                               (role: any) => role === value
                             );
-                            if (index !== -1) {
+                            if (index != -1) {
                               updatedRoles[index] = value;
                             } else {
                               updatedRoles.push(value);
                             }
-                            console.log("setUserDetails", {
-                              ...prev,
-                              roles: updatedRoles,
-                            });
+
                             return {
                               ...prev,
                               roles: updatedRoles,
