@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AssignmentsTable } from "./AssignmentsTab.styled";
-import { buildColumnDefinition, makeKeyRefs } from "../utils";
+import { buildColumnDefinition } from "../utils";
 import { Tag } from "antd";
 import { TablePaginationConfig, FilterValue } from "antd/lib/table/interface";
 import { IAssignmentsTabProps } from "../types";
@@ -18,6 +18,7 @@ function AssignmentsTab({
   rowSelection,
   filter,
   handleTableChange,
+  setColumn,
 }: IAssignmentsTabProps) {
   // console.log("mainData", mainData);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
@@ -81,6 +82,12 @@ function AssignmentsTab({
       }
     }
   );
+
+  useEffect(() => {
+    if (mainTableColumns?.length > 0) {
+      setColumn(mainTableColumns);
+    }
+  }, [tableConfig]);
 
   return (
     <>

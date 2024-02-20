@@ -14,7 +14,6 @@ import { Button, TabsProps } from "antd";
 import {
   ArrowUpOutlined,
   ClearOutlined,
-  DownloadOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
 import NotebooksImg from "./../../assets/notebooks.svg";
@@ -38,6 +37,7 @@ import { IAssignmentsStats } from "./types";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../components/ErrorHandler";
+import CSVDownloadButton from "../../components/CSVDownloadButton";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -75,6 +75,7 @@ function Assignments() {
   const [dataFilter, setDataFilter] = useState<any>(null);
   const [searchedData, setSearchedData] = useState<any>(null);
   const [keyRefs, setKeyRefs] = useState<any>({});
+  const [columns, setColumn] = useState<any>({});
 
   // Assignment's row selection state and handler
   const [selectedAssignmentRows, setSelectedAssignmentRows] = useState<any>([]);
@@ -347,6 +348,7 @@ function Assignments() {
           rowSelection={rowSelection}
           filter={dataFilter}
           handleTableChange={handleTableChange}
+          setColumn={setColumn}
         />
       ),
     },
@@ -359,6 +361,7 @@ function Assignments() {
           tableConfig={tableConfigData}
           filter={dataFilter}
           handleTableChange={handleTableChange}
+          setColumn={setColumn}
         />
       ),
     },
@@ -371,6 +374,7 @@ function Assignments() {
           tableConfig={tableConfigData}
           filter={dataFilter}
           handleTableChange={handleTableChange}
+          setColumn={setColumn}
         />
       ),
     },
@@ -414,11 +418,14 @@ function Assignments() {
               >
                 Make assignments
               </Button>
-              <Button
-                disabled
-                icon={<DownloadOutlined />}
-                style={{ marginLeft: "16px" }}
-              ></Button>
+              <CSVDownloadButton
+                keyRef={keyRefs}
+                columns={columns}
+                disabled={mainData?.length === 0}
+                tabItemIndex={tabItemIndex}
+                data={getTabData()}
+                filterData={mainData}
+              />
               <Button
                 disabled={searchValue === "" && dataFilter?.length === 0}
                 icon={<ClearOutlined />}

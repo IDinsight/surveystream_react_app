@@ -1,4 +1,5 @@
 import { FilterValue, TablePaginationConfig } from "antd/es/table/interface";
+import { Dispatch, SetStateAction } from "react";
 
 type TableOnChangeType = (
   pagination: TablePaginationConfig,
@@ -6,6 +7,18 @@ type TableOnChangeType = (
   sorter: any,
   extra: any
 ) => void;
+
+export interface IColumnItem {
+  column_key: string;
+  column_label: string;
+}
+
+export interface IConfigItem {
+  columns: IColumnItem[];
+  group_label: string;
+}
+
+type SetColumn = Dispatch<SetStateAction<any>>;
 
 export interface IAssignmentsStats {
   completed: number;
@@ -19,6 +32,7 @@ export interface IAssignmentsTabProps {
   rowSelection: any;
   filter: any;
   handleTableChange: TableOnChangeType;
+  setColumn: SetColumn;
 }
 
 export interface ISurveyorsTabProps {
@@ -26,6 +40,7 @@ export interface ISurveyorsTabProps {
   mainData: any[];
   filter: any;
   handleTableChange: TableOnChangeType;
+  setColumn: SetColumn;
 }
 
 export interface ITargetsTabProps {
@@ -33,4 +48,5 @@ export interface ITargetsTabProps {
   mainData: any[];
   filter: any;
   handleTableChange: TableOnChangeType;
+  setColumn: SetColumn;
 }

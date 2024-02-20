@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SurveyorsTable } from "./SurveyorsTab.styled";
 import SurveyorStatus from "../../../components/SurveyorStatus";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ function SurveyorsTab({
   mainData,
   filter,
   handleTableChange,
+  setColumn,
 }: ISurveyorsTabProps) {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
 
@@ -54,6 +55,12 @@ function SurveyorsTab({
       }
     }
   );
+
+  useEffect(() => {
+    if (enumeratorTableColumns?.length > 0) {
+      setColumn(enumeratorTableColumns);
+    }
+  }, [tableConfig]);
 
   return (
     <>
