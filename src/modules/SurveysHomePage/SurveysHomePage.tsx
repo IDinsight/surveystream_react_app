@@ -135,28 +135,33 @@ function SurveysHomePage() {
                       {index % 4 === 3 && <div className="w-0 flex-1" />}
                     </div>
                   ))}
-                  <div
-                    key="new_survey"
-                    className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
-                  >
-                    <Link
-                      onClick={() => {
-                        dispatch(setActiveSurvey({}));
-                        localStorage.setItem(
-                          "activeSurvey",
-                          JSON.stringify({})
-                        );
-                      }}
-                      id="configure-new-survey-link"
-                      to="/new-survey-config"
-                      className="no-underline flex items-center"
+                  {userProfile.is_super_admin ||
+                  userProfile.can_create_survey ? (
+                    <div
+                      key="new_survey"
+                      className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
                     >
-                      <PlusOutlined className="!text-base text-gray-9" />
-                      <span className="ml-3 font-inter font-medium text-base text-gray-10">
-                        Configure new survey
-                      </span>
-                    </Link>
-                  </div>
+                      <Link
+                        onClick={() => {
+                          dispatch(setActiveSurvey({}));
+                          localStorage.setItem(
+                            "activeSurvey",
+                            JSON.stringify({})
+                          );
+                        }}
+                        id="configure-new-survey-link"
+                        to="/new-survey-config"
+                        className="no-underline flex items-center"
+                      >
+                        <PlusOutlined className="!text-base text-gray-9" />
+                        <span className="ml-3 font-inter font-medium text-base text-gray-10">
+                          Configure new survey
+                        </span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
 

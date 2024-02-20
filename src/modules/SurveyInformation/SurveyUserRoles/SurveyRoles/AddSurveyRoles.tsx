@@ -143,11 +143,12 @@ function AddSurveyRoles() {
           }
 
           formValues.permissions = localPermissions;
-          const otherRoles = [...supervisorRoles];
+          const otherRoles = supervisorRoles.filter(
+            (role) => role.role_name !== "Survey Admin"
+          );
 
           otherRoles.push(formValues);
 
-          //combine with other supervisor roles
           console.log("supervisorRoles", otherRoles);
 
           const rolesRes = await dispatch(

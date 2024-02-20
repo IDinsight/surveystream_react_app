@@ -180,19 +180,19 @@ function EditSurveyRoles() {
 
           formValues.permissions = localPermissions;
           //remove edited role from the initial list if not duplicate
-          let otherRoles = [...supervisorRoles];
+          let otherRoles = supervisorRoles.filter(
+            (role) => role.role_name !== "Survey Admin"
+          );
 
           if (!rolePermissions.duplicate) {
             formValues.role_uid = role_uid;
             otherRoles = [
-              ...supervisorRoles.filter(
+              ...otherRoles.filter(
                 (role) => role.role_uid != formValues.role_uid
               ),
             ];
           }
           otherRoles.push(formValues);
-
-          //combine with other supervisor roles
 
           const rolesRes = await dispatch(
             postSupervisorRoles({

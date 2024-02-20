@@ -40,6 +40,7 @@ function EditSurveyUsers() {
   const [newRole, setNewRole] = useState<string>("");
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
+  const [isRoleRequired, setIsRoleRequired] = useState(true);
 
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
 
@@ -122,7 +123,7 @@ function EditSurveyUsers() {
       }
     }
 
-    console.log("userDetails.roles", userDetails.roles);
+    userDetails.survey_uid = survey_uid;
 
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
@@ -328,7 +329,11 @@ function EditSurveyUsers() {
                         ? userDetails.roles
                         : undefined
                     }
-                    rules={[{ required: true }]}
+                    rules={
+                      isRoleRequired
+                        ? [{ required: true, message: "Please select a role" }]
+                        : []
+                    }
                     hasFeedback
                   >
                     <Select
@@ -341,41 +346,56 @@ function EditSurveyUsers() {
                           (r: any) => r.role_uid === value
                         );
 
-                        if (role?.has_reporting_role) {
-                          setHasReportingRole(true);
-                          //filter out users without the reporting role
-                          let _filteredUserList = userList.filter(
-                            (user: any) => user.user_uid !== editUser?.user_uid
-                          );
-                          _filteredUserList = _filteredUserList.filter(
-                            (user: any) => {
-                              return user?.roles?.includes(
-                                role?.reporting_role_uid
-                              );
-                            }
-                          );
-
-                          setFilteredUserList(_filteredUserList);
+                        if (value == null && role?.role === "Survey Admin") {
+                          setIsRoleRequired(false);
+                          return setUserDetails((prev: any) => ({
+                            ...prev,
+                            is_survey_admin: true,
+                          }));
                         } else {
-                          setHasReportingRole(false);
-                        }
+                          //this will run incase user does not select survey Admin
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            is_survey_admin: false,
+                          }));
 
-                        setUserDetails((prev: any) => {
-                          const updatedRoles = [...editUser.roles];
-                          const index = updatedRoles.findIndex(
-                            (role: any) => role === value
-                          );
-                          if (index !== -1) {
-                            updatedRoles[index] = value;
+                          if (role?.has_reporting_role) {
+                            setHasReportingRole(true);
+                            //filter out users without the reporting role
+                            let _filteredUserList = userList.filter(
+                              (user: any) =>
+                                user.user_uid !== editUser?.user_uid
+                            );
+                            _filteredUserList = _filteredUserList.filter(
+                              (user: any) => {
+                                return user?.roles?.includes(
+                                  role?.reporting_role_uid
+                                );
+                              }
+                            );
+
+                            setFilteredUserList(_filteredUserList);
                           } else {
-                            updatedRoles.push(value);
+                            setHasReportingRole(false);
                           }
 
-                          return {
-                            ...prev,
-                            roles: updatedRoles,
-                          };
-                        });
+                          setUserDetails((prev: any) => {
+                            const updatedRoles = [...editUser.roles];
+                            const index = updatedRoles.findIndex(
+                              (role: any) => role === value
+                            );
+                            if (index !== -1) {
+                              updatedRoles[index] = value;
+                            } else {
+                              updatedRoles.push(value);
+                            }
+
+                            return {
+                              ...prev,
+                              roles: updatedRoles,
+                            };
+                          });
+                        }
                       }}
                     >
                       {rolesTableData?.map(

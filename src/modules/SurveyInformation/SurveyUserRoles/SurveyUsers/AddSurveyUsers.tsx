@@ -48,6 +48,7 @@ function AddSurveyUsers() {
   const [newRole, setNewRole] = useState<string>("");
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
+  const [isRoleRequired, setIsRoleRequired] = useState(true);
 
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<any>({
@@ -185,6 +186,7 @@ function AddSurveyUsers() {
             );
           }
         }
+        userDetails.survey_uid = survey_uid;
         console.log("userDetails.roles", userDetails.roles);
         //perform update user
         const updateRes = await dispatch(
@@ -429,7 +431,16 @@ function AddSurveyUsers() {
                           ? userDetails.roles
                           : undefined
                       }
-                      rules={[{ required: true }]}
+                      rules={
+                        isRoleRequired
+                          ? [
+                              {
+                                required: true,
+                                message: "Please select a role",
+                              },
+                            ]
+                          : []
+                      }
                       hasFeedback
                     >
                       <Select
@@ -441,42 +452,56 @@ function AddSurveyUsers() {
                           const role = rolesTableData.find(
                             (r: any) => r.role_uid === value
                           );
-                          setNewRole(role?.role_uid);
-                          if (role?.has_reporting_role) {
-                            setHasReportingRole(true);
 
-                            const _filteredUserList = userList.filter(
-                              (user: any) => {
-                                return user?.roles?.includes(
-                                  role?.reporting_role_uid
-                                );
-                              }
-                            );
-
-                            setFilteredUserList(_filteredUserList);
+                          if (value == null && role?.role === "Survey Admin") {
+                            setIsRoleRequired(false);
+                            return setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_survey_admin: true,
+                            }));
                           } else {
-                            setHasReportingRole(false);
-                          }
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_survey_admin: false,
+                            }));
 
-                          setUserDetails((prev: any) => {
-                            const updatedRoles = [
-                              ...(checkedUser?.user?.roles || []),
-                            ];
+                            setNewRole(role?.role_uid);
+                            if (role?.has_reporting_role) {
+                              setHasReportingRole(true);
 
-                            const index = updatedRoles.findIndex(
-                              (role: any) => role === value
-                            );
-                            if (index != -1) {
-                              updatedRoles[index] = value;
+                              const _filteredUserList = userList.filter(
+                                (user: any) => {
+                                  return user?.roles?.includes(
+                                    role?.reporting_role_uid
+                                  );
+                                }
+                              );
+
+                              setFilteredUserList(_filteredUserList);
                             } else {
-                              updatedRoles.push(value);
+                              setHasReportingRole(false);
                             }
 
-                            return {
-                              ...prev,
-                              roles: updatedRoles,
-                            };
-                          });
+                            setUserDetails((prev: any) => {
+                              const updatedRoles = [
+                                ...(checkedUser?.user?.roles || []),
+                              ];
+
+                              const index = updatedRoles.findIndex(
+                                (role: any) => role === value
+                              );
+                              if (index != -1) {
+                                updatedRoles[index] = value;
+                              } else {
+                                updatedRoles.push(value);
+                              }
+
+                              return {
+                                ...prev,
+                                roles: updatedRoles,
+                              };
+                            });
+                          }
                         }}
                       >
                         {rolesTableData.map((r: any, i: any) => (

@@ -163,11 +163,15 @@ function ManageSurveyRoles() {
     //this is to ensure hierarchy validations on the backend
     const userRoles = supervisorRoles;
 
-    const filteredRoles = [
+    let filteredRoles = [
       ...supervisorRoles.filter(
         (role) => role.role_uid != deleteRoleId?.toString()
       ),
     ];
+
+    filteredRoles = filteredRoles.filter(
+      (role) => role.role_name !== "Survey Admin"
+    );
 
     const rolesRes = await dispatch(
       postSupervisorRoles({
@@ -214,14 +218,23 @@ function ManageSurveyRoles() {
       key: "actions",
       render: (text: any, record: any) => (
         <span>
-          <Button type="link" onClick={() => handleEdit(record?.role_uid)}>
+          <Button
+            disabled={!record?.role_uid}
+            type="link"
+            onClick={() => handleEdit(record?.role_uid)}
+          >
             Edit
           </Button>
-          <Button type="link" onClick={() => handleDuplicate(record?.role_uid)}>
+          <Button
+            disabled={!record?.role_uid}
+            type="link"
+            onClick={() => handleDuplicate(record?.role_uid)}
+          >
             Duplicate
           </Button>
 
           <Button
+            disabled={!record?.role_uid}
             danger
             type="text"
             onClick={() => handleDelete(record?.role_uid)}

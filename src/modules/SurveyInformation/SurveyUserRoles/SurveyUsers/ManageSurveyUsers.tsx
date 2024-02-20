@@ -150,8 +150,15 @@ function ManageSurveyUsers() {
     },
     {
       title: "Roles",
-      dataIndex: "user_role_names",
       key: "user_role_names",
+      dataIndex: "user_role_names",
+      render: (text: any, record: any) => {
+        if (record.user_admin_surveys && record.user_admin_surveys.length > 0) {
+          return <>{`Survey Admin`}</>;
+        } else {
+          return <>{record.user_role_names}</>;
+        }
+      },
     },
   ];
 
@@ -324,6 +331,7 @@ function ManageSurveyUsers() {
                     key={column.dataIndex}
                     title={column.title}
                     dataIndex={column.dataIndex}
+                    render={column.render}
                     sorter={{
                       compare: (a: any, b: any) =>
                         a[column.dataIndex] - b[column.dataIndex],
