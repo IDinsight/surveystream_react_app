@@ -90,12 +90,9 @@ function RowEditingModal({
         }
       }
 
-      console.log("requestData", requestData);
       const batchRes = await dispatch(
         bulkUpdateTargets({ targetsUIDs, formUID, patchKeys })
       );
-
-      console.log("batchRes", batchRes);
 
       if (batchRes?.payload?.status === 200) {
         message.success("Targets updated successfully");
@@ -216,17 +213,12 @@ function RowEditingModal({
       //must wait for config before fields filtering
       await fetchTargetColumnConfig(form_uid);
 
-      console.log("filteredFields", filteredFields);
-      console.log("bulkFieldsToExclude", bulkFieldsToExclude);
-
       //exclude bulk non editable as well as the personal fields
       filteredFields = fields.filter(
         (field: Field) =>
           !bulkFieldsToExclude.includes(field.labelKey) &&
           !fieldsToExclude.includes(field.labelKey)
       );
-
-      console.log("filteredFields", filteredFields);
 
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
@@ -240,7 +232,7 @@ function RowEditingModal({
     const initialData: DataItem = [];
 
     filteredFields.forEach((field: Field) => {
-      if (field.label.startsWith("custom_fields")) {
+      if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] = data[0]["custom_fields"][field.labelKey];
 
         const label = field?.label;

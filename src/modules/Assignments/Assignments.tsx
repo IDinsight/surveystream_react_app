@@ -30,7 +30,7 @@ import {
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import AssignmentsStatus from "../../components/AssignmentsStats";
 import { debounce } from "lodash";
-import NotFound from "../NotFound";
+import NotFound from "../../components/NotFound";
 import { RootState } from "../../redux/store";
 import { performSearch, getDataFromFilters, makeKeyRefs } from "./utils";
 import { IAssignmentsStats } from "./types";

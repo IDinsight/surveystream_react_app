@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -22,6 +22,19 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
 import { Result, Button } from "antd";
+import {
+  InfoCircleFilled,
+  LayoutFilled,
+  MobileOutlined,
+  PushpinFilled,
+  UserOutlined,
+  InsertRowRightOutlined,
+  HomeFilled,
+  MailFilled,
+  ProfileFilled,
+  ReadFilled,
+} from "@ant-design/icons";
+import { userHasPermission } from "../../utils/helper";
 
 interface CheckboxProps {
   checked: boolean;
@@ -95,14 +108,13 @@ const SurveyConfiguration: React.FC = () => {
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
   );
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
   const fetchData = async () => {
-    await dispatch(getSurveyConfig({ survey_uid: survey_uid }));
+    const surveyConfigRes = await dispatch(
+      getSurveyConfig({ survey_uid: survey_uid })
+    );
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [dispatch]);
 
   const renderStatus = (status: string) => {
     let color;
@@ -139,36 +151,128 @@ const SurveyConfiguration: React.FC = () => {
 
     return "";
   };
+  const renderModuleIcon = (sectionTitle: string) => {
+    const iconProps = { fontSize: "28px" };
+
+    switch (sectionTitle) {
+      case "Basic information":
+        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+      case "Module selection":
+        return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
+      case "SurveyCTO information":
+        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
+      case "User and role management":
+        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+      case "Survey locations":
+        return <PushpinFilled style={{ color: "#D4B106", ...iconProps }} />;
+      case "Enumerators":
+        return (
+          <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
+        );
+      case "Targets":
+        return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Assign targets to surveyors":
+        return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+      case "Track productivity":
+        return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
+      case "Track data quality":
+        return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
+      default:
+        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+    }
+  };
+
+  const checkPermissions = (sectionTitle: string) => {
+    let permission_name: string;
+
+    switch (sectionTitle) {
+      case "Basic information":
+        permission_name = "Survey Admin";
+        break;
+      case "Module selection":
+        permission_name = "Survey Admin";
+        break;
+      case "SurveyCTO information":
+        permission_name = "Survey Admin";
+        break;
+      case "User and role management":
+        permission_name = "Survey Admin";
+        break;
+      case "Survey locations":
+        permission_name = "READ Survey Locations";
+        break;
+      case "Enumerators":
+        permission_name = "READ Enumerators";
+        break;
+      case "Targets":
+        permission_name = "READ Targets";
+        break;
+      case "Assign targets to surveyors":
+        permission_name = "READ Assignments";
+        break;
+      case "Track productivity":
+        permission_name = "READ Productivity";
+        break;
+      case "Track data quality":
+        permission_name = "READ Data Quality";
+        break;
+      default:
+        permission_name = sectionTitle;
+        break;
+    }
+    return userHasPermission(userProfile, survey_uid, permission_name);
+  };
 
   const renderSection = (
     sectionTitle: string,
     sectionConfig: any,
     index: number
   ) => {
+    let moduleCount = 0;
     if (Array.isArray(sectionConfig) && sectionConfig.length > 0) {
       return (
         <div key={index}>
-          <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+          {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
+            <SectionTitle>{`${
+              moduleCount + 1
+            } -> ${sectionTitle}`}</SectionTitle>
+          )}
 
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {sectionConfig.map((item: any, i: number) => (
-              <StyledCard
-                key={i}
-                style={{
-                  margin: "0.2rem",
-                  flex: "0 0 30%",
-                  width: "33%",
-                }}
-              >
+          <div style={{ flexWrap: "wrap", display: "flex" }}>
+            {sectionConfig.map((item: any, i: number) => {
+              const hasPermission = checkPermissions(item?.name);
+              if (hasPermission) {
+                moduleCount++;
+              }
+              return hasPermission ? (
                 <Link
-                  style={{ color: "#2F54EB", cursor: "pointer" }}
+                  key={i}
+                  style={{
+                    color: "#434343",
+                    cursor: "pointer",
+                    flex: "0 0 30%",
+                    width: "33%",
+                    textDecoration: "none",
+                  }}
                   to={generateLink(sectionTitle, item.name)}
                 >
-                  {item.name}
+                  <StyledCard style={{ margin: "0.2rem" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "left",
+                        alignItems: "left",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {renderModuleIcon(item.name)}
+                    </div>
+                    {item.name}
+                    {renderStatus(item.status)}
+                  </StyledCard>
                 </Link>
-                {renderStatus(item.status)}
-              </StyledCard>
-            ))}
+              ) : null;
+            })}
           </div>
         </div>
       );
@@ -176,42 +280,68 @@ const SurveyConfiguration: React.FC = () => {
       !Array.isArray(sectionConfig) &&
       Object.keys(sectionConfig).length > 0
     ) {
-      return (
+      const hasPermission = checkPermissions(sectionTitle);
+      if (hasPermission) {
+        moduleCount++;
+      }
+      return hasPermission ? (
         <div key={index}>
-          <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+          <SectionTitle>{`${moduleCount + 1} -> ${sectionTitle}`}</SectionTitle>
 
-          <StyledCard
+          <Link
             style={{
-              width: "33%",
+              color: "#434343",
+              cursor: "pointer",
+              textDecoration: "none",
             }}
+            to={generateLink(sectionTitle, "")}
           >
-            <Link
-              style={{ color: "#2F54EB", cursor: "pointer" }}
-              to={generateLink(sectionTitle, "")}
+            <StyledCard
+              style={{
+                width: "33%",
+              }}
             >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "left",
+                  alignItems: "left",
+                  marginBottom: "10px",
+                }}
+              >
+                {renderModuleIcon(sectionTitle)}
+              </div>
+
               {sectionTitle}
-            </Link>
-            {renderStatus(sectionConfig.status)}
-          </StyledCard>
+              {renderStatus(sectionConfig.status)}
+            </StyledCard>
+          </Link>
         </div>
-      );
+      ) : null;
     } else {
-      <Result
-        title={"Reload Configuration"}
-        subTitle={"Failed to load configuration, kindly reload"}
-        extra={
-          <Button
-            onClick={fetchData}
-            type="primary"
-            className="bg-geekblue-5 h-[40px]"
-            size="large"
-          >
-            Reload Surveys
-          </Button>
-        }
-      />;
+      return (
+        <Result
+          key={index}
+          title={"Reload Configuration"}
+          subTitle={"Failed to load configuration, kindly reload"}
+          extra={
+            <Button
+              onClick={fetchData}
+              type="primary"
+              className="bg-geekblue-5 h-[40px]"
+              size="large"
+            >
+              Reload Data
+            </Button>
+          }
+        />
+      );
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [survey_uid]);
 
   return (
     <>

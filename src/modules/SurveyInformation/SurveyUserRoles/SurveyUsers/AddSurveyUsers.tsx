@@ -48,6 +48,7 @@ function AddSurveyUsers() {
   const [newRole, setNewRole] = useState<string>("");
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
+  const [isRoleRequired, setIsRoleRequired] = useState(true);
 
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<any>({
@@ -90,22 +91,16 @@ function AddSurveyUsers() {
       const deleteHierarchyRes = await dispatch(
         deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
       );
-
-      console.log("deleteHierarchyRes", deleteHierarchyRes);
     } else {
       const updateHierarchyRes = await dispatch(
         putUserHierarchy({ hierarchyData: payload })
       );
-
-      console.log("updateHierarchyRes", updateHierarchyRes);
     }
   };
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
     const checkResponse = await dispatch(postCheckUser(email));
-
-    console.log("checkResponse", checkResponse);
 
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
@@ -129,7 +124,7 @@ function AddSurveyUsers() {
       }
 
       const role = rolesTableData.find((r: any) =>
-        checkResponse.payload.data.user.roles.includes(r.role_uid)
+        checkResponse?.payload?.data?.user?.roles?.includes(r.role_uid)
       );
       setNewRole(role?.role_uid);
 
@@ -173,7 +168,7 @@ function AddSurveyUsers() {
           userDetails.roles = initialUserData?.roles;
         } else {
           const commonRoles = rolesTableData.filter((r: any) =>
-            initialUserData.roles.includes(r.role_uid)
+            initialUserData?.roles?.includes(r.role_uid)
           );
           if (commonRoles.length > 0) {
             userDetails.roles = userDetails.roles.filter(
@@ -182,7 +177,7 @@ function AddSurveyUsers() {
             );
           }
         }
-        console.log("userDetails.roles", userDetails.roles);
+        userDetails.survey_uid = survey_uid;
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -191,7 +186,6 @@ function AddSurveyUsers() {
           })
         );
         if (updateRes.payload?.user_data) {
-          console.log("updateRes", updateRes);
           if (newRole && userDetails?.supervisor) {
             updateUserHierarchy(
               userDetails?.user_uid,
@@ -210,24 +204,14 @@ function AddSurveyUsers() {
         //perform add user
         const addRes = await dispatch(postAddUser(userDetails));
 
-        console.log("addRes", addRes);
-
         const newRole = userDetails.roles[userDetails.roles.length - 1];
-
-        console.log("newRole", newRole);
 
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
-          console.log(
-            "addRes.payload?.data?.user_uid",
-            addRes.payload?.data?.user_uid
-          );
-          updateUserHierarchy(
-            addRes.payload?.data?.user_uid,
+          addRes.payload?.data?.user_uid,
             survey_uid,
             newRole,
-            userDetails?.supervisor
-          );
+            userDetails?.supervisor;
 
           message.success(
             "User Added! An email has been sent to the user with the login information."
@@ -245,7 +229,6 @@ function AddSurveyUsers() {
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const transformedData: any[] = (
@@ -256,8 +239,6 @@ function AddSurveyUsers() {
         has_reporting_role: item.reporting_role_uid ? true : false,
         reporting_role_uid: item.reporting_role_uid,
       }));
-
-      console.log("transformedData", transformedData);
 
       setRolesTableData(transformedData);
     } else {
@@ -421,12 +402,21 @@ function AddSurveyUsers() {
                       initialValue={
                         userDetails?.roles &&
                         rolesTableData.some((r: any) =>
-                          userDetails.roles.includes(r.role_uid)
+                          userDetails?.roles?.includes(r.role_uid)
                         )
                           ? userDetails.roles
                           : undefined
                       }
-                      rules={[{ required: true }]}
+                      rules={
+                        isRoleRequired
+                          ? [
+                              {
+                                required: true,
+                                message: "Please select a role",
+                              },
+                            ]
+                          : []
+                      }
                       hasFeedback
                     >
                       <Select
@@ -438,44 +428,56 @@ function AddSurveyUsers() {
                           const role = rolesTableData.find(
                             (r: any) => r.role_uid === value
                           );
-                          setNewRole(role?.role_uid);
-                          if (role?.has_reporting_role) {
-                            setHasReportingRole(true);
 
-                            const _filteredUserList = userList.filter(
-                              (user: any) => {
-                                return user.roles.includes(
-                                  role?.reporting_role_uid
-                                );
-                              }
-                            );
-
-                            setFilteredUserList(_filteredUserList);
+                          if (value == null && role?.role === "Survey Admin") {
+                            setIsRoleRequired(false);
+                            return setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_survey_admin: true,
+                            }));
                           } else {
-                            setHasReportingRole(false);
-                          }
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              is_survey_admin: false,
+                            }));
 
-                          setUserDetails((prev: any) => {
-                            const updatedRoles = [
-                              ...(checkedUser?.roles?.roles || []),
-                            ];
-                            const index = updatedRoles.findIndex(
-                              (role: any) => role === value
-                            );
-                            if (index !== -1) {
-                              updatedRoles[index] = value;
+                            setNewRole(role?.role_uid);
+                            if (role?.has_reporting_role) {
+                              setHasReportingRole(true);
+
+                              const _filteredUserList = userList.filter(
+                                (user: any) => {
+                                  return user?.roles?.includes(
+                                    role?.reporting_role_uid
+                                  );
+                                }
+                              );
+
+                              setFilteredUserList(_filteredUserList);
                             } else {
-                              updatedRoles.push(value);
+                              setHasReportingRole(false);
                             }
-                            console.log("setUserDetails", {
-                              ...prev,
-                              roles: updatedRoles,
+
+                            setUserDetails((prev: any) => {
+                              const updatedRoles = [
+                                ...(checkedUser?.user?.roles || []),
+                              ];
+
+                              const index = updatedRoles.findIndex(
+                                (role: any) => role === value
+                              );
+                              if (index != -1) {
+                                updatedRoles[index] = value;
+                              } else {
+                                updatedRoles.push(value);
+                              }
+
+                              return {
+                                ...prev,
+                                roles: updatedRoles,
+                              };
                             });
-                            return {
-                              ...prev,
-                              roles: updatedRoles,
-                            };
-                          });
+                          }
                         }}
                       >
                         {rolesTableData.map((r: any, i: any) => (

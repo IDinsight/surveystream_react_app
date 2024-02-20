@@ -238,8 +238,6 @@ function SurveyLocationHierarchy() {
   const handleHierarchyContinue = async () => {
     try {
       if (survey_uid != undefined) {
-        console.log("survey_uid", survey_uid);
-
         setLoading(true);
 
         await form.validateFields();

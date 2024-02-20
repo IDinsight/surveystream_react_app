@@ -73,10 +73,12 @@ function AddUser() {
   };
 
   const handleUpdateUser = async () => {
-    console.log("handleUpdateUser");
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
+        userDetails.can_create_survey = userDetails.is_super_admin
+          ? true
+          : userDetails.can_create_survey;
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -84,8 +86,6 @@ function AddUser() {
             userData: userDetails,
           })
         );
-
-        console.log("updateRes", updateRes);
 
         if (updateRes.payload?.user_data) {
           //update user hierarchy here
@@ -99,11 +99,11 @@ function AddUser() {
         //perform add user
         //do not set any roles for new user
         //update if user is survey_admin
-        console.log("userDetails", userDetails);
+        userDetails.can_create_survey = userDetails.is_super_admin
+          ? true
+          : userDetails.can_create_survey;
 
         const addRes = await dispatch(postAddUser(userDetails));
-
-        console.log("addRes", addRes);
 
         if (addRes.payload?.status == 200) {
           //no need to update user hierarchy
@@ -348,17 +348,17 @@ function AddUser() {
                             },
                           ]}
                           hasFeedback
-                          name="is_survey_admin"
+                          name="can_create_survey"
                         >
                           <Radio.Group
                             style={{ display: "flex", width: "100%" }}
                             onChange={(e) =>
                               setUserDetails((prev: any) => ({
                                 ...prev,
-                                is_survey_admin: e.target.value,
+                                can_create_survey: e.target.value,
                               }))
                             }
-                            defaultValue={userDetails?.is_survey_admin}
+                            defaultValue={userDetails?.can_create_survey}
                           >
                             <Radio.Button
                               value={true}

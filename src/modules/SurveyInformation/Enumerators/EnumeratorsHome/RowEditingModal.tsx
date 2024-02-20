@@ -102,8 +102,6 @@ function RowEditingModal({
         bulkUpdateEnumerators({ enumeratorUIDs, formUID, patchKeys })
       );
 
-      console.log("batchRes", batchRes);
-
       if (batchRes?.payload?.status === 200) {
         message.success("Enumerators updated successfully");
         onUpdate();
@@ -199,8 +197,6 @@ function RowEditingModal({
 
         //remove fields not defined on the custom config
         fields.forEach((field: Field) => {
-          console.log("field.labelKey", field.labelKey);
-
           if (
             !editableFields.includes(field.labelKey) &&
             !nonEditableFields.includes(field.labelKey)

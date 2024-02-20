@@ -100,9 +100,6 @@ function EnumeratorsUpload() {
     base64Data: string
   ) => {
     // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
-    console.log("rows:", rows);
 
     dispatch(setEnumeratorCSVColumns(columnNames));
     dispatch(setEnumeratorCSVRows(rows));

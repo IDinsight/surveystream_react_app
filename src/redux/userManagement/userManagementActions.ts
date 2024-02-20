@@ -26,8 +26,6 @@ export const postCheckUser = createAsyncThunk(
   "userManagement/postCheckUser",
   async (email: string, { dispatch, rejectWithValue }) => {
     try {
-      console.log("params", email);
-
       dispatch(checkUserRequest());
       const response: any = await api.postCheckUser(email);
       if (response.status == 200) {
