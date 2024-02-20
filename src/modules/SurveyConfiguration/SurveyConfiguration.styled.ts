@@ -93,6 +93,12 @@ export const StyledCard = styled(Card)`
   line-height: 18px;
   text-align: left;
   vertical-align: top;
+  transition: box-shadow 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 export const CheckboxLabel = styled.span`

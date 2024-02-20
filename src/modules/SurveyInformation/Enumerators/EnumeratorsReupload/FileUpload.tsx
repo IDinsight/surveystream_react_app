@@ -62,11 +62,7 @@ function FileUpload({
           }
         }
 
-        console.log("errors", errors);
-
         const errorsList = classifyErrorsForColumns(errors, csvValidationRules);
-
-        console.log("errorsList", errorsList);
 
         if (errorsList.length > 0) {
           setHasError(true);

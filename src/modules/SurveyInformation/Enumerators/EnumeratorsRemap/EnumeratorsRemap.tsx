@@ -276,8 +276,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -340,7 +338,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
             dispatch(setMappingErrorList(transformedErrors));
           }
           dispatch(setMappingErrorStatus(true));
-          console.log("hasError", mappingErrorStatus);
           return;
         }
 
@@ -365,8 +362,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         dispatch(setMappingErrorStatus(true));
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = enumeratorMappingForm.getFieldsValue();
 
@@ -376,8 +371,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 

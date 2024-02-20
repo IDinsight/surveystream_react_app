@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TargetsTable } from "./TargetsTab.styled";
 import { buildColumnDefinition } from "../utils";
 import { ITargetsTabProps } from "../types";
@@ -8,6 +8,7 @@ function TargetsTab({
   mainData,
   filter,
   handleTableChange,
+  setColumn,
 }: ITargetsTabProps) {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
 
@@ -31,6 +32,12 @@ function TargetsTab({
       }
     }
   );
+
+  useEffect(() => {
+    if (targetTableColumns?.length > 0) {
+      setColumn(targetTableColumns);
+    }
+  }, [tableConfig]);
 
   return (
     <>

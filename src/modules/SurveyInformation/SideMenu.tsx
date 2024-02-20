@@ -67,64 +67,6 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(
-              `/survey-information/field-supervisor-roles/${survey_uid}`
-            ) ||
-            isActive(
-              `/survey-information/field-supervisor-roles/add/${survey_uid}`
-            ) ||
-            isActive(
-              `/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`
-            )
-          }`}
-          to={`/survey-information/field-supervisor-roles/add/${survey_uid}`}
-        >
-          <IconWrapper>
-            <CalendarOutlined />
-          </IconWrapper>
-          Field supervisor roles
-        </MenuItem>
-      ),
-      key: "surveyFieldSupervisorRoles",
-      children: [
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/field-supervisor-roles/add/${survey_uid}`
-              )}
-              to={`/survey-information/field-supervisor-roles/add/${survey_uid}`}
-            >
-              <IconWrapper>
-                <UsergroupAddOutlined />
-              </IconWrapper>
-              Add Roles
-            </MenuItem>
-          ),
-          key: "surveyFieldSupervisorRolesAdd",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`
-              )}
-              to={`/survey-information/field-supervisor-roles/hierarchy/${survey_uid}`}
-            >
-              <IconWrapper>
-                <ApartmentOutlined />
-              </IconWrapper>
-              Role Hierarchy
-            </MenuItem>
-          ),
-          key: "surveyFieldSupervisorRolesHierarchy",
-        },
-      ],
-    },
-    {
-      label: (
-        <MenuItem
-          className={`${
             isActive(`/survey-information/location/add/${survey_uid}`) ||
             isActive(`/survey-information/location/hierarchy/${survey_uid}`) ||
             isActive(`/survey-information/location/upload/${survey_uid}`)
@@ -260,8 +202,6 @@ function SideMenu() {
 
   const getPossibleKey = () => {
     const path = location.pathname;
-    if (path.includes("field-supervisor-roles/"))
-      return "surveyFieldSupervisorRoles";
     if (path.includes("location/")) return "surveyLocation";
     if (path.includes("enumerators/")) return "surveyEnumerators";
     if (path.includes("targets/")) return "surveyTargets";

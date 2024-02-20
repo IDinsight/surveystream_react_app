@@ -1,3 +1,7 @@
+import { lte } from "lodash";
+import { useAppSelector } from "../redux/hooks";
+import { RootState } from "../redux/store";
+
 /**
  * Return the day with month
  * @param  {String} date Date with ISO format.
@@ -33,4 +37,55 @@ export const deleteAllCookies = () => {
     const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
     document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
+};
+
+export const userHasPermission = (
+  userProfile: any,
+  survey_uid: any,
+  permission: any
+) => {
+  if (!permission) {
+    return false;
+  }
+  let { permission_name } = permission;
+  if (!permission_name) {
+    permission_name = permission;
+  }
+
+  // Check if user is a super admin
+  if (userProfile?.is_super_admin) {
+    return true;
+  }
+
+  // Check if user has admin access to the survey
+  if (userProfile.admin_surveys?.[survey_uid]) {
+    return true;
+  }
+
+  // Check under roles
+  if (userProfile.roles) {
+    for (const role of userProfile.roles) {
+      if (role.survey_uid == survey_uid) {
+        const permissions = permission_name?.split(" ") ?? [];
+        const hasWritePermission =
+          permissions.includes("WRITE") &&
+          role.permission_names.includes(
+            `WRITE ${permissions.slice(1).join(" ")}`
+          );
+        const hasReadPermission =
+          permissions.includes("READ") &&
+          role.permission_names.includes(
+            `READ ${permissions.slice(1).join(" ")}`
+          );
+
+        if (permissions.includes("READ")) {
+          return hasReadPermission || hasWritePermission;
+        } else {
+          return role.permission_names.includes(permission_name);
+        }
+      }
+    }
+  }
+
+  return false;
 };

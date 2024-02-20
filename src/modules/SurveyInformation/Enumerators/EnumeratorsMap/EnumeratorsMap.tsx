@@ -255,8 +255,6 @@ function EnumeratorsMap() {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -347,16 +345,12 @@ function EnumeratorsMap() {
             (config) => config !== null && config !== undefined
           );
 
-          console.log("filteredCustomConfig", filteredCustomConfig);
-
           dispatch(
             updateEnumeratorColumnConfig({
               formUID: form_uid,
               columnConfig: filteredCustomConfig,
             })
           );
-
-          console.log(customConfig);
 
           setHasError(false);
           //route to home
@@ -372,8 +366,6 @@ function EnumeratorsMap() {
         setHasError(true);
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = enumeratorMappingForm.getFieldsValue();
 
@@ -383,8 +375,6 @@ function EnumeratorsMap() {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 

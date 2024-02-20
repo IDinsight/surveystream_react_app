@@ -1,14 +1,5 @@
 import _ from "lodash";
-
-export interface IColumnItem {
-  column_key: string;
-  column_label: string;
-}
-
-export interface IConfigItem {
-  columns: IColumnItem[];
-  group_label: string;
-}
+import { IColumnItem, IConfigItem } from "./types";
 
 function toPath(path: string): (string | number)[] {
   return _.toPath(path).map((segment) => {
@@ -117,6 +108,52 @@ export const performSearch = (
     }
     return false;
   });
+};
+
+export const formatCsvHeaders = (columns: any) => {
+  const headers: any = [];
+
+  // Build the CSV header row
+  columns.forEach((column: any) => {
+    if ("children" in column) {
+      column.children.forEach((childColumn: any) => {
+        headers.push({
+          label: column.title + ": " + childColumn.title,
+          key: childColumn.key,
+        });
+      });
+    } else {
+      headers.push({ label: column.title, key: column.key });
+    }
+  });
+  return headers;
+};
+
+export const formatCsvData = (data: any, columns: any, keyRefs: any) => {
+  const getCellValue = (row: any, column: any) => {
+    if (!Object.prototype.hasOwnProperty.call(keyRefs, column.key)) return "";
+    const cellValue = getNestedObjectValue(row, keyRefs[column.key]);
+    if (cellValue instanceof Array) return cellValue.join(", ");
+    return cellValue;
+  };
+
+  const formattedData: any = [];
+
+  // Build the formatted data object
+  data.forEach((row: any) => {
+    const formattedRow: any = {};
+    columns.forEach((column: any) => {
+      if ("children" in column) {
+        column.children.forEach((childColumn: any) => {
+          formattedRow[childColumn.key] = getCellValue(row, childColumn);
+        });
+      } else {
+        formattedRow[column.key] = getCellValue(row, column);
+      }
+    });
+    formattedData.push(formattedRow);
+  });
+  return formattedData;
 };
 
 export const buildColumnDefinition = (

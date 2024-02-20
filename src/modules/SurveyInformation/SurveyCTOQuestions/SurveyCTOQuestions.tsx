@@ -109,10 +109,7 @@ function SurveyCTOQuestions() {
             "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
           );
         }
-
-        console.log("refreshRes", refreshRes);
       }
-      console.log("questionsRes", questionsRes);
     } else {
       message.error(
         "Kindly check if the form_uid is provided on the url to proceed."
@@ -125,7 +122,6 @@ function SurveyCTOQuestions() {
     if (form_uid != undefined) {
       const res = await dispatch(getSCTOFormMapping({ formUid: form_uid }));
       const formData: any = res.payload;
-      console.log("res", formData);
       await setSurveySCTOQuestionsData(formData);
     } else {
       message.error(
@@ -368,12 +364,6 @@ function SurveyCTOQuestions() {
                           v === value && value !== undefined && value !== ""
                       ).length;
 
-                      console.log("survey_status value", value);
-                      console.log(
-                        "survey_status valueOccurrences",
-                        valueOccurrences
-                      );
-
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");
                       }
@@ -412,9 +402,6 @@ function SurveyCTOQuestions() {
                         (v) =>
                           v === value && value !== undefined && value !== ""
                       ).length;
-
-                      console.log("revisit value", value);
-                      console.log("revisit valueOccurrences", valueOccurrences);
 
                       if (valueOccurrences > 1) {
                         return Promise.reject("Duplicate value!");

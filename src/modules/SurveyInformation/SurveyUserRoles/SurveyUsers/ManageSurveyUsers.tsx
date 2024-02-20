@@ -102,18 +102,13 @@ function ManageSurveyUsers() {
   const handleDeleteUser = async () => {
     const selectedUserData = selectedRows[0];
 
-    console.log("selectedUserData", selectedUserData);
     const rolesToRemove = rolesTableData.filter((r: any) =>
       selectedUserData.roles.includes(r.role_uid)
     );
 
-    console.log("rolesToRemove", rolesToRemove);
-
     selectedUserData.roles = selectedUserData.roles.filter(
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
-
-    console.log(" selectedUserData.roles ", selectedUserData.roles);
 
     const updateRes = await dispatch(
       putUpdateUser({
@@ -150,8 +145,15 @@ function ManageSurveyUsers() {
     },
     {
       title: "Roles",
-      dataIndex: "user_role_names",
       key: "user_role_names",
+      dataIndex: "user_role_names",
+      render: (text: any, record: any) => {
+        if (record.user_admin_surveys && record.user_admin_surveys.length > 0) {
+          return <>{`Survey Admin`}</>;
+        } else {
+          return <>{record.user_role_names}</>;
+        }
+      },
     },
   ];
 
@@ -182,7 +184,6 @@ function ManageSurveyUsers() {
   };
 
   const handleEditUser = () => {
-    console.log(selectedRows);
     if (selectedRows.length < 1) {
       message.error("Kindly select user to edit");
       return;
@@ -193,7 +194,6 @@ function ManageSurveyUsers() {
   };
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const transformedData: any[] = (
@@ -212,7 +212,7 @@ function ManageSurveyUsers() {
   useEffect(() => {
     fetchAllUsers();
     fetchSupervisorRoles();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>
@@ -324,6 +324,7 @@ function ManageSurveyUsers() {
                     key={column.dataIndex}
                     title={column.title}
                     dataIndex={column.dataIndex}
+                    render={column.render}
                     sorter={{
                       compare: (a: any, b: any) =>
                         a[column.dataIndex] - b[column.dataIndex],

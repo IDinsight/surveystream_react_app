@@ -86,8 +86,10 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         "YYYY-MM-DD"
       ),
       planned_end_date: dayjs(objValues.planned_end_date).format("YYYY-MM-DD"),
-      config_status: "In Progress - Configuration",
-      state: "Draft",
+      config_status: basicInfo?.config_status
+        ? basicInfo?.config_status
+        : "In Progress - Configuration",
+      state: basicInfo?.state ? basicInfo?.state : "Draft",
       created_by_user_uid: userUId,
     };
   };

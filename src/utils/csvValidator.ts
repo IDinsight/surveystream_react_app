@@ -159,7 +159,6 @@ export const classifyErrorsForColumns = (
 };
 
 export const validateCSVData = async (file: File) => {
-  console.log("file", file);
   const text = await readFileAsText(file);
   const lines = text.split("\n");
   const headers = lines[0].split(",");
@@ -172,8 +171,6 @@ export const validateCSVData = async (file: File) => {
   }
 
   const duplicateColumns = findDuplicateColumns(headers);
-
-  console.log("duplicateColumns", duplicateColumns);
 
   if (duplicateColumns.length > 0) {
     return displayValidationErrors([

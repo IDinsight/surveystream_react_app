@@ -30,7 +30,6 @@ function SurveyorStatus({ record, formID }: ISurveyorStatusProps) {
             newStatus: e.key,
           })
         ).then((response: any) => {
-          console.log(response);
           if (
             response.payload.status === 200 &&
             response.payload.data.success

@@ -93,7 +93,18 @@ function UsersManage() {
           const surveys = user?.user_survey_names || [];
 
           const superAdminRole = user.is_super_admin ? "[Super Admin]" : "";
-          const surveyAdminRole = user.is_survey_admin ? "[Survey Admin]" : "";
+
+          let surveyAdminRole = "";
+
+          if (user.user_admin_surveys.length > 0) {
+            if (user.user_admin_survey_names.length > 0) {
+              for (const survey_name of user.user_admin_survey_names) {
+                surveyAdminRole = `${surveyAdminRole} [Survey Admin, ${survey_name}]`;
+              }
+            } else {
+              surveyAdminRole = `[Survey Admin]`;
+            }
+          }
 
           const userRoles =
             roles.length > 0
@@ -163,7 +174,6 @@ function UsersManage() {
           user_uid: selectedUserData.user_uid,
         })
       );
-      console.log("deleteRes", deleteRes);
       if (deleteRes.payload?.message) {
         fetchAllUsers();
         message.success("User removed from the system successfully");
@@ -190,7 +200,6 @@ function UsersManage() {
   };
 
   const handleEditUser = () => {
-    console.log(selectedRows);
     if (selectedRows.length > 1) {
       message.error("Kindly select only one user to edit");
       return;
