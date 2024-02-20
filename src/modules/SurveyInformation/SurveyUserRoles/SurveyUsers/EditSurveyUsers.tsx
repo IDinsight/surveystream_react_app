@@ -87,22 +87,15 @@ function EditSurveyUsers() {
       const deleteHierarchyRes = await dispatch(
         deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
       );
-
-      console.log("deleteHierarchyRes", deleteHierarchyRes);
     } else {
       const updateHierarchyRes = await dispatch(
         putUserHierarchy({ hierarchyData: payload })
       );
-
-      console.log("updateHierarchyRes", updateHierarchyRes);
     }
   };
 
   const handleUpdateUser = async () => {
-    console.log("handleUpdateUser");
     setLoading(true);
-
-    console.log("editUser", editUser);
 
     const initialUserData = editUser;
     const commonRoles = rolesTableData.filter((r: any) =>
@@ -134,14 +127,10 @@ function EditSurveyUsers() {
         })
       );
 
-      console.log("updateRes", updateRes);
-
       if (updateRes.payload?.user_data) {
         //update user hierarchy here
-        console.log(newRole, userDetails);
 
         if (newRole && userDetails?.supervisor) {
-          console.log("updateUserHierarchy", updateUserHierarchy);
           updateUserHierarchy(
             userDetails?.user_uid,
             survey_uid,
@@ -162,7 +151,6 @@ function EditSurveyUsers() {
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const transformedData: any[] = (

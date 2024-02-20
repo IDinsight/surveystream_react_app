@@ -11,8 +11,6 @@ export const postCheckUser = async (email?: any) => {
 
     const payload = { email: email };
 
-    console.log("payload", payload);
-
     const res = await axios.post(url, payload, {
       headers: {
         "X-CSRF-Token": csrfToken,
@@ -33,8 +31,6 @@ export const postCompleteRegistration = async (userPayload: any) => {
     const url = `${API_BASE_URL}/users/complete-registration`;
 
     const payload = { ...userPayload };
-
-    console.log("payload", payload);
 
     const res = await axios.post(url, payload, {
       headers: {
@@ -130,7 +126,6 @@ export const fetchUsers = async (survey_uid?: any) => {
     } else {
       url = `${API_BASE_URL}/users`;
     }
-    console.log("url", url);
 
     const res = await axios.get(url, {
       headers: {

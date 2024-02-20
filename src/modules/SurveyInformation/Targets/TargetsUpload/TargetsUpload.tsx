@@ -92,11 +92,6 @@ function TargetsUpload() {
     rows: string[],
     base64Data: string
   ) => {
-    // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
-    console.log("rows:", rows);
-
     dispatch(setTargetsCSVColumns(columnNames));
     dispatch(setTargetsCSVRows(rows));
     dispatch(setTargetsFileUpload(true));

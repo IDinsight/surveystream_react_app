@@ -201,8 +201,6 @@ function TargetsMap() {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -285,8 +283,6 @@ function TargetsMap() {
         setHasError(true);
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = targetMappingForm.getFieldsValue();
 
@@ -296,8 +292,6 @@ function TargetsMap() {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 
@@ -324,8 +318,6 @@ function TargetsMap() {
           locationDetailsField.includes(key) ||
           ["location_id_column"].includes(key);
 
-        console.log("bottom_geo_level_location", key, personal, location);
-
         if (key === "custom_fields") {
           //loop through the custom fields checking for pii
           const customFields: any = column_mapping[key];
@@ -345,8 +337,6 @@ function TargetsMap() {
               contains_pii: pii,
             };
           });
-
-          console.log("fieldsConfig", fieldsConfig);
         }
 
         return {
@@ -378,16 +368,12 @@ function TargetsMap() {
         config.column_name !== `custom_fields`
     );
 
-    console.log("filteredCustomConfig", filteredCustomConfig);
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
         columnConfig: filteredCustomConfig,
       })
     );
-
-    console.log(customConfig);
   };
 
   const findLowestGeoLevel = (locationData: any) => {
@@ -401,8 +387,6 @@ function TargetsMap() {
         lowestGeoLevel = item;
       }
     }
-
-    console.log("lowestGeoLevel", lowestGeoLevel);
 
     return lowestGeoLevel;
   };
@@ -427,8 +411,6 @@ function TargetsMap() {
 
           const locationData = locationRes?.payload;
 
-          console.log("locationData", locationData);
-
           const lowestGeoLevel = findLowestGeoLevel(locationData);
 
           if (lowestGeoLevel?.geo_level_name) {
@@ -438,8 +420,6 @@ function TargetsMap() {
                 key: `location_id_column`,
               },
             ]);
-
-            console.log("locationDetailsField", locationDetailsField);
           }
         }
       }

@@ -91,22 +91,16 @@ function AddSurveyUsers() {
       const deleteHierarchyRes = await dispatch(
         deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
       );
-
-      console.log("deleteHierarchyRes", deleteHierarchyRes);
     } else {
       const updateHierarchyRes = await dispatch(
         putUserHierarchy({ hierarchyData: payload })
       );
-
-      console.log("updateHierarchyRes", updateHierarchyRes);
     }
   };
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
     const checkResponse = await dispatch(postCheckUser(email));
-
-    console.log("checkResponse", checkResponse);
 
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
@@ -166,9 +160,6 @@ function AddSurveyUsers() {
       if (isExistingUser) {
         const initialUserData = checkedUser?.user;
 
-        console.log("initialUserData.roles", initialUserData.roles);
-        console.log("userDetails.roles", userDetails.roles);
-
         if (
           initialUserData?.roles &&
           initialUserData.roles.length >= userDetails.roles.length
@@ -187,7 +178,6 @@ function AddSurveyUsers() {
           }
         }
         userDetails.survey_uid = survey_uid;
-        console.log("userDetails.roles", userDetails.roles);
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -196,7 +186,6 @@ function AddSurveyUsers() {
           })
         );
         if (updateRes.payload?.user_data) {
-          console.log("updateRes", updateRes);
           if (newRole && userDetails?.supervisor) {
             updateUserHierarchy(
               userDetails?.user_uid,
@@ -215,24 +204,14 @@ function AddSurveyUsers() {
         //perform add user
         const addRes = await dispatch(postAddUser(userDetails));
 
-        console.log("addRes", addRes);
-
         const newRole = userDetails.roles[userDetails.roles.length - 1];
-
-        console.log("newRole", newRole);
 
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
-          console.log(
-            "addRes.payload?.data?.user_uid",
-            addRes.payload?.data?.user_uid
-          );
-          updateUserHierarchy(
-            addRes.payload?.data?.user_uid,
+          addRes.payload?.data?.user_uid,
             survey_uid,
             newRole,
-            userDetails?.supervisor
-          );
+            userDetails?.supervisor;
 
           message.success(
             "User Added! An email has been sent to the user with the login information."
@@ -250,7 +229,6 @@ function AddSurveyUsers() {
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const transformedData: any[] = (
@@ -261,8 +239,6 @@ function AddSurveyUsers() {
         has_reporting_role: item.reporting_role_uid ? true : false,
         reporting_role_uid: item.reporting_role_uid,
       }));
-
-      console.log("transformedData", transformedData);
 
       setRolesTableData(transformedData);
     } else {

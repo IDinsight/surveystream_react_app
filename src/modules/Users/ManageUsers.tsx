@@ -174,7 +174,6 @@ function UsersManage() {
           user_uid: selectedUserData.user_uid,
         })
       );
-      console.log("deleteRes", deleteRes);
       if (deleteRes.payload?.message) {
         fetchAllUsers();
         message.success("User removed from the system successfully");
@@ -201,7 +200,6 @@ function UsersManage() {
   };
 
   const handleEditUser = () => {
-    console.log(selectedRows);
     if (selectedRows.length > 1) {
       message.error("Kindly select only one user to edit");
       return;

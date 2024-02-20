@@ -81,18 +81,14 @@ function EditSurveyRoles() {
   );
   const fetchAllPermissions = async () => {
     const res = await dispatch(getAllPermissions());
-    console.log("getAllPermissions", res.payload);
     setAllPermissions(res.payload);
   };
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const originalRolesData: OriginalRolesData[] = res.payload;
-      console.log("originalRolesData", originalRolesData);
-      console.log("role_uid", role_uid);
 
       const transformedData: TransformedRolesData[] = (
         Array.isArray(originalRolesData)
@@ -102,8 +98,6 @@ function EditSurveyRoles() {
         role_uid: item.role_uid,
         role: item.role_name,
       }));
-
-      console.log("transformedData", transformedData);
 
       setRolesTableData(transformedData);
 
@@ -121,8 +115,6 @@ function EditSurveyRoles() {
           duplicate: rolePermissions?.duplicate,
         })
       );
-
-      console.log("filteredRole", filteredRole);
 
       if (filteredRole?.reporting_role_uid != null) {
         setHasReportingRole(true);
@@ -147,8 +139,6 @@ function EditSurveyRoles() {
 
   const handlePermissionsChange = async (newPermissions: any[]) => {
     setLocalPermissions(newPermissions);
-    console.log("handlePermissionsChange", newPermissions);
-    console.log("rolePermissions", rolePermissions);
   };
 
   const handleRadioChange = (value: boolean) => {
@@ -158,8 +148,6 @@ function EditSurveyRoles() {
   const handleEditRole = async () => {
     try {
       const formValues = editRolesForm.getFieldsValue();
-
-      console.log("formValues", formValues);
 
       setLoading(true);
       if (survey_uid == undefined) {

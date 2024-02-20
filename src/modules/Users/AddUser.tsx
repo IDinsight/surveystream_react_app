@@ -73,7 +73,6 @@ function AddUser() {
   };
 
   const handleUpdateUser = async () => {
-    console.log("handleUpdateUser");
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
@@ -87,8 +86,6 @@ function AddUser() {
             userData: userDetails,
           })
         );
-
-        console.log("updateRes", updateRes);
 
         if (updateRes.payload?.user_data) {
           //update user hierarchy here
@@ -106,11 +103,7 @@ function AddUser() {
           ? true
           : userDetails.can_create_survey;
 
-        console.log("userDetails", userDetails);
-
         const addRes = await dispatch(postAddUser(userDetails));
-
-        console.log("addRes", addRes);
 
         if (addRes.payload?.status == 200) {
           //no need to update user hierarchy

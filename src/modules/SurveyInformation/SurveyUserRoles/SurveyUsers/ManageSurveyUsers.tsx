@@ -102,18 +102,13 @@ function ManageSurveyUsers() {
   const handleDeleteUser = async () => {
     const selectedUserData = selectedRows[0];
 
-    console.log("selectedUserData", selectedUserData);
     const rolesToRemove = rolesTableData.filter((r: any) =>
       selectedUserData.roles.includes(r.role_uid)
     );
 
-    console.log("rolesToRemove", rolesToRemove);
-
     selectedUserData.roles = selectedUserData.roles.filter(
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
-
-    console.log(" selectedUserData.roles ", selectedUserData.roles);
 
     const updateRes = await dispatch(
       putUpdateUser({
@@ -189,7 +184,6 @@ function ManageSurveyUsers() {
   };
 
   const handleEditUser = () => {
-    console.log(selectedRows);
     if (selectedRows.length < 1) {
       message.error("Kindly select user to edit");
       return;
@@ -200,7 +194,6 @@ function ManageSurveyUsers() {
   };
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-    console.log("res", res);
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
       const transformedData: any[] = (

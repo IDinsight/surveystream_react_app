@@ -20,7 +20,6 @@ function AssignmentsTab({
   handleTableChange,
   setColumn,
 }: IAssignmentsTabProps) {
-  // console.log("mainData", mainData);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
 
   /* 

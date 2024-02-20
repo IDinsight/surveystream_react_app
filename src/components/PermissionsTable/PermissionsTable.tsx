@@ -93,7 +93,6 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
         } else {
           updatedGroup[type] = e.target.checked;
         }
-        console.log(updatedGroup);
 
         return updatedGroup;
       }
@@ -111,8 +110,6 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
     onPermissionsChange(extractedPermissions);
 
     const setRolesRes = await dispatch(setRolePermissions(rolePermissionsData));
-
-    console.log("setRolesRes", setRolesRes);
   };
 
   const extractRolePermissions = (localPermissions: any) => {
@@ -121,8 +118,6 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
     localPermissions.forEach((permission: any) => {
       const permissionsArray = permission.permissions
         .filter((p: any) => {
-          console.log("permission", permission);
-
           if (permission.view === true && p.name.includes("READ")) {
             return true;
           } else if (permission.edit === true && p.name.includes("WRITE")) {

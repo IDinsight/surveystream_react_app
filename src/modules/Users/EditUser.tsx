@@ -34,7 +34,6 @@ function EditUser() {
   });
 
   const handleUpdateUser = async () => {
-    console.log("handleUpdateUser");
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
@@ -48,8 +47,6 @@ function EditUser() {
           userData: userDetails,
         })
       );
-
-      console.log("updateRes", updateRes);
 
       if (updateRes.payload?.user_data) {
         //update user hierarchy here

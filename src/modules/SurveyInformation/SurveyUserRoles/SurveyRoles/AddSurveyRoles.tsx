@@ -88,7 +88,6 @@ function AddSurveyRoles() {
 
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
-      console.log("originalRolesData", originalRolesData);
 
       const transformedData: TransformedRolesData[] = (
         Array.isArray(originalRolesData)
@@ -99,8 +98,6 @@ function AddSurveyRoles() {
         role: item.role_name,
       }));
 
-      console.log("transformedData", transformedData);
-
       setRolesTableData(transformedData);
     } else {
       setRolesTableData([]);
@@ -109,21 +106,16 @@ function AddSurveyRoles() {
 
   const fetchAllPermissions = async () => {
     const res = await dispatch(getAllPermissions());
-    console.log("getAllPermissions", res.payload);
     setAllPermissions(res.payload);
   };
 
   const handlePermissionsChange = async (newPermissions: any[]) => {
     setLocalPermissions(newPermissions);
-    console.log("handlePermissionsChange", newPermissions);
-    console.log("rolePermissions", rolePermissions);
   };
 
   const handleAddRole = async () => {
     try {
       const formValues = addRolesForm.getFieldsValue();
-
-      console.log("formValues", formValues);
 
       setLoading(true);
       if (survey_uid == undefined) {
@@ -148,8 +140,6 @@ function AddSurveyRoles() {
           );
 
           otherRoles.push(formValues);
-
-          console.log("supervisorRoles", otherRoles);
 
           const rolesRes = await dispatch(
             postSupervisorRoles({

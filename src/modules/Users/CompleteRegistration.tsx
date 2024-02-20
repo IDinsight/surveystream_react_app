@@ -38,14 +38,10 @@ function CompleteRegistration() {
       invite_code: token,
     };
 
-    console.log("requestData", requestData);
-
     try {
       const completeRegistrationRes = await dispatch(
         postCompleteRegistration(requestData)
       );
-
-      console.log("completeRegistrationRes", completeRegistrationRes);
 
       if (completeRegistrationRes.payload?.status === 200) {
         setActionDone(true);
