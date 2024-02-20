@@ -213,7 +213,7 @@ function AddSurveyUsers() {
             addRes.payload?.data?.user_uid,
             survey_uid,
             newRole,
-            userDetails?.supervisor;
+            userDetails?.supervisor);
 
           message.success(
             "User Added! An email has been sent to the user with the login information."
