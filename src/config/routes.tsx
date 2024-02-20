@@ -48,12 +48,17 @@ const isAuthenticated = () => {
   return rememberToken !== "";
 };
 
-const isSuperAdmin = () => {
-  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+const useUserProfile = () => {
+  return useAppSelector((state: RootState) => state.auth.profile);
+};
+
+const useIsSuperAdmin = () => {
+  const userProfile = useUserProfile();
   return userProfile?.is_super_admin;
 };
-const canCreateSurvey = () => {
-  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+
+const useCanCreateSurvey = () => {
+  const userProfile = useUserProfile();
   return userProfile?.can_create_survey;
 };
 
@@ -64,7 +69,7 @@ const PrivateRoute = () => {
 
 const SuperAdminRoute = () => {
   const isAuthorized = isAuthenticated();
-  const isAdmin = isSuperAdmin();
+  const isAdmin = useIsSuperAdmin();
   const isSuperAdminAuthorized = isAuthorized && isAdmin;
 
   return isSuperAdminAuthorized ? <Outlet /> : <PermissionDenied />;
@@ -72,7 +77,7 @@ const SuperAdminRoute = () => {
 
 const SurveyCreationRoute = () => {
   const isAuthorized = isAuthenticated();
-  const canCreate = canCreateSurvey();
+  const canCreate = useCanCreateSurvey();
   const isSurveyAuthorized = isAuthorized && canCreate;
 
   return isSurveyAuthorized ? <Outlet /> : <PermissionDenied />;
