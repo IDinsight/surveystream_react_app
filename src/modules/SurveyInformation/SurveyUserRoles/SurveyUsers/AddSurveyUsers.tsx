@@ -208,7 +208,9 @@ function AddSurveyUsers() {
 
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
-          addRes.payload?.data?.user_uid,
+
+          updateUserHierarchy(
+            addRes.payload?.data?.user_uid,
             survey_uid,
             newRole,
             userDetails?.supervisor;
