@@ -58,7 +58,10 @@ export const userHasPermission = (
   }
 
   // Check if user has admin access to the survey
-  if (userProfile.admin_surveys?.[survey_uid]) {
+  if (
+    userProfile.admin_surveys &&
+    userProfile.admin_surveys.includes(parseInt(survey_uid))
+  ) {
     return true;
   }
 
