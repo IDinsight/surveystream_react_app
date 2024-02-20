@@ -228,22 +228,17 @@ const SurveyConfiguration: React.FC = () => {
     sectionConfig: any,
     index: number
   ) => {
-    let moduleCount = 0;
     if (Array.isArray(sectionConfig) && sectionConfig.length > 0) {
       return (
         <div key={index}>
           {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
-            <SectionTitle>{`${
-              moduleCount + 1
-            } -> ${sectionTitle}`}</SectionTitle>
+            <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
           )}
 
           <div style={{ flexWrap: "wrap", display: "flex" }}>
             {sectionConfig.map((item: any, i: number) => {
               const hasPermission = checkPermissions(item?.name);
-              if (hasPermission) {
-                moduleCount++;
-              }
+
               return hasPermission ? (
                 <Link
                   key={i}
@@ -281,12 +276,10 @@ const SurveyConfiguration: React.FC = () => {
       Object.keys(sectionConfig).length > 0
     ) {
       const hasPermission = checkPermissions(sectionTitle);
-      if (hasPermission) {
-        moduleCount++;
-      }
+
       return hasPermission ? (
         <div key={index}>
-          <SectionTitle>{`${moduleCount + 1} -> ${sectionTitle}`}</SectionTitle>
+          <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
 
           <Link
             style={{
@@ -319,23 +312,21 @@ const SurveyConfiguration: React.FC = () => {
         </div>
       ) : null;
     } else {
-      return (
-        <Result
-          key={index}
-          title={"Reload Configuration"}
-          subTitle={"Failed to load configuration, kindly reload"}
-          extra={
-            <Button
-              onClick={fetchData}
-              type="primary"
-              className="bg-geekblue-5 h-[40px]"
-              size="large"
-            >
-              Reload Data
-            </Button>
-          }
-        />
-      );
+      <Result
+        key={index}
+        title={"Reload Configuration"}
+        subTitle={"Failed to load configuration, kindly reload"}
+        extra={
+          <Button
+            onClick={fetchData}
+            type="primary"
+            className="bg-geekblue-5 h-[40px]"
+            size="large"
+          >
+            Reload Data
+          </Button>
+        }
+      />;
     }
   };
 
