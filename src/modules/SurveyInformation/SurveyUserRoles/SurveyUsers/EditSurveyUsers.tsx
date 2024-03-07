@@ -118,6 +118,10 @@ function EditSurveyUsers() {
 
     userDetails.survey_uid = survey_uid;
 
+    if (userDetails.is_super_admin) {
+      userDetails.can_create_survey = true;
+    }
+
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
       const updateRes = await dispatch(

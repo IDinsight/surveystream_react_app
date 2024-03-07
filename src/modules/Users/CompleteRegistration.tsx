@@ -5,11 +5,15 @@ import Footer from "../../components/Footer";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import SuccessCard from "../../components/SuccessCard";
-import { performResetPassword } from "../../redux/auth/authActions";
+import {
+  performLogout,
+  performResetPassword,
+} from "../../redux/auth/authActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import ResetPasswordComponent from "../../components/ResetPasswordComponent";
 import { ResetParams, ResetPasswordData } from "../../redux/auth/types";
+
 import { LockOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { postCompleteRegistration } from "../../redux/userManagement/userManagementActions";
@@ -68,6 +72,16 @@ function CompleteRegistration() {
       content: "Failed to complete user registration!",
     });
   };
+
+  const handleLogOut = async () => {
+    const logoutRes = await dispatch(performLogout());
+    console.log("logoutRes", logoutRes);
+  };
+
+  useEffect(() => {
+    //logout users incase logged in
+    handleLogOut();
+  }, []);
 
   return (
     <>
