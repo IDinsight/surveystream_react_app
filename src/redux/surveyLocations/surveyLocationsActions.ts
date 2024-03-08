@@ -15,7 +15,11 @@ import {
   postSurveyLocationsFailure,
   postSurveyLocationsRequest,
   postSurveyLocationsSuccess,
+  putSurveyPrimeGeoLevelRequest,
+  putSurveyPrimeGeoLevelRequestSuccess,
+  putSurveyPrimeGeoLevelRequestFailure,
 } from "./surveyLocationsSlice";
+import { putSurveyBasicInformationFailure } from "../surveyConfig/surveyConfigSlice";
 
 export const postSurveyLocationGeoLevels = createAsyncThunk(
   "surveyLocations/postSurveyLocationGeoLevels",
@@ -123,6 +127,45 @@ export const postSurveyLocations = createAsyncThunk(
   }
 );
 
+export const updateSurveyPrimeGeoLocation = createAsyncThunk(
+  "surveyLocations/updateSurveyPrimeGeoLocation",
+
+  async (
+    { payload, surveyUid }: { payload: any; surveyUid: string },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putSurveyPrimeGeoLevelRequest());
+      const response: any = await api.updateSurveyPrimeGeoLocation(
+        payload,
+        surveyUid
+      );
+
+      if (response.status == 200) {
+        dispatch(putSurveyPrimeGeoLevelRequestSuccess(response.data));
+        return { ...response.data, success: true };
+      }
+
+      const error = {
+        message: response.message
+          ? response.message
+          : "Failed to update survey, kindly check your inputs and try again.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
+      };
+
+      dispatch(putSurveyPrimeGeoLevelRequestFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update survey";
+      dispatch(putSurveyBasicInformationFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const getSurveyLocations = createAsyncThunk(
   "surveyLocations/getSurveyLocations",
   async (params: { survey_uid: string }, { dispatch, rejectWithValue }) => {
@@ -154,4 +197,5 @@ export const fieldSupervisorRolesActions = {
   getSurveyLocations,
   postSurveyLocationGeoLevels,
   postSurveyLocations,
+  updateSurveyPrimeGeoLocation,
 };
