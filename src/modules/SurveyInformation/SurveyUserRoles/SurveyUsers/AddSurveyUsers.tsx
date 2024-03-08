@@ -177,7 +177,7 @@ function AddSurveyUsers() {
             );
           }
         }
-        if (userDetails.is_survey_admin) {
+        if (userDetails.is_survey_admin || userDetails.is_super_admin) {
           userDetails.can_create_survey = true;
         }
         userDetails.survey_uid = survey_uid;
@@ -206,7 +206,7 @@ function AddSurveyUsers() {
       } else {
         userDetails.survey_uid = survey_uid;
         //perform add user
-        if (userDetails.is_survey_admin) {
+        if (userDetails.is_survey_admin || userDetails.is_super_admin) {
           userDetails.can_create_survey = true;
         }
         const addRes = await dispatch(postAddUser(userDetails));
