@@ -3,12 +3,12 @@ import { CloseCircleOutlined, InboxOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 import { FieldSchema } from "csv-file-validator";
 
-import { Buffer } from "buffer";
 import {
   basicCSVValidations,
   classifyErrorsForColumns,
   validateCSVData,
 } from "../../../../utils/csvValidator";
+import Papa, { ParseResult } from "papaparse";
 const { Dragger } = Upload;
 
 interface IFileUpload {
@@ -87,11 +87,13 @@ function FileUpload({
     reader.onload = () => {
       const csvData = reader.result as string;
       const encodedData = csvData.split(",")[1]; // Extract the base64 data
-      const decodedData = Buffer.from(encodedData, "base64").toString(); // Decode the base64 data
-      const rows = decodedData.split("\n");
-      const columnNames = rows[0]
-        .split(",")
-        .map((columnName) => columnName.trim()); // Trim the column names
+      const decodedData = atob(encodedData); // Decode the base64 data
+      const parsedCsv: ParseResult<string[]> = Papa.parse(decodedData);
+      const parsedCsvData = parsedCsv.data;
+      const columnNames = parsedCsvData[0].map((columnName: string) =>
+        columnName.trim()
+      );
+      const rows = parsedCsvData.map((row) => row.join(","));
 
       setTimeout(() => {
         onFileUpload(file, columnNames, rows, encodedData);
