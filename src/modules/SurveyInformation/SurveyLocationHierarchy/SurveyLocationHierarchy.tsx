@@ -25,6 +25,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   getSurveyLocationGeoLevels,
   postSurveyLocationGeoLevels,
+  updateSurveyPrimeGeoLocation,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
 import {
@@ -32,11 +33,7 @@ import {
   setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  getSurveyBasicInformation,
-  updateBasicInformation,
-} from "../../../redux/surveyConfig/surveyConfigActions";
-import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
+import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -92,28 +89,27 @@ function SurveyLocationHierarchy() {
     }
   };
 
-  const updateSurveyPrimeGeoLocation = async (
+  const updatePrimeGeoLocation = async (
     survey_uid: string,
     prime_geo_location: string
   ) => {
-    if (surveyBasicInformation) {
-      const basicInformation: any = {
-        ...surveyBasicInformation,
-        prime_geo_level_uid: prime_geo_location,
-      };
+    const payload: any = {
+      prime_geo_level_uid: prime_geo_location,
+    };
 
-      const updateRes = await dispatch(
-        updateBasicInformation({
-          basicInformationData: basicInformation,
-          surveyUid: survey_uid,
-        })
-      );
+    const updateRes = await dispatch(
+      updateSurveyPrimeGeoLocation({
+        payload: payload,
+        surveyUid: survey_uid,
+      })
+    );
 
-      if (updateRes?.payload) {
-        message.success("Updated the survey prime geo location");
-      } else {
-        message.error("Failed to updated the survey prime geo location");
-      }
+    console.log("updateRes", updateRes);
+
+    if (updateRes?.payload?.success) {
+      message.success("Updated the survey prime geo location");
+    } else {
+      message.error("Failed to updated the survey prime geo location");
     }
   };
 
@@ -262,7 +258,7 @@ function SurveyLocationHierarchy() {
             surveyPrimeGeoLocation !== null &&
             surveyPrimeGeoLocation !== "no_location"
           ) {
-            updateSurveyPrimeGeoLocation(survey_uid, surveyPrimeGeoLocation);
+            updatePrimeGeoLocation(survey_uid, surveyPrimeGeoLocation);
           }
 
           navigate(`/survey-information/location/upload/${survey_uid}`);

@@ -42,6 +42,7 @@ function ManageSurveyUsers() {
   const [userTableDataSource, setUserTableDataSource] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+  const [hasSelected, setHasSelected] = useState<boolean>(false);
   const [searchText, setSearchText] = useState("");
   const [filteredUserTableData, setFilteredUserTableData] =
     useState(userTableDataSource);
@@ -82,13 +83,16 @@ function ManageSurveyUsers() {
     );
 
     setSelectedRows(selectedUserData);
+
+    if (selectedRows.length > 0) {
+      setHasSelected(true);
+    }
   };
 
   const rowSelection = {
     selectedRows,
     onChange: onSelectChange,
   };
-  const hasSelected = selectedRows.length > 0;
 
   // Handler for Edit Data button
   const onDeleteUser = async () => {
@@ -118,12 +122,12 @@ function ManageSurveyUsers() {
     );
     if (updateRes.payload?.user_data) {
       message.success("User removed from project successfully");
+      setHasSelected(false);
       fetchAllUsers();
     } else {
       message.error("Failed to remove user from project, kindly try again");
       console.log("error", updateRes.payload);
     }
-
     setIsOpenDeleteModel(false);
   };
 
