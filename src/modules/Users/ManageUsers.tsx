@@ -40,6 +40,7 @@ function UsersManage() {
     useState(userTableDataSource);
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(20);
+  const [hasSelected, setHasSelected] = useState<boolean>(false);
 
   // Delete confirmation
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
@@ -142,13 +143,15 @@ function UsersManage() {
     );
 
     setSelectedRows(selectedUserData);
+    if (selectedRows.length > 0) {
+      setHasSelected(true);
+    }
   };
 
   const rowSelection = {
     selectedRows,
     onChange: onSelectChange,
   };
-  const hasSelected = selectedRows.length > 0;
 
   // Handler for Edit Data button
   const onDeleteUser = async () => {
@@ -177,6 +180,7 @@ function UsersManage() {
       if (deleteRes.payload?.message) {
         fetchAllUsers();
         message.success("User removed from the system successfully");
+        setHasSelected(false);
       } else {
         message.error(
           "User cannot be deleted from the system,kindly check active projects."

@@ -72,7 +72,6 @@ export const performLogoutRequest = async () => {
   } catch (err: any) {
     if (err?.response?.status === 401) {
       deleteAllCookies();
-      window.location.href = "/login";
     }
     return err;
   }

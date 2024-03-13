@@ -37,9 +37,10 @@ function EditUser() {
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       //perform update user
-      userDetails.can_create_survey = userDetails.is_super_admin
-        ? true
-        : userDetails.can_create_survey;
+      userDetails.can_create_survey =
+        userDetails?.is_super_admin || userDetails?.is_survey_admin
+          ? true
+          : userDetails.can_create_survey;
 
       const updateRes = await dispatch(
         putUpdateUser({
