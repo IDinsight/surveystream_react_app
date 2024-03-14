@@ -381,7 +381,7 @@ function Assignments() {
   ];
 
   // Checking if the data is loading
-  const isLoading: boolean = tableConfigLoading && assignmentsLoading;
+  const isLoading: boolean = tableConfigLoading || assignmentsLoading;
 
   // Ensure that the survey_uid are available
   if (!survey_uid) {
