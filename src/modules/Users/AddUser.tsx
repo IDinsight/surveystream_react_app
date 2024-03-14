@@ -76,9 +76,10 @@ function AddUser() {
     setLoading(true);
     updateUserForm.validateFields().then(async (formValues) => {
       if (isExistingUser) {
-        userDetails.can_create_survey = userDetails.is_super_admin
-          ? true
-          : userDetails.can_create_survey;
+        userDetails.can_create_survey =
+          userDetails?.is_super_admin || userDetails?.is_survey_admin
+            ? true
+            : userDetails.can_create_survey;
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({
@@ -99,9 +100,10 @@ function AddUser() {
         //perform add user
         //do not set any roles for new user
         //update if user is survey_admin
-        userDetails.can_create_survey = userDetails.is_super_admin
-          ? true
-          : userDetails.can_create_survey;
+        userDetails.can_create_survey =
+          userDetails?.is_super_admin || userDetails?.is_survey_admin
+            ? true
+            : userDetails.can_create_survey;
 
         const addRes = await dispatch(postAddUser(userDetails));
 

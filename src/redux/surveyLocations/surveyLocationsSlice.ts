@@ -45,6 +45,24 @@ const surveyLocationsSlice = createSlice({
       state.surveyLocationGeoLevels = [];
     },
 
+    putSurveyPrimeGeoLevelRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putSurveyPrimeGeoLevelRequestSuccess: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.error = null;
+    },
+    putSurveyPrimeGeoLevelRequestFailure: (
+      state,
+      action: PayloadAction<any>
+    ) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     postSurveyLocationGeoLevelsRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -109,6 +127,9 @@ export const {
   setSurveyLocationGeoLevels,
   addSurveyLocationGeoLevel,
   resetSurveyLocations,
+  putSurveyPrimeGeoLevelRequest,
+  putSurveyPrimeGeoLevelRequestFailure,
+  putSurveyPrimeGeoLevelRequestSuccess,
 } = surveyLocationsSlice.actions;
 
 export default surveyLocationsSlice.reducer;
