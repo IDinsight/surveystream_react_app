@@ -68,7 +68,7 @@ function SurveyorsTab({
         rowKey={(record) => record["enumerator_uid"]}
         columns={enumeratorTableColumns}
         dataSource={mainData}
-        scroll={{ x: 2200 }}
+        scroll={{ x: 2200, y: "calc(100vh - 380px)" }}
         bordered={true}
         onChange={handleTableChange}
         pagination={{

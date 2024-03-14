@@ -96,7 +96,7 @@ function AssignmentsTab({
         columns={mainTableColumns}
         dataSource={mainData}
         bordered={true}
-        scroll={{ x: 2500 }}
+        scroll={{ x: 2500, y: "calc(100vh - 380px)" }}
         onChange={handleTableChange}
         rowClassName={(record: any) =>
           !record.target_assignable ? "disabled-row" : ""
