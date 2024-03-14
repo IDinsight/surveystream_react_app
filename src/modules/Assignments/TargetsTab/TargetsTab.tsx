@@ -46,7 +46,7 @@ function TargetsTab({
         columns={targetTableColumns}
         dataSource={mainData}
         bordered={true}
-        scroll={{ x: 2500 }}
+        scroll={{ x: 2500, y: "calc(100vh - 380px)" }}
         onChange={handleTableChange}
         pagination={{
           pageSize: paginationPageSize,
