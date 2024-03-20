@@ -30,7 +30,7 @@ function FileUpload({
     const reader = new FileReader();
     reader.onload = () => {
       const csvData = reader.result as string;
-      const parsedCsv: ParseResult<string[]> = Papa.parse(csvData);
+      const parsedCsv: ParseResult<string[]> = Papa.parse(csvData, { skipEmptyLines: true });
       if (parsedCsv.data.length > maxRows) {
         message.error(`CSV file should have a maximum of ${maxRows} rows.`);
         return false;
@@ -50,7 +50,7 @@ function FileUpload({
         const csvData = reader.result as string;
         const encodedData = csvData.split(",")[1]; // Extract the base64 data
         const decodedData = atob(encodedData); // Decode the base64 data
-        const parsedCsv: ParseResult<string[]> = Papa.parse(decodedData);
+        const parsedCsv: ParseResult<string[]> = Papa.parse(decodedData, { skipEmptyLines: true });
         const parsedCsvData = parsedCsv.data;
         const columnNames = parsedCsvData[0].map((columnName: string) =>
           columnName.trim()
