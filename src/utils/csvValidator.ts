@@ -57,7 +57,7 @@ export const checkCSVRows = (file: File) => {
 
     reader.onload = () => {
       const csvData = reader.result as string;
-      const rows = Papa.parse(csvData).data;
+      const rows = Papa.parse(csvData, { skipEmptyLines: true }).data;
       if (rows.length > maxRows) {
         const error = `CSV file should have a maximum of ${maxRows} rows; found ${rows.length}`;
         message.error(error);
@@ -161,7 +161,9 @@ export const classifyErrorsForColumns = (
 
 export const validateCSVData = async (file: File) => {
   const text = await readFileAsText(file);
-  const parsedCsv: ParseResult<string[]> = Papa.parse(text);
+  const parsedCsv: ParseResult<string[]> = Papa.parse(text, {
+    skipEmptyLines: true,
+  });
   const headers = parsedCsv?.data[0];
   const emptyRows: number[] = [];
   const emptyColumns: string[] = [];
