@@ -427,7 +427,7 @@ function Assignments() {
                 filterData={mainData}
               />
               <Button
-                disabled={searchValue === "" && dataFilter?.length === 0}
+                disabled={searchValue === "" && !dataFilter}
                 icon={<ClearOutlined />}
                 style={{ marginLeft: "16px" }}
                 onClick={onClear}
