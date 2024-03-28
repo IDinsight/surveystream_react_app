@@ -2,7 +2,15 @@ import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import Header from "../../../../components/Header";
 import NavItems from "../../../../components/NavItems";
 import { PushpinOutlined } from "@ant-design/icons";
-import { Button, Table, Tag, message } from "antd";
+import {
+  Button,
+  DatePicker,
+  Table,
+  Tag,
+  TimePicker,
+  message,
+  Radio,
+} from "antd";
 import { useEffect, useState } from "react";
 import { AssignmentsSteps } from "./CreateAssignments.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -168,10 +176,9 @@ function CreateAssignments() {
       });
       return;
     }
-
     if (stepIndex === 1) {
       if (assignmentPayload.length === 0) {
-        message.error("No assginment payload to make the assignments");
+        message.error("No assignment payload to make the assignments");
         return;
       }
 
@@ -184,7 +191,9 @@ function CreateAssignments() {
             // Check if the update was successful
             if (data.success) {
               message.success("Assignments updated successfully", 2, () => {
-                navigate(-1);
+                setStepIndex((prev: number) => {
+                  return prev + 1;
+                });
               });
             } else {
               message.error("Error: " + data.message);
@@ -207,7 +216,7 @@ function CreateAssignments() {
     setSurveyorsFilter(filters);
   };
 
-  // const [emailMode, setEmailMode] = useState<string | null>(null);
+  const [emailMode, setEmailMode] = useState<string | null>(null);
 
   useEffect(() => {
     const finalObjects: any = [];
@@ -307,9 +316,9 @@ function CreateAssignments() {
               {
                 title: "Review assignments",
               },
-              // {
-              //   title: "Schedule emails",
-              // },
+              {
+                title: "Schedule emails",
+              },
             ]}
           />
         </div>
@@ -384,7 +393,7 @@ function CreateAssignments() {
               />
             </>
           ) : null}
-          {/* {stepIndex === 2 ? (
+          {stepIndex === 2 ? (
             <>
               <p
                 style={{
@@ -471,7 +480,7 @@ function CreateAssignments() {
                 </>
               ) : null}
             </>
-          ) : null} */}
+          ) : null}
           <div>
             <Button
               type="primary"
@@ -483,7 +492,7 @@ function CreateAssignments() {
               disabled={stepIndex === 0 && !hasSurveyorSelected}
               onClick={handleContinue}
             >
-              {stepIndex !== 1 ? "Continue" : "Done"}
+              {stepIndex !== 2 ? "Continue" : "Done"}
             </Button>
             <Button onClick={handleDismiss}>Dismiss</Button>
           </div>
