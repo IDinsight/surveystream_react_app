@@ -116,9 +116,29 @@ function CreateAssignments() {
     }
   };
 
+  const onSelectAll = (selected: boolean, selectedRows: any) => {
+    if (selectedRows.length > selectedAssignmentRows?.length) {
+      message.error(
+        "You can't select more surveyors than the number of targets selected"
+      );
+      return;
+    } else {
+      const selectedSurveyorUUID = selectedRows.map(
+        (row: any) => row.enumerator_uid
+      );
+
+      const selectedSurveyor = surveyorsDataSource?.filter((row: any) =>
+        selectedSurveyorUUID.includes(row.enumerator_uid)
+      );
+
+      setSelectedSurveyorRows(selectedSurveyor);
+    }
+  };
+
   const rowSelection = {
     selectedSurveyorRows,
     onSelect: onSelectOne,
+    onSelectAll: onSelectAll,
   };
   const hasSurveyorSelected = selectedSurveyorRows.length > 0;
 
