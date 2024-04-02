@@ -306,7 +306,7 @@ function AddUser() {
                         labelAlign="right"
                         labelCol={{ span: 24 }}
                         style={{ display: "block" }}
-                        initialValue={userDetails?.status}
+                        initialValue={userDetails?.active}
                         rules={[
                           {
                             required: false,
@@ -314,26 +314,26 @@ function AddUser() {
                           },
                         ]}
                         hasFeedback
-                        name="status"
+                        name="active"
                       >
                         <Radio.Group
                           style={{ display: "flex", width: "100%" }}
                           onChange={(e) =>
                             setUserDetails((prev: any) => ({
                               ...prev,
-                              status: e.target.value,
+                              active: e.target.value,
                             }))
                           }
-                          defaultValue={userDetails?.status}
+                          defaultValue={userDetails?.active}
                         >
                           <Radio.Button
-                            value={"Active"}
+                            value={true}
                             style={{ marginRight: "8px" }}
                           >
                             Yes
                           </Radio.Button>
                           <Radio.Button
-                            value={"Deactivated"}
+                            value={false}
                             style={{ marginRight: "8px" }}
                           >
                             No
