@@ -8,7 +8,8 @@ export const TargetsHomeFormWrapper = styled.div`
   padding-top: 23px;
   font-family: "Inter", sans-serif;
   position: relative;
-  height: 850px;
+  min-height: 950px;
+  width: 70%;
 `;
 
 export const TargetsTable = styled(Table)`
