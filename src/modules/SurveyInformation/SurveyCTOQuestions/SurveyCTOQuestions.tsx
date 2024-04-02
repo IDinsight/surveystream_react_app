@@ -361,7 +361,10 @@ function SurveyCTOQuestions() {
                         surveyCTOQuestionsForm
                       ).filter(
                         (v) =>
-                          v === value && value !== undefined && value !== ""
+                          v === value &&
+                          value !== undefined &&
+                          value !== null &&
+                          value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
@@ -400,7 +403,10 @@ function SurveyCTOQuestions() {
                         surveyCTOQuestionsForm
                       ).filter(
                         (v) =>
-                          v === value && value !== undefined && value !== ""
+                          v === value &&
+                          value !== undefined &&
+                          value !== null &&
+                          value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
@@ -440,7 +446,10 @@ function SurveyCTOQuestions() {
                         surveyCTOQuestionsForm
                       ).filter(
                         (v) =>
-                          v === value && value !== undefined && value !== ""
+                          v === value &&
+                          value !== undefined &&
+                          value !== null &&
+                          value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
@@ -480,7 +489,10 @@ function SurveyCTOQuestions() {
                         surveyCTOQuestionsForm
                       ).filter(
                         (v) =>
-                          v === value && value !== undefined && value !== ""
+                          v === value &&
+                          value !== undefined &&
+                          value !== null &&
+                          value !== ""
                       ).length;
 
                       if (valueOccurrences > 1) {
