@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Radio, Select, message } from "antd";
+import { Button, Form, Input, Radio, message } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -213,7 +213,7 @@ function EditUser() {
                       labelAlign="right"
                       labelCol={{ span: 24 }}
                       style={{ display: "block" }}
-                      initialValue={userDetails?.status}
+                      initialValue={userDetails?.active}
                       rules={[
                         {
                           required: false,
@@ -221,26 +221,26 @@ function EditUser() {
                         },
                       ]}
                       hasFeedback
-                      name="status"
+                      name="active"
                     >
                       <Radio.Group
                         style={{ display: "flex", width: "100%" }}
                         onChange={(e) =>
                           setUserDetails((prev: any) => ({
                             ...prev,
-                            status: e.target.value,
+                            active: e.target.value,
                           }))
                         }
-                        defaultValue={userDetails?.status}
+                        defaultValue={userDetails?.active}
                       >
                         <Radio.Button
-                          value={"Active"}
+                          value={true}
                           style={{ marginRight: "8px" }}
                         >
                           Yes
                         </Radio.Button>
                         <Radio.Button
-                          value={"Deactivated"}
+                          value={false}
                           style={{ marginRight: "8px" }}
                         >
                           No

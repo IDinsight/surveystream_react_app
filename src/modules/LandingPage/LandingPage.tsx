@@ -99,7 +99,7 @@ function LandingPage() {
             </Link>
             <Button
               id="home-contact-us-button"
-              className="ml-[25px] text-[20px] !rounded-sm"
+              className="ml-[25px] !rounded-sm"
               type="default"
               target="_blank"
               rel="noreferrer"
