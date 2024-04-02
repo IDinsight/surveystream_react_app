@@ -130,6 +130,10 @@ function EditSurveyRoles() {
         });
       }
 
+      if (rolePermissions?.duplicate) {
+        editRolesForm.setFieldsValue({ role_name: null });
+      }
+
       setRolesEditData(filteredRole);
     } else {
       message.error("Could not fetch roles, kindly reload to try again");

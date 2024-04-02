@@ -58,9 +58,6 @@ function AddUser() {
           status: checkResponse.payload.data.user?.active
             ? "Active"
             : "Deactivated",
-          status: checkResponse.payload.data.user?.active
-            ? "Active"
-            : "Deactivated",
           user_role_names: userRolesData[0]?.user_role_names,
           user_survey_names: userRolesData[0]?.user_survey_names,
         };
