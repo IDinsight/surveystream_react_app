@@ -42,8 +42,9 @@ function UsersManage() {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(20);
   const [hasSelected, setHasSelected] = useState<boolean>(false);
 
-  // Delete confirmation
-  const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
+  // Deactivate confirmation
+  const [isOpenDeactivateModel, setIsOpenDeactivateModel] =
+    useState<boolean>(false);
 
   const usersTableColumn = [
     {
@@ -154,7 +155,7 @@ function UsersManage() {
   };
 
   // Handler for Edit Data button
-  const onDeleteUser = async () => {
+  const onDeactivateUser = async () => {
     if (!hasSelected) {
       message.error("No row selected for editing");
       return;
@@ -162,33 +163,35 @@ function UsersManage() {
 
     const isUserDeletable = true;
     if (!isUserDeletable) {
-      message.warning("User cannot be deleted as they have active projects");
+      message.warning(
+        "User cannot be deactivated as they have active projects"
+      );
       return;
     }
 
-    setIsOpenDeleteModel(true);
+    setIsOpenDeactivateModel(true);
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeactivateUser = async () => {
     selectedRows.forEach(async (row: any) => {
       const selectedUserData = row;
-      const deleteRes = await dispatch(
+      const deactivateRes = await dispatch(
         deleteUser({
           user_uid: selectedUserData.user_uid,
         })
       );
-      if (deleteRes.payload?.message) {
+      if (deactivateRes.payload?.message) {
         fetchAllUsers();
-        message.success("User removed from the system successfully");
+        message.success("User deactivated on the system successfully");
         setHasSelected(false);
       } else {
         message.error(
-          "User cannot be deleted from the system,kindly check active projects."
+          "User cannot be deactivated from the system,kindly check active projects."
         );
-        console.log("error", deleteRes.payload);
+        console.log("error", deactivateRes.payload);
       }
     });
-    setIsOpenDeleteModel(false);
+    setIsOpenDeactivateModel(false);
   };
 
   const filterTableData = (searchValue: any) => {
@@ -286,9 +289,9 @@ function UsersManage() {
                             marginLeft: "25px",
                             backgroundColor: "#2F54EB",
                           }}
-                          onClick={onDeleteUser}
+                          onClick={onDeactivateUser}
                         >
-                          Delete
+                          Deactivate
                         </Button>
                       </>
                     )}
@@ -319,20 +322,20 @@ function UsersManage() {
                 ))}
               </UsersTable>
               <Modal
-                open={isOpenDeleteModel}
+                open={isOpenDeactivateModel}
                 title={
                   <div style={{ display: "flex" }}>
                     <ExclamationCircleFilled
                       style={{ color: "orange", fontSize: 20 }}
                     />
-                    <p style={{ marginLeft: "10px" }}>Delete the user</p>
+                    <p style={{ marginLeft: "10px" }}>Deactivate the user</p>
                   </div>
                 }
-                okText="Yes, delete user"
-                onOk={() => handleDeleteUser()} // Write the logic to delete
-                onCancel={() => setIsOpenDeleteModel(false)}
+                okText="Yes, deactivate user"
+                onOk={() => handleDeactivateUser()}
+                onCancel={() => setIsOpenDeactivateModel(false)}
               >
-                <p>Are you sure you want to delete this user?</p>
+                <p>Are you sure you want to deactivate this user?</p>
               </Modal>
             </MainContainer>
           </BodyWrapper>
