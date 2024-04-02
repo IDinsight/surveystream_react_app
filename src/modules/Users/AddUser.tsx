@@ -55,6 +55,9 @@ function AddUser() {
         return {
           ...prev,
           ...checkResponse.payload.data.user,
+          status: checkResponse.payload.data.user?.active
+            ? "Active"
+            : "Deactivated",
           user_role_names: userRolesData[0]?.user_role_names,
           user_survey_names: userRolesData[0]?.user_survey_names,
         };
@@ -297,6 +300,47 @@ function AddUser() {
                         </>
                       )}
 
+                    <>
+                      <Form.Item
+                        label="Activate this user?"
+                        labelAlign="right"
+                        labelCol={{ span: 24 }}
+                        style={{ display: "block" }}
+                        initialValue={userDetails?.status}
+                        rules={[
+                          {
+                            required: false,
+                            message: "Please select if the user is active",
+                          },
+                        ]}
+                        hasFeedback
+                        name="status"
+                      >
+                        <Radio.Group
+                          style={{ display: "flex", width: "100%" }}
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              status: e.target.value,
+                            }))
+                          }
+                          defaultValue={userDetails?.status}
+                        >
+                          <Radio.Button
+                            value={"Active"}
+                            style={{ marginRight: "8px" }}
+                          >
+                            Yes
+                          </Radio.Button>
+                          <Radio.Button
+                            value={"Deactivated"}
+                            style={{ marginRight: "8px" }}
+                          >
+                            No
+                          </Radio.Button>
+                        </Radio.Group>
+                      </Form.Item>
+                    </>
                     <>
                       <Form.Item
                         label="Assign Super Admin role to this user??"

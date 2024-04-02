@@ -207,10 +207,51 @@ function EditUser() {
                       </>
                     )}
 
+                  <>
+                    <Form.Item
+                      label="Activate this user?"
+                      labelAlign="right"
+                      labelCol={{ span: 24 }}
+                      style={{ display: "block" }}
+                      initialValue={userDetails?.status}
+                      rules={[
+                        {
+                          required: false,
+                          message: "Please select if the user is active",
+                        },
+                      ]}
+                      hasFeedback
+                      name="status"
+                    >
+                      <Radio.Group
+                        style={{ display: "flex", width: "100%" }}
+                        onChange={(e) =>
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            status: e.target.value,
+                          }))
+                        }
+                        defaultValue={userDetails?.status}
+                      >
+                        <Radio.Button
+                          value={"Active"}
+                          style={{ marginRight: "8px" }}
+                        >
+                          Yes
+                        </Radio.Button>
+                        <Radio.Button
+                          value={"Deactivated"}
+                          style={{ marginRight: "8px" }}
+                        >
+                          No
+                        </Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+                  </>
                   {isExistingUser && (
                     <>
                       <Form.Item
-                        label="Assign Super Admin role to this user??"
+                        label="Assign Super Admin role to this user ?"
                         labelAlign="right"
                         labelCol={{ span: 24 }}
                         style={{ display: "block" }}
@@ -251,7 +292,7 @@ function EditUser() {
                       </Form.Item>
                       {!userDetails?.is_super_admin && (
                         <Form.Item
-                          label="Assign Survey Admin role to this user??"
+                          label="Assign Survey Admin role to this user ?"
                           labelAlign="right"
                           labelCol={{ span: 24 }}
                           style={{ display: "block" }}

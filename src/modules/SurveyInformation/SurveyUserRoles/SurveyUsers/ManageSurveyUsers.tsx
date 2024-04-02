@@ -304,7 +304,7 @@ function ManageSurveyUsers() {
                         }}
                         onClick={onDeleteUser}
                       >
-                        Delete
+                        Remove User
                       </Button>
                     </>
                   )}
@@ -352,7 +352,7 @@ function ManageSurveyUsers() {
                     <ExclamationCircleFilled
                       style={{ color: "orange", fontSize: 20 }}
                     />
-                    <p style={{ marginLeft: "10px" }}>Delete the user</p>
+                    <p style={{ marginLeft: "10px" }}>Remove the user</p>
                   </div>
                 }
                 okText="Yes, remove user"
