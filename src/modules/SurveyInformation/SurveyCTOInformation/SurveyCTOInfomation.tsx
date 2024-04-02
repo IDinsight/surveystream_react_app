@@ -322,7 +322,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via Dashlane.
+                      via FlowCrypt/Dashlane.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
