@@ -141,6 +141,15 @@ function AddSurveyRoles() {
 
           otherRoles.push(formValues);
 
+          const rolesName: string[] = [];
+          for (let i = 0; i < otherRoles.length; i++) {
+            if (rolesName.includes(otherRoles[i].role_name)) {
+              message.error("Role name already exists");
+              return;
+            }
+            rolesName.push(otherRoles[i].role_name);
+          }
+
           const rolesRes = await dispatch(
             postSupervisorRoles({
               supervisorRolesData: otherRoles,
