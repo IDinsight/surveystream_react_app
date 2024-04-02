@@ -146,6 +146,8 @@ function UsersManage() {
     setSelectedRows(selectedUserData);
     if (selectedRows.length > 0) {
       setHasSelected(true);
+    } else {
+      setHasSelected(false);
     }
   };
 
