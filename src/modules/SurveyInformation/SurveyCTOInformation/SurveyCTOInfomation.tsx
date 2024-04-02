@@ -229,6 +229,7 @@ function SurveyCTOInfomation() {
                       </StyledFormItem>
 
                       <StyledFormItem
+                        required
                         label={
                           <span>
                             SCTO server name&nbsp;
@@ -243,7 +244,7 @@ function SurveyCTOInfomation() {
                         style={{ display: "block" }}
                         rules={[
                           {
-                            required: false,
+                            required: true,
                             message: "Please enter a SCTO server name",
                           },
                         ]}
