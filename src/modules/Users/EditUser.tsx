@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Radio, Select, message } from "antd";
+import { Button, Form, Input, Radio, message } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -8,7 +8,6 @@ import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
-import { truncate } from "fs/promises";
 
 function EditUser() {
   const navigate = useNavigate();
