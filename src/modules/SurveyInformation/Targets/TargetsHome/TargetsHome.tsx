@@ -421,6 +421,7 @@ function TargetsHome() {
                   rowSelection={editMode ? rowSelection : undefined}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
+                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   style={{ marginRight: 80, marginTop: 30 }}
                   pagination={{
                     pageSize: paginationPageSize,
