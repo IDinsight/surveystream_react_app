@@ -159,6 +159,11 @@ function ManageSurveyUsers() {
         }
       },
     },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
   ];
 
   const addUserOptions: MenuProps["items"] = [
