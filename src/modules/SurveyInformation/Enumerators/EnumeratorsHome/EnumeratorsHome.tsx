@@ -477,6 +477,7 @@ function EnumeratorsHome() {
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   style={{ marginTop: 30 }}
+                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   pagination={{
                     pageSize: paginationPageSize,
                     pageSizeOptions: [10, 25, 50, 100],

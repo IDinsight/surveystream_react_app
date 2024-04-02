@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Radio, Select, message } from "antd";
+import { Button, Form, Input, Radio, message } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -207,10 +207,51 @@ function EditUser() {
                       </>
                     )}
 
+                  <>
+                    <Form.Item
+                      label="Activate this user?"
+                      labelAlign="right"
+                      labelCol={{ span: 24 }}
+                      style={{ display: "block" }}
+                      initialValue={userDetails?.active}
+                      rules={[
+                        {
+                          required: false,
+                          message: "Please select if the user is active",
+                        },
+                      ]}
+                      hasFeedback
+                      name="active"
+                    >
+                      <Radio.Group
+                        style={{ display: "flex", width: "100%" }}
+                        onChange={(e) =>
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            active: e.target.value,
+                          }))
+                        }
+                        defaultValue={userDetails?.active}
+                      >
+                        <Radio.Button
+                          value={true}
+                          style={{ marginRight: "8px" }}
+                        >
+                          Yes
+                        </Radio.Button>
+                        <Radio.Button
+                          value={false}
+                          style={{ marginRight: "8px" }}
+                        >
+                          No
+                        </Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+                  </>
                   {isExistingUser && (
                     <>
                       <Form.Item
-                        label="Assign Super Admin role to this user??"
+                        label="Assign Super Admin role to this user ?"
                         labelAlign="right"
                         labelCol={{ span: 24 }}
                         style={{ display: "block" }}
@@ -251,7 +292,7 @@ function EditUser() {
                       </Form.Item>
                       {!userDetails?.is_super_admin && (
                         <Form.Item
-                          label="Assign Survey Admin role to this user??"
+                          label="Assign Survey Admin role to this user ?"
                           labelAlign="right"
                           labelCol={{ span: 24 }}
                           style={{ display: "block" }}
