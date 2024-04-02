@@ -139,6 +139,17 @@ function AddSurveyRoles() {
             (role) => role.role_name !== "Survey Admin"
           );
 
+          const roleExists = otherRoles.some(
+            (role) => role.role_name === formValues.role_name
+          );
+
+          if (roleExists) {
+            message.error(
+              "Role with the same name already exists, kindly change the name to create a new role!"
+            );
+            return;
+          }
+
           otherRoles.push(formValues);
 
           const rolesRes = await dispatch(
