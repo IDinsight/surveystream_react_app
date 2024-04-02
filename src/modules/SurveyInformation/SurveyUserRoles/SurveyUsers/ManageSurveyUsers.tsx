@@ -86,6 +86,8 @@ function ManageSurveyUsers() {
 
     if (selectedRows.length > 0) {
       setHasSelected(true);
+    } else {
+      setHasSelected(false);
     }
   };
 
