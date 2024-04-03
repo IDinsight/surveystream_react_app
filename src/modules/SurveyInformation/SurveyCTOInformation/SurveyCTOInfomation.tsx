@@ -229,6 +229,7 @@ function SurveyCTOInfomation() {
                       </StyledFormItem>
 
                       <StyledFormItem
+                        required
                         label={
                           <span>
                             SCTO server name&nbsp;
@@ -243,7 +244,7 @@ function SurveyCTOInfomation() {
                         style={{ display: "block" }}
                         rules={[
                           {
-                            required: false,
+                            required: true,
                             message: "Please enter a SCTO server name",
                           },
                         ]}
@@ -322,7 +323,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via Dashlane.
+                      via FlowCrypt/Dashlane.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
