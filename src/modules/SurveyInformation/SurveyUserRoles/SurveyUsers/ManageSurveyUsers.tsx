@@ -107,6 +107,7 @@ function ManageSurveyUsers() {
 
   const handleDeleteUser = async () => {
     const selectedUserData = selectedRows[0];
+
     const rolesToRemove = rolesTableData.filter((r: any) =>
       selectedUserData.roles.includes(r.role_uid)
     );
