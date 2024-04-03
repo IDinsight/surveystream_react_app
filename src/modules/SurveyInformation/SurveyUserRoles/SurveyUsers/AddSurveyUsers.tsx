@@ -180,7 +180,7 @@ function AddSurveyUsers() {
         if (userDetails.is_survey_admin || userDetails.is_super_admin) {
           userDetails.can_create_survey = true;
         }
-        userDetails.survey_uid = survey_uid;
+        userDetails.survey_uid = survey_uid ? parseInt(survey_uid, 10) : null;
         //perform update user
         const updateRes = await dispatch(
           putUpdateUser({

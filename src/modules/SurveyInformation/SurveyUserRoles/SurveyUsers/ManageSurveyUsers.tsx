@@ -86,6 +86,8 @@ function ManageSurveyUsers() {
 
     if (selectedRows.length > 0) {
       setHasSelected(true);
+    } else {
+      setHasSelected(false);
     }
   };
 
@@ -114,6 +116,13 @@ function ManageSurveyUsers() {
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
 
+    if (rolesToRemove.length < 1) {
+      //handle survey admin removal
+      selectedUserData.is_survey_admin = false;
+      selectedUserData.survey_uid = survey_uid
+        ? parseInt(survey_uid, 10)
+        : null;
+    }
     const updateRes = await dispatch(
       putUpdateUser({
         userUId: selectedUserData.user_uid,
@@ -123,11 +132,11 @@ function ManageSurveyUsers() {
     if (updateRes.payload?.user_data) {
       message.success("User removed from project successfully");
       setHasSelected(false);
-      fetchAllUsers();
     } else {
       message.error("Failed to remove user from project, kindly try again");
       console.log("error", updateRes.payload);
     }
+    fetchAllUsers();
     setIsOpenDeleteModel(false);
   };
 

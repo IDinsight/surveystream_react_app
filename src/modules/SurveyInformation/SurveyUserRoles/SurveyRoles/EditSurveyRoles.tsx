@@ -130,6 +130,10 @@ function EditSurveyRoles() {
         });
       }
 
+      if (rolePermissions?.duplicate) {
+        editRolesForm.setFieldsValue({ role_name: null });
+      }
+
       setRolesEditData(filteredRole);
     } else {
       message.error("Could not fetch roles, kindly reload to try again");
@@ -171,6 +175,17 @@ function EditSurveyRoles() {
           let otherRoles = supervisorRoles.filter(
             (role) => role.role_name !== "Survey Admin"
           );
+
+          const roleExists = otherRoles.some(
+            (role) => role.role_name === formValues.role_name
+          );
+
+          if (roleExists) {
+            message.error(
+              "Role with the same name already exists, kindly change the name to create a new role!"
+            );
+            return;
+          }
 
           if (!rolePermissions.duplicate) {
             formValues.role_uid = role_uid;
