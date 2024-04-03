@@ -232,7 +232,7 @@ const SurveyConfiguration: React.FC = () => {
       return (
         <div key={index}>
           {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
-            <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+            <SectionTitle>{`${sectionTitle}`}</SectionTitle>
           )}
 
           <div style={{ flexWrap: "wrap", display: "flex" }}>
@@ -279,7 +279,7 @@ const SurveyConfiguration: React.FC = () => {
 
       return hasPermission ? (
         <div key={index}>
-          <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+          <SectionTitle>{`${sectionTitle}`}</SectionTitle>
 
           <Link
             style={{
