@@ -125,11 +125,13 @@ function UsersManage() {
 
           return {
             ...user,
+            active: user?.status == "Active" ? true : false,
             key: index.toString(),
             user_roles: userRoles,
           };
         }
       );
+
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
     }
