@@ -25,6 +25,7 @@ import FasterResponsesImg from "./../../assets/faster-responses.svg";
 import "./LandingPage.css";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
+import { ContactUsBtn, LoginBtn } from "./LandingPage.styled";
 const NavItems = () => {
   return (
     <div className="nav-menu flex">
@@ -88,18 +89,11 @@ function LandingPage() {
           </p>
           <div className="mt-[40px]">
             <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
-              <Button
-                id="home-login-button"
-                type="primary"
-                size="large"
-                className="bg-geekblue-5 !rounded-sm min-w-[94px]"
-              >
+              <LoginBtn size="large">
                 {userProfile?.user_uid ? "Go to my surveys" : "Login"}
-              </Button>
+              </LoginBtn>
             </Link>
-            <Button
-              id="home-contact-us-button"
-              className="ml-[25px] !rounded-sm"
+            <ContactUsBtn
               type="default"
               target="_blank"
               rel="noreferrer"
@@ -107,7 +101,7 @@ function LandingPage() {
               size="large"
             >
               Contact Us
-            </Button>
+            </ContactUsBtn>
           </div>
         </div>
         <div className="flex w-1/2 flex justify-center">

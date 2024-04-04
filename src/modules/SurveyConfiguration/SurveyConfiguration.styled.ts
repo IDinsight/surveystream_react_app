@@ -86,7 +86,6 @@ export const MainWrapper = styled.div`
 `;
 
 export const StyledCard = styled(Card)`
-  margin-bottom: 1rem;
   font-family: "Inter";
   font-style: medium;
   font-size: 16px;
