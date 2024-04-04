@@ -44,6 +44,7 @@ import {
   FooterWrapper,
 } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -407,6 +408,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
   return (
     <>
+      <GlobalStyle />
       <EnumeratorsRemapFormWrapper>
         <div style={{ display: "flex" }}>
           <Title>Add new enumerators</Title>
@@ -716,7 +718,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

@@ -33,6 +33,7 @@ import {
 } from "../../../../redux/targets/targetSlice";
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -134,6 +135,7 @@ function TargetsUpload() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -259,7 +261,7 @@ function TargetsUpload() {
             <div style={{ marginTop: "32px" }}>
               <p
                 style={{
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   fontSize: "14px",
                   fontWeight: "700",
                   lineHeight: "22px",

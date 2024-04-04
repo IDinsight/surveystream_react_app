@@ -10,7 +10,7 @@ const AvatarWrapper = styled.div`
   align-items: center;
   color: white;
   font-weight: 300;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 15px;
 `;
 

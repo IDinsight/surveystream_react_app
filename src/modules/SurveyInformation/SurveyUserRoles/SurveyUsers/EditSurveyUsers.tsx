@@ -24,6 +24,7 @@ import {
   deleteUserHierarchy,
 } from "../../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -237,6 +238,7 @@ function EditSurveyUsers() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

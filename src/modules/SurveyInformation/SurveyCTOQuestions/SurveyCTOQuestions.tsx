@@ -41,6 +41,7 @@ import {
 import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsSlice";
 import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -291,6 +292,7 @@ function SurveyCTOQuestions() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

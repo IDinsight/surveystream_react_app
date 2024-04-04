@@ -33,6 +33,7 @@ import {
 } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -172,6 +173,7 @@ function SurveyCTOInfomation() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

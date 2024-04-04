@@ -38,6 +38,7 @@ import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../components/ErrorHandler";
 import CSVDownloadButton from "../../components/CSVDownloadButton";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -390,6 +391,7 @@ function Assignments() {
 
   return (
     <>
+      <GlobalStyle />
       <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />
@@ -491,7 +493,7 @@ function Assignments() {
                   <p
                     style={{
                       color: "#8C8C8C",
-                      fontFamily: "Inter",
+                      fontFamily: "Lato",
                       fontSize: "14px",
                       lineHeight: "22px",
                     }}

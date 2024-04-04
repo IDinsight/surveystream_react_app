@@ -10,9 +10,11 @@ const TableA = styled(Table)`
     color: white !important;
     background-color: #2f54eb !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & td {
     height: 30px;
+    font-family: "Lato", sans-serif;
   }
 `;
 
@@ -57,6 +59,7 @@ const LocationTable: React.FC<LocationTableProps> = ({ columns, data }) => {
           data={transformedData}
           filename={"locations.csv"}
           style={{
+            fontFamily: "Lato",
             cursor: "pointer",
             backgroundColor: "#2F54EB",
             color: "#FFF",

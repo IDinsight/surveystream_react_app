@@ -16,6 +16,7 @@ import {
 } from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { getCookie } from "../../../utils/helper";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 const Login = () => {
   const [form] = useForm();
@@ -72,10 +73,12 @@ const Login = () => {
   }, []);
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       <div className="mb-[80px]">
         <div className="mt-[44px]">
-          <p className="font-inter font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
+          <p className="font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
             Login to SurveyStream
           </p>
         </div>

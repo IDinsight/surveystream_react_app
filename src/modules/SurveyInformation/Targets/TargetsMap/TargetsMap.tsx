@@ -48,6 +48,7 @@ import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
 import { it } from "mocha";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -489,6 +490,7 @@ function TargetsMap() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -649,7 +651,7 @@ function TargetsMap() {
                         <p
                           style={{
                             color: "#434343",
-                            fontFamily: "Inter",
+                            fontFamily: "Lato",
                             fontSize: 12,
                             lineHeight: "20px",
                           }}
@@ -859,7 +861,7 @@ function TargetsMap() {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",
@@ -882,7 +884,7 @@ function TargetsMap() {
                   <div>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",
