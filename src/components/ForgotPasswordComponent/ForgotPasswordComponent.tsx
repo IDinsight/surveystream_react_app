@@ -23,11 +23,11 @@ function ForgotPasswordComponent({
     >
       <div className="flex flex-row items-center">
         <LockOutlined className="text-[#434343] text-[18px]" />
-        <p className="ml-2 font-inter not-italic font-medium text-[14px] leading-[20px] text-[#595959]">
+        <p className="ml-2 font-lato not-italic font-medium text-[14px] leading-[20px] text-[#595959]">
           Forgot password?
         </p>
       </div>
-      <p className="mt-4 pr-5 font-inter not-italic font-medium text-[12px] leading-[20px] text-[#000000A6]">
+      <p className="mt-4 pr-5 font-lato not-italic font-medium text-[12px] leading-[20px] text-[#000000A6]">
         Please enter the email affiliated with your SurveyStream account. A link
         to reset your password will be sent to this email address.
       </p>
@@ -42,7 +42,7 @@ function ForgotPasswordComponent({
         >
           <Form.Item
             label={
-              <span className="font-inter not-italic font-medium text-[12px] leading-[20px] text-[#595959]">
+              <span className="font-lato not-italic font-medium text-[12px] leading-[20px] text-[#595959]">
                 Email
               </span>
             }
@@ -54,7 +54,7 @@ function ForgotPasswordComponent({
           >
             <Input
               id="forgot-password-email-input"
-              className="h-10 font-inter not-italic font-medium text-[14px] leading-[22px] text-gray-7"
+              className="h-10 font-lato not-italic font-medium text-[14px] leading-[22px] text-gray-7"
             />
           </Form.Item>
           <Form.Item shouldUpdate>
@@ -79,7 +79,7 @@ function ForgotPasswordComponent({
         </Form>
         <Link
           to="/login"
-          className="mt-1 font-inter not-italic font-medium text-[12px] leading-[20px] text-[#595959] float-right no-underline"
+          className="mt-1 font-lato not-italic font-medium text-[12px] leading-[20px] text-[#595959] float-right no-underline"
         >
           Back to login
         </Link>

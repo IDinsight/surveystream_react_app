@@ -10,13 +10,13 @@ export const ModuleQuestionnaireWrapper = styled.div`
   color: #fafafa;
   flex-direction: column;
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   `}
 `;
 
 export const CheckboxGroup = styled(Group)`
   && .ant-checkbox-group-item {
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     font-size: 14px;
     line-height: 22px;
     color: #434343;

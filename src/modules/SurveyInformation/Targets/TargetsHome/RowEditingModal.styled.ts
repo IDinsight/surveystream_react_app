@@ -15,7 +15,7 @@ export const RowEditingModalContainer = styled.div`
 
 export const RowEditingModalHeading = styled.p`
     color: #262626,
-    font-family: Inter;
+    font-family: "Lato", sans-serif;
     font-size: 24px;
     font-style: normal;
     font-weight: 500;
@@ -23,7 +23,7 @@ export const RowEditingModalHeading = styled.p`
 `;
 
 export const OptionText = styled.span`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;

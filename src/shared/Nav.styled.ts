@@ -17,7 +17,7 @@ export const Title = styled.h1`
   margin: 0;
 
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -42,5 +42,5 @@ export const MainWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;

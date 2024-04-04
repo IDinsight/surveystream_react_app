@@ -30,6 +30,7 @@ import {
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -180,13 +181,6 @@ function EditSurveyRoles() {
             (role) => role.role_name === formValues.role_name
           );
 
-          if (roleExists) {
-            message.error(
-              "Role with the same name already exists, kindly change the name to create a new role!"
-            );
-            return;
-          }
-
           if (!rolePermissions.duplicate) {
             formValues.role_uid = role_uid;
             otherRoles = [
@@ -241,6 +235,7 @@ function EditSurveyRoles() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

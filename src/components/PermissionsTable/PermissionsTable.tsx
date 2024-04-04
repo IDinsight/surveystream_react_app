@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { RolePermissions } from "../../redux/userRoles/types";
 import { setRolePermissions } from "../../redux/userRoles/userRolesSlice";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 interface IPermissionsTableProps {
   permissions: any[];
@@ -207,13 +208,14 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
   }, [dispatch, permissions]);
 
   return (
-    <div>
+    <>
+      <GlobalStyle />
       <StyledTable
         columns={columns}
         dataSource={localPermissions}
         pagination={false}
       />
-    </div>
+    </>
   );
 };
 

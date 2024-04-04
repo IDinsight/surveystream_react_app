@@ -15,7 +15,7 @@ export const StyledFormItem = styled(Form.Item)`
   & .ant-input {
     width: 100%;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
   & .ant-checkbox-group {
     width: 50vw;
@@ -47,7 +47,7 @@ export const StyledFormItem = styled(Form.Item)`
   && .ant-form-item-label > label {
     color: #4a4a4a;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
 
   && .ant-form-item-control {

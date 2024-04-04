@@ -17,6 +17,7 @@ import { ResetParams, ResetPasswordData } from "../../redux/auth/types";
 import { LockOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { postCompleteRegistration } from "../../redux/userManagement/userManagementActions";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function CompleteRegistration() {
   const { token } = useParams<{ token?: string }>() ?? {
@@ -85,6 +86,7 @@ function CompleteRegistration() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       {contextHolder}
       {loading ? (

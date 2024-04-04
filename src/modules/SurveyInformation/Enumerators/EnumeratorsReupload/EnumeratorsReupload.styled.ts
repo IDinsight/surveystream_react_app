@@ -6,12 +6,12 @@ export const EnumeratorsReuploadFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   margin-bottom: 15px;
 `;
 
 export const DescriptionContainer = styled.span`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -26,6 +26,7 @@ export const ErrorTable = styled(Table)`
     color: #820014 !important;
     background-color: #ffccc7 !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #ff7875 !important;
@@ -43,6 +44,9 @@ export const ErrorTable = styled(Table)`
   }
   & tr:nth-child(even):hover td {
     background-color: #fff1f0 !important;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;
 

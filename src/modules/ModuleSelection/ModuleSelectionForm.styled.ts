@@ -14,13 +14,13 @@ export const ModuleSelectionFormWrapper = styled.div`
   flex-direction: column;
   color: #434343;
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   `}
 `;
 
 export const InfoCard = styled(Card)`
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   `}
   font-size: 12px;
   width: 86.5%;
@@ -33,7 +33,7 @@ export const SelectionForm = styled(Form)`
 
 export const SelectionCard = styled(Card)`
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     .ant-card-body {
       padding: 0px !important;
       color: #f5f5f5;
@@ -61,7 +61,7 @@ export const SelectionCard = styled(Card)`
 
 export const CustomizationCard = styled(Card)`
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     .ant-card-body {
       padding: 0px !important;
       background: #ffffff;
@@ -87,7 +87,7 @@ export const TitleContainer = styled.div`
   color: #ffffff;
   padding: 8px;
   font-size: 14px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   padding-top: 15px;
   padding-bottom: 15px;
 `;
@@ -109,7 +109,7 @@ export const LearnMoreLink = styled.span`
 `;
 
 export const CheckboxContainer = styled.div`
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   font-size: 12px;
   color: #595959;
   padding: 15px;
