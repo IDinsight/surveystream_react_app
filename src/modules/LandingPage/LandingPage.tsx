@@ -23,6 +23,8 @@ import {
   ImageContainer,
   NavMenu,
   NavMenuItem,
+  ContactUsBtn,
+  LoginBtn,
 } from "./Landing.styled";
 import { GlobalStyle } from "../../shared/Global.styled";
 
@@ -90,11 +92,11 @@ function LandingPage() {
           </p>
           <div style={{ marginTop: "40px" }}>
             <Link to={userProfile?.user_uid ? "/surveys" : "/login"}>
-              <StyledButton type="primary" size="large">
+              <LoginBtn type="primary" size="large">
                 {userProfile?.user_uid ? "Go to my surveys" : "Login"}
-              </StyledButton>
+              </LoginBtn>
             </Link>
-            <Button
+            <ContactUsBtn
               className="ml-[25px] !rounded-sm"
               type="default"
               target="_blank"
@@ -103,7 +105,7 @@ function LandingPage() {
               size="large"
             >
               Contact Us
-            </Button>
+            </ContactUsBtn>
           </div>
         </TextContainer>
         <ImageContainer>
