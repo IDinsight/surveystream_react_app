@@ -213,7 +213,10 @@ function Assignments() {
    * This will ensure that user gets appropriate time to type the keyword
    * and then makes only expensive operations.
    */
-  const debounceCallback = useCallback(debounce(onSearch, 350), [getTabData()]);
+  const debounceCallback = useCallback(debounce(onSearch, 350), [
+    getTabData(),
+    keyRefs,
+  ]);
   const debounceSearch = (value: string) => {
     setSearchValue(value);
     debounceCallback(value);

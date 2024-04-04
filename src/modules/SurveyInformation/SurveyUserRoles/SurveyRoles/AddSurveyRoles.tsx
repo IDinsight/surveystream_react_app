@@ -90,14 +90,22 @@ function AddSurveyRoles() {
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
 
-      const transformedData: TransformedRolesData[] = (
-        Array.isArray(originalRolesData)
-          ? originalRolesData
-          : [originalRolesData]
-      ).map((item: any) => ({
-        role_uid: item.role_uid,
-        role: item.role_name,
-      }));
+      const roleData = Array.isArray(originalRolesData)
+        ? originalRolesData
+        : [originalRolesData];
+
+      const transformedData: TransformedRolesData[] = [];
+      roleData.forEach((role: OriginalRolesData) => {
+        // Remove the Survey Admin role from the list
+        if (role.role_name === "Survey Admin") {
+          return;
+        }
+
+        transformedData.push({
+          role: role.role_name,
+          role_uid: role.role_uid,
+        });
+      });
 
       setRolesTableData(transformedData);
     } else {
@@ -283,9 +291,6 @@ function AddSurveyRoles() {
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
-                          <Select.Option value={null}>
-                            No reporting role
-                          </Select.Option>
                           {rolesTableData.map(
                             (
                               r: { role_uid: any; role: any },
