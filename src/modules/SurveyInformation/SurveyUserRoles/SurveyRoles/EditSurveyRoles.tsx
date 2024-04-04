@@ -180,13 +180,6 @@ function EditSurveyRoles() {
             (role) => role.role_name === formValues.role_name
           );
 
-          if (roleExists) {
-            message.error(
-              "Role with the same name already exists, kindly change the name to create a new role!"
-            );
-            return;
-          }
-
           if (!rolePermissions.duplicate) {
             formValues.role_uid = role_uid;
             otherRoles = [
