@@ -30,6 +30,7 @@ import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
 import TargetsRemap from "../TargetsRemap";
 import { includes } from "cypress/types/lodash";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -336,6 +337,7 @@ function TargetsHome() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

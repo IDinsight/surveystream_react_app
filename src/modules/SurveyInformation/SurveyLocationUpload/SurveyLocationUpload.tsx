@@ -36,6 +36,7 @@ import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocat
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyLocationUpload() {
   const navigate = useNavigate();
@@ -336,6 +337,7 @@ function SurveyLocationUpload() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -396,7 +398,7 @@ function SurveyLocationUpload() {
                     <Form form={form}>
                       <p
                         style={{
-                          fontFamily: "Inter",
+                          fontFamily: "Lato",
                           fontWeight: 500,
                           color: "#262626",
                           marginTop: "24px",

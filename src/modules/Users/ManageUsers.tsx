@@ -26,6 +26,7 @@ import {
 import { RootState } from "../../redux/store";
 import Column from "antd/lib/table/Column";
 import { setEditUser } from "../../redux/userManagement/userManagementSlice";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function UsersManage() {
   const navigate = useNavigate();
@@ -231,6 +232,7 @@ function UsersManage() {
 
   return (
     <>
+      <GlobalStyle />
       <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />

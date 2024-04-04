@@ -25,6 +25,7 @@ import {
   getUserHierarchy,
   putUserHierarchy,
 } from "../../../../redux/userRoles/userRolesActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -262,6 +263,7 @@ function AddSurveyUsers() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

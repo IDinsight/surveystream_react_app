@@ -8,7 +8,7 @@ export const BodyWrapper = styled.div`
   padding: 30px;
   padding-left: 60px;
   padding-right: 60px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;
 
 export const MainContainer = styled.div`
@@ -19,7 +19,7 @@ export const MainContainer = styled.div`
 
 export const DescriptionText = styled.p`
   color: #262626;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -34,9 +34,13 @@ export const UsersTable = styled(Table)`
     color: #434343 !important;
     background-color: #d6e4ff !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;
 
@@ -47,14 +51,19 @@ export const RolesTable = styled(Table)`
     color: #434343 !important;
     background-color: #d6e4ff !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;
 
 export const SearchBox = styled(Input.Search)`
   & button {
     background-color: #2f54eb;
+    font-family: "Lato", sans-serif;
   }
 `;

@@ -29,7 +29,7 @@ export const MenuAItem = styled.a`
   text-decoration: none;
   color: #4f46e5;
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     font-weight: 200px;
     font-size: 14px;
     line-height: 22px;
@@ -53,7 +53,7 @@ export const MenuItem = styled(Link)`
   text-decoration: none;
   color: #4f46e5;
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     font-weight: 200px;
     font-size: 14px;
     line-height: 22px;

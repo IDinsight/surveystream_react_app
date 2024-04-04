@@ -31,6 +31,7 @@ import {
 } from "../../../../redux/userManagement/userManagementActions";
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -234,6 +235,7 @@ function ManageSurveyUsers() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 
 const ProfileWrapper = styled.div`
   color: white;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 18px;
   font-weight: 300;
   line-height: 28px;

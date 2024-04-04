@@ -21,6 +21,7 @@ import {
 } from "../../../../redux/targets/targetSlice";
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -118,85 +119,89 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
   }, []);
 
   return (
-    <TargetReuploadFormWrapper>
-      {!reupload ? (
-        <>
-          <div style={{ display: "flex" }}>
-            <Title>Add new targets</Title>
-            <Button
-              style={{
-                borderRadius: 2,
-                color: "#1D39C4",
-                marginLeft: "auto",
-                marginRight: 48,
-              }}
-              onClick={() => setScreenMode("manage")}
-            >
-              <CloseOutlined /> Cancel
-            </Button>
-          </div>
-          <StyledBreadcrumb
-            separator=">"
-            items={[
-              { title: "Upload csv", className: "active" },
-              { title: "Map csv columns" },
-              { title: "Update targets" },
-            ]}
-          />
-          <DescriptionContainer>
-            The following columns are existing in the enumerators table
-            currently.
-            {targetsColumnMapping !== null &&
-              Object.keys(targetsColumnMapping).length > 0 && (
-                <ul>
-                  {Object.keys(targetsColumnMapping).map(
-                    (key) => key !== "custom_fields" && <li key={key}>{key}</li>
-                  )}
-                </ul>
-              )}
-          </DescriptionContainer>
-        </>
-      ) : null}
-      <div style={{ marginTop: "10px", marginBottom: "14px" }}>
-        <Form layout="horizontal">
-          <Row>
-            <Col span={23}>
-              <FileUpload
-                style={{ height: "274px" }}
-                setUploadStatus={setFileUploaded}
-                onFileUpload={handleFileUpload}
-                hasError={hasError}
-                setHasError={setHasError}
-                setErrorList={setErrorList}
-              />
-            </Col>
-          </Row>
-        </Form>
-      </div>
-      {hasError ? (
-        <div style={{ marginTop: "32px" }}>
-          <p
-            style={{
-              fontFamily: "Inter",
-              fontSize: "14px",
-              fontWeight: "700",
-              lineHeight: "22px",
-            }}
-          >
-            Errors table
-          </p>
-          <Row>
-            <Col span={23}>
-              <ErrorTable
-                dataSource={errorList}
-                columns={errorTableColumn}
-                pagination={false}
-              />
-            </Col>
-          </Row>
+    <>
+      <GlobalStyle />
+      <TargetReuploadFormWrapper>
+        {!reupload ? (
+          <>
+            <div style={{ display: "flex" }}>
+              <Title>Add new targets</Title>
+              <Button
+                style={{
+                  borderRadius: 2,
+                  color: "#1D39C4",
+                  marginLeft: "auto",
+                  marginRight: 48,
+                }}
+                onClick={() => setScreenMode("manage")}
+              >
+                <CloseOutlined /> Cancel
+              </Button>
+            </div>
+            <StyledBreadcrumb
+              separator=">"
+              items={[
+                { title: "Upload csv", className: "active" },
+                { title: "Map csv columns" },
+                { title: "Update targets" },
+              ]}
+            />
+            <DescriptionContainer>
+              The following columns are existing in the enumerators table
+              currently.
+              {targetsColumnMapping !== null &&
+                Object.keys(targetsColumnMapping).length > 0 && (
+                  <ul>
+                    {Object.keys(targetsColumnMapping).map(
+                      (key) =>
+                        key !== "custom_fields" && <li key={key}>{key}</li>
+                    )}
+                  </ul>
+                )}
+            </DescriptionContainer>
+          </>
+        ) : null}
+        <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+          <Form layout="horizontal">
+            <Row>
+              <Col span={23}>
+                <FileUpload
+                  style={{ height: "274px" }}
+                  setUploadStatus={setFileUploaded}
+                  onFileUpload={handleFileUpload}
+                  hasError={hasError}
+                  setHasError={setHasError}
+                  setErrorList={setErrorList}
+                />
+              </Col>
+            </Row>
+          </Form>
         </div>
-      ) : null}
-    </TargetReuploadFormWrapper>
+        {hasError ? (
+          <div style={{ marginTop: "32px" }}>
+            <p
+              style={{
+                fontFamily: "Lato",
+                fontSize: "14px",
+                fontWeight: "700",
+                lineHeight: "22px",
+              }}
+            >
+              Errors table
+            </p>
+            <Row>
+              <Col span={23}>
+                <ErrorTable
+                  dataSource={errorList}
+                  columns={errorTableColumn}
+                  pagination={false}
+                />
+              </Col>
+            </Row>
+          </div>
+        ) : null}
+      </TargetReuploadFormWrapper>
+    </>
   );
 }
 

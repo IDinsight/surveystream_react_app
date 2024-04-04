@@ -28,6 +28,7 @@ import {
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -249,6 +250,7 @@ function ManageSurveyRoles() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

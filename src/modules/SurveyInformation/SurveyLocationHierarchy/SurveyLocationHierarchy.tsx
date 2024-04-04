@@ -34,6 +34,7 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -288,6 +289,7 @@ function SurveyLocationHierarchy() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

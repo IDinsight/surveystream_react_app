@@ -19,6 +19,6 @@ export const LoaderText = styled.div`
   color: #10239e;
   text-align: center;
   font-size: 18px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   font-weight: 300;
 `;

@@ -35,6 +35,7 @@ import {
   ReadFilled,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 interface CheckboxProps {
   checked: boolean;
@@ -333,6 +334,8 @@ const SurveyConfiguration: React.FC = () => {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
