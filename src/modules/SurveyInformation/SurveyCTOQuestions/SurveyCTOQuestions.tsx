@@ -99,6 +99,20 @@ function SurveyCTOQuestions() {
         await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
 
+      if (questionsRes.payload?.error) {
+        let errorMsg = "";
+        if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
+          errorMsg =
+            "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
+        } else if (questionsRes.payload?.error.includes("Client Error")) {
+          errorMsg = "Either Main Form ID is wrong or access is not given.";
+        } else {
+          errorMsg = questionsRes.payload?.error;
+        }
+
+        message.error(errorMsg);
+      }
+
       //dispatch twice if refresh
       if (refresh) {
         const refreshRes = await dispatch(
