@@ -107,7 +107,7 @@ function CompleteRegistration() {
                     </p>
                     <p className="font-inter font-normal font-medium text-sm leading-[22px] text-gray-9 text-center">
                       <LockOutlined className="text-[#434343] text-[18px] mr-2" />
-                      Kindly reset your password to complete the registration
+                      Kindly set your password to complete the registration
                       process.
                     </p>
                   </div>
@@ -119,7 +119,7 @@ function CompleteRegistration() {
               </>
             ) : (
               <SuccessCard
-                heading="Password has been updated successfully!"
+                heading="Your password has been successfully updated. Please proceed to login."
                 subheading=""
                 link="/login"
                 linktext="Login"
