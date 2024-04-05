@@ -307,19 +307,20 @@ function EditSurveyRoles() {
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
-                          <Select.Option value={null}>
-                            No reporting role
-                          </Select.Option>
-                          {rolesTableData.map(
-                            (
-                              r: { role_uid: any; role: any },
-                              i: Key | null | undefined
-                            ) => (
-                              <Select.Option key={i} value={r.role_uid}>
-                                {r.role}
-                              </Select.Option>
-                            )
-                          )}
+                          {rolesTableData
+                            .filter(
+                              (r: { role_uid: any }) => r.role_uid != role_uid
+                            ) // Filter out the current role being edited
+                            .map(
+                              (
+                                r: { role_uid: any; role: any },
+                                i: Key | null | undefined
+                              ) => (
+                                <Select.Option key={i} value={r.role_uid}>
+                                  {r.role}
+                                </Select.Option>
+                              )
+                            )}
                         </Select>
                       </StyledFormItem>
                     )}

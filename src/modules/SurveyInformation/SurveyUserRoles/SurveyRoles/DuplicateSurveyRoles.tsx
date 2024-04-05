@@ -306,9 +306,6 @@ function DuplicateSurveyRoles() {
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
-                          <Select.Option value={null}>
-                            No reporting role
-                          </Select.Option>
                           {rolesTableData.map(
                             (
                               r: { role_uid: any; role: any },
