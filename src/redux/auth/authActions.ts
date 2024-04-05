@@ -35,7 +35,7 @@ export const performLogin = createAsyncThunk(
 
       if (response.status === false) {
         dispatch(loginFailure(response.error as string));
-        return false;
+        return response;
       }
 
       dispatch(loginSuccess(response));
