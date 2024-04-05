@@ -121,10 +121,11 @@ function ManageSurveyRoles() {
         survey_uid: survey_uid ?? null,
         permissions: filteredRole?.permissions ?? [],
         role_uid: role_uid,
-        duplicate: true,
       })
     );
-    navigate(`/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`);
+    navigate(
+      `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+    );
   };
 
   const handleEdit = (role_uid: any): void => {

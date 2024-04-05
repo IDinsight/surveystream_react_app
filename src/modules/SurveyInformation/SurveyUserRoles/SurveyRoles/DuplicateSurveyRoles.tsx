@@ -7,6 +7,7 @@ import {
 } from "../../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
+import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 import {
   getAllPermissions,
   getSupervisorRoles,
@@ -44,8 +45,8 @@ interface TransformedRolesData {
   role_uid: number;
 }
 
-function EditSurveyRoles() {
-  const [editRolesForm] = Form.useForm();
+function DuplicateSurveyRoles() {
+  const [duplicateRolesForm] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -109,17 +110,19 @@ function EditSurveyRoles() {
 
       if (filteredRole?.reporting_role_uid != null) {
         setHasReportingRole(true);
-        editRolesForm.setFieldsValue({
+        duplicateRolesForm.setFieldsValue({
           ...filteredRole,
           has_reporting_role: true,
         });
       } else {
         setHasReportingRole(false);
-        editRolesForm.setFieldsValue({
+        duplicateRolesForm.setFieldsValue({
           ...filteredRole,
           has_reporting_role: false,
         });
       }
+
+      duplicateRolesForm.setFieldsValue({ role_name: null });
 
       setRolesEditData(filteredRole);
     } else {
@@ -135,9 +138,9 @@ function EditSurveyRoles() {
     setHasReportingRole(value);
   };
 
-  const handleEditRole = async () => {
+  const handleDuplicateRole = async () => {
     try {
-      const formValues = editRolesForm.getFieldsValue();
+      const formValues = duplicateRolesForm.getFieldsValue();
 
       setLoading(true);
       if (survey_uid == undefined) {
@@ -148,7 +151,7 @@ function EditSurveyRoles() {
       }
 
       // Validate the form fields
-      editRolesForm
+      duplicateRolesForm
         .validateFields()
         .then(async (formValues) => {
           if (localPermissions.length == 0) {
@@ -157,16 +160,12 @@ function EditSurveyRoles() {
           }
 
           formValues.permissions = localPermissions;
-          let otherRoles = supervisorRoles.filter(
+          //remove survey admin role from the initial
+          const otherRoles = supervisorRoles.filter(
             (role) => role.role_name !== "Survey Admin"
           );
 
-          formValues.role_uid = role_uid;
-          otherRoles = [
-            ...otherRoles.filter(
-              (role) => role.role_uid != formValues.role_uid
-            ),
-          ];
+          formValues.role_uid = null;
           otherRoles.push(formValues);
 
           const rolesRes = await dispatch(
@@ -181,7 +180,7 @@ function EditSurveyRoles() {
             return;
           } else {
             navigate(`/survey-information/survey-roles/roles/${survey_uid}`);
-            message.success("Roles updated successfully");
+            message.success("Role duplicated successfully");
           }
         })
         .catch((error) => {
@@ -239,12 +238,12 @@ function EditSurveyRoles() {
             <BodyWrapper>
               <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText>
-                <>Edit Role</>
+                <>Duplicate Role</>
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
 
-              <Form form={editRolesForm}>
+              <Form form={duplicateRolesForm}>
                 <Row gutter={36} style={{ marginBottom: "30px" }}>
                   <Col span={12}>
                     <StyledFormItem
@@ -307,20 +306,16 @@ function EditSurveyRoles() {
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
-                          {rolesTableData
-                            .filter(
-                              (r: { role_uid: any }) => r.role_uid != role_uid
-                            ) // Filter out the current role being edited
-                            .map(
-                              (
-                                r: { role_uid: any; role: any },
-                                i: Key | null | undefined
-                              ) => (
-                                <Select.Option key={i} value={r.role_uid}>
-                                  {r.role}
-                                </Select.Option>
-                              )
-                            )}
+                          {rolesTableData.map(
+                            (
+                              r: { role_uid: any; role: any },
+                              i: Key | null | undefined
+                            ) => (
+                              <Select.Option key={i} value={r.role_uid}>
+                                {r.role}
+                              </Select.Option>
+                            )
+                          )}
                         </Select>
                       </StyledFormItem>
                     )}
@@ -343,7 +338,7 @@ function EditSurveyRoles() {
 
           <FooterWrapper>
             <SaveButton disabled>Save</SaveButton>
-            <ContinueButton loading={loading} onClick={handleEditRole}>
+            <ContinueButton loading={loading} onClick={handleDuplicateRole}>
               Finalize roles
             </ContinueButton>
           </FooterWrapper>
@@ -353,4 +348,4 @@ function EditSurveyRoles() {
   );
 }
 
-export default EditSurveyRoles;
+export default DuplicateSurveyRoles;
