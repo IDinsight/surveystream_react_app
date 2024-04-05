@@ -100,7 +100,7 @@ function CreateAssignments() {
   // Row selection state and handler
   const onSelectOne = (record: any, selected: boolean, selectedRows: any) => {
     if (selectedRows.length > selectedAssignmentRows?.length) {
-      message.error(
+      message.warning(
         "You can't select more surveyors than the number of targets selected"
       );
       return;
