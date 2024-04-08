@@ -33,6 +33,7 @@ import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions
 
 import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -389,6 +390,7 @@ function EnumeratorsHome() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -477,6 +479,7 @@ function EnumeratorsHome() {
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   style={{ marginTop: 30 }}
+                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   pagination={{
                     pageSize: paginationPageSize,
                     pageSizeOptions: [10, 25, 50, 100],

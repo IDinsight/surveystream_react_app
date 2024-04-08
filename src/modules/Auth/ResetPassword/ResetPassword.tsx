@@ -9,6 +9,7 @@ import { message } from "antd";
 import { performResetPassword } from "../../../redux/auth/authActions";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function ResetPassword() {
   const [urlArr, setUrlARr] = useState<string[]>();
@@ -73,6 +74,8 @@ function ResetPassword() {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       {contextHolder}
       {loading ? (

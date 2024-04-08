@@ -24,6 +24,7 @@ import {
 import { AssignmentPayload } from "../../../../redux/assignments/types";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function CreateAssignments() {
   const location = useLocation();
@@ -107,7 +108,7 @@ function CreateAssignments() {
   // Row selection state and handler
   const onSelectOne = (record: any, selected: boolean, selectedRows: any) => {
     if (selectedRows.length > selectedAssignmentRows?.length) {
-      message.error(
+      message.warning(
         "You can't select more surveyors than the number of targets selected"
       );
       return;
@@ -286,6 +287,7 @@ function CreateAssignments() {
 
   return (
     <>
+      <GlobalStyle />
       <Header items={NavItems} />
       <div>
         <div
@@ -305,7 +307,7 @@ function CreateAssignments() {
           <p
             style={{
               color: "#262626",
-              fontFamily: "Inter",
+              fontFamily: "Lato",
               fontSize: "20px",
               fontWeight: 500,
               lineHeight: "28px",
@@ -355,7 +357,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#8C8C8C",
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   fontSize: "14px",
                   lineHeight: "22px",
                 }}
@@ -384,7 +386,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#434343",
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   lineHeight: "24px",
                   fontWeight: 500,
                   marginBottom: 0,
@@ -395,7 +397,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#8C8C8C",
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   fontSize: "14px",
                   lineHeight: "22px",
                   marginTop: 0,
@@ -418,7 +420,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#434343",
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   lineHeight: "24px",
                   fontWeight: 500,
                   marginBottom: 0,
@@ -431,7 +433,7 @@ function CreateAssignments() {
                   <p
                     style={{
                       color: "#434343",
-                      fontFamily: "Inter",
+                      fontFamily: "Lato",
                       fontSize: "16px",
                       lineHeight: "24px",
                     }}
@@ -444,7 +446,7 @@ function CreateAssignments() {
                   <p
                     style={{
                       color: "#434343",
-                      fontFamily: "Inter",
+              fontFamily: "Lato",
                       fontSize: "16px",
                       lineHeight: "24px",
                     }}
@@ -457,7 +459,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#434343",
-                  fontFamily: "Inter",
+              fontFamily: "Lato",
                   fontSize: "16px",
                   lineHeight: "24px",
                   marginTop: 30,
@@ -483,7 +485,7 @@ function CreateAssignments() {
                   <p
                     style={{
                       color: "#434343",
-                      fontFamily: "Inter",
+              fontFamily: "Lato",
                       lineHeight: "24px",
                     }}
                   >

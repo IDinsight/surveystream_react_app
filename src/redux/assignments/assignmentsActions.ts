@@ -154,6 +154,11 @@ export const updateEnumeratorStatus = createAsyncThunk(
       );
       if (response.status == 200) {
         dispatch(getEnumerators({ formUID }));
+
+        // Update the assignments list if the surveyor is dropout
+        if (newStatus === "Dropout") {
+          dispatch(getAssignments({ formUID }));
+        }
         return { ...response, success: true };
       }
 

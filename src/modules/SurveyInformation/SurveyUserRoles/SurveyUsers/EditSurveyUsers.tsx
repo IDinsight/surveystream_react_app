@@ -24,6 +24,7 @@ import {
   deleteUserHierarchy,
 } from "../../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -50,6 +51,10 @@ function EditSurveyUsers() {
 
   const isLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
+  );
+
+  const rolesLoading = useAppSelector(
+    (state: RootState) => state.userRoles.loading
   );
 
   const editUser = useAppSelector(
@@ -116,7 +121,7 @@ function EditSurveyUsers() {
       }
     }
 
-    userDetails.survey_uid = survey_uid;
+    userDetails.survey_uid = survey_uid ? parseInt(survey_uid, 10) : null;
 
     if (userDetails.is_survey_admin || userDetails.is_super_admin) {
       userDetails.can_create_survey = true;
@@ -165,6 +170,8 @@ function EditSurveyUsers() {
         has_reporting_role: item.reporting_role_uid ? true : false,
         reporting_role_uid: item.reporting_role_uid,
       }));
+
+      console.log("transformedData", transformedData);
       setRolesTableData(transformedData);
 
       const role = transformedData?.find((r: any) =>
@@ -201,28 +208,37 @@ function EditSurveyUsers() {
       setExistingUserHierarchy(userHierarchyRes?.payload?.data);
     }
   };
-
   useEffect(() => {
-    if (!editUser) {
-      message.error("Kindly select user to edit");
-      navigate(`/survey-information/survey-users/users/${survey_uid}`);
-      return;
-    } else {
-      //remove the editUser from the userList
-      const _filteredUserList = userList.filter(
-        (user: any) => user.user_uid !== editUser?.user_uid
-      );
+    const fetchData = async () => {
+      if (!editUser) {
+        message.error("Kindly select a user to edit");
+        navigate(`/survey-information/survey-users/users/${survey_uid}`);
+        return;
+      } else {
+        // Remove the editUser from the userList
+        const _filteredUserList = userList.filter(
+          (user: any) => user.user_uid !== editUser?.user_uid
+        );
 
-      setFilteredUserList(_filteredUserList);
+        // Fetch user hierarchy and supervisor roles
+        await fetchUserHierarchy();
+        await fetchSupervisorRoles();
 
-      setUserDetails({ ...editUser });
-      fetchUserHierarchy();
-      fetchSupervisorRoles();
-    }
+        // Update state with filtered user list and editUser details
+        setFilteredUserList(_filteredUserList);
+        setUserDetails({ ...editUser });
+
+        console.log("editUser", editUser);
+        console.log("rolesTableData", rolesTableData);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -239,7 +255,7 @@ function EditSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
-      {isLoading ? (
+      {isLoading || rolesLoading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -318,7 +334,11 @@ function EditSurveyUsers() {
                       rolesTableData.some((r: any) =>
                         userDetails?.roles?.includes(r.role_uid)
                       )
-                        ? userDetails.roles
+                        ? rolesTableData.filter((role: any) =>
+                            userDetails.roles.includes(role.role_uid)
+                          )[0]?.role
+                        : userDetails.user_admin_surveys.includes(survey_uid)
+                        ? "Survey Admin"
                         : undefined
                     }
                     rules={
@@ -399,6 +419,7 @@ function EditSurveyUsers() {
                       )}
                     </Select>
                   </Form.Item>
+
                   {hasReportingRole && (
                     <Form.Item
                       name="supervisor"

@@ -13,7 +13,7 @@ export const TargetsCountBoxContainer = styled.div`
 
 export const RowTitle = styled.p`
   color: #434343;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -22,7 +22,7 @@ export const RowTitle = styled.p`
 
 export const RowCountValue = styled.span`
   color: ${(props) => props.color || "#434343"};
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
