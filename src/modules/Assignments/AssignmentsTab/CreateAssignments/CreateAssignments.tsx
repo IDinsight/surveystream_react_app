@@ -446,7 +446,7 @@ function CreateAssignments() {
                   <p
                     style={{
                       color: "#434343",
-              fontFamily: "Lato",
+                      fontFamily: "Lato",
                       fontSize: "16px",
                       lineHeight: "24px",
                     }}
@@ -459,7 +459,7 @@ function CreateAssignments() {
               <p
                 style={{
                   color: "#434343",
-              fontFamily: "Lato",
+                  fontFamily: "Lato",
                   fontSize: "16px",
                   lineHeight: "24px",
                   marginTop: 30,
@@ -485,7 +485,7 @@ function CreateAssignments() {
                   <p
                     style={{
                       color: "#434343",
-              fontFamily: "Lato",
+                      fontFamily: "Lato",
                       lineHeight: "24px",
                     }}
                   >
