@@ -39,6 +39,7 @@ import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUser
 import { useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
+import TableConfig from "../modules/TableConfig/TableConfig";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -230,7 +231,16 @@ const AppRoutes = () => {
           element={<TargetsMap />}
         />
       </Route>
-
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="READ Assignments" />
+        }
+      >
+        <Route
+          path="/module-configuration/table-config/:survey_uid?/:form_uid?"
+          element={<TableConfig />}
+        />
+      </Route>
       <Route
         element={
           <ProtectedPermissionRoute permission_name="READ Assignments" />
