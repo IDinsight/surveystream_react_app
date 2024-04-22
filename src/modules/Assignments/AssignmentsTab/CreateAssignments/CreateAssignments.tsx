@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { AssignmentsSteps } from "./CreateAssignments.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { buildColumnDefinition } from "../../utils";
 import {
   getAssignableEnumerators,
@@ -59,6 +59,7 @@ function CreateAssignments() {
   >([]);
   const [surveyorsFilter, setSurveyorsFilter] = useState(null);
   const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
+  const [nextEmailDate, setNextEmailDate] = useState<string>();
 
   // Fetch the data from the store
   const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
@@ -231,6 +232,34 @@ function CreateAssignments() {
           callFn: (response: any) => {
             if (response.success) {
               setAssignmentResponseData(response.data);
+              if (response.data?.email_schedule) {
+                const now = new Date();
+
+                //get time from response.data?.time and combine dates with time
+                const datesWithTime = response.data.email_schedule?.dates?.map(
+                  (date: any) => {
+                    const [year, month, day] = date.split("-");
+                    const [hour, minute] =
+                      response.data.email_schedule.time.split(":");
+
+                    return new Date(year, month - 1, day, hour, minute, 0, 0);
+                  }
+                );
+
+                // Find the date element just greater than now
+                const nextDate = datesWithTime.find((date: any) => date > now);
+                const formattedDate = `${nextDate.getFullYear()}-${(
+                  nextDate.getMonth() + 1
+                )
+                  .toString()
+                  .padStart(2, "0")}-${nextDate
+                  .getDate()
+                  .toString()
+                  .padStart(2, "0")}`;
+
+                setNextEmailDate(formattedDate);
+              }
+
               message.success("Assignments updated successfully", 2, () => {
                 setStepIndex((prev: number) => prev + 1);
               });
@@ -241,7 +270,10 @@ function CreateAssignments() {
         })
       );
     } else if (stepIndex === 2) {
-      if (!emailMode || emailMode == "email_time_no") {
+      if (!emailMode) {
+        message.error("Please select an option to proceed");
+        return;
+      } else if (emailMode == "email_time_no") {
         navigate(-1);
         return;
       } else {
@@ -552,59 +584,73 @@ function CreateAssignments() {
               ) : (
                 <>
                   {assignmentResponseData?.email_schedule ? (
-                    <p
-                      style={{
-                        color: "#434343",
-                        fontFamily: "Lato",
-                        fontSize: "16px",
-                        lineHeight: "24px",
-                        marginTop: 30,
-                      }}
-                    >
-                      The emails are scheduled to be sent on{" "}
-                      {
-                        assignmentResponseData?.dates?.[
-                          assignmentResponseData.dates.length - 1
-                        ]
-                      }{" "}
-                      at {assignmentResponseData?.time}. Do you want to send the
-                      emails to the surveyors whose assignments have been
-                      changed before that? Please note that the emails will be
-                      sent only to the surveyors whose assignments have changed.
-                      If you want to change the existing email schedule, please
-                      visit the email configuration module.
-                    </p>
+                    <>
+                      <p
+                        style={{
+                          color: "#434343",
+                          fontFamily: "Lato",
+                          fontSize: "16px",
+                          lineHeight: "24px",
+                          marginTop: 30,
+                        }}
+                      >
+                        The emails are scheduled to be sent on {nextEmailDate}{" "}
+                        at {assignmentResponseData.email_schedule?.time}. Do you
+                        want to send the emails to the surveyors whose
+                        assignments have been changed before that? Please note
+                        that the emails will be sent only to the surveyors whose
+                        assignments have changed. If you want to change the
+                        existing email schedule, please visit the email
+                        configuration module.
+                      </p>
+                      <Radio.Group
+                        onChange={(e) => setEmailMode(e.target.value)}
+                        value={emailMode}
+                        style={{ marginBottom: 20 }}
+                      >
+                        <Radio value="email_time_yes">
+                          Yes, I want to change the time
+                        </Radio>
+                        <Radio value="email_time_no">
+                          No, I would like to retain the existing time
+                        </Radio>
+                      </Radio.Group>
+                    </>
                   ) : (
-                    <p
-                      style={{
-                        color: "#434343",
-                        fontFamily: "Lato",
-                        fontSize: "16px",
-                        lineHeight: "24px",
-                        marginTop: 30,
-                      }}
-                    >
-                      The emails for this survey have not been scheduled yet. Do
-                      you wish to send emails to the surveyors whose assignments
-                      have been changed? Please be aware that the emails will
-                      only be sent to those surveyors whose assignments have
-                      changed. If you would like to setup email schedules,
-                      please visit the email configuration module.
-                    </p>
+                    <>
+                      <p
+                        style={{
+                          color: "#434343",
+                          fontFamily: "Lato",
+                          fontSize: "16px",
+                          lineHeight: "24px",
+                          marginTop: 30,
+                        }}
+                      >
+                        The emails for this survey have not been scheduled yet.
+                        Do you wish to send emails to the surveyors whose
+                        assignments have been changed? Please be aware that the
+                        emails will only be sent to those surveyors whose
+                        assignments have changed. If you would like to setup
+                        email schedules, please visit the email configuration
+                        module.
+                      </p>
+
+                      <Radio.Group
+                        onChange={(e) => setEmailMode(e.target.value)}
+                        value={emailMode}
+                        style={{ marginBottom: 20 }}
+                      >
+                        <Radio value="email_time_yes">
+                          Yes, I want to setup a new email
+                        </Radio>
+                        <Radio value="email_time_no">
+                          No, I will setup email schedules later
+                        </Radio>
+                      </Radio.Group>
+                    </>
                   )}
 
-                  <Radio.Group
-                    onChange={(e) => setEmailMode(e.target.value)}
-                    value={emailMode}
-                    style={{ marginBottom: 20 }}
-                  >
-                    <Radio value="email_time_yes">
-                      Yes, I want to change the time
-                    </Radio>
-                    <Radio value="email_time_no">
-                      No, I would like to retain the existing time
-                    </Radio>
-                  </Radio.Group>
                   {emailMode === "email_time_yes" ? (
                     <>
                       <p
