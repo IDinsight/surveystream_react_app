@@ -10,6 +10,8 @@ import {
   TimePicker,
   message,
   Radio,
+  Form,
+  Alert,
 } from "antd";
 import { useEffect, useState } from "react";
 import { AssignmentsSteps } from "./CreateAssignments.styled";
@@ -20,11 +22,13 @@ import {
   getAssignableEnumerators,
   getTableConfig,
   updateAssignments,
+  postAssignmentEmail,
 } from "../../../../redux/assignments/assignmentsActions";
 import { AssignmentPayload } from "../../../../redux/assignments/types";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import { useForm } from "antd/es/form/Form";
 
 function CreateAssignments() {
   const location = useLocation();
@@ -54,6 +58,7 @@ function CreateAssignments() {
     AssignmentPayload[]
   >([]);
   const [surveyorsFilter, setSurveyorsFilter] = useState(null);
+  const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
 
   // Fetch the data from the store
   const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
@@ -63,6 +68,13 @@ function CreateAssignments() {
   const { loading: tableConfigLoading, data: tableConfig } = useAppSelector(
     (state) => state.assignments.tableConfig
   );
+
+  const [manualTriggerData, setManualTriggerData] = useState({
+    date: null,
+    time: null,
+  });
+  const [manualTriggerForm] = useForm();
+  const [emailMode, setEmailMode] = useState<string | null>(null);
 
   // Surveyors (step 0) table
   const surveyorsTableSpecialAttrs: any = {
@@ -189,39 +201,89 @@ function CreateAssignments() {
     }
   );
 
-  const handleContinue = (): void => {
-    // Ensure that the stepIndex is less than 1
+  const handleDateChange = (date: any) => {
+    setManualTriggerData({
+      ...manualTriggerData,
+      date: date,
+    });
+  };
+
+  const handleTimeChange = (time: any) => {
+    setManualTriggerData({
+      ...manualTriggerData,
+      time: time,
+    });
+  };
+
+  const handleContinue = async () => {
     if (stepIndex < 1) {
-      setStepIndex((prev: number) => {
-        return prev + 1;
-      });
-      return;
-    }
-    if (stepIndex === 1) {
+      setStepIndex((prev: number) => prev + 1);
+    } else if (stepIndex === 1) {
       if (assignmentPayload.length === 0) {
         message.error("No assignment payload to make the assignments");
         return;
       }
 
-      // Update the assignments
       dispatch(
         updateAssignments({
           formUID: formID,
           formData: assignmentPayload,
-          callFn: (data: any) => {
-            // Check if the update was successful
-            if (data.success) {
+          callFn: (response: any) => {
+            if (response.success) {
+              setAssignmentResponseData(response.data);
               message.success("Assignments updated successfully", 2, () => {
-                setStepIndex((prev: number) => {
-                  return prev + 1;
-                });
+                setStepIndex((prev: number) => prev + 1);
               });
             } else {
-              message.error("Error: " + data.message);
+              message.error("Error: " + response.message);
             }
           },
         })
       );
+    } else if (stepIndex === 2) {
+      if (!emailMode || emailMode == "email_time_no") {
+        navigate(-1);
+        return;
+      } else {
+        try {
+          await manualTriggerForm.validateFields();
+          manualTriggerForm.validateFields().then(async (formValues) => {
+            const manualTriggerPayload = {
+              form_uid: formID,
+              status: "queued",
+              date: formValues.date.format("YYYY-MM-DD"),
+              time: formValues.time.format("HH:mm"),
+              recipients: assignmentPayload.map(
+                (payload) => payload.enumerator_uid
+              ),
+            };
+
+            dispatch(
+              postAssignmentEmail({
+                formData: manualTriggerPayload,
+                callFn: (response: any) => {
+                  console.log("postAssignmentEmail", response);
+                  if (response.success) {
+                    message.success(
+                      "Email schedule updated successfully.",
+                      () => {
+                        navigate(-1);
+                      }
+                    );
+                  } else {
+                    message.error("Error: " + response.message);
+                  }
+                },
+              })
+            );
+          });
+        } catch (error) {
+          console.error("Validation failed:", error);
+          message.error(
+            "Validation failed. Please ensure all email trigger fields are properly set."
+          );
+        }
+      }
     }
   };
 
@@ -236,8 +298,6 @@ function CreateAssignments() {
   ) => {
     setSurveyorsFilter(filters);
   };
-
-  const [emailMode, setEmailMode] = useState<string | null>(null);
 
   useEffect(() => {
     const finalObjects: any = [];
@@ -440,7 +500,7 @@ function CreateAssignments() {
                   >
                     New assignments
                   </p>
-                  <p>2</p>
+                  <p>{assignmentResponseData?.new_assignments_count}</p>
                 </div>
                 <div style={{ marginLeft: 80 }}>
                   <p
@@ -453,56 +513,157 @@ function CreateAssignments() {
                   >
                     Reassignments
                   </p>
-                  <p>2</p>
+                  <p>{assignmentResponseData?.re_assignments_count}</p>
                 </div>
-              </div>
-              <p
-                style={{
-                  color: "#434343",
-                  fontFamily: "Lato",
-                  fontSize: "16px",
-                  lineHeight: "24px",
-                  marginTop: 30,
-                }}
-              >
-                The emails are scheduled to be sent on 20/11/2023 at 17:30 IST.
-                Do you want to send the emails to the surveyors before that?
-              </p>
-              <Radio.Group
-                onChange={(e) => setEmailMode(e.target.value)}
-                value={emailMode}
-                style={{ marginBottom: 20 }}
-              >
-                <Radio value="email_time_yes">
-                  Yes, I want to change the time
-                </Radio>
-                <Radio value="email_time_no">
-                  No, I would like to retain the existing time
-                </Radio>
-              </Radio.Group>
-              {emailMode === "email_time_yes" ? (
-                <>
+                <div style={{ marginLeft: 80 }}>
                   <p
                     style={{
                       color: "#434343",
                       fontFamily: "Lato",
+                      fontSize: "16px",
                       lineHeight: "24px",
                     }}
                   >
-                    Please select the date and time when you want the emails
-                    with assignment information to be sent to the surveyors:
+                    Total Assignments
                   </p>
-                  <div style={{ marginBottom: 30 }}>
-                    <DatePicker size="middle" style={{ width: 300 }} />
-                    <TimePicker
-                      size="middle"
-                      style={{ width: 300, marginLeft: 60 }}
-                    />
-                  </div>
+                  <p>{assignmentResponseData?.assignments_count}</p>
+                </div>
+              </div>
+              {assignmentResponseData?.assignments_count ===
+              assignmentResponseData?.no_changes_count ? (
+                // no changes effected
+                <>
+                  <Alert
+                    style={{
+                      color: "#434343",
+                      fontFamily: "Lato",
+                      fontSize: "16px",
+                      lineHeight: "24px",
+                      margin: "10px",
+                      marginBottom: "20px",
+                    }}
+                    message="No changes to assignments"
+                    description="No adjustments have been made to the assignments. It's likely that the surveyors were assigned to 
+                    the same targets as before. To make changes, please go through the assignments flow again."
+                    type="warning"
+                    showIcon
+                  />
                 </>
-              ) : null}
+              ) : (
+                <>
+                  {assignmentResponseData?.email_schedule ? (
+                    <p
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                        marginTop: 30,
+                      }}
+                    >
+                      The emails are scheduled to be sent on{" "}
+                      {
+                        assignmentResponseData?.dates?.[
+                          assignmentResponseData.dates.length - 1
+                        ]
+                      }{" "}
+                      at {assignmentResponseData?.time}. Do you want to send the
+                      emails to the surveyors whose assignments have been
+                      changed before that? Please note that the emails will be
+                      sent only to the surveyors whose assignments have changed.
+                      If you want to change the existing email schedule, please
+                      visit the email configuration module.
+                    </p>
+                  ) : (
+                    <p
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                        marginTop: 30,
+                      }}
+                    >
+                      The emails for this survey have not been scheduled yet. Do
+                      you wish to send emails to the surveyors whose assignments
+                      have been changed? Please be aware that the emails will
+                      only be sent to those surveyors whose assignments have
+                      changed. If you would like to setup email schedules,
+                      please visit the email configuration module.
+                    </p>
+                  )}
+
+                  <Radio.Group
+                    onChange={(e) => setEmailMode(e.target.value)}
+                    value={emailMode}
+                    style={{ marginBottom: 20 }}
+                  >
+                    <Radio value="email_time_yes">
+                      Yes, I want to change the time
+                    </Radio>
+                    <Radio value="email_time_no">
+                      No, I would like to retain the existing time
+                    </Radio>
+                  </Radio.Group>
+                  {emailMode === "email_time_yes" ? (
+                    <>
+                      <p
+                        style={{
+                          color: "#434343",
+                          fontFamily: "Lato",
+                          lineHeight: "24px",
+                        }}
+                      >
+                        Please select the date and time when you want the emails
+                        with assignment information to be sent to the surveyors:
+                      </p>
+                      <div style={{ marginBottom: 30 }}>
+                        <Form
+                          form={manualTriggerForm}
+                          style={{ display: "flex" }}
+                        >
+                          <Form.Item
+                            label="Date"
+                            name="date"
+                            style={{ marginRight: 20 }}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select a date!",
+                              },
+                            ]}
+                          >
+                            <DatePicker
+                              size="middle"
+                              style={{ width: 300 }}
+                              onChange={handleDateChange}
+                            />
+                          </Form.Item>
+                          <Form.Item
+                            label="Time"
+                            name="time"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select a time!",
+                              },
+                            ]}
+                          >
+                            <TimePicker
+                              size="middle"
+                              style={{ width: 300 }}
+                              onChange={handleTimeChange}
+                            />
+                          </Form.Item>
+                        </Form>
+                      </div>
+                    </>
+                  ) : null}
+                </>
+              )}
             </>
           ) : null}
+
           <div>
             <Button
               type="primary"
