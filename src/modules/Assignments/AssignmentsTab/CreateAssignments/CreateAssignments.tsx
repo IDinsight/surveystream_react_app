@@ -238,7 +238,11 @@ function CreateAssignments() {
                 //get time from response.data?.time and combine dates with time
                 const datesWithTime = response.data.email_schedule?.dates?.map(
                   (date: any) => {
-                    const [year, month, day] = date.split("-");
+                    const parsedDate = new Date(date);
+                    const year = parsedDate.getFullYear();
+                    const month = parsedDate.getMonth() + 1;
+                    const day = parsedDate.getDate();
+
                     const [hour, minute] =
                       response.data.email_schedule.time.split(":");
 
