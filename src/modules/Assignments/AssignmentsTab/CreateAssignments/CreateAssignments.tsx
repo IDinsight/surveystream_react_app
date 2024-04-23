@@ -76,6 +76,7 @@ function CreateAssignments() {
   });
   const [manualTriggerForm] = useForm();
   const [emailMode, setEmailMode] = useState<string | null>(null);
+  const [stepLoading, setStepLoading] = useState<boolean>(false);
 
   // Surveyors (step 0) table
   const surveyorsTableSpecialAttrs: any = {
@@ -217,15 +218,20 @@ function CreateAssignments() {
   };
 
   const handleContinue = async () => {
+    setStepLoading(true);
     if (stepIndex < 1) {
       setStepIndex((prev: number) => prev + 1);
+
+      setStepLoading(false);
     } else if (stepIndex === 1) {
       if (assignmentPayload.length === 0) {
         message.error("No assignment payload to make the assignments");
+        setStepLoading(false);
+
         return;
       }
 
-      dispatch(
+      await dispatch(
         updateAssignments({
           formUID: formID,
           formData: assignmentPayload,
@@ -273,12 +279,12 @@ function CreateAssignments() {
           },
         })
       );
+      setStepLoading(false);
     } else if (stepIndex === 2) {
-      if (!emailMode) {
-        message.error("Please select an option to proceed");
-        return;
-      } else if (emailMode == "email_time_no") {
+      if (!emailMode || emailMode == "email_time_no") {
         navigate(-1);
+        setStepLoading(false);
+
         return;
       } else {
         try {
@@ -294,7 +300,7 @@ function CreateAssignments() {
               ),
             };
 
-            dispatch(
+            await dispatch(
               postAssignmentEmail({
                 formData: manualTriggerPayload,
                 callFn: (response: any) => {
@@ -313,11 +319,13 @@ function CreateAssignments() {
               })
             );
           });
+          setStepLoading(false);
         } catch (error) {
           console.error("Validation failed:", error);
           message.error(
             "Validation failed. Please ensure all email trigger fields are properly set."
           );
+          setStepLoading(false);
         }
       }
     }
@@ -570,6 +578,7 @@ function CreateAssignments() {
                 // no changes effected
                 <>
                   <Alert
+                    closable={false}
                     style={{
                       color: "#434343",
                       fontFamily: "Lato",
@@ -648,9 +657,6 @@ function CreateAssignments() {
                         <Radio value="email_time_yes">
                           Yes, I want to setup a new email
                         </Radio>
-                        <Radio value="email_time_no">
-                          No, I will setup email schedules later
-                        </Radio>
                       </Radio.Group>
                     </>
                   )}
@@ -722,6 +728,7 @@ function CreateAssignments() {
                 color: "white",
                 marginRight: 10,
               }}
+              loading={stepLoading}
               disabled={stepIndex === 0 && !hasSurveyorSelected}
               onClick={handleContinue}
             >
