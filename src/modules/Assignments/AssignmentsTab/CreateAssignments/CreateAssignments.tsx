@@ -318,8 +318,8 @@ function CreateAssignments() {
                 },
               })
             );
+            setStepLoading(false);
           });
-          setStepLoading(false);
         } catch (error) {
           console.error("Validation failed:", error);
           message.error(
