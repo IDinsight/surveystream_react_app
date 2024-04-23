@@ -655,7 +655,7 @@ function CreateAssignments() {
                         style={{ marginBottom: 20 }}
                       >
                         <Radio value="email_time_yes">
-                          Yes, I want to setup a new email
+                          Yes, I want to schedule these emails now
                         </Radio>
                       </Radio.Group>
                     </>
