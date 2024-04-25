@@ -8,7 +8,7 @@ export const getSurveyCTOForms = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/forms?survey_uid=${survey_uid}`;
+    const url = `${API_BASE_URL}/forms?survey_uid=${survey_uid}&form_type=parent`;
 
     const res = await axios.get(url, {
       headers: {
@@ -53,7 +53,7 @@ export const createSurveyCTOForm = async (
 
     const res = await axios.post(
       `${API_BASE_URL}/forms?survey_uid=${survey_uid}`,
-      { ...formData, survey_uid: survey_uid },
+      { ...formData, survey_uid: survey_uid, form_type: "parent" },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -79,7 +79,10 @@ export const updateSurveyCTOForm = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/forms/${form_uid}`,
-      { ...formData },
+      {
+        ...formData,
+        form_type: "parent",
+      },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
