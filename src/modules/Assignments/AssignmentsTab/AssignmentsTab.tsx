@@ -20,7 +20,7 @@ function AssignmentsTab({
   handleTableChange,
   setColumn,
 }: IAssignmentsTabProps) {
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   /* 
     Build the table column with special case where we need to render
