@@ -40,7 +40,7 @@ function UsersManage() {
   const [filteredUserTableData, setFilteredUserTableData] =
     useState(userTableDataSource);
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(20);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [hasSelected, setHasSelected] = useState<boolean>(false);
 
   // Deactivate confirmation

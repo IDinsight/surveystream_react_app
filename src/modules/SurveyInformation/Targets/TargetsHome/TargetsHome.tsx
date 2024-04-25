@@ -62,7 +62,7 @@ function TargetsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
 
