@@ -10,7 +10,7 @@ function TargetsTab({
   handleTableChange,
   setColumn,
 }: ITargetsTabProps) {
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   // Build table columns from config
   const targetTableColumns = tableConfig?.targets?.map(

@@ -38,7 +38,7 @@ function CreateAssignments() {
   }
 
   // State variables for component
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(5);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [stepIndex, setStepIndex] = useState<number>(0);
   const [selectedSurveyorRows, setSelectedSurveyorRows] = useState<any>([]);
   const [targetAssignments, setTargetAssignments] = useState<any[]>([]);
