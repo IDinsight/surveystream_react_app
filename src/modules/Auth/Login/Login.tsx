@@ -16,6 +16,7 @@ import {
 } from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { getCookie } from "../../../utils/helper";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 const Login = () => {
   const [form] = useForm();
@@ -32,10 +33,20 @@ const Login = () => {
 
       const loginResponse = await dispatch(performLogin(values));
 
-      if (loginResponse.payload == false) {
+      if (loginResponse.payload?.status == false) {
+        let errorMsg = "";
+        if (loginResponse.payload.error === "INACTIVE_USER") {
+          errorMsg =
+            "You cannot log in because your account is inactive. Please contact the SurveyStream team.";
+        } else if (loginResponse.payload.error === "UNAUTHORIZED") {
+          errorMsg =
+            "Login failed, kindly check your credentials and try again.";
+        } else {
+          errorMsg = "Something went wrong!";
+        }
         messageApi.open({
           type: "error",
-          content: "Login failed, kindly check your credentials and try again",
+          content: errorMsg,
         });
         return false;
       }
@@ -72,10 +83,12 @@ const Login = () => {
   }, []);
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       <div className="mb-[80px]">
         <div className="mt-[44px]">
-          <p className="font-inter font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
+          <p className="font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
             Login to SurveyStream
           </p>
         </div>

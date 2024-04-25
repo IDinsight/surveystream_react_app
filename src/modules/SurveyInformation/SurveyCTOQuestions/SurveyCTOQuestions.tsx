@@ -41,6 +41,7 @@ import {
 import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsSlice";
 import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -97,6 +98,20 @@ function SurveyCTOQuestions() {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
+
+      if (questionsRes.payload?.error) {
+        let errorMsg = "";
+        if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
+          errorMsg =
+            "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
+        } else if (questionsRes.payload?.error.includes("Client Error")) {
+          errorMsg = "Either Main Form ID is wrong or access is not given.";
+        } else {
+          errorMsg = questionsRes.payload?.error;
+        }
+
+        message.error(errorMsg);
+      }
 
       //dispatch twice if refresh
       if (refresh) {
@@ -291,6 +306,7 @@ function SurveyCTOQuestions() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

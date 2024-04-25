@@ -6,7 +6,7 @@ export const TargetsHomeFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   position: relative;
   min-height: 950px;
   width: 70%;
@@ -20,6 +20,7 @@ export const TargetsTable = styled(Table)`
     background-color: #feffe6 !important;
     height: 40px;
     font-weight: 400 !important;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
@@ -30,5 +31,8 @@ export const TargetsTable = styled(Table)`
   }
   & .ant-checkbox-checked .ant-checkbox-inner::after {
     border-color: #434343;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;

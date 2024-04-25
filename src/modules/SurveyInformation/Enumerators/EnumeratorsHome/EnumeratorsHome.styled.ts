@@ -6,7 +6,7 @@ export const EnumeratorsHomeFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   position: relative;
   min-height: 850px;
   width: 70%;
@@ -19,6 +19,10 @@ export const EnumeratorsTable = styled(Table)`
     color: #434343 !important;
     background-color: #fff0f6 !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;

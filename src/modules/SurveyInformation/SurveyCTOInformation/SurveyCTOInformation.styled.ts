@@ -6,7 +6,7 @@ export const SCTOInformationFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;
 
 export const TwoColumnForm = styled.div`
@@ -29,7 +29,7 @@ export const StyledFormItem = styled(Form.Item)`
   .ant-input {
     width: 100%;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
 
   && {
@@ -45,7 +45,7 @@ export const StyledFormItem = styled(Form.Item)`
   && .ant-form-item-label > label {
     color: #4a4a4a;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
 
   && .ant-form-item-control {
@@ -63,7 +63,7 @@ export const StyledTooltip = styled(Tooltip)`
 
 export const CheckboxSCTO = styled(Checkbox)`
   margin-inline-start: 0 !important;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
   color: #434343;
 
   & .ant-checkbox-input {

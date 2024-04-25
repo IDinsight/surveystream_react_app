@@ -12,6 +12,7 @@ import ModuleSelectionForm from "./ModuleSelectionForm";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function ModuleSelection() {
   const [form] = Form.useForm();
@@ -27,6 +28,7 @@ function ModuleSelection() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

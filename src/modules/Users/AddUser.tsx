@@ -12,6 +12,7 @@ import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function AddUser() {
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ function AddUser() {
 
   return (
     <>
+      <GlobalStyle />
       <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />

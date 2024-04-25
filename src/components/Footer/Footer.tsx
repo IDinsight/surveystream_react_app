@@ -8,7 +8,7 @@ function Footer() {
       style={{ position: "fixed", bottom: 0, width: "100%" }}
     >
       <p
-        className="font-inter font-normal text-sm leading-[22px] text-gray-1"
+        className="font-lato font-normal text-sm leading-[22px] text-gray-1"
         style={{ display: "flex", alignItems: "center" }}
       >
         <img src={DdLogo} style={{ marginLeft: "6px", height: "18px" }} />{" "}

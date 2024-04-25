@@ -25,7 +25,7 @@ export const HeaderContainer = styled.div`
 
 export const TextHeading = styled.h1`
   color: #262626;
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-size: 20px;
   font-weight: 500;
   line-height: 28px;

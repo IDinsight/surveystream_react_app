@@ -38,6 +38,7 @@ import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../components/ErrorHandler";
 import CSVDownloadButton from "../../components/CSVDownloadButton";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -212,7 +213,10 @@ function Assignments() {
    * This will ensure that user gets appropriate time to type the keyword
    * and then makes only expensive operations.
    */
-  const debounceCallback = useCallback(debounce(onSearch, 350), [getTabData()]);
+  const debounceCallback = useCallback(debounce(onSearch, 350), [
+    getTabData(),
+    keyRefs,
+  ]);
   const debounceSearch = (value: string) => {
     setSearchValue(value);
     debounceCallback(value);
@@ -390,6 +394,7 @@ function Assignments() {
 
   return (
     <>
+      <GlobalStyle />
       <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />
@@ -491,7 +496,7 @@ function Assignments() {
                   <p
                     style={{
                       color: "#8C8C8C",
-                      fontFamily: "Inter",
+                      fontFamily: "Lato",
                       fontSize: "14px",
                       lineHeight: "22px",
                     }}

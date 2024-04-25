@@ -35,6 +35,7 @@ import {
   ReadFilled,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 interface CheckboxProps {
   checked: boolean;
@@ -238,20 +239,19 @@ const SurveyConfiguration: React.FC = () => {
           <div style={{ flexWrap: "wrap", display: "flex" }}>
             {sectionConfig.map((item: any, i: number) => {
               const hasPermission = checkPermissions(item?.name);
-
               return hasPermission ? (
                 <Link
                   key={i}
                   style={{
+                    width: 309,
+                    display: "inline-block",
                     color: "#434343",
                     cursor: "pointer",
-                    flex: "0 0 30%",
-                    width: "33%",
                     textDecoration: "none",
                   }}
                   to={generateLink(sectionTitle, item.name)}
                 >
-                  <StyledCard style={{ margin: "0.2rem" }}>
+                  <StyledCard style={{ margin: "0.2rem", height: 165 }}>
                     <div
                       style={{
                         display: "flex",
@@ -283,17 +283,15 @@ const SurveyConfiguration: React.FC = () => {
 
           <Link
             style={{
+              width: 309,
+              display: "inline-block",
               color: "#434343",
               cursor: "pointer",
               textDecoration: "none",
             }}
             to={generateLink(sectionTitle, "")}
           >
-            <StyledCard
-              style={{
-                width: "33%",
-              }}
-            >
+            <StyledCard style={{ height: 165 }}>
               <div
                 style={{
                   display: "flex",
@@ -336,6 +334,8 @@ const SurveyConfiguration: React.FC = () => {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

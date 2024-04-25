@@ -14,7 +14,7 @@ export const BasicInformationFormWrapper = styled.div`
   flex-direction: column;
   color: #434343;
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   `}
 `;
 

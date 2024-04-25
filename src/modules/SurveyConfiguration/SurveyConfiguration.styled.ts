@@ -12,7 +12,7 @@ export const SideMenuWrapper = styled.div`
 
 export const HelpCard = styled(Card)`
   margin-top: 1rem;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-style: Medium;
   font-size: 16px;
   line-height: 24px;
@@ -61,7 +61,7 @@ export const StepsWrapper = styled.div`
 
 export const StepCard = styled(Card)`
   margin-top: 1rem;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 16px;
   line-height: 24px;
   text-align: left;
@@ -69,7 +69,7 @@ export const StepCard = styled(Card)`
 `;
 
 export const Title = styled.h1`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-weight: 500;
   font-size: 16px;
   line-height: 28px;
@@ -87,7 +87,7 @@ export const MainWrapper = styled.div`
 
 export const StyledCard = styled(Card)`
   margin-bottom: 1rem;
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: medium;
   font-size: 16px;
   line-height: 18px;
@@ -114,7 +114,7 @@ export const StatusWrapper = styled.div`
 
 export const StatusText = styled.p`
   margin-left: 0.1rem;
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -122,7 +122,7 @@ export const StatusText = styled.p`
 `;
 
 export const SectionTitle = styled.h3`
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
