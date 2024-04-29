@@ -122,8 +122,34 @@ export const makeAssignments = async (
   }
 };
 
+export const scheduleAssignmentsEmail = async (formData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/assignments/schedule-email`;
+
+    const res = await axios.post(
+      url,
+      {
+        ...formData,
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   fetchAssignments,
   fetchAssignableEnumerators,
   makeAssignments,
+  scheduleAssignmentsEmail,
 };

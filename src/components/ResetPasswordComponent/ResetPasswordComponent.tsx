@@ -54,7 +54,7 @@ function ResetPasswordComponent({
           >
             <Form.Item
               label={
-                <span className="font-inter not-italic font-medium text-[14px] leading-[20px] text-[#595959]">
+                <span className="font-lato not-italic font-medium text-[14px] leading-[20px] text-[#595959]">
                   Enter new password
                 </span>
               }
@@ -101,7 +101,7 @@ function ResetPasswordComponent({
             <Form.Item
               className="mt-6"
               label={
-                <span className="font-inter font-medium text-[14px] leading-[20px] text-[#595959]">
+                <span className="font-lato font-medium text-[14px] leading-[20px] text-[#595959]">
                   Confirm password
                 </span>
               }
@@ -130,7 +130,7 @@ function ResetPasswordComponent({
                   type="primary"
                   htmlType="submit"
                   block
-                  className="w-full bg-geekblue-5 h-[40px] font-inter not-italic font-medium text-[12px] leading-[20px]"
+                  className="w-full bg-geekblue-5 h-[40px] font-lato not-italic font-medium text-[12px] leading-[20px]"
                   // TODO: Add loading
                   disabled={
                     !form.isFieldsTouched(true) ||

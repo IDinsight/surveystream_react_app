@@ -26,13 +26,13 @@ function SuccessCard({
       >
         <CheckCircleOutlined className="mt-[80px] text-[#52C41A] text-[63px]" />
         <p
-          className="mt-7 mb-0 mx-[5px] font-inter not-italic
+          className="mt-7 mb-0 mx-[5px] font-lato not-italic
         font-semibold text-[18px] leading-[24px] text-[#000000E0]"
         >
           {heading}
         </p>
         <p
-          className="mt-1 mb-6 font-inter not-italic font-semibold
+          className="mt-1 mb-6 font-lato not-italic font-semibold
         text-[14px] leading-[22px] min-h-[22px] text-[#00000073]"
         >
           {subheading}
@@ -41,7 +41,7 @@ function SuccessCard({
           <Button
             type="primary"
             size="large"
-            className="font-inter not-italic font-semibold !text-[14px] leading-[22px]
+            className="font-lato not-italic font-semibold !text-[14px] leading-[22px]
             bg-geekblue-5 !rounded-md w-[148px]"
           >
             {linktext}
