@@ -7,7 +7,7 @@ import Container from "../../components/Layout/Container";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import NotFound from "../../components/NotFound";
-import { Button, Checkbox, Input, Modal, Table, message } from "antd";
+import { Alert, Button, Checkbox, Input, Modal, Table, message } from "antd";
 import TableCard from "./TableCard";
 import { getTableConfig } from "../../redux/tableConfig/tableConfigActions";
 import { RootState } from "../../redux/store";
@@ -16,6 +16,27 @@ import { PlusOutlined } from "@ant-design/icons";
 import SelectGroup from "./SelectGroup";
 import { fetchEnumeratorsColumnConfig } from "../../redux/enumerators/apiService";
 import { fetchTargetsColumnConfig } from "../../redux/targets/apiService";
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  UniqueIdentifier,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import DraggableRow from "./DraggableRow";
+import {
+  BackBtn,
+  PreviewBtn,
+  PreviewTable,
+  SubmitBtn,
+} from "./TableConfig.styled";
 
 function TableConfig() {
   const navigate = useNavigate();
@@ -38,6 +59,7 @@ function TableConfig() {
   const [addColModel, setAddColModel] = useState(false);
   const [enumeratorsColumn, setEnumeratorsColumn] = useState<any>(null);
   const [targetsColumn, setTargetsColumn] = useState<any>(null);
+  const [previewTable, setPreviewTable] = useState<boolean>(false);
 
   const [groupLabels, setGroupLabels] = useState<string[]>([]);
 
@@ -226,6 +248,124 @@ function TableConfig() {
     return false;
   });
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 1,
+      },
+    })
+  );
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!table) return;
+    const tableKey = table.toLowerCase();
+
+    // Make sure the active and over columns are different
+    if (active.id !== over?.id) {
+      setConfig((prev: any) => {
+        // Create a deep copy of the config
+        const newConfig = JSON.parse(JSON.stringify(prev));
+
+        // Find the active and over groups and columns
+        let activeGroupIndex,
+          activeColumnIndex,
+          overGroupIndex,
+          overColumnIndex;
+
+        newConfig[tableKey].forEach((group: any, index: number) => {
+          group.columns.forEach((column: any, columnIndex: number) => {
+            if (column.column_key === active.id) {
+              activeGroupIndex = index;
+              activeColumnIndex = columnIndex;
+            }
+            if (column.column_key === over?.id) {
+              overGroupIndex = index;
+              overColumnIndex = columnIndex;
+            }
+          });
+        });
+
+        console.log(
+          activeGroupIndex,
+          activeColumnIndex,
+          overGroupIndex,
+          overColumnIndex
+        );
+
+        // If either group wasn't found, return the original config
+        if (activeGroupIndex === undefined || overGroupIndex === undefined) {
+          return prev;
+        }
+
+        console.log(newConfig[tableKey][activeGroupIndex]);
+        /*
+         * If the active group has a label, move the entire group.
+         * Otherwise, move the individual column
+         */
+        if (newConfig[tableKey][activeGroupIndex].group_label) {
+          // If the active group is not the same as the over group
+          if (activeGroupIndex !== overGroupIndex) {
+            const [activeGroup] = newConfig[tableKey].splice(
+              activeGroupIndex,
+              1
+            );
+            newConfig[tableKey].splice(overGroupIndex, 0, activeGroup);
+          } else {
+            if (
+              activeColumnIndex === undefined ||
+              overColumnIndex === undefined
+            ) {
+              return prev;
+            }
+
+            // Otherwise, move the column within the same group
+            const newColumns = arrayMove(
+              newConfig[tableKey][activeGroupIndex].columns,
+              activeColumnIndex,
+              overColumnIndex
+            );
+            newConfig[tableKey][activeGroupIndex].columns = newColumns;
+          }
+        } else {
+          const newColumns = arrayMove(
+            newConfig[tableKey],
+            activeGroupIndex,
+            overGroupIndex
+          );
+          newConfig[tableKey] = newColumns;
+        }
+        return newConfig;
+      });
+    }
+  };
+
+  let previewTableColumns = undefined;
+
+  if (table) {
+    previewTableColumns = config?.[table.toLowerCase()]?.map(
+      (configItem: any, i: any) => {
+        if (configItem.group_label) {
+          return {
+            title: configItem.group_label,
+            children: configItem.columns.map((groupItem: any, i: any) => {
+              return {
+                title: groupItem.column_label,
+                dataIndex: groupItem.column_key,
+                key: groupItem.column_key,
+              };
+            }),
+          };
+        } else {
+          return {
+            title: configItem.columns[0].column_label,
+            dataIndex: configItem.columns[0].column_key,
+            key: configItem.columns[0].column_key,
+          };
+        }
+      }
+    );
+  }
+
   // Checking if the data is loading
   const isLoading = tableConfig.loading;
 
@@ -299,7 +439,20 @@ function TableConfig() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container>
+            {previewTable === true ? (
+              <>
+                <BackBtn onClick={() => setPreviewTable(false)}>
+                  Back to editing
+                </BackBtn>
+                <SubmitBtn>Save table configuration</SubmitBtn>
+              </>
+            ) : (
+              <PreviewBtn onClick={() => setPreviewTable(true)}>
+                Preview and Save
+              </PreviewBtn>
+            )}
+          </Container>
           <div style={{ marginLeft: 56 }}>
             <p style={{ color: "rgba(0,0,0, 0.45)" }}>
               ACME / Assignments Column Configuration /{" "}
@@ -309,18 +462,54 @@ function TableConfig() {
             </p>
             {table && config && Object.keys(config).length > 0 ? (
               <>
-                <Table
-                  columns={tableColumns}
-                  dataSource={tableDataSource()}
-                  pagination={false}
-                />
-                <Button
-                  style={{ marginTop: 16 }}
-                  icon={<PlusOutlined />}
-                  onClick={() => setAddColModel(true)}
-                >
-                  Add Custom column
-                </Button>
+                {previewTable === true ? (
+                  <>
+                    <Alert
+                      message="Scroll horizontally to view all columns."
+                      type="info"
+                      showIcon
+                      style={{ marginBottom: 16, marginRight: 24 }}
+                    />
+                    <PreviewTable
+                      columns={previewTableColumns}
+                      pagination={false}
+                      bordered={true}
+                      scroll={{ x: 2500 }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <DndContext
+                      sensors={sensors}
+                      modifiers={[restrictToVerticalAxis]}
+                      onDragEnd={onDragEnd}
+                    >
+                      <SortableContext
+                        items={tableDataSource().map((i: any) => i.key)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <Table
+                          components={{
+                            body: {
+                              row: DraggableRow,
+                            },
+                          }}
+                          rowKey="key"
+                          columns={tableColumns}
+                          dataSource={tableDataSource()}
+                          pagination={false}
+                        />
+                      </SortableContext>
+                    </DndContext>
+                    <Button
+                      style={{ marginTop: 16 }}
+                      icon={<PlusOutlined />}
+                      onClick={() => setAddColModel(true)}
+                    >
+                      Add Custom column
+                    </Button>
+                  </>
+                )}
               </>
             ) : (
               <div

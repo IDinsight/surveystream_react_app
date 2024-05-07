@@ -37,6 +37,7 @@ const Container: React.FC<IContainer> = ({ children }) => {
             );
           })()}
         </Title>
+        {children}
       </Wrapper>
     </>
   );
