@@ -208,9 +208,7 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={
-          <ProtectedPermissionRoute permission_name="WRITE Enumerators" />
-        }
+        element={<ProtectedPermissionRoute permission_name="READ Targets" />}
       >
         <Route
           path="/survey-information/targets/:survey_uid?/:form_uid?"
@@ -218,9 +216,7 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={
-          <ProtectedPermissionRoute permission_name="WRITE Enumerators" />
-        }
+        element={<ProtectedPermissionRoute permission_name="WRITE Targets" />}
       >
         <Route
           path="/survey-information/targets/upload/:survey_uid?/:form_uid?"

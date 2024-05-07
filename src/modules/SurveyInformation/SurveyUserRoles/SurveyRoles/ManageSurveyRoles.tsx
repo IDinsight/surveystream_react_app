@@ -63,7 +63,7 @@ function ManageSurveyRoles() {
 
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   const [deleteRoleId, setDeleteRoleId] = useState<number>();
 

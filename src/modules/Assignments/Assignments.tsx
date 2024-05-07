@@ -501,7 +501,9 @@ function Assignments() {
                       lineHeight: "22px",
                     }}
                   >
-                    Assignments have not yet been uploaded.
+                    {tabItemIndex.charAt(0).toUpperCase() +
+                      tabItemIndex.slice(1)}{" "}
+                    have not yet been uploaded.
                   </p>
                 </div>
               </div>

@@ -20,6 +20,7 @@ import {
   fetchAssignments,
   fetchTableConfig,
   makeAssignments,
+  scheduleAssignmentsEmail,
   updateAssignableEnumerators,
 } from "./apiService";
 import { fetchTargets } from "../targets/apiService";
@@ -193,6 +194,36 @@ export const getTargets = createAsyncThunk(
       const errorMessage = error || "Failed to fetch targets.";
       dispatch(targetsFailure(errorMessage));
       return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const postAssignmentEmail = createAsyncThunk(
+  "assignments/postAssignmentEmail",
+  async ({ formData, callFn }: any) => {
+    try {
+      const response: any = await scheduleAssignmentsEmail(formData);
+      console.log("response", response);
+      if (response.status == 201) {
+        callFn({ ...response.data, success: true });
+        return;
+      }
+
+      const errorObj = {
+        message: response.message
+          ? response.message
+          : "Failed to schedule assignments email.",
+        success: false,
+      };
+      callFn(errorObj);
+    } catch (error: any) {
+      console.log(error);
+      const errorMessage = error || "Failed to schedule assignments email.";
+      const errorObj = {
+        message: errorMessage,
+        success: false,
+      };
+      callFn(errorObj);
     }
   }
 );
