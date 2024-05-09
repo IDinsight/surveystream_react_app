@@ -34,9 +34,8 @@ function Header({ items }: { items?: any }) {
   const navigate = useNavigate();
 
   const storedProfile = localStorage.getItem("userProfile");
-  const userProfile = storedProfile
-    ? JSON.parse(storedProfile)
-    : useAppSelector((state: RootState) => state.auth.profile);
+  const reduxProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
 
   const getUsernameText = (): string => {
     if (userProfile?.first_name !== null && userProfile?.last_name !== null) {
