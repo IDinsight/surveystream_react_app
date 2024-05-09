@@ -78,7 +78,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   "Survey information": {
     "SurveyCTO information": "survey-cto-information",
     "User and role management": "survey-roles/roles",
-    "Survey locations": "location/add",
+    "Survey locations": "location/upload",
     Enumerators: "enumerators",
     Targets: "targets",
   },
