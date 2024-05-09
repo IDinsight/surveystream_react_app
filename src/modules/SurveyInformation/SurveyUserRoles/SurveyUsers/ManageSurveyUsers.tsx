@@ -42,7 +42,7 @@ function ManageSurveyUsers() {
   };
   const [userTableDataSource, setUserTableDataSource] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [hasSelected, setHasSelected] = useState<boolean>(false);
   const [searchText, setSearchText] = useState("");
   const [filteredUserTableData, setFilteredUserTableData] =
