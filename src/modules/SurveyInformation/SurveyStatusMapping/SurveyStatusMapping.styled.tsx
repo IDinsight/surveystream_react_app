@@ -7,7 +7,7 @@ export const TextHeading = styled.h1`
   color: #000;
 `;
 
-export const ConfirmBtn = styled(Button)`
+export const CustomBtn = styled(Button)`
   background-color: #2f54eb;
   color: white;
   border-radius: 8px !important;
