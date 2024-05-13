@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { message } from "antd";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { RootState } from "../../../redux/store";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function ForgotPassword() {
   const [actionDone, setActionDone] = useState<boolean>(false);
@@ -52,6 +53,8 @@ function ForgotPassword() {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       {contextHolder}
       {loading ? (

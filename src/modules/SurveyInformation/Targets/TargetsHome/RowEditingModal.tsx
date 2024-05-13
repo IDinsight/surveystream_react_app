@@ -12,6 +12,7 @@ import {
   updateTarget,
 } from "../../../../redux/targets/targetActions";
 import { useAppDispatch } from "../../../../redux/hooks";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -90,12 +91,9 @@ function RowEditingModal({
         }
       }
 
-      console.log("requestData", requestData);
       const batchRes = await dispatch(
         bulkUpdateTargets({ targetsUIDs, formUID, patchKeys })
       );
-
-      console.log("batchRes", batchRes);
 
       if (batchRes?.payload?.status === 200) {
         message.success("Targets updated successfully");
@@ -216,17 +214,12 @@ function RowEditingModal({
       //must wait for config before fields filtering
       await fetchTargetColumnConfig(form_uid);
 
-      console.log("filteredFields", filteredFields);
-      console.log("bulkFieldsToExclude", bulkFieldsToExclude);
-
       //exclude bulk non editable as well as the personal fields
       filteredFields = fields.filter(
         (field: Field) =>
           !bulkFieldsToExclude.includes(field.labelKey) &&
           !fieldsToExclude.includes(field.labelKey)
       );
-
-      console.log("filteredFields", filteredFields);
 
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
@@ -240,7 +233,7 @@ function RowEditingModal({
     const initialData: DataItem = [];
 
     filteredFields.forEach((field: Field) => {
-      if (field.label.startsWith("custom_fields")) {
+      if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] = data[0]["custom_fields"][field.labelKey];
 
         const label = field?.label;
@@ -264,64 +257,67 @@ function RowEditingModal({
   }, []);
 
   return (
-    <RowEditingModalContainer>
-      <RowEditingModalHeading>
-        {data && data.length > 1
-          ? `Edit ${data.length} targets in bulk`
-          : "Edit target"}
-      </RowEditingModalHeading>
-      {data && data.length > 1 ? (
-        <OptionText
-          style={{ width: 410, display: "inline-block", marginBottom: 20 }}
-        >
-          {`Bulk editing is only allowed for ${updatedFields
-            .map((item: any) => item.labelKey)
-            .join(", ")}.`}
-        </OptionText>
-      ) : null}
-      <br />
-      {data && data.length > 0 ? (
-        <>
-          <Form
-            labelCol={{ span: 7 }}
-            form={editForm}
-            style={{ textAlign: "left" }}
+    <>
+      <GlobalStyle />
+      <RowEditingModalContainer>
+        <RowEditingModalHeading>
+          {data && data.length > 1
+            ? `Edit ${data.length} targets in bulk`
+            : "Edit target"}
+        </RowEditingModalHeading>
+        {data && data.length > 1 ? (
+          <OptionText
+            style={{ width: 410, display: "inline-block", marginBottom: 20 }}
           >
-            {updatedFields.map((field: Field, idx: number) => (
-              <Form.Item
-                required
-                key={idx}
-                id={`${field.label}-id`}
-                name={field.label}
-                initialValue={field.label ? data[0][field.label] : ""}
-                label={<span>{field.labelKey}</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: `Please enter ${field.labelKey}`,
-                  },
-                ]}
-              >
-                <Input
-                  placeholder={`Enter ${field.labelKey}`}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            ))}
-          </Form>
-        </>
-      ) : null}
-      <div style={{ marginTop: 20 }}>
-        <Button onClick={cancelHandler}>Cancel</Button>
-        <Button
-          type="primary"
-          style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
-          onClick={updateHandler}
-        >
-          Update
-        </Button>
-      </div>
-    </RowEditingModalContainer>
+            {`Bulk editing is only allowed for ${updatedFields
+              .map((item: any) => item.labelKey)
+              .join(", ")}.`}
+          </OptionText>
+        ) : null}
+        <br />
+        {data && data.length > 0 ? (
+          <>
+            <Form
+              labelCol={{ span: 7 }}
+              form={editForm}
+              style={{ textAlign: "left" }}
+            >
+              {updatedFields.map((field: Field, idx: number) => (
+                <Form.Item
+                  required
+                  key={idx}
+                  id={`${field.label}-id`}
+                  name={field.label}
+                  initialValue={field.label ? data[0][field.label] : ""}
+                  label={<span>{field.labelKey}</span>}
+                  rules={[
+                    {
+                      required: true,
+                      message: `Please enter ${field.labelKey}`,
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder={`Enter ${field.labelKey}`}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              ))}
+            </Form>
+          </>
+        ) : null}
+        <div style={{ marginTop: 20 }}>
+          <Button onClick={cancelHandler}>Cancel</Button>
+          <Button
+            type="primary"
+            style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
+            onClick={updateHandler}
+          >
+            Update
+          </Button>
+        </div>
+      </RowEditingModalContainer>
+    </>
   );
 }
 

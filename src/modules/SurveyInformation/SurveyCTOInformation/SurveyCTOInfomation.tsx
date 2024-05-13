@@ -33,6 +33,7 @@ import {
 } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -172,6 +173,7 @@ function SurveyCTOInfomation() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -229,6 +231,7 @@ function SurveyCTOInfomation() {
                       </StyledFormItem>
 
                       <StyledFormItem
+                        required
                         label={
                           <span>
                             SCTO server name&nbsp;
@@ -243,7 +246,7 @@ function SurveyCTOInfomation() {
                         style={{ display: "block" }}
                         rules={[
                           {
-                            required: false,
+                            required: true,
                             message: "Please enter a SCTO server name",
                           },
                         ]}
@@ -322,7 +325,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via Dashlane.
+                      via FlowCrypt/Dashlane.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem

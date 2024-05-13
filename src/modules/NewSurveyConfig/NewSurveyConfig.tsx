@@ -136,7 +136,6 @@ function NewSurveyConfig() {
 
         const hasValidationErrors = !validationRules.every(
           (rule: { key: string; message: string }) => {
-            console.log(moduleQuestionnaireformData);
             const val =
               moduleQuestionnaireformData[
                 rule.key as keyof SurveyModuleQuestionnaireData

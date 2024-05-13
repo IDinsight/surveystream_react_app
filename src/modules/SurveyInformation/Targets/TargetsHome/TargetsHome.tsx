@@ -30,6 +30,7 @@ import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
 import TargetsRemap from "../TargetsRemap";
 import { includes } from "cypress/types/lodash";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ function TargetsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
 
@@ -336,6 +337,7 @@ function TargetsHome() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -421,6 +423,7 @@ function TargetsHome() {
                   rowSelection={editMode ? rowSelection : undefined}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
+                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   style={{ marginRight: 80, marginTop: 30 }}
                   pagination={{
                     pageSize: paginationPageSize,

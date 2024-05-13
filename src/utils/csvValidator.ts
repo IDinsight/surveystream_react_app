@@ -3,6 +3,7 @@ import CSVFileValidator, {
   ValidatorConfig,
 } from "csv-file-validator";
 import { message } from "antd";
+import Papa, { ParseResult } from "papaparse";
 
 interface ErrorSummary {
   type: string;
@@ -56,7 +57,7 @@ export const checkCSVRows = (file: File) => {
 
     reader.onload = () => {
       const csvData = reader.result as string;
-      const rows = csvData.split("\n");
+      const rows = Papa.parse(csvData, { skipEmptyLines: true }).data;
       if (rows.length > maxRows) {
         const error = `CSV file should have a maximum of ${maxRows} rows; found ${rows.length}`;
         message.error(error);
@@ -159,10 +160,11 @@ export const classifyErrorsForColumns = (
 };
 
 export const validateCSVData = async (file: File) => {
-  console.log("file", file);
   const text = await readFileAsText(file);
-  const lines = text.split("\n");
-  const headers = lines[0].split(",");
+  const parsedCsv: ParseResult<string[]> = Papa.parse(text, {
+    skipEmptyLines: true,
+  });
+  const headers = parsedCsv?.data[0];
   const emptyRows: number[] = [];
   const emptyColumns: string[] = [];
 
@@ -173,22 +175,20 @@ export const validateCSVData = async (file: File) => {
 
   const duplicateColumns = findDuplicateColumns(headers);
 
-  console.log("duplicateColumns", duplicateColumns);
-
   if (duplicateColumns.length > 0) {
     return displayValidationErrors([
       `Duplicate columns found: ${duplicateColumns.join(", ")}`,
     ]);
   }
 
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.trim() === "") {
+  for (let i = 1; i < parsedCsv.data.length; i++) {
+    const line = parsedCsv.data[i];
+    const isEmptyRow = line.every((cell: string) => cell.trim() === "");
+    if (isEmptyRow) {
       emptyRows.push(i + 1); // Adding 1 to convert to 1-based index
     } else {
-      const columns = line.split(",");
-      for (let j = 0; j < columns.length; j++) {
-        const column = columns[j];
+      for (let j = 0; j < line.length; j++) {
+        const column = line[j];
         if (column.trim() === "") {
           emptyColumns.push(headers[j]);
         }
@@ -204,7 +204,6 @@ export const validateCSVData = async (file: File) => {
   };
 
   try {
-    const validationResults = await CSVFileValidator(file, validationConfig);
     if (emptyRows.length > 0 || emptyColumns.length > 0) {
       const validationErrors: string[] = [];
 
@@ -222,6 +221,8 @@ export const validateCSVData = async (file: File) => {
 
       return displayValidationErrors(validationErrors);
     }
+
+    const validationResults = await CSVFileValidator(file, validationConfig);
 
     return validationResults;
   } catch (error: any) {

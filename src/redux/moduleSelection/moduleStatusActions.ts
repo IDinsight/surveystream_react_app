@@ -48,7 +48,6 @@ export const createModuleStatus = createAsyncThunk(
       const createdModuleStatus: any = await api.createModuleStatus(
         modulesData
       );
-      console.log("createdModuleStatus", createdModuleStatus);
 
       if (createdModuleStatus.status === 200) {
         dispatch(createModuleStatusSuccess(createdModuleStatus.data));

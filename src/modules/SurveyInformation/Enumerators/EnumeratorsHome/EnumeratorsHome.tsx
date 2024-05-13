@@ -33,6 +33,7 @@ import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions
 
 import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ function EnumeratorsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
 
@@ -128,7 +129,6 @@ function EnumeratorsHome() {
         };
       })
       .flat();
-    console.log("fields", fields);
 
     setFieldData(fields);
   };
@@ -177,8 +177,6 @@ function EnumeratorsHome() {
           : { formUID: form_uid }
       )
     );
-
-    console.log("getEnumeratorsList", enumeratorRes);
 
     if (enumeratorRes.payload.status == 200) {
       message.success("Enumerators loaded successfully.");
@@ -238,10 +236,6 @@ function EnumeratorsHome() {
         "monitor_locations",
       ];
 
-      console.log(
-        "column_mapping",
-        originalData[0]?.custom_fields?.column_mapping
-      );
       if (originalData[0]?.custom_fields?.column_mapping) {
         dispatch(
           setEnumeratorColumnMapping(
@@ -261,7 +255,6 @@ function EnumeratorsHome() {
           }
         }
 
-        console.log("columnMapping", columnMapping);
         dispatch(setEnumeratorColumnMapping(columnMapping));
       }
 
@@ -397,6 +390,7 @@ function EnumeratorsHome() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -485,6 +479,7 @@ function EnumeratorsHome() {
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   style={{ marginTop: 30 }}
+                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   pagination={{
                     pageSize: paginationPageSize,
                     pageSizeOptions: [10, 25, 50, 100],

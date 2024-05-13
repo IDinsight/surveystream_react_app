@@ -41,6 +41,7 @@ import { CSVLink } from "react-csv";
 import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
 import { ContinueButton } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -203,8 +204,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -250,16 +249,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   rows: errorObj,
                 });
               }
-
-              console.log("errorObj", errorObj);
-
-              console.log(
-                mappingsRes.payload.errors[errorKey]["summary"]
-                  ? mappingsRes.payload.errors[errorKey]["summary"][
-                      "error_count"
-                    ]
-                  : mappingErrorCount + errorObj.length
-              );
 
               dispatch(
                 setMappingErrorCount(
@@ -338,8 +327,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           locationDetailsField.includes(key) ||
           ["location_id_column"].includes(key);
 
-        console.log("bottom_geo_level_location", key, personal, location);
-
         if (key === "custom_fields") {
           //loop through the custom fields checking for pii
           const customFields: any = column_mapping[key];
@@ -359,8 +346,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
               contains_pii: pii,
             };
           });
-
-          console.log("fieldsConfig", fieldsConfig);
         }
 
         return {
@@ -392,16 +377,12 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         config.column_name !== `custom_fields`
     );
 
-    console.log("filteredCustomConfig", filteredCustomConfig);
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
         columnConfig: filteredCustomConfig,
       })
     );
-
-    console.log(customConfig);
   };
 
   const findLowestGeoLevel = (locationData: any) => {
@@ -448,8 +429,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                 key: `location_id_column`,
               },
             ]);
-
-            console.log("locationDetailsField", locationDetailsField);
           }
         }
       }
@@ -533,6 +512,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
   return (
     <>
+      <GlobalStyle />
       <TargetsRemapFormWrapper>
         <div style={{ display: "flex" }}>
           <Title>Add new targets</Title>
@@ -921,7 +901,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",
@@ -944,7 +924,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <div>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

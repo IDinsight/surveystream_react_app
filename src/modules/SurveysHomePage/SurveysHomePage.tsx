@@ -1,13 +1,5 @@
 import { useEffect } from "react";
-import {
-  ApartmentOutlined,
-  CaretDownOutlined,
-  HomeFilled,
-  IdcardOutlined,
-  PlusOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { PlusOutlined } from "@ant-design/icons";
 import { getDayMonth } from "../../utils/helper";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
@@ -22,6 +14,8 @@ import { Button, Result } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import NavItems from "../../components/NavItems";
+import { GlobalStyle } from "../../shared/Global.styled";
+import { StyledLink, NewSurveyCard, Text } from "./SurveysHome.styled";
 
 function SurveysHomePage() {
   const dispatch = useAppDispatch();
@@ -52,6 +46,8 @@ function SurveysHomePage() {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header items={NavItems} />
       {isLoading ? (
         <>
@@ -82,7 +78,7 @@ function SurveysHomePage() {
               style={{ minHeight: "calc( 100vh - 158px)" }}
             >
               <div id="surveys-active" className="mb-10">
-                <p className="font-inter font-medium text-base text-gray-7">
+                <p className=" font-medium text-base text-gray-7">
                   Active surveys
                 </p>
                 <div id="surveys-active-items" className="flex flex-wrap">
@@ -94,52 +90,30 @@ function SurveysHomePage() {
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}
+                      state="Active"
                     />
                   ))}
                 </div>
               </div>
               <div id="surveys-draft" className="mb-10">
-                <p className="font-inter font-medium text-base text-gray-7">
+                <p className="font-medium text-base text-gray-7">
                   Draft surveys
                 </p>
                 <div className="flex flex-wrap">
                   {draftSurveys.map((survey, index: number) => (
                     <div key={survey.survey_uid}>
-                      <div className="mt-4 mr-[22px] p-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]">
-                        <Link
-                          onClick={() => {
-                            dispatch(
-                              setActiveSurvey({
-                                survey_uid: survey.survey_uid,
-                                survey_name: survey.survey_name,
-                              })
-                            );
-
-                            localStorage.setItem(
-                              "activeSurvey",
-                              JSON.stringify({
-                                survey_uid: survey.survey_uid,
-                                survey_name: survey.survey_name,
-                              })
-                            );
-                          }}
-                          to={`/survey-configuration/${survey.survey_uid.toString()}`}
-                          className="font-inter font-medium text-base text-geekblue-7 no-underline h-12 inline-block"
-                        >
-                          {survey.survey_name}
-                        </Link>
-                        <p className="m-0 mt-2 font-inter font-normal text-xs leading-5 text-gray-7">
-                          Last edited on {getDayMonth(survey.last_updated_at)}
-                        </p>
-                      </div>
-                      {index % 4 === 3 && <div className="w-0 flex-1" />}
+                      <SurveyCard
+                        title={survey.survey_name}
+                        link={`/survey-configuration/${survey.survey_uid.toString()}`}
+                        survey_uid={survey.survey_uid.toString()}
+                        state="Draft"
+                        lastUpdatedAt={getDayMonth(survey.last_updated_at)}
+                      />
                     </div>
                   ))}
-                  <div
-                    key="new_survey"
-                    className="flex justify-center items-center mt-4 w-[270px] h-[84px] bg-gray-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.08)]"
-                  >
-                    <Link
+                  {userProfile.is_super_admin ||
+                  userProfile.can_create_survey ? (
+                    <StyledLink
                       onClick={() => {
                         dispatch(setActiveSurvey({}));
                         localStorage.setItem(
@@ -151,17 +125,19 @@ function SurveysHomePage() {
                       to="/new-survey-config"
                       className="no-underline flex items-center"
                     >
-                      <PlusOutlined className="!text-base text-gray-9" />
-                      <span className="ml-3 font-inter font-medium text-base text-gray-10">
-                        Configure new survey
-                      </span>
-                    </Link>
-                  </div>
+                      <NewSurveyCard key="new_survey">
+                        <PlusOutlined />
+                        <Text>Configure new survey</Text>
+                      </NewSurveyCard>
+                    </StyledLink>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
 
               <div id="surveys-past">
-                <p className="font-inter font-medium text-base text-gray-7">
+                <p className="font-medium text-base text-gray-7">
                   Past surveys
                 </p>
                 <div id="surveys-past-items" className="flex flex-wrap">
@@ -173,6 +149,7 @@ function SurveysHomePage() {
                       title={survey.survey_name}
                       start={getDayMonth(survey.planned_start_date)}
                       end={getDayMonth(survey.planned_end_date)}
+                      state="Past"
                     />
                   ))}
                 </div>

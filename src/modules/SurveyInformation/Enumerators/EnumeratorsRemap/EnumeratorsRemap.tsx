@@ -44,6 +44,7 @@ import {
   FooterWrapper,
 } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -276,8 +277,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -340,7 +339,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
             dispatch(setMappingErrorList(transformedErrors));
           }
           dispatch(setMappingErrorStatus(true));
-          console.log("hasError", mappingErrorStatus);
           return;
         }
 
@@ -365,8 +363,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         dispatch(setMappingErrorStatus(true));
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = enumeratorMappingForm.getFieldsValue();
 
@@ -376,8 +372,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 
@@ -414,6 +408,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
   return (
     <>
+      <GlobalStyle />
       <EnumeratorsRemapFormWrapper>
         <div style={{ display: "flex" }}>
           <Title>Add new enumerators</Title>
@@ -723,7 +718,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

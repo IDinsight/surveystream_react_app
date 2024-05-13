@@ -34,6 +34,7 @@ import {
   setLoading,
 } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -100,9 +101,6 @@ function EnumeratorsUpload() {
     base64Data: string
   ) => {
     // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
-    console.log("rows:", rows);
 
     dispatch(setEnumeratorCSVColumns(columnNames));
     dispatch(setEnumeratorCSVRows(rows));
@@ -146,6 +144,7 @@ function EnumeratorsUpload() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -270,7 +269,7 @@ function EnumeratorsUpload() {
               <div style={{ marginTop: "32px" }}>
                 <p
                   style={{
-                    fontFamily: "Inter",
+                    fontFamily: "Lato",
                     fontSize: "14px",
                     fontWeight: "700",
                     lineHeight: "22px",

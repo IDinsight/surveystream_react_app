@@ -49,6 +49,32 @@ export const updateSurveyLocationGeoLevels = async (
   }
 };
 
+export const updateSurveyPrimeGeoLocation = async (
+  formData: any,
+  survey_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/locations/${survey_uid}/prime-geo-level`;
+
+    const res = await axios.put(
+      url,
+      { ...formData },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const updateSurveyLocations = async (
   formData: GeoLevelMapping[],
   file: any,

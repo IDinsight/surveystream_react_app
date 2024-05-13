@@ -42,6 +42,7 @@ import { EnumeratorMapping } from "../../../../redux/enumerators/types";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -255,8 +256,6 @@ function EnumeratorsMap() {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          console.log("errors", mappingsRes?.payload?.errors);
-
           if (mappingsRes?.payload?.errors) {
             const transformedErrors: CSVError[] = [];
 
@@ -347,16 +346,12 @@ function EnumeratorsMap() {
             (config) => config !== null && config !== undefined
           );
 
-          console.log("filteredCustomConfig", filteredCustomConfig);
-
           dispatch(
             updateEnumeratorColumnConfig({
               formUID: form_uid,
               columnConfig: filteredCustomConfig,
             })
           );
-
-          console.log(customConfig);
 
           setHasError(false);
           //route to home
@@ -372,8 +367,6 @@ function EnumeratorsMap() {
         setHasError(true);
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = enumeratorMappingForm.getFieldsValue();
 
@@ -383,8 +376,6 @@ function EnumeratorsMap() {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 
@@ -422,6 +413,7 @@ function EnumeratorsMap() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -577,7 +569,7 @@ function EnumeratorsMap() {
                         <p
                           style={{
                             color: "#434343",
-                            fontFamily: "Inter",
+                            fontFamily: "Lato",
                             fontSize: 12,
                             lineHeight: "20px",
                           }}
@@ -715,7 +707,7 @@ function EnumeratorsMap() {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { InboxOutlined } from "@ant-design/icons";
 import { message, Upload } from "antd";
-import { Buffer } from "buffer";
+import Papa, { ParseResult } from "papaparse";
 const { Dragger } = Upload;
 
 interface IFileUpload {
@@ -30,8 +30,10 @@ function FileUpload({
     const reader = new FileReader();
     reader.onload = () => {
       const csvData = reader.result as string;
-      const rows = csvData.split("\n");
-      if (rows.length > maxRows) {
+      const parsedCsv: ParseResult<string[]> = Papa.parse(csvData, {
+        skipEmptyLines: true,
+      });
+      if (parsedCsv.data.length > maxRows) {
         message.error(`CSV file should have a maximum of ${maxRows} rows.`);
         return false;
       }
@@ -49,11 +51,14 @@ function FileUpload({
       reader.onload = () => {
         const csvData = reader.result as string;
         const encodedData = csvData.split(",")[1]; // Extract the base64 data
-        const decodedData = Buffer.from(encodedData, "base64").toString(); // Decode the base64 data
-        const rows = decodedData.split("\n");
-        const columnNames = rows[0]
-          .split(",")
-          .map((columnName) => columnName.trim()); // Trim the column names
+        const decodedData = atob(encodedData); // Decode the base64 data
+        const parsedCsv: ParseResult<string[]> = Papa.parse(decodedData, {
+          skipEmptyLines: true,
+        });
+        const parsedCsvData = parsedCsv.data;
+        const columnNames = parsedCsvData[0].map((columnName: string) =>
+          columnName.trim()
+        );
 
         setTimeout(() => {
           onFileUpload(file, columnNames, encodedData);

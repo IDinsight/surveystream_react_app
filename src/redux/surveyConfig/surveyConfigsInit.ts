@@ -10,13 +10,9 @@ export const surveyConfigs: Record<string, any> = {
       name: "SurveyCTO information",
       status: "Not Started",
     },
-    { name: "Field supervisor roles", status: "Not Started" },
+    { name: "User and role management", status: "Not Started" },
     {
       name: "Survey locations",
-      status: "Not Started",
-    },
-    {
-      name: "SurveyStream users",
       status: "Not Started",
     },
     {

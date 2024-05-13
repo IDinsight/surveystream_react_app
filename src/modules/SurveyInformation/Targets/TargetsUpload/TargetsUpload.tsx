@@ -33,6 +33,7 @@ import {
 } from "../../../../redux/targets/targetSlice";
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -92,11 +93,6 @@ function TargetsUpload() {
     rows: string[],
     base64Data: string
   ) => {
-    // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
-    console.log("rows:", rows);
-
     dispatch(setTargetsCSVColumns(columnNames));
     dispatch(setTargetsCSVRows(rows));
     dispatch(setTargetsFileUpload(true));
@@ -139,6 +135,7 @@ function TargetsUpload() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -264,7 +261,7 @@ function TargetsUpload() {
             <div style={{ marginTop: "32px" }}>
               <p
                 style={{
-                  fontFamily: "Inter",
+                  fontFamily: "Lato",
                   fontSize: "14px",
                   fontWeight: "700",
                   lineHeight: "22px",

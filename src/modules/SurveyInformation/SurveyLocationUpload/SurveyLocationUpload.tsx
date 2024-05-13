@@ -36,6 +36,7 @@ import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocat
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyLocationUpload() {
   const navigate = useNavigate();
@@ -115,8 +116,6 @@ function SurveyLocationUpload() {
     base64Data: string
   ) => {
     // Access the file upload results
-    console.log("File:", file);
-    console.log("Column Names:", columnNames);
     setCSVColumnNames(columnNames);
     setCSVBase64Data(base64Data);
   };
@@ -124,8 +123,6 @@ function SurveyLocationUpload() {
   const handleOnChange = (value: string, itemName: string) => {
     setMappedColumnNames((prevColumnNames: any) => {
       const updatedColumnNames = { ...prevColumnNames };
-
-      console.log("updatedColumnNames", updatedColumnNames);
 
       updatedColumnNames[itemName] = value;
       return updatedColumnNames;
@@ -291,14 +288,10 @@ function SurveyLocationUpload() {
             (mapping): mapping is GeoLevelMapping => mapping !== undefined
           );
 
-        console.log("geoLevelMappings", geoLevelMappings);
-
         const requestData = {
           geo_level_mapping: geoLevelMappings,
           file: csvBase64Data,
         };
-
-        console.log("requestData", requestData);
 
         if (survey_uid !== undefined) {
           const mappingsRes = await dispatch(
@@ -309,7 +302,6 @@ function SurveyLocationUpload() {
             })
           );
 
-          console.log("mappingsRes", mappingsRes);
           if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
             setLoading(false);
@@ -345,6 +337,7 @@ function SurveyLocationUpload() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -405,7 +398,7 @@ function SurveyLocationUpload() {
                     <Form form={form}>
                       <p
                         style={{
-                          fontFamily: "Inter",
+                          fontFamily: "Lato",
                           fontWeight: 500,
                           color: "#262626",
                           marginTop: "24px",

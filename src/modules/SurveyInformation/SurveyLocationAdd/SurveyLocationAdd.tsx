@@ -35,6 +35,7 @@ import {
 import SideMenu from "../SideMenu";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import Header from "../../../components/Header";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -246,6 +247,7 @@ function SurveyLocationAdd() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
