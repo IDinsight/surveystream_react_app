@@ -4,7 +4,7 @@ import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import NavItems from "../../../components/NavItems";
 import Header from "../../../components/Header";
-import { Button, Form, Input, Select, Table } from "antd";
+import { Button, Col, Form, Input, Row, Select, Table } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -25,8 +25,10 @@ function SurveyStatusMapping() {
     (state: RootState) => state.surveyCTOInformation
   );
 
-  const [formIdName, setFormIdName] = useState<string>("");
-  const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(false);
+  const [formIdName, setFormIdName] = useState<string>(
+    "gfa_2023_endline_hh_survey_v1"
+  );
+  const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(true);
 
   const tableColumns = [
     {
@@ -157,6 +159,140 @@ function SurveyStatusMapping() {
                 </Form>
               </>
             )}
+          </div>
+          <div
+            style={{
+              height: "100%",
+              background: "white",
+              position: "absolute",
+              right: 0,
+              width: 520,
+              top: 70,
+              padding: "40px 60px",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <p
+              style={{
+                color: "#262626",
+                fontSize: 24,
+                lineHeight: "32px",
+                fontWeight: 500,
+              }}
+            >
+              Add
+            </p>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Survey status:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Input />
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Survey status label:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Input />
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Completed flag:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Select
+                  defaultValue={true}
+                  style={{ width: 120 }}
+                  options={[
+                    { value: true, label: "TRUE" },
+                    { value: false, label: "FALSE" },
+                  ]}
+                />
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Refusal flag:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Select
+                  defaultValue={false}
+                  style={{ width: 120 }}
+                  options={[
+                    { value: true, label: "TRUE" },
+                    { value: false, label: "FALSE" },
+                  ]}
+                />
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Target assignable:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Select
+                  defaultValue={false}
+                  style={{ width: 120 }}
+                  options={[
+                    { value: true, label: "TRUE" },
+                    { value: false, label: "FALSE" },
+                  ]}
+                />
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 12 }}>
+              <Col span={8}>
+                <p
+                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
+                >
+                  <span style={{ color: "red" }}>*</span> Web-app tag:
+                </p>
+              </Col>
+              <Col span={16}>
+                <Input />
+              </Col>
+            </Row>
+            <Button
+              type="default"
+              style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              style={{
+                marginTop: 24,
+                marginLeft: 24,
+                backgroundColor: "#2f54eb",
+                color: "white",
+                borderRadius: 2,
+              }}
+            >
+              Add
+            </Button>
           </div>
         </>
       )}
