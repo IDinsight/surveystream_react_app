@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
 import { CustomBtn } from "./SurveyStatusMapping.styled";
-import { PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   getTargetStatusMapping,
   updateTargetStatusMapping,
@@ -101,6 +101,19 @@ function SurveyStatusMapping() {
     };
   });
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+  const hasSelected = selectedRowKeys.length > 0;
+
   const onConfirmClick = () => {
     if (!sctoForm.form_uid) return;
 
@@ -118,12 +131,14 @@ function SurveyStatusMapping() {
     dispatch(
       updateTargetStatusMapping({
         formUID: sctoForm.form_uid,
-        data: [editingData],
+        data: [...targetStatusMapping, editingData],
       })
     ).then((res) => {
       if (res.payload.data.success) {
         message.success("Mapping added successfully!");
         setIsEditing(false);
+      } else {
+        message.error("Failed to add mapping!");
       }
     });
   };
@@ -168,8 +183,31 @@ function SurveyStatusMapping() {
                   >
                     Add
                   </CustomBtn>
+                  {selectedRowKeys.length === 1 ? (
+                    <CustomBtn
+                      type="primary"
+                      icon={<EditOutlined />}
+                      style={{ marginLeft: 10 }}
+                    >
+                      Edit
+                    </CustomBtn>
+                  ) : null}
+                  {selectedRowKeys.length > 0 ? (
+                    <CustomBtn
+                      type="primary"
+                      icon={<DeleteOutlined />}
+                      style={{ marginLeft: 10 }}
+                    >
+                      Delete
+                    </CustomBtn>
+                  ) : null}
                 </div>
-                <Table columns={tableColumns} dataSource={tableDataSources} />
+                <Table
+                  columns={tableColumns}
+                  dataSource={tableDataSources}
+                  rowSelection={rowSelection}
+                  bordered
+                />
                 <Button type="primary" disabled style={{ marginTop: 12 }}>
                   Confirm
                 </Button>
