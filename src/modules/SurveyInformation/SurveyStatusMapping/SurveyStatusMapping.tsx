@@ -4,13 +4,27 @@ import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import NavItems from "../../../components/NavItems";
 import Header from "../../../components/Header";
-import { Button, Col, Form, Input, Row, Select, Table } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Table,
+  Tag,
+  message,
+} from "antd";
 import { useForm } from "antd/es/form/Form";
 import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
 import { CustomBtn } from "./SurveyStatusMapping.styled";
 import { PlusOutlined } from "@ant-design/icons";
+import {
+  getTargetStatusMapping,
+  updateTargetStatusMapping,
+} from "../../../redux/targetStatusMapping/targetStatusMappingActions";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();
@@ -25,10 +39,20 @@ function SurveyStatusMapping() {
     (state: RootState) => state.surveyCTOInformation
   );
 
-  const [formIdName, setFormIdName] = useState<string>(
-    "gfa_2023_endline_hh_survey_v1"
-  );
-  const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(true);
+  const { loading: isMappingLoading, mappingConfig: targetStatusMapping } =
+    useAppSelector((state: RootState) => state.targetStatusMapping);
+
+  const [formIdName, setFormIdName] = useState<string>("");
+  const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editingData, setEditingData] = useState<any>({
+    survey_status: "",
+    survey_status_label: "",
+    completed_flag: true,
+    refusal_flag: false,
+    target_assignable: false,
+    webapp_tag_color: "green",
+  });
 
   const tableColumns = [
     {
@@ -63,6 +87,47 @@ function SurveyStatusMapping() {
     },
   ];
 
+  const tableDataSources = targetStatusMapping.map((item: any) => {
+    return {
+      key: item.id,
+      survey_status: item.survey_status,
+      survey_status_label: item.survey_status_label,
+      completed_flag: item.completed_flag ? "TRUE" : "FALSE",
+      refusal_flag: item.refusal_flag ? "TRUE" : "FALSE",
+      target_assignable: item.target_assignable ? "TRUE" : "FALSE",
+      web_app_tag: (
+        <Tag color={item.webapp_tag_color}>{item.webapp_tag_color}</Tag>
+      ),
+    };
+  });
+
+  const onConfirmClick = () => {
+    if (!sctoForm.form_uid) return;
+
+    dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
+    setIsFormConfirmed(true);
+  };
+
+  const onAddClick = () => {
+    setIsEditing(true);
+  };
+
+  const onAddMapping = () => {
+    if (!sctoForm.form_uid) return;
+
+    dispatch(
+      updateTargetStatusMapping({
+        formUID: sctoForm.form_uid,
+        data: [editingData],
+      })
+    ).then((res) => {
+      if (res.payload.data.success) {
+        message.success("Mapping added successfully!");
+        setIsEditing(false);
+      }
+    });
+  };
+
   useEffect(() => {
     if (!survey_uid) {
       navigate("/surveys");
@@ -74,7 +139,7 @@ function SurveyStatusMapping() {
   return (
     <>
       <Header items={NavItems} />
-      {isLoading ? (
+      {isLoading || isMappingLoading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -99,11 +164,12 @@ function SurveyStatusMapping() {
                     type="primary"
                     icon={<PlusOutlined />}
                     style={{ marginLeft: "auto" }}
+                    onClick={onAddClick}
                   >
                     Add
                   </CustomBtn>
                 </div>
-                <Table columns={tableColumns} />
+                <Table columns={tableColumns} dataSource={tableDataSources} />
                 <Button type="primary" disabled style={{ marginTop: 12 }}>
                   Confirm
                 </Button>
@@ -147,10 +213,7 @@ function SurveyStatusMapping() {
                         <Input defaultValue="In-person" disabled />
                       </Form.Item>
                       <Form.Item shouldUpdate>
-                        <CustomBtn
-                          type="primary"
-                          onClick={() => setIsFormConfirmed(true)}
-                        >
+                        <CustomBtn type="primary" onClick={onConfirmClick}>
                           Confirm
                         </CustomBtn>
                       </Form.Item>
@@ -160,140 +223,232 @@ function SurveyStatusMapping() {
               </>
             )}
           </div>
-          <div
-            style={{
-              height: "100%",
-              background: "white",
-              position: "absolute",
-              right: 0,
-              width: 520,
-              top: 70,
-              padding: "40px 60px",
-              border: "1px solid #f0f0f0",
-            }}
-          >
-            <p
+          {isEditing ? (
+            <div
               style={{
-                color: "#262626",
-                fontSize: 24,
-                lineHeight: "32px",
-                fontWeight: 500,
+                height: "100%",
+                background: "white",
+                position: "absolute",
+                right: 0,
+                width: 520,
+                top: 70,
+                padding: "40px 60px",
+                border: "1px solid #f0f0f0",
               }}
             >
-              Add
-            </p>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Survey status:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Input />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Survey status label:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Input />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Completed flag:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Select
-                  defaultValue={true}
-                  style={{ width: 120 }}
-                  options={[
-                    { value: true, label: "TRUE" },
-                    { value: false, label: "FALSE" },
-                  ]}
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Refusal flag:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Select
-                  defaultValue={false}
-                  style={{ width: 120 }}
-                  options={[
-                    { value: true, label: "TRUE" },
-                    { value: false, label: "FALSE" },
-                  ]}
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Target assignable:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Select
-                  defaultValue={false}
-                  style={{ width: 120 }}
-                  options={[
-                    { value: true, label: "TRUE" },
-                    { value: false, label: "FALSE" },
-                  ]}
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 12 }}>
-              <Col span={8}>
-                <p
-                  style={{ color: "#434343", fontSize: 14, lineHeight: "22px" }}
-                >
-                  <span style={{ color: "red" }}>*</span> Web-app tag:
-                </p>
-              </Col>
-              <Col span={16}>
-                <Input />
-              </Col>
-            </Row>
-            <Button
-              type="default"
-              style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              style={{
-                marginTop: 24,
-                marginLeft: 24,
-                backgroundColor: "#2f54eb",
-                color: "white",
-                borderRadius: 2,
-              }}
-            >
-              Add
-            </Button>
-          </div>
+              <p
+                style={{
+                  color: "#262626",
+                  fontSize: 24,
+                  lineHeight: "32px",
+                  fontWeight: 500,
+                }}
+              >
+                Add
+              </p>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Survey status:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Input
+                    onChange={(e) => {
+                      setEditingData((prev: any) => {
+                        return {
+                          ...prev,
+                          survey_status: e.target.value,
+                        };
+                      });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Survey status label:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Input
+                    onChange={(e) => {
+                      setEditingData((prev: any) => {
+                        return {
+                          ...prev,
+                          survey_status_label: e.target.value,
+                        };
+                      });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Completed flag:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Select
+                    defaultValue={true}
+                    style={{ width: 120 }}
+                    options={[
+                      { value: true, label: "TRUE" },
+                      { value: false, label: "FALSE" },
+                    ]}
+                    onChange={(val) => {
+                      setEditingData((prev: any) => {
+                        return {
+                          ...prev,
+                          completed_flag: val,
+                        };
+                      });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Refusal flag:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Select
+                    defaultValue={false}
+                    style={{ width: 120 }}
+                    options={[
+                      { value: true, label: "TRUE" },
+                      { value: false, label: "FALSE" },
+                    ]}
+                    onChange={(val) => {
+                      setEditingData((prev: any) => {
+                        return {
+                          ...prev,
+                          refusal_flag: val,
+                        };
+                      });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Target assignable:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Select
+                    defaultValue={false}
+                    style={{ width: 120 }}
+                    options={[
+                      { value: true, label: "TRUE" },
+                      { value: false, label: "FALSE" },
+                    ]}
+                    onChange={(val) => {
+                      setEditingData((prev: any) => {
+                        return {
+                          ...prev,
+                          target_assignable: val,
+                        };
+                      });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 12 }}>
+                <Col span={8}>
+                  <p
+                    style={{
+                      color: "#434343",
+                      fontSize: 14,
+                      lineHeight: "22px",
+                    }}
+                  >
+                    <span style={{ color: "red" }}>*</span> Web-app tag:
+                  </p>
+                </Col>
+                <Col span={16}>
+                  <Row align="middle">
+                    <Col span={16}>
+                      <Input
+                        onChange={(e) => {
+                          setEditingData((prev: any) => {
+                            return {
+                              ...prev,
+                              webapp_tag_color: e.target.value,
+                            };
+                          });
+                        }}
+                        defaultValue={editingData.webapp_tag_color}
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <Tag
+                        color={editingData.webapp_tag_color}
+                        style={{ marginLeft: 16 }}
+                      >
+                        {editingData.webapp_tag_color}
+                      </Tag>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+              <Button
+                type="default"
+                style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                style={{
+                  marginTop: 24,
+                  marginLeft: 24,
+                  backgroundColor: "#2f54eb",
+                  color: "white",
+                  borderRadius: 2,
+                }}
+                onClick={onAddMapping}
+              >
+                Add
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
     </>
