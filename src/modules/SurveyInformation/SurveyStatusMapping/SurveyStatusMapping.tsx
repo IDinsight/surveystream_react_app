@@ -89,7 +89,7 @@ function SurveyStatusMapping() {
 
   const tableDataSources = targetStatusMapping.map((item: any) => {
     return {
-      key: item.id,
+      key: item.survey_status,
       survey_status: item.survey_status,
       survey_status_label: item.survey_status_label,
       completed_flag: item.completed_flag ? "TRUE" : "FALSE",
@@ -128,6 +128,26 @@ function SurveyStatusMapping() {
   const onAddMapping = () => {
     if (!sctoForm.form_uid) return;
 
+    // Check if survey status and survey status label already exists
+    targetStatusMapping.forEach((ele: any) => {
+      if (ele.survey_status === parseInt(editingData.survey_status)) {
+        message.error(
+          "Survey status already exists, please add unique survey status!"
+        );
+        return;
+      }
+
+      if (
+        ele.survey_status_label.toLowerCase() ===
+        editingData.survey_status_label.toLowerCase()
+      ) {
+        message.error(
+          "Survey status label already exists, please add a unique survey status label!"
+        );
+        return;
+      }
+    });
+
     dispatch(
       updateTargetStatusMapping({
         formUID: sctoForm.form_uid,
@@ -137,8 +157,36 @@ function SurveyStatusMapping() {
       if (res.payload.data.success) {
         message.success("Mapping added successfully!");
         setIsEditing(false);
+
+        if (!sctoForm.form_uid) return;
+        dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
       } else {
         message.error("Failed to add mapping!");
+      }
+    });
+  };
+
+  const onDeleteMapping = () => {
+    if (!sctoForm.form_uid) return;
+
+    const newMapping = targetStatusMapping.filter(
+      (ele: any) => !selectedRowKeys.includes(ele.survey_status)
+    );
+
+    dispatch(
+      updateTargetStatusMapping({
+        formUID: sctoForm.form_uid,
+        data: newMapping,
+      })
+    ).then((res) => {
+      if (res.payload.data.success) {
+        message.success("Mapping deleted successfully!");
+        setSelectedRowKeys([]);
+
+        if (!sctoForm.form_uid) return;
+        dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
+      } else {
+        message.error("Failed to delete mapping!");
       }
     });
   };
@@ -197,6 +245,7 @@ function SurveyStatusMapping() {
                       type="primary"
                       icon={<DeleteOutlined />}
                       style={{ marginLeft: 10 }}
+                      onClick={onDeleteMapping}
                     >
                       Delete
                     </CustomBtn>
@@ -298,6 +347,7 @@ function SurveyStatusMapping() {
                 </Col>
                 <Col span={16}>
                   <Input
+                    type="number"
                     onChange={(e) => {
                       setEditingData((prev: any) => {
                         return {
