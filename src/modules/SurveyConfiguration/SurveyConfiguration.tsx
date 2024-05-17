@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -33,6 +33,12 @@ import {
   MailFilled,
   ProfileFilled,
   ReadFilled,
+  ControlOutlined,
+  BuildFilled,
+  TableOutlined,
+  MailOutlined,
+  SoundOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -84,6 +90,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
+    Emails: "emails",
   },
 };
 
@@ -172,8 +179,21 @@ const SurveyConfiguration: React.FC = () => {
         );
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Mapping":
+        return <ControlOutlined style={{ color: "#531DAB", ...iconProps }} />;
+      case "Target status mapping":
+        return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Assign targets to surveyors":
         return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+      case "Emails":
+        return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
+      case "Assignments column configuration":
+        return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
+      case "Audio audits":
+        return <SoundOutlined style={{ color: "#D4B106", ...iconProps }} />;
+      case "Photo audits":
+        return <PictureOutlined style={{ color: "#D4380D", ...iconProps }} />;
+
       case "Track productivity":
         return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
       case "Track data quality":
@@ -208,8 +228,17 @@ const SurveyConfiguration: React.FC = () => {
       case "Targets":
         permission_name = "READ Targets";
         break;
+      case "Mapping":
+        permission_name = "READ Assignments";
+        break;
       case "Assign targets to surveyors":
         permission_name = "READ Assignments";
+        break;
+      case "Assignments column configuration":
+        permission_name = "READ Assignments";
+        break;
+      case "Emails":
+        permission_name = "READ Emails";
         break;
       case "Track productivity":
         permission_name = "READ Productivity";
@@ -360,8 +389,9 @@ const SurveyConfiguration: React.FC = () => {
           <SideMenu surveyProgress={surveyConfigs} />
           <MainWrapper>
             {Object.entries(surveyConfigs).map(
-              ([sectionTitle, sectionConfig], index) =>
-                renderSection(sectionTitle, sectionConfig, index)
+              ([sectionTitle, sectionConfig], index) => (
+                <>{renderSection(sectionTitle, sectionConfig, index)}</>
+              )
             )}
           </MainWrapper>
         </div>

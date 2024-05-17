@@ -39,6 +39,8 @@ import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUser
 import { useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
+import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
+import Emails from "../modules/Emails/Emails";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -245,6 +247,22 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/assignments/:survey_uid?/:form_uid?/create"
           element={<CreateAssignments />}
+        />
+      </Route>
+      <Route
+        element={<ProtectedPermissionRoute permission_name="READ Emails" />}
+      >
+        <Route
+          path="/module-configuration/emails/:survey_uid?/:form_uid?"
+          element={<Emails />}
+        />
+      </Route>
+      <Route
+        element={<ProtectedPermissionRoute permission_name="WRITE Emails" />}
+      >
+        <Route
+          path="/module-configuration/emails/:survey_uid?/:form_uid?/create"
+          element={<ConfigureEmails />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />
