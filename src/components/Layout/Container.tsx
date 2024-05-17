@@ -1,9 +1,10 @@
 import React, { ReactNode } from "react";
-import { BackArrow, BackLink } from "../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../shared/Nav.styled";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
-import { Title, Wrapper } from "./Container.styled";
+import { Wrapper } from "./Container.styled";
 import { useNavigate, useParams } from "react-router-dom";
+import HandleBackButton from "../HandleBackButton";
 
 interface IContainer {
   children?: ReactNode;
@@ -22,11 +23,8 @@ const Container: React.FC<IContainer> = ({ children }) => {
   return (
     <>
       <Wrapper>
-        <BackLink
-          onClick={() => navigate(`/survey-configuration/${survey_uid}`)}
-        >
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

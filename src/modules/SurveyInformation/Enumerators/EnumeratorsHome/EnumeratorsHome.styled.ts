@@ -15,23 +15,18 @@ export const EnumeratorsHomeFormWrapper = styled.div`
 export const EnumeratorsTable = styled(Table)`
   width: 90%;
   overflow: auto;
+  margin-top: 15px;
+  margin-bottom: 68px;
   & th {
     color: #434343 !important;
-    background-color: #fff0f6 !important;
+    background-color: #d6e4ff !important;
     height: 40px;
-    font-family: "Lato", sans-serif;
-  }
-  & td {
     font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
   }
-  & .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: #fff0f6;
-    border-color: #f759ab;
-  }
-  & .ant-checkbox-checked .ant-checkbox-inner::after {
-    border-color: #9e1068;
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;
