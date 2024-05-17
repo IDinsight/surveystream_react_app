@@ -179,7 +179,6 @@ function EnumeratorsHome() {
     );
 
     if (enumeratorRes.payload.status == 200) {
-      message.success("Enumerators loaded successfully.");
       //create rowbox data
       const originalData = enumeratorRes.payload.data.data;
 
@@ -188,8 +187,11 @@ function EnumeratorsHome() {
         navigate(
           `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
         );
+        message.info("No enumerators found. Kindly upload the enumerators.");
         return;
       }
+
+      message.success("Enumerators loaded successfully.");
 
       // Initialize counters
       let activeCount = 0;
@@ -381,7 +383,7 @@ function EnumeratorsHome() {
       await handleFormUID();
 
       if (form_uid && screenMode === "manage") {
-        getEnumeratorsList(form_uid);
+        await getEnumeratorsList(form_uid);
       }
     };
 

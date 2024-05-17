@@ -307,11 +307,19 @@ function TargetsMap() {
     formUID: any,
     column_mapping: any
   ) => {
-    //auto configure columns for users setting personal as non_batch and the rest as batch
-    //use the column mapping to do this
+    // Auto-configure columns for users, setting personal as non_batch and the rest as batch
+    // Use the column mapping to do this
 
-    const customConfig = Object.keys(column_mapping).map((key) => {
-      if (key !== null && key !== "" && key !== undefined) {
+    console.log("column_mapping", column_mapping);
+    console.log("checkboxValues", checkboxValues);
+
+    const customConfig = Object.keys(column_mapping).flatMap((key) => {
+      if (
+        key !== null &&
+        key !== "" &&
+        key !== undefined &&
+        column_mapping[key] !== undefined
+      ) {
         const personal = ["target_id"].includes(key);
         const custom = ["gender", "language"].includes(key);
 
@@ -320,21 +328,26 @@ function TargetsMap() {
           ["location_id_column"].includes(key);
 
         if (key === "custom_fields") {
-          //loop through the custom fields checking for pii
-          const customFields: any = column_mapping[key];
+          // Loop through the custom fields checking for PII
+          const customFields = column_mapping[key];
 
-          const fieldsConfig = Object.keys(customFields).map((customKey) => {
-            const bulk = checkboxValues?.[`${customKey}_bulk`]
-              ? checkboxValues?.[`${customKey}_bulk`]
-              : true;
-            const pii = checkboxValues?.[`${customKey}_pii`]
-              ? checkboxValues?.[`${customKey}_pii`]
-              : true;
+          return Object.keys(customFields).map((customKey) => {
+            const columnName = column_mapping[key][customKey]["column_name"];
+
+            const bulk = checkboxValues?.[`${columnName}_bulk`] ?? true;
+            const pii = checkboxValues?.[`${columnName}_pii`] ?? true;
+
+            console.log({
+              bulk_editable: bulk,
+              column_name: columnName,
+              column_type: "custom_fields",
+              contains_pii: pii,
+            });
 
             return {
               bulk_editable: bulk,
-              column_name: customKey,
-              column_type: "custom_field",
+              column_name: columnName,
+              column_type: "custom_fields",
               contains_pii: pii,
             };
           });
@@ -355,19 +368,21 @@ function TargetsMap() {
               ? "basic_details"
               : location
               ? "location"
-              : "custom_field",
-          contains_pii: true, //TODO: fix
+              : "custom_fields",
+          contains_pii: true, // TODO: fix
         };
       }
     });
 
-    //TODO: check for custom fields : fix
     const filteredCustomConfig = customConfig.filter(
-      (config: any) =>
+      (config) =>
         config != null &&
         config !== undefined &&
         config.column_name !== `custom_fields`
     );
+
+    console.log("filteredCustomConfig", filteredCustomConfig);
+    // You can return or use filteredCustomConfig as needed
 
     dispatch(
       updateTargetsColumnConfig({
