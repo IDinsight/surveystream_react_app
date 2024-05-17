@@ -25,6 +25,7 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -70,10 +71,6 @@ function EditSurveyUsers() {
   });
 
   const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const updateUserHierarchy = async (
     userUid: any,
@@ -241,9 +238,8 @@ function EditSurveyUsers() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

@@ -36,6 +36,7 @@ import SideMenu from "../SideMenu";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import Header from "../../../components/Header";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -46,9 +47,6 @@ function SurveyLocationAdd() {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
@@ -250,9 +248,8 @@ function SurveyLocationAdd() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

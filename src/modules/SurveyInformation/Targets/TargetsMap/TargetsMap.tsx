@@ -49,6 +49,7 @@ import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
 import { it } from "mocha";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -58,12 +59,6 @@ interface CSVError {
 function TargetsMap() {
   const navigate = useNavigate();
 
-  const handleGoBack = () => {
-    if (hasError) {
-      return setHasError(false);
-    }
-    navigate(-1);
-  };
   const dispatch = useAppDispatch();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
@@ -508,9 +503,8 @@ function TargetsMap() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
       {isLoading || quesLoading || locLoading ? (

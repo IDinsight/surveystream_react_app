@@ -43,6 +43,7 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -51,13 +52,6 @@ interface CSVError {
 }
 function EnumeratorsMap() {
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    if (hasError) {
-      return setHasError(false);
-    }
-    navigate(-1);
-  };
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -444,9 +438,8 @@ function EnumeratorsMap() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

@@ -37,14 +37,11 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
 
 function SurveyLocationUpload() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const [form] = Form.useForm();
 
@@ -340,9 +337,8 @@ function SurveyLocationUpload() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

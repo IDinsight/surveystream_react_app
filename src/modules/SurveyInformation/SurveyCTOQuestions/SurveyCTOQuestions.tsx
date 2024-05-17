@@ -42,6 +42,7 @@ import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surve
 import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsSlice";
 import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -75,9 +76,6 @@ function SurveyCTOQuestions() {
     if (survey_uid != undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
     }
-  };
-  const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
   };
 
   const handleFormChange = (changedFields: any[]) => {
@@ -309,9 +307,8 @@ function SurveyCTOQuestions() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

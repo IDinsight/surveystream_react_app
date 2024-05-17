@@ -35,6 +35,7 @@ import {
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -50,7 +51,11 @@ function SurveyLocationHierarchy() {
     useState<any>("no_location");
 
   const handleGoBack = () => {
-    navigate(-1);
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(`/survey-configuration/${survey_uid}`);
+    }
   };
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -292,9 +297,8 @@ function SurveyLocationHierarchy() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

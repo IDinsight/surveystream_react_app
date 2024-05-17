@@ -31,13 +31,11 @@ import TargetsReupload from "../TargetsReupload";
 import TargetsRemap from "../TargetsRemap";
 import { includes } from "cypress/types/lodash";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 function TargetsHome() {
   const navigate = useNavigate();
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
   const { CSVDownloader, Type } = useCSVDownloader();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
@@ -340,9 +338,8 @@ function TargetsHome() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");
