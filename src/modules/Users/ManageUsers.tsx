@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Dropdown, MenuProps, Modal, message } from "antd";
 import {
-  CloudUploadOutlined,
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleFilled,
+  UserAddOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -13,7 +13,6 @@ import NavItems from "../../components/NavItems";
 import Footer from "../../components/Footer";
 import {
   BodyWrapper,
-  DescriptionText,
   MainContainer,
   SearchBox,
   UsersTable,
@@ -27,6 +26,7 @@ import { RootState } from "../../redux/store";
 import Column from "antd/lib/table/Column";
 import { setEditUser } from "../../redux/userManagement/userManagementSlice";
 import { GlobalStyle } from "../../shared/Global.styled";
+import { HeaderContainer, Title } from "../../shared/Nav.styled";
 
 function UsersManage() {
   const navigate = useNavigate();
@@ -234,76 +234,72 @@ function UsersManage() {
     <>
       <GlobalStyle />
       <Header items={NavItems} />
+      <HeaderContainer>
+        <Title>Users</Title>
+
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <SearchBox
+            placeholder="Search"
+            enterButton
+            style={{ width: 367 }}
+            onSearch={(val) => {
+              setSearchText(val);
+              filterTableData(val);
+            }}
+            onChange={(e) => {
+              const { value } = e.target;
+              setSearchText(value);
+              filterTableData(value);
+            }}
+          />
+          <Dropdown menu={{ items: addUserOptions }} placement="bottomLeft">
+            {!hasSelected ? (
+              <Button
+                type="primary"
+                icon={<UserAddOutlined />}
+                style={{
+                  marginLeft: "25px",
+                  backgroundColor: "#2F54EB",
+                }}
+                onClick={() => navigate(`/users/add`)}
+              >
+                Add new user
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={handleEditUser}
+                >
+                  Edit user
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<DeleteOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={onDeactivateUser}
+                >
+                  Deactivate
+                </Button>
+              </>
+            )}
+          </Dropdown>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <BodyWrapper>
             <MainContainer>
-              <div style={{ display: "flex" }}>
-                <DescriptionText style={{ marginRight: "auto" }}>
-                  Users
-                </DescriptionText>
-                <div style={{ display: "flex" }}>
-                  <SearchBox
-                    placeholder="Search"
-                    enterButton
-                    style={{ width: 367 }}
-                    onSearch={(val) => {
-                      setSearchText(val);
-                      filterTableData(val);
-                    }}
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      setSearchText(value);
-                      filterTableData(value);
-                    }}
-                  />
-                  <Dropdown
-                    menu={{ items: addUserOptions }}
-                    placement="bottomLeft"
-                  >
-                    {!hasSelected ? (
-                      <Button
-                        type="primary"
-                        icon={<CloudUploadOutlined />}
-                        style={{
-                          marginLeft: "25px",
-                          backgroundColor: "#2F54EB",
-                        }}
-                        onClick={() => navigate(`/users/add`)}
-                      >
-                        Add new user
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          type="primary"
-                          icon={<EditOutlined />}
-                          style={{
-                            marginLeft: "25px",
-                            backgroundColor: "#2F54EB",
-                          }}
-                          onClick={handleEditUser}
-                        >
-                          Edit user
-                        </Button>
-                        <Button
-                          type="primary"
-                          icon={<DeleteOutlined />}
-                          style={{
-                            marginLeft: "25px",
-                            backgroundColor: "#2F54EB",
-                          }}
-                          onClick={onDeactivateUser}
-                        >
-                          Deactivate
-                        </Button>
-                      </>
-                    )}
-                  </Dropdown>
-                </div>
-              </div>
               <UsersTable
                 dataSource={filteredUserTableData}
                 rowSelection={rowSelection}

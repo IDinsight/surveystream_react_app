@@ -4,6 +4,7 @@ import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
+  HeaderContainer,
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
@@ -32,6 +33,7 @@ import TargetsRemap from "../TargetsRemap";
 import { includes } from "cypress/types/lodash";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import Container from "../../../../components/Layout/Container";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -337,20 +339,67 @@ function TargetsHome() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container />
+      <HeaderContainer>
+        <Title>Targets</Title>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+        <div
+          style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              marginLeft: "auto",
+              color: "#2F54EB",
+            }}
+          >
+            {editMode ? (
+              <>
+                <Button
+                  icon={<EditOutlined />}
+                  style={{ marginRight: 15 }}
+                  onClick={onEditDataHandler}
+                >
+                  Edit data
+                </Button>
+              </>
+            ) : null}
+            <Button
+              type="primary"
+              icon={editMode ? null : <EditOutlined />}
+              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              onClick={() => setEditMode((prev) => !prev)}
+            >
+              {editMode ? "Done editing" : "Edit"}
+            </Button>
+            <Button
+              onClick={handlerAddTargetBtn}
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+            >
+              Upload targets
+            </Button>
+            <CSVDownloader
+              data={tableDataSource}
+              filename={"targets.csv"}
+              style={{
+                cursor: "pointer",
+                backgroundColor: "#2F54EB",
+                color: "#FFF",
+                fontSize: "12px",
+                display: "flex",
+                alignItems: "center",
+                padding: "8px 16px",
+                borderRadius: "5px",
+                marginRight: 80,
+              }}
+            >
+              <CloudDownloadOutlined />
+            </CSVDownloader>
+          </div>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -359,61 +408,6 @@ function TargetsHome() {
           {screenMode === "manage" ? (
             <>
               <TargetsHomeFormWrapper>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Title>Targets</Title>
-                  <div
-                    style={{
-                      display: "flex",
-                      marginLeft: "auto",
-                      color: "#2F54EB",
-                    }}
-                  >
-                    {editMode ? (
-                      <>
-                        <Button
-                          icon={<EditOutlined />}
-                          style={{ marginRight: 15 }}
-                          onClick={onEditDataHandler}
-                        >
-                          Edit data
-                        </Button>
-                      </>
-                    ) : null}
-                    <Button
-                      type="primary"
-                      icon={editMode ? null : <EditOutlined />}
-                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                      onClick={() => setEditMode((prev) => !prev)}
-                    >
-                      {editMode ? "Done editing" : "Edit"}
-                    </Button>
-                    <Button
-                      onClick={handlerAddTargetBtn}
-                      type="primary"
-                      icon={<CloudUploadOutlined />}
-                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                    >
-                      Upload targets
-                    </Button>
-                    <CSVDownloader
-                      data={tableDataSource}
-                      filename={"targets.csv"}
-                      style={{
-                        cursor: "pointer",
-                        backgroundColor: "#2F54EB",
-                        color: "#FFF",
-                        fontSize: "12px",
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "8px 16px",
-                        borderRadius: "5px",
-                        marginRight: 80,
-                      }}
-                    >
-                      <CloudDownloadOutlined />
-                    </CSVDownloader>
-                  </div>
-                </div>
                 <br />
                 <TargetsCountBox total={targetsCount} />
                 <TargetsTable

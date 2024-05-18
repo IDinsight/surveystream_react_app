@@ -23,6 +23,12 @@ function SideMenu() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const { form_uid } = useParams<{ form_uid?: string }>() ?? {
+    form_uid: "",
+  };
+  const { tabId } = useParams<{ tabId?: string }>() ?? {
+    tabId: "",
+  };
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
@@ -34,10 +40,10 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${isActive(
-            `/module-configuration/emails/schedule/${survey_uid}` ||
-              `/module-configuration/emails/${survey_uid}`
+            `/module-configuration/emails/${survey_uid}/${form_uid}/schedules` ||
+              `/module-configuration/emails/${survey_uid}/${form_uid}`
           )}`}
-          to={`/module-configuration/emails/manual/${survey_uid}`}
+          to={`/module-configuration/emails/${survey_uid}/${form_uid}/schedules`}
         >
           <IconWrapper>
             <CalendarOutlined />
@@ -51,9 +57,9 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${isActive(
-            `/module-configuration/emails/manual/${survey_uid}`
+            `/module-configuration/emails/${survey_uid}/${form_uid}/manual`
           )}`}
-          to={`/module-configuration/emails/manual/${survey_uid}`}
+          to={`/module-configuration/emails/${survey_uid}/${form_uid}/manual`}
         >
           <IconWrapper>
             <MailFilled />
@@ -73,8 +79,8 @@ function SideMenu() {
 
   const getPossibleKey = () => {
     const path = location.pathname;
-    if (path.includes("manual/")) return "manualTriggers";
-    if (path.includes("schedules/")) return "emailSchedules";
+    if (path.includes("/manual")) return "manualTriggers";
+    if (path.includes("/schedules")) return "emailSchedules";
 
     return "";
   };

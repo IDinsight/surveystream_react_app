@@ -7,6 +7,7 @@ import {
   BackLink,
   BackArrow,
   Title,
+  HeaderContainer,
 } from "../../../shared/Nav.styled";
 
 import {
@@ -21,7 +22,7 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import { LinkOutlined } from "@ant-design/icons";
+import { CloudDownloadOutlined, LinkOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -38,6 +39,8 @@ import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import HandleBackButton from "../../../components/HandleBackButton";
+import Container from "../../../components/Layout/Container";
+import { useCSVDownloader } from "react-papaparse";
 
 function SurveyLocationUpload() {
   const navigate = useNavigate();
@@ -57,6 +60,9 @@ function SurveyLocationUpload() {
   const [csvColumnNames, setCSVColumnNames] = useState<string[]>([]);
   const [csvBase64Data, setCSVBase64Data] = useState<string | null>(null);
   const [mappedColumnNames, setMappedColumnNames] = useState<any>({});
+  const [transformedData, setTransformedData] = useState<any>([]);
+  const [transformedColumns, setTransformedColumns] = useState<any>([]);
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -100,6 +106,30 @@ function SurveyLocationUpload() {
       setHasError(false);
       setColumnMatch(true);
       setFileUploaded(true);
+
+      const columns = surveyLocations?.ordered_columns;
+      const data = surveyLocations?.records;
+
+      setTransformedColumns(() =>
+        columns.map((label: string) => {
+          return {
+            title: label,
+            dataIndex: label.toLocaleLowerCase(),
+            key: label.toLocaleLowerCase(),
+          };
+        })
+      );
+
+      setTransformedData(() =>
+        data.map((record: any, index: number) => {
+          const transformedRecord: any = {};
+          columns.forEach((column: string) => {
+            transformedRecord[column.toLocaleLowerCase()] = record[column];
+          });
+          transformedRecord.key = index;
+          return transformedRecord;
+        })
+      );
     }
 
     return () => {
@@ -336,20 +366,42 @@ function SurveyLocationUpload() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container />
+      <HeaderContainer>
+        <Title>Survey locations upload</Title>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          {!hasError ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginRight: "80px",
+              }}
+            >
+              <CSVDownloader
+                data={transformedData}
+                filename={"locations.csv"}
+                style={{
+                  fontFamily: "Lato",
+                  cursor: "pointer",
+                  backgroundColor: "#2F54EB",
+                  color: "#FFF",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                }}
+              >
+                <CloudDownloadOutlined style={{ marginRight: "8px" }} />
+                Download CSV
+              </CSVDownloader>
+            </div>
+          ) : null}
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -359,7 +411,6 @@ function SurveyLocationUpload() {
           <SurveyLocationUploadFormWrapper>
             {!fileUploaded || !columnMatch || hasError ? (
               <>
-                <Title>Survey Location: Upload locations</Title>
                 <DescriptionText>Upload locations CSV sheet</DescriptionText>
               </>
             ) : null}
@@ -412,8 +463,8 @@ function SurveyLocationUpload() {
                     {!hasError ? (
                       <>
                         <LocationTable
-                          columns={surveyLocations?.ordered_columns}
-                          data={surveyLocations?.records}
+                          transformedColumns={transformedColumns}
+                          transformedData={transformedData}
                         />
                       </>
                     ) : (

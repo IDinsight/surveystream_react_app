@@ -3,12 +3,7 @@ import { Key, useCallback, useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
-import {
-  CustomTab,
-  HeaderContainer,
-  SearchBox,
-  TextHeading,
-} from "./Assignments.styled";
+import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
 import { Button, TabsProps } from "antd";
 import {
@@ -39,7 +34,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../components/ErrorHandler";
 import CSVDownloadButton from "../../components/CSVDownloadButton";
 import { GlobalStyle } from "../../shared/Global.styled";
-import { Title } from "../../shared/Nav.styled";
+import { HeaderContainer, SearchBox, Title } from "../../shared/Nav.styled";
 
 function Assignments() {
   const navigate = useNavigate();

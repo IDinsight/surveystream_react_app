@@ -1,5 +1,5 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from './apiService'; // Placeholder for your actual API service
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import * as api from "./apiService"; // Placeholder for your actual API service
 import {
   setLoading,
   createEmailConfigRequest,
@@ -52,12 +52,12 @@ import {
   createEmailTemplateFailure,
   getEmailTemplatesRequest,
   getEmailTemplatesSuccess,
-  getEmailTemplatesFailure
-} from './emailsSlice';
+  getEmailTemplatesFailure,
+} from "./emailsSlice";
 
 // Email Config Actions
 export const createEmailConfig = createAsyncThunk(
-  'emails/createEmailConfig',
+  "emails/createEmailConfig",
   async (emailConfigData: any, { dispatch, rejectWithValue }) => {
     try {
       dispatch(createEmailConfigRequest());
@@ -68,13 +68,15 @@ export const createEmailConfig = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to create email config.',
+        message: response.message
+          ? response.message
+          : "Failed to create email config.",
         success: false,
       };
       dispatch(createEmailConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to create email config.';
+      const errorMessage = error || "Failed to create email config.";
       dispatch(createEmailConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -82,24 +84,26 @@ export const createEmailConfig = createAsyncThunk(
 );
 
 export const getEmailConfigs = createAsyncThunk(
-  'emails/getEmailConfigs',
-  async (_, { dispatch, rejectWithValue }) => {
+  "emails/getEmailConfigs",
+  async ({ form_uid }: { form_uid: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getEmailConfigsRequest());
-      const response: any = await api.getEmailConfigs();
+      const response: any = await api.getEmailConfigs(form_uid);
       if (response.status === 200) {
         dispatch(getEmailConfigsSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch email configs.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch email configs.",
         success: false,
       };
       dispatch(getEmailConfigsFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch email configs.';
+      const errorMessage = error || "Failed to fetch email configs.";
       dispatch(getEmailConfigsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -107,7 +111,7 @@ export const getEmailConfigs = createAsyncThunk(
 );
 
 export const getEmailConfig = createAsyncThunk(
-  'emails/getEmailConfig',
+  "emails/getEmailConfig",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getEmailConfigRequest());
@@ -118,13 +122,15 @@ export const getEmailConfig = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch email config.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch email config.",
         success: false,
       };
       dispatch(getEmailConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch email config.';
+      const errorMessage = error || "Failed to fetch email config.";
       dispatch(getEmailConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -132,8 +138,11 @@ export const getEmailConfig = createAsyncThunk(
 );
 
 export const updateEmailConfig = createAsyncThunk(
-  'emails/updateEmailConfig',
-  async ({ id, emailConfigData }: { id: string; emailConfigData: any }, { dispatch, rejectWithValue }) => {
+  "emails/updateEmailConfig",
+  async (
+    { id, emailConfigData }: { id: string; emailConfigData: any },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(updateEmailConfigRequest());
       const response: any = await api.updateEmailConfig(id, emailConfigData);
@@ -143,13 +152,15 @@ export const updateEmailConfig = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to update email config.',
+        message: response.message
+          ? response.message
+          : "Failed to update email config.",
         success: false,
       };
       dispatch(updateEmailConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to update email config.';
+      const errorMessage = error || "Failed to update email config.";
       dispatch(updateEmailConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -157,7 +168,7 @@ export const updateEmailConfig = createAsyncThunk(
 );
 
 export const deleteEmailConfig = createAsyncThunk(
-  'emails/deleteEmailConfig',
+  "emails/deleteEmailConfig",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteEmailConfigRequest());
@@ -168,13 +179,15 @@ export const deleteEmailConfig = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to delete email config.',
+        message: response.message
+          ? response.message
+          : "Failed to delete email config.",
         success: false,
       };
       dispatch(deleteEmailConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to delete email config.';
+      const errorMessage = error || "Failed to delete email config.";
       dispatch(deleteEmailConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -183,7 +196,7 @@ export const deleteEmailConfig = createAsyncThunk(
 
 // Email Schedule Actions
 export const createEmailSchedule = createAsyncThunk(
-  'emails/createEmailSchedule',
+  "emails/createEmailSchedule",
   async (emailScheduleData: any, { dispatch, rejectWithValue }) => {
     try {
       dispatch(createEmailScheduleRequest());
@@ -194,13 +207,15 @@ export const createEmailSchedule = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to create email schedule.',
+        message: response.message
+          ? response.message
+          : "Failed to create email schedule.",
         success: false,
       };
       dispatch(createEmailScheduleFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to create email schedule.';
+      const errorMessage = error || "Failed to create email schedule.";
       dispatch(createEmailScheduleFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -208,24 +223,29 @@ export const createEmailSchedule = createAsyncThunk(
 );
 
 export const getEmailSchedules = createAsyncThunk(
-  'emails/getEmailSchedules',
-  async (_, { dispatch, rejectWithValue }) => {
+  "emails/getEmailSchedules",
+  async (
+    { email_config_uid }: { email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getEmailSchedulesRequest());
-      const response: any = await api.getEmailSchedules();
+      const response: any = await api.getEmailSchedules(email_config_uid);
       if (response.status === 200) {
         dispatch(getEmailSchedulesSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch email schedules.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch email schedules.",
         success: false,
       };
       dispatch(getEmailSchedulesFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch email schedules.';
+      const errorMessage = error || "Failed to fetch email schedules.";
       dispatch(getEmailSchedulesFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -233,7 +253,7 @@ export const getEmailSchedules = createAsyncThunk(
 );
 
 export const getEmailSchedule = createAsyncThunk(
-  'emails/getEmailSchedule',
+  "emails/getEmailSchedule",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getEmailScheduleRequest());
@@ -244,13 +264,15 @@ export const getEmailSchedule = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch email schedule.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch email schedule.",
         success: false,
       };
       dispatch(getEmailScheduleFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch email schedule.';
+      const errorMessage = error || "Failed to fetch email schedule.";
       dispatch(getEmailScheduleFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -258,24 +280,32 @@ export const getEmailSchedule = createAsyncThunk(
 );
 
 export const updateEmailSchedule = createAsyncThunk(
-  'emails/updateEmailSchedule',
-  async ({ id, emailScheduleData }: { id: string; emailScheduleData: any }, { dispatch, rejectWithValue }) => {
+  "emails/updateEmailSchedule",
+  async (
+    { id, emailScheduleData }: { id: string; emailScheduleData: any },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(updateEmailScheduleRequest());
-      const response: any = await api.updateEmailSchedule(id, emailScheduleData);
+      const response: any = await api.updateEmailSchedule(
+        id,
+        emailScheduleData
+      );
       if (response.status === 200) {
         dispatch(updateEmailScheduleSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to update email schedule.',
+        message: response.message
+          ? response.message
+          : "Failed to update email schedule.",
         success: false,
       };
       dispatch(updateEmailScheduleFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to update email schedule.';
+      const errorMessage = error || "Failed to update email schedule.";
       dispatch(updateEmailScheduleFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -283,7 +313,7 @@ export const updateEmailSchedule = createAsyncThunk(
 );
 
 export const deleteEmailSchedule = createAsyncThunk(
-  'emails/deleteEmailSchedule',
+  "emails/deleteEmailSchedule",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteEmailScheduleRequest());
@@ -294,13 +324,15 @@ export const deleteEmailSchedule = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to delete email schedule.',
+        message: response.message
+          ? response.message
+          : "Failed to delete email schedule.",
         success: false,
       };
       dispatch(deleteEmailScheduleFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to delete email schedule.';
+      const errorMessage = error || "Failed to delete email schedule.";
       dispatch(deleteEmailScheduleFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -309,24 +341,28 @@ export const deleteEmailSchedule = createAsyncThunk(
 
 // Manual Email Trigger Actions
 export const createManualEmailTrigger = createAsyncThunk(
-  'emails/createManualEmailTrigger',
+  "emails/createManualEmailTrigger",
   async (manualEmailTriggerData: any, { dispatch, rejectWithValue }) => {
     try {
       dispatch(createManualEmailTriggerRequest());
-      const response: any = await api.createManualEmailTrigger(manualEmailTriggerData);
+      const response: any = await api.createManualEmailTrigger(
+        manualEmailTriggerData
+      );
       if (response.status === 200) {
         dispatch(createManualEmailTriggerSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to create manual email trigger.',
+        message: response.message
+          ? response.message
+          : "Failed to create manual email trigger.",
         success: false,
       };
       dispatch(createManualEmailTriggerFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to create manual email trigger.';
+      const errorMessage = error || "Failed to create manual email trigger.";
       dispatch(createManualEmailTriggerFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -334,24 +370,29 @@ export const createManualEmailTrigger = createAsyncThunk(
 );
 
 export const getManualEmailTriggers = createAsyncThunk(
-  'emails/getManualEmailTriggers',
-  async (_, { dispatch, rejectWithValue }) => {
+  "emails/getManualEmailTriggers",
+  async (
+    { email_config_uid }: { email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getManualEmailTriggersRequest());
-      const response: any = await api.getManualEmailTriggers();
+      const response: any = await api.getManualEmailTriggers(email_config_uid);
       if (response.status === 200) {
         dispatch(getManualEmailTriggersSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch manual email triggers.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch manual email triggers.",
         success: false,
       };
       dispatch(getManualEmailTriggersFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch manual email triggers.';
+      const errorMessage = error || "Failed to fetch manual email triggers.";
       dispatch(getManualEmailTriggersFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -359,7 +400,7 @@ export const getManualEmailTriggers = createAsyncThunk(
 );
 
 export const getManualEmailTrigger = createAsyncThunk(
-  'emails/getManualEmailTrigger',
+  "emails/getManualEmailTrigger",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getManualEmailTriggerRequest());
@@ -370,13 +411,15 @@ export const getManualEmailTrigger = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch manual email trigger.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch manual email trigger.",
         success: false,
       };
       dispatch(getManualEmailTriggerFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch manual email trigger.';
+      const errorMessage = error || "Failed to fetch manual email trigger.";
       dispatch(getManualEmailTriggerFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -384,24 +427,32 @@ export const getManualEmailTrigger = createAsyncThunk(
 );
 
 export const updateManualEmailTrigger = createAsyncThunk(
-  'emails/updateManualEmailTrigger',
-  async ({ id, manualEmailTriggerData }: { id: string; manualEmailTriggerData: any }, { dispatch, rejectWithValue }) => {
+  "emails/updateManualEmailTrigger",
+  async (
+    { id, manualEmailTriggerData }: { id: string; manualEmailTriggerData: any },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(updateManualEmailTriggerRequest());
-      const response: any = await api.updateManualEmailTrigger(id, manualEmailTriggerData);
+      const response: any = await api.updateManualEmailTrigger(
+        id,
+        manualEmailTriggerData
+      );
       if (response.status === 200) {
         dispatch(updateManualEmailTriggerSuccess(response.data));
         return { ...response, success: true };
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to update manual email trigger.',
+        message: response.message
+          ? response.message
+          : "Failed to update manual email trigger.",
         success: false,
       };
       dispatch(updateManualEmailTriggerFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to update manual email trigger.';
+      const errorMessage = error || "Failed to update manual email trigger.";
       dispatch(updateManualEmailTriggerFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -409,7 +460,7 @@ export const updateManualEmailTrigger = createAsyncThunk(
 );
 
 export const deleteManualEmailTrigger = createAsyncThunk(
-  'emails/deleteManualEmailTrigger',
+  "emails/deleteManualEmailTrigger",
   async (id: string, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteManualEmailTriggerRequest());
@@ -420,13 +471,15 @@ export const deleteManualEmailTrigger = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to delete manual email trigger.',
+        message: response.message
+          ? response.message
+          : "Failed to delete manual email trigger.",
         success: false,
       };
       dispatch(deleteManualEmailTriggerFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to delete manual email trigger.';
+      const errorMessage = error || "Failed to delete manual email trigger.";
       dispatch(deleteManualEmailTriggerFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -435,7 +488,7 @@ export const deleteManualEmailTrigger = createAsyncThunk(
 
 // Email Template Actions
 export const createEmailTemplate = createAsyncThunk(
-  'emails/createEmailTemplate',
+  "emails/createEmailTemplate",
   async (emailTemplateData: any, { dispatch, rejectWithValue }) => {
     try {
       dispatch(createEmailTemplateRequest());
@@ -446,13 +499,15 @@ export const createEmailTemplate = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to create email template.',
+        message: response.message
+          ? response.message
+          : "Failed to create email template.",
         success: false,
       };
       dispatch(createEmailTemplateFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to create email template.';
+      const errorMessage = error || "Failed to create email template.";
       dispatch(createEmailTemplateFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -460,7 +515,7 @@ export const createEmailTemplate = createAsyncThunk(
 );
 
 export const getEmailTemplates = createAsyncThunk(
-  'emails/getEmailTemplates',
+  "emails/getEmailTemplates",
   async (_, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getEmailTemplatesRequest());
@@ -471,13 +526,15 @@ export const getEmailTemplates = createAsyncThunk(
       }
       const error = {
         errors: response.response.data.errors,
-        message: response.message ? response.message : 'Failed to fetch email templates.',
+        message: response.message
+          ? response.message
+          : "Failed to fetch email templates.",
         success: false,
       };
       dispatch(getEmailTemplatesFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || 'Failed to fetch email templates.';
+      const errorMessage = error || "Failed to fetch email templates.";
       dispatch(getEmailTemplatesFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -485,7 +542,6 @@ export const getEmailTemplates = createAsyncThunk(
 );
 
 export const emailActions = {
-  getEmailConfig,
   getEmailConfigs,
   getEmailSchedule,
   getEmailSchedules,

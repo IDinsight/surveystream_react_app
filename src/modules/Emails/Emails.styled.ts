@@ -60,19 +60,3 @@ export const RolesTable = styled(Table)`
     font-family: "Lato", sans-serif;
   }
 `;
-
-export const SearchBox = styled(Input.Search)`
-  & button {
-    background-color: #2f54eb;
-    font-family: "Lato", sans-serif;
-  }
-`;
-export const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  height: 55px;
-  padding-left: 48px;
-  padding-right: 48px;
-  border-top: 1px solid #00000026;
-  border-bottom: 1px solid #00000026;
-`;

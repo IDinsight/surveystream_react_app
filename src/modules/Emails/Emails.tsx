@@ -1,203 +1,165 @@
 import { MailOutlined } from "@ant-design/icons";
-import { Button } from "antd";
-import { useState, useEffect } from "react";
+import { Button, message } from "antd";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
-import { getSupervisorRoles } from "../../redux/userRoles/userRolesActions";
-import { setRolePermissions } from "../../redux/userRoles/userRolesSlice";
 import { GlobalStyle } from "../../shared/Global.styled";
-import { Title } from "../SurveyConfiguration/SurveyConfiguration.styled";
-import SideMenu from "./SideMenu";
+import EmailSchedules from "./EmailSchedules/EmailSchedules";
+import { setLoading } from "../../redux/emails/emailsSlice";
+import { BodyWrapper } from "./Emails.styled";
+import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
-import { HeaderContainer } from "./Emails.styled";
-
-interface OriginalRolesData {
-  reporting_role_uid: number | null;
-  role_name: string;
-  role_uid: number;
-  survey_uid: number;
-  permissions: any;
-}
-
-interface TransformedRolesData {
-  role_uid: number | null;
-  role: string;
-  reporting_role: string | null;
-  users_assigned: string | null;
-}
+import SideMenu from "./SideMenu";
+import {
+  getEmailConfigs,
+  getEmailSchedules,
+  getManualEmailTriggers,
+} from "../../redux/emails/emailsActions";
 
 function Emails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
+  const { form_uid = "", tabId = "" } =
+    useParams<{
+      form_uid?: string;
+      tabId?: string;
+    }>() ?? {};
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
-  const isLoading = useAppSelector(
-    (state: RootState) => state.userRoles.loading
-  );
-  const supervisorRoles = useAppSelector(
-    (state: RootState) => state.userRoles.supervisorRoles
-  );
+  const [schedulesData, setSchedulesData] = useState<any[]>([]);
+  const [manualTriggersData, setManaualTriggersData] = useState<any[]>([]);
 
-  const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
-  const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
+  const fetchEmailConfigs = async () => {
+    console.log("fetchEmailConfigs");
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
-
-  const [deleteRoleId, setDeleteRoleId] = useState<number>();
-
-  const activeSurvey = useAppSelector(
-    (state: RootState) => state.surveys.activeSurvey
-  );
-
-  const fetchSupervisorRoles = async () => {
-    const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-
-    if (res.payload.length > 0) {
-      const originalRolesData: OriginalRolesData = res.payload;
-
-      const findItemByRoleUid = (roleUid: number): string | null => {
-        if (Array.isArray(originalRolesData)) {
-          const foundItem = originalRolesData.find(
-            (item: { role_uid: number }) => item.role_uid === roleUid
-          );
-
-          if (foundItem) {
-            return foundItem.role_name;
-          }
-        }
-        return "N/A";
-      };
-
-      const transformedData: TransformedRolesData[] = (
-        Array.isArray(originalRolesData)
-          ? originalRolesData
-          : [originalRolesData]
-      ).map((item: any) => ({
-        role_uid: item.role_uid,
-        role: item.role_name,
-        reporting_role: findItemByRoleUid(item.reporting_role_uid),
-        users_assigned: item.user_count ?? "N/A",
-      }));
-
-      setRolesTableData(transformedData);
+    if (form_uid) {
+      const configResponse = await dispatch(getEmailConfigs({ form_uid }));
+      console.log("configResponse", configResponse);
     } else {
-      setRolesTableData([]);
+      message.error(
+        "Cannot fetch email configs, kindly check that the form_uid is provided"
+      );
+      navigate(`/module-configuration/emails/${survey_uid}`);
     }
   };
 
-  const handleDuplicate = (role_uid: any): void => {
-    const filteredRole = supervisorRoles.find(
-      (role: { role_uid: any }) => role.role_uid == role_uid
-    );
+  const fetchManualTriggers = async (email_config_uid: string) => {
+    console.log("fetchEmailSchedules");
 
-    dispatch(
-      setRolePermissions({
-        survey_uid: survey_uid ?? null,
-        permissions: filteredRole?.permissions ?? [],
-        role_uid: role_uid,
-      })
+    const manualTriggersRes = await dispatch(
+      getManualEmailTriggers({ email_config_uid })
     );
-    navigate(
-      `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+    console.log("manualTriggersRes", manualTriggersRes);
+  };
+  const fetchEmailSchedules = async (email_config_uid: string) => {
+    console.log("fetchEmailSchedules");
+
+    const manualTriggersRes = await dispatch(
+      getEmailSchedules({ email_config_uid })
     );
+    console.log("manualTriggersRes", manualTriggersRes);
   };
 
-  const handleEdit = (role_uid: any): void => {
-    const filteredRole = supervisorRoles.find(
-      (role: { role_uid: any }) => role.role_uid == role_uid
-    );
-
-    dispatch(
-      setRolePermissions({
-        survey_uid: survey_uid ?? null,
-        permissions: filteredRole?.permissions ?? [],
-        role_uid: role_uid,
-        duplicate: false,
-      })
-    );
-    navigate(`/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`);
+  const combineScheduleData = async () => {
+    try {
+      // // Combine data from both responses based on email_config_uid
+      // const combinedData = configResponse.payload.data.map(
+      //   (config: { email_config_uid: any }) => ({
+      //     ...config,
+      //     schedule: scheduleResponse.payload.data.find(
+      //       (schedule: { email_config_uid: any }) =>
+      //         schedule.email_config_uid === config.email_config_uid
+      //     ),
+      //   })
+      // );
+      // setData(combinedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  const combineTriggersData = async () => {
+    console.log("combineTriggerData");
   };
 
-  const handleAddNewRole = () => {
-    dispatch(
-      setRolePermissions({
-        survey_uid: survey_uid ?? null,
-        permissions: [],
-        role_uid: null,
-      })
-    );
-    navigate(`/survey-information/survey-roles/add/${survey_uid}`);
+  const combineSchedulesData = async () => {
+    console.log("combineTriggerData");
   };
 
-  const handleDelete = (role_uid: any): void => {
-    setDeleteRoleId(role_uid);
-    setIsOpenDeleteModel(true);
-  };
-
-  const handleDeleteRole = () => {
-    console.log("");
-  };
-
-  useEffect(() => {
-    fetchSupervisorRoles();
-  }, []);
-
-  const rolesTableColumn = [
+  const scheduleColumns = [
     {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
+      title: "Email Config Type",
+      dataIndex: "config_type",
+      key: "config_type",
     },
     {
-      title: "Reporting Role",
-      dataIndex: "reporting_role",
-      key: "reporting_role",
-    },
-    {
-      title: "Users assigned",
-      dataIndex: "users_assigned",
-      key: "users_assigned",
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      key: "actions",
-      render: (text: any, record: any) => (
-        <span>
-          <Button
-            disabled={!record?.role_uid}
-            type="link"
-            onClick={() => handleEdit(record?.role_uid)}
-          >
-            Edit
-          </Button>
-          <Button
-            disabled={!record?.role_uid}
-            type="link"
-            onClick={() => handleDuplicate(record?.role_uid)}
-          >
-            Duplicate
-          </Button>
-
-          <Button
-            disabled={!record?.role_uid}
-            danger
-            type="text"
-            onClick={() => handleDelete(record?.role_uid)}
-            style={{ marginLeft: 8 }}
-          >
-            Delete
-          </Button>
-        </span>
+      title: "Schedule",
+      key: "schedule",
+      render: (
+        _: any,
+        record: {
+          schedule: {
+            dates: any[];
+            time: string;
+          };
+        }
+      ) => (
+        <div>
+          <p>Dates: {record.schedule?.dates.join(", ")}</p>
+          <p>Time: {record.schedule?.time}</p>
+        </div>
       ),
     },
   ];
+
+  const handleFormUID = async () => {
+    console.log("handleFormUID", handleFormUID);
+
+    if (!form_uid) {
+      try {
+        dispatch(setLoading(true));
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/module-configuration/emails/${survey_uid}/${sctoForm?.payload[0]?.form_uid}/schedules`
+          );
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        }
+      } catch (error) {
+        console.log("Error fetching sctoForm:", error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleFormUID();
+    fetchEmailConfigs();
+
+    // if (tabId == "manual") {
+    //   fetchEmailSchedules()
+    // } else   {
+    //   fetchManualTriggers()
+    // }
+  }, []);
+
+  const handleConfigureEmails = () => {
+    console.log("open emails");
+    // Add logic to navigate or trigger actions for configuring emails
+  };
 
   return (
     <>
@@ -222,63 +184,16 @@ function Emails() {
           </Button>
         </div>
       </HeaderContainer>
+
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <>
-          <div style={{ display: "flex" }}>
-            <SideMenu />
-            {/* <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Manage the roles related to your survey here
-              </DescriptionText>
-              <div style={{ float: "right", marginTop: "-60px" }}>
-                <Button
-                  type="primary"
-                  icon={<FileAddOutlined />}
-                  style={{
-                    marginLeft: "25px",
-                    backgroundColor: "#2F54EB",
-                  }}
-                  onClick={() => handleAddNewRole()}
-                >
-                  Add new role{" "}
-                </Button>
-              </div>
-              <div style={{ display: "flex" }}></div>
-              <RolesTable
-                columns={rolesTableColumn}
-                dataSource={rolesTableData}
-                pagination={{
-                  pageSize: paginationPageSize,
-                  pageSizeOptions: [10, 25, 50, 100],
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  onShowSizeChange: (_: any, size: SetStateAction<number>) =>
-                    setPaginationPageSize(size),
-                }}
-              />
-            </BodyWrapper>
-
-            <Modal
-              open={isOpenDeleteModel}
-              title={
-                <div style={{ display: "flex" }}>
-                  <ExclamationCircleFilled
-                    style={{ color: "orange", fontSize: 20 }}
-                  />
-                  <p style={{ marginLeft: "10px" }}>Delete the role</p>
-                </div>
-              }
-              okText="Yes, delete role"
-              onOk={() => handleDeleteRole()}
-              onCancel={() => setIsOpenDeleteModel(false)}
-            >
-              <p>Are you sure you want to delete this role?</p>
-            </Modal> */}
-          </div>
-        </>
+        <div style={{ display: "flex" }}>
+          <SideMenu></SideMenu>
+          <BodyWrapper>
+            {tabId === "manual" ? null : <EmailSchedules />}
+          </BodyWrapper>
+        </div>
       )}
     </>
   );
