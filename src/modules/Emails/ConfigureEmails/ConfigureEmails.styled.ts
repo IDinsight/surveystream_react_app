@@ -14,7 +14,8 @@ export const SearchBox = styled(Input.Search)`
   }
 `;
 
-export const AssignmentsSteps = styled(Steps)`
+export const EmailConfigurationSteps = styled(Steps)`
+  font-size: 14px;
   & .ant-steps-item-active .ant-steps-item-icon {
     background-color: #2f54eb;
     border-color: #2f54eb;

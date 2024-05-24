@@ -19,6 +19,7 @@ import {
   getEmailSchedules,
   getManualEmailTriggers,
 } from "../../redux/emails/emailsActions";
+import ManualTriggers from "./ManualTriggers/ManualTriggers";
 
 function Emails() {
   const navigate = useNavigate();
@@ -119,6 +120,31 @@ function Emails() {
     },
   ];
 
+  const manualTriggerColumns = [
+    {
+      title: "Email Config Type",
+      dataIndex: "config_type",
+      key: "config_type",
+    },
+    {
+      title: "Schedule",
+      key: "schedule",
+      render: (
+        _: any,
+        record: {
+          schedule: {
+            dates: any[];
+            time: string;
+          };
+        }
+      ) => (
+        <div>
+          <p>Dates: {record.schedule?.dates.join(", ")}</p>
+          <p>Time: {record.schedule?.time}</p>
+        </div>
+      ),
+    },
+  ];
   const handleFormUID = async () => {
     console.log("handleFormUID", handleFormUID);
 
@@ -147,18 +173,19 @@ function Emails() {
 
   useEffect(() => {
     handleFormUID();
-    fetchEmailConfigs();
+    if (form_uid) {
+      fetchEmailConfigs();
+    }
 
     // if (tabId == "manual") {
     //   fetchEmailSchedules()
     // } else   {
     //   fetchManualTriggers()
     // }
-  }, []);
+  }, [tabId]);
 
   const handleConfigureEmails = () => {
-    console.log("open emails");
-    // Add logic to navigate or trigger actions for configuring emails
+    navigate(`/module-configuration/emails/${survey_uid}/${form_uid}/create`);
   };
 
   return (
@@ -169,19 +196,19 @@ function Emails() {
       <HeaderContainer>
         <Title>Emails</Title>
         <div style={{ marginLeft: "auto" }}>
-          <Button
-            type="primary"
-            style={{
-              marginLeft: "25px",
-              backgroundColor: "#2F54EB",
-            }}
-            icon={<MailOutlined />}
-            onClick={() => {
-              console.log("open emails");
-            }}
-          >
-            Configure Emails
-          </Button>
+          {tabId != "manual" ? (
+            <Button
+              type="primary"
+              style={{
+                marginLeft: "25px",
+                backgroundColor: "#2F54EB",
+              }}
+              icon={<MailOutlined />}
+              onClick={handleConfigureEmails}
+            >
+              Configure Emails
+            </Button>
+          ) : null}
         </div>
       </HeaderContainer>
 
@@ -191,7 +218,14 @@ function Emails() {
         <div style={{ display: "flex" }}>
           <SideMenu></SideMenu>
           <BodyWrapper>
-            {tabId === "manual" ? null : <EmailSchedules />}
+            {tabId === "manual" ? (
+              <ManualTriggers
+                columns={manualTriggerColumns}
+                data={manualTriggersData}
+              />
+            ) : (
+              <EmailSchedules columns={scheduleColumns} data={schedulesData} />
+            )}
           </BodyWrapper>
         </div>
       )}

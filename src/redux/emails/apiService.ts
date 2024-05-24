@@ -71,7 +71,7 @@ export const createEmailConfig = async (emailConfigData: any) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.post(
-      `${API_BASE_URL}/emails/configs`,
+      `${API_BASE_URL}/emails/config`,
       emailConfigData,
       {
         headers: {

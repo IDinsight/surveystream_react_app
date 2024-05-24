@@ -1,53 +1,42 @@
-import { PushpinOutlined } from "@ant-design/icons";
+import {
+  CloseCircleOutlined,
+  MailOutlined,
+  MailTwoTone,
+  PushpinOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   DatePicker,
-  Table,
-  Tag,
   TimePicker,
-  message,
   Radio,
   Form,
   Alert,
+  message,
 } from "antd";
 import { useEffect, useState } from "react";
 
 import { useForm } from "antd/es/form/Form";
-import { Header } from "antd/es/layout/layout";
 import { ErrorBoundary } from "react-error-boundary";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorHandler from "../../../components/ErrorHandler";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  updateAssignments,
-  postAssignmentEmail,
-  getTableConfig,
-  getAssignableEnumerators,
-} from "../../../redux/assignments/assignmentsActions";
 import { AssignmentPayload } from "../../../redux/assignments/types";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import { buildColumnDefinition } from "../../Assignments/utils";
-import { AssignmentsSteps } from "./ConfigureEmails.styled";
+import { EmailConfigurationSteps } from "./ConfigureEmails.styled";
+import { RootState } from "../../../redux/store";
+import Header from "../../../components/Header";
+import Container from "../../../components/Layout/Container";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import EmailConfigForm from "./EmailConfigForm";
+import EmailScheduleForm from "./EmailScheduleForm";
+import EmailTemplateForm from "./EmailTemplateForm";
+import { getEmailConfigs } from "../../../redux/emails/emailsActions";
 
 function ConfigureEmails() {
-  const location = useLocation();
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  // Get the formID and selectedAssignmentRows from the location state
-  const {
-    selectedAssignmentRows,
-    formID,
-  }: {
-    selectedAssignmentRows: any;
-    formID: string;
-  } = location.state;
-
-  // Ensure that the formID and selectedAssignmentRows are available
-  if (!formID || !selectedAssignmentRows) {
-    navigate(-1);
-  }
+  const navigate = useNavigate();
+  const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   // State variables for component
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
@@ -61,15 +50,6 @@ function ConfigureEmails() {
   const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
   const [nextEmailDate, setNextEmailDate] = useState<string>();
 
-  // Fetch the data from the store
-  const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
-    (state) => state.assignments.assignableEnumerators
-  );
-
-  const { loading: tableConfigLoading, data: tableConfig } = useAppSelector(
-    (state) => state.assignments.tableConfig
-  );
-
   const [manualTriggerData, setManualTriggerData] = useState({
     date: null,
     time: null,
@@ -77,257 +57,27 @@ function ConfigureEmails() {
   const [manualTriggerForm] = useForm();
   const [emailMode, setEmailMode] = useState<string | null>(null);
   const [stepLoading, setStepLoading] = useState<boolean>(false);
+  const [configTypes, setConfigTypes] = useState([]);
 
-  // Surveyors (step 0) table
-  const surveyorsTableSpecialAttrs: any = {
-    last_attempt_survey_status_label: {
-      render(value: string, record: any) {
-        const color = record.webapp_tag_color || "gold";
-        return (
-          <Tag color={color} key={value}>
-            {value}
-          </Tag>
-        );
-      },
-    },
-  };
-  const surveyorsTableColumns = tableConfig?.assignments_surveyors?.map(
-    (configItem: any, i: any) => {
-      if (configItem.group_label) {
-        return {
-          title: configItem.group_label,
-          children: configItem.columns.map((groupItem: any, i: any) => {
-            return buildColumnDefinition(
-              groupItem,
-              surveyorsData,
-              surveyorsFilter,
-              surveyorsTableSpecialAttrs
-            );
-          }),
-        };
-      } else {
-        return buildColumnDefinition(
-          configItem.columns[0],
-          surveyorsData,
-          surveyorsFilter,
-          surveyorsTableSpecialAttrs
-        );
-      }
-    }
-  );
+  const [loading, setLoading] = useState(false);
+  const [configUid, setConfigUid] = useState(null);
 
-  // Surveyors data source
-  const surveyorsDataSource: any = [...surveyorsData];
-
-  // Row selection state and handler
-  const onSelectOne = (record: any, selected: boolean, selectedRows: any) => {
-    if (selectedRows.length > selectedAssignmentRows?.length) {
-      message.warning(
-        "You can't select more surveyors than the number of targets selected"
-      );
-      return;
-    } else {
-      const selectedSurveyorUUID = selectedRows.map(
-        (row: any) => row.enumerator_uid
-      );
-
-      const selectedSurveyor = surveyorsDataSource?.filter((row: any) =>
-        selectedSurveyorUUID.includes(row.enumerator_uid)
-      );
-
-      setSelectedSurveyorRows(selectedSurveyor);
-    }
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
   };
 
-  const onSelectAll = (selected: boolean, selectedRows: any) => {
-    if (selectedRows.length > selectedAssignmentRows?.length) {
-      message.error(
-        "You can't select more surveyors than the number of targets selected"
-      );
-      return;
-    } else {
-      const selectedSurveyorUUID = selectedRows.map(
-        (row: any) => row.enumerator_uid
-      );
-
-      const selectedSurveyor = surveyorsDataSource?.filter((row: any) =>
-        selectedSurveyorUUID.includes(row.enumerator_uid)
-      );
-
-      setSelectedSurveyorRows(selectedSurveyor);
-    }
-  };
-
-  const rowSelection = {
-    selectedSurveyorRows,
-    onSelect: onSelectOne,
-    onSelectAll: onSelectAll,
-  };
-  const hasSurveyorSelected = selectedSurveyorRows.length > 0;
-
-  // Review assignments (step 1) table
-  const reviewTableSpecialAttrs: any = {
-    last_attempt_survey_status_label: {
-      render(value: any, record: any) {
-        const color = record.webapp_tag_color || "gold";
-        return (
-          <Tag color={color} key={value}>
-            {value}
-          </Tag>
-        );
-      },
-    },
-  };
-  const reviewAssignmentTableColumn = tableConfig?.assignments_review?.map(
-    (configItem: any, i: any) => {
-      if (configItem.group_label) {
-        return {
-          title: configItem.group_label,
-          children: configItem.columns.map((groupItem: any, i: any) => {
-            return buildColumnDefinition(
-              groupItem,
-              targetAssignments,
-              null,
-              reviewTableSpecialAttrs
-            );
-          }),
-        };
-      } else {
-        return buildColumnDefinition(
-          configItem.columns[0],
-          targetAssignments,
-          null,
-          reviewTableSpecialAttrs
-        );
-      }
-    }
-  );
-
-  const handleDateChange = (date: any) => {
-    setManualTriggerData({
-      ...manualTriggerData,
-      date: date,
-    });
-  };
-
-  const handleTimeChange = (time: any) => {
-    setManualTriggerData({
-      ...manualTriggerData,
-      time: time,
-    });
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
   };
 
   const handleContinue = async () => {
+    console.log("handle continue");
+
     setStepLoading(true);
+
     if (stepIndex < 1) {
       setStepIndex((prev: number) => prev + 1);
-
       setStepLoading(false);
-    } else if (stepIndex === 1) {
-      if (assignmentPayload.length === 0) {
-        message.error("No assignment payload to make the assignments");
-        setStepLoading(false);
-
-        return;
-      }
-
-      await dispatch(
-        updateAssignments({
-          formUID: formID,
-          formData: assignmentPayload,
-          callFn: (response: any) => {
-            if (response.success) {
-              setAssignmentResponseData(response.data);
-              if (response.data?.email_schedule) {
-                const now = new Date();
-
-                //get time from response.data?.time and combine dates with time
-                const datesWithTime = response.data.email_schedule?.dates?.map(
-                  (date: any) => {
-                    const parsedDate = new Date(date);
-                    const year = parsedDate.getFullYear();
-                    const month = parsedDate.getMonth() + 1;
-                    const day = parsedDate.getDate();
-
-                    const [hour, minute] =
-                      response.data.email_schedule.time.split(":");
-
-                    return new Date(year, month - 1, day, hour, minute, 0, 0);
-                  }
-                );
-
-                // Find the date element just greater than now
-                const nextDate = datesWithTime.find((date: any) => date > now);
-                const formattedDate = `${nextDate.getFullYear()}-${(
-                  nextDate.getMonth() + 1
-                )
-                  .toString()
-                  .padStart(2, "0")}-${nextDate
-                  .getDate()
-                  .toString()
-                  .padStart(2, "0")}`;
-
-                setNextEmailDate(formattedDate);
-              }
-
-              message.success("Assignments updated successfully", 2, () => {
-                setStepIndex((prev: number) => prev + 1);
-              });
-            } else {
-              message.error("Error: " + response.message);
-            }
-          },
-        })
-      );
-      setStepLoading(false);
-    } else if (stepIndex === 2) {
-      if (!emailMode || emailMode == "email_time_no") {
-        navigate(-1);
-        setStepLoading(false);
-
-        return;
-      } else {
-        try {
-          await manualTriggerForm.validateFields();
-          manualTriggerForm.validateFields().then(async (formValues) => {
-            const manualTriggerPayload = {
-              form_uid: formID,
-              status: "queued",
-              date: formValues.date.format("YYYY-MM-DD"),
-              time: formValues.time.format("HH:mm"),
-              recipients: assignmentPayload.map(
-                (payload) => payload.enumerator_uid
-              ),
-            };
-
-            await dispatch(
-              postAssignmentEmail({
-                formData: manualTriggerPayload,
-                callFn: (response: any) => {
-                  console.log("postAssignmentEmail", response);
-                  if (response.success) {
-                    message.success(
-                      "Email schedule updated successfully.",
-                      () => {
-                        navigate(-1);
-                      }
-                    );
-                  } else {
-                    message.error("Error: " + response.message);
-                  }
-                },
-              })
-            );
-            setStepLoading(false);
-          });
-        } catch (error) {
-          console.error("Validation failed:", error);
-          message.error(
-            "Validation failed. Please ensure all email trigger fields are properly set."
-          );
-          setStepLoading(false);
-        }
-      }
     }
   };
 
@@ -335,57 +85,28 @@ function ConfigureEmails() {
     navigate(-1);
   };
 
-  const onSurveyorTableChange = (
-    _pagination: any,
-    filters: any,
-    _sorter: any
-  ) => {
-    setSurveyorsFilter(filters);
+  const fetchEmailConfigs = async () => {
+    console.log("fetchEmailConfigs");
+
+    if (form_uid) {
+      const configResponse = await dispatch(getEmailConfigs({ form_uid }));
+      console.log("configResponse", configResponse.payload.data.data);
+      if (configResponse.payload?.success) {
+        setConfigTypes(configResponse.payload.data.data);
+      }
+    } else {
+      message.error(
+        "Cannot fetch email configs, kindly check that the form_uid is provided"
+      );
+      navigate(`/module-configuration/emails/${survey_uid}`);
+    }
   };
 
   useEffect(() => {
-    const finalObjects: any = [];
-    const requestPayload: any = [];
-    if (selectedAssignmentRows?.length > 0 && selectedSurveyorRows.length > 0) {
-      let sIndex = 0;
-      selectedAssignmentRows.forEach((item: any, index: number) => {
-        if (!selectedSurveyorRows[sIndex]) {
-          sIndex = 0;
-        }
-        const mIndex = selectedSurveyorRows.length > index ? index : sIndex;
-
-        if (selectedSurveyorRows && selectedSurveyorRows[mIndex]) {
-          const assignedObjects = {
-            ...item,
-            assigned_enumerator_name: selectedSurveyorRows[mIndex].name,
-            prev_assigned_to: item.assigned_enumerator_name,
-          };
-          const reqObj = {
-            target_uid: item.target_uid,
-            enumerator_uid: selectedSurveyorRows[mIndex].enumerator_uid,
-          };
-          requestPayload.push(reqObj);
-          finalObjects.push(assignedObjects);
-        }
-        sIndex = sIndex + 1;
-      });
-    }
-
-    setTargetAssignments(finalObjects);
-    setAssignmentPayload(requestPayload);
-  }, [selectedSurveyorRows]);
-
-  useEffect(() => {
-    if (Object.keys(tableConfig).length === 0) {
-      dispatch(getTableConfig({ formUID: formID }));
-    }
-
-    if (surveyorsData.length === 0) {
-      dispatch(getAssignableEnumerators({ formUID: formID }));
-    }
+    fetchEmailConfigs();
   }, []);
 
-  if (surveyorsLoading || tableConfigLoading) {
+  if (isLoading) {
     return <FullScreenLoader />;
   }
 
@@ -393,33 +114,24 @@ function ConfigureEmails() {
     <>
       <GlobalStyle />
       <Header />
-      <div>
-        <div
-          style={{
-            height: "55px",
-            paddingLeft: "48px",
-            paddingRight: "48px",
-            display: "flex",
-            alignItems: "center",
-            borderTop: "1px solid #00000026",
-            borderBottom: "1px solid #00000026",
-          }}
-        >
-          <PushpinOutlined
-            style={{ fontSize: 24, marginRight: 5, color: "#BFBFBF" }}
-          />
-          <p
-            style={{
-              color: "#262626",
-              fontFamily: "Lato",
-              fontSize: "20px",
-              fontWeight: 500,
-              lineHeight: "28px",
-            }}
+      <Container />
+      <HeaderContainer>
+        <MailOutlined
+          style={{ fontSize: 24, marginRight: 5, color: "#BFBFBF" }}
+        />
+        <Title>Survey email configuration</Title>
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Button
+            onClick={() => navigate(-1)}
+            style={{ marginLeft: 20 }}
+            icon={<CloseCircleOutlined />}
           >
-            Create assignments
-          </p>
+            Dismiss
+          </Button>
         </div>
+      </HeaderContainer>
+
+      <div>
         <div
           style={{
             display: "flex",
@@ -430,20 +142,20 @@ function ConfigureEmails() {
             height: 50,
           }}
         >
-          <AssignmentsSteps
+          <EmailConfigurationSteps
             style={{
               width: 700,
             }}
             current={stepIndex}
             items={[
               {
-                title: "Select surveyors",
+                title: "Email Config",
               },
               {
-                title: "Review assignments",
+                title: "Email Schedules",
               },
               {
-                title: "Schedule emails",
+                title: "Email Templates",
               },
             ]}
           />
@@ -452,290 +164,27 @@ function ConfigureEmails() {
         <div
           style={{
             height: "calc(100vh - 190px)",
-            paddingLeft: 48,
-            paddingRight: 48,
+            padding: "40px",
+            margin: "auto",
+            width: "40%",
           }}
         >
           {stepIndex === 0 ? (
-            <>
-              <p
-                style={{
-                  color: "#8C8C8C",
-                  fontFamily: "Lato",
-                  fontSize: "14px",
-                  lineHeight: "22px",
-                }}
-              >
-                Select surveyors to assign/re-assign the targets
-              </p>
-              <Table
-                rowKey={(record) => record.email}
-                rowSelection={rowSelection}
-                columns={surveyorsTableColumns}
-                dataSource={surveyorsDataSource}
-                onChange={onSurveyorTableChange}
-                scroll={{ x: 2000 }}
-                pagination={{
-                  pageSize: paginationPageSize,
-                  pageSizeOptions: [10, 25, 50, 100],
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                }}
-              />
-            </>
+            <EmailConfigForm
+              handleContinue={handleContinue}
+              configTypes={configTypes}
+            ></EmailConfigForm>
           ) : null}
           {stepIndex === 1 ? (
-            <>
-              <p
-                style={{
-                  color: "#434343",
-                  fontFamily: "Lato",
-                  lineHeight: "24px",
-                  fontWeight: 500,
-                  marginBottom: 0,
-                }}
-              >
-                Review assignments to surveyors
-              </p>
-              <p
-                style={{
-                  color: "#8C8C8C",
-                  fontFamily: "Lato",
-                  fontSize: "14px",
-                  lineHeight: "22px",
-                  marginTop: 0,
-                }}
-              >
-                Assignments have been assigned randomly to the selected
-                surveyors.
-              </p>
-              <Table
-                rowKey={(record) => record.target_uid}
-                columns={reviewAssignmentTableColumn}
-                dataSource={targetAssignments}
-                pagination={false}
-                style={{ marginBottom: 20 }}
-              />
-            </>
+            <EmailScheduleForm
+              handleContinue={handleContinue}
+            ></EmailScheduleForm>
           ) : null}
           {stepIndex === 2 ? (
-            <>
-              <p
-                style={{
-                  color: "#434343",
-                  fontFamily: "Lato",
-                  lineHeight: "24px",
-                  fontWeight: 500,
-                  marginBottom: 0,
-                }}
-              >
-                Summary of assignments to surveyors:
-              </p>
-              <div style={{ display: "flex" }}>
-                <div>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontFamily: "Lato",
-                      fontSize: "16px",
-                      lineHeight: "24px",
-                    }}
-                  >
-                    New assignments
-                  </p>
-                  <p>{assignmentResponseData?.new_assignments_count}</p>
-                </div>
-                <div style={{ marginLeft: 80 }}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontFamily: "Lato",
-                      fontSize: "16px",
-                      lineHeight: "24px",
-                    }}
-                  >
-                    Reassignments
-                  </p>
-                  <p>{assignmentResponseData?.re_assignments_count}</p>
-                </div>
-                <div style={{ marginLeft: 80 }}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontFamily: "Lato",
-                      fontSize: "16px",
-                      lineHeight: "24px",
-                    }}
-                  >
-                    Total Assignments
-                  </p>
-                  <p>{assignmentResponseData?.assignments_count}</p>
-                </div>
-              </div>
-              {assignmentResponseData?.assignments_count ===
-              assignmentResponseData?.no_changes_count ? (
-                // no changes effected
-                <>
-                  <Alert
-                    closable={false}
-                    style={{
-                      color: "#434343",
-                      fontFamily: "Lato",
-                      fontSize: "16px",
-                      lineHeight: "24px",
-                      margin: "10px",
-                      marginBottom: "20px",
-                    }}
-                    message="No changes to assignments"
-                    description="No adjustments have been made to the assignments. It's likely that the surveyors were assigned to 
-                    the same targets as before. To make changes, please go through the assignments flow again."
-                    type="warning"
-                    showIcon
-                  />
-                </>
-              ) : (
-                <>
-                  {assignmentResponseData?.email_schedule ? (
-                    <>
-                      <p
-                        style={{
-                          color: "#434343",
-                          fontFamily: "Lato",
-                          fontSize: "16px",
-                          lineHeight: "24px",
-                          marginTop: 30,
-                        }}
-                      >
-                        The emails are scheduled to be sent on {nextEmailDate}{" "}
-                        at {assignmentResponseData.email_schedule?.time}. Do you
-                        want to send the emails to the surveyors whose
-                        assignments have been changed before that? Please note
-                        that the emails will be sent only to the surveyors whose
-                        assignments have changed. If you want to change the
-                        existing email schedule, please visit the email
-                        configuration module.
-                      </p>
-                      <Radio.Group
-                        onChange={(e) => setEmailMode(e.target.value)}
-                        value={emailMode}
-                        style={{ marginBottom: 20 }}
-                      >
-                        <Radio value="email_time_yes">
-                          Yes, I want to change the time
-                        </Radio>
-                        <Radio value="email_time_no">
-                          No, I would like to retain the existing time
-                        </Radio>
-                      </Radio.Group>
-                    </>
-                  ) : (
-                    <>
-                      <p
-                        style={{
-                          color: "#434343",
-                          fontFamily: "Lato",
-                          fontSize: "16px",
-                          lineHeight: "24px",
-                          marginTop: 30,
-                        }}
-                      >
-                        The emails for this survey have not been scheduled yet.
-                        Do you wish to send emails to the surveyors whose
-                        assignments have been changed? Please be aware that the
-                        emails will only be sent to those surveyors whose
-                        assignments have changed. If you would like to setup
-                        email schedules, please visit the email configuration
-                        module.
-                      </p>
-
-                      <Radio.Group
-                        onChange={(e) => setEmailMode(e.target.value)}
-                        value={emailMode}
-                        style={{ marginBottom: 20 }}
-                      >
-                        <Radio value="email_time_yes">
-                          Yes, I want to schedule these emails now
-                        </Radio>
-                      </Radio.Group>
-                    </>
-                  )}
-
-                  {emailMode === "email_time_yes" ? (
-                    <>
-                      <p
-                        style={{
-                          color: "#434343",
-                          fontFamily: "Lato",
-                          lineHeight: "24px",
-                        }}
-                      >
-                        Please select the date and time when you want the emails
-                        with assignment information to be sent to the surveyors:
-                      </p>
-                      <div style={{ marginBottom: 30 }}>
-                        <Form
-                          form={manualTriggerForm}
-                          style={{ display: "flex" }}
-                        >
-                          <Form.Item
-                            label="Date"
-                            name="date"
-                            style={{ marginRight: 20 }}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select a date!",
-                              },
-                            ]}
-                          >
-                            <DatePicker
-                              size="middle"
-                              style={{ width: 300 }}
-                              onChange={handleDateChange}
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            label="Time"
-                            name="time"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select a time!",
-                              },
-                            ]}
-                          >
-                            <TimePicker
-                              size="middle"
-                              style={{ width: 300 }}
-                              onChange={handleTimeChange}
-                            />
-                          </Form.Item>
-                        </Form>
-                      </div>
-                    </>
-                  ) : null}
-                </>
-              )}
-            </>
+            <EmailTemplateForm
+              handleContinue={handleContinue}
+            ></EmailTemplateForm>
           ) : null}
-
-          <div>
-            <Button
-              type="primary"
-              style={{
-                backgroundColor: "#597EF7",
-                color: "white",
-                marginRight: 10,
-              }}
-              loading={stepLoading}
-              disabled={stepIndex === 0 && !hasSurveyorSelected}
-              onClick={handleContinue}
-            >
-              {stepIndex !== 2 ? "Continue" : "Done"}
-            </Button>
-            <Button onClick={handleDismiss}>Dismiss</Button>
-          </div>
         </div>
       </div>
     </>
