@@ -175,7 +175,7 @@ const SurveyConfiguration: React.FC = () => {
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
       case "Target status mapping":
-        return <BuildFilled style={{ color: "#389E0D", ...iconProps }} />;
+        return <BuildFilled style={{ color: "#CF1322", ...iconProps }} />;
       case "Assign targets to surveyors":
         return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Track productivity":
@@ -213,7 +213,7 @@ const SurveyConfiguration: React.FC = () => {
         permission_name = "READ Targets";
         break;
       case "Target status mapping":
-        permission_name = "READ Targets";
+        permission_name = "READ Target Status Mapping";
         break;
       case "Assign targets to surveyors":
         permission_name = "READ Assignments";
