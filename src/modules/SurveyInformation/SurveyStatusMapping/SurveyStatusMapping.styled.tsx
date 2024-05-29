@@ -7,6 +7,30 @@ export const TextHeading = styled.h1`
   color: #000;
 `;
 
+export const BodyContainer = styled.div`
+  display: flex;
+  align-items: "center";
+  margin-top: 12px;
+  margin-bottom: 12px;
+`;
+
+export const EditingModel = styled.div`
+  height: 100%;
+  background: white;
+  position: absolute;
+  right: 0;
+  width: 520px;
+  top: 70px;
+  padding: 40px 60px;
+  border: 1px solid #f0f0f0;
+`;
+
+export const FormItemLabel = styled.p`
+  color: "#434343",
+  font-size: 14px,
+  line-height: 22px,
+`;
+
 export const CustomBtn = styled(Button)`
   background-color: #2f54eb;
   color: white;

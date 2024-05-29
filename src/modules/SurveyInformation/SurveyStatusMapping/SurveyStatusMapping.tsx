@@ -19,12 +19,18 @@ import { useForm } from "antd/es/form/Form";
 import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
-import { CustomBtn } from "./SurveyStatusMapping.styled";
+import {
+  BodyContainer,
+  CustomBtn,
+  EditingModel,
+  FormItemLabel,
+} from "./SurveyStatusMapping.styled";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   getTargetStatusMapping,
   updateTargetStatusMapping,
 } from "../../../redux/targetStatusMapping/targetStatusMappingActions";
+import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();
@@ -42,9 +48,13 @@ function SurveyStatusMapping() {
   const { loading: isMappingLoading, mappingConfig: targetStatusMapping } =
     useAppSelector((state: RootState) => state.targetStatusMapping);
 
+  const { loading: isBasicInfoLoading, basicInfo } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [formIdName, setFormIdName] = useState<string>("");
   const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editingMode, setEditingMode] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<any>({
     survey_status: "",
     survey_status_label: "",
@@ -101,18 +111,15 @@ function SurveyStatusMapping() {
     };
   });
 
+  // Row selection for status table
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
-
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
   };
-  const hasSelected = selectedRowKeys.length > 0;
 
   const onConfirmClick = () => {
     if (!sctoForm.form_uid) return;
@@ -122,11 +129,34 @@ function SurveyStatusMapping() {
   };
 
   const onAddClick = () => {
-    setIsEditing(true);
+    setEditingMode("add");
+  };
+
+  const onEditClick = () => {
+    const rowData = targetStatusMapping.find(
+      (item: any) => item.survey_status === selectedRowKeys[0]
+    );
+
+    setEditingData(rowData);
+    setEditingMode("edit");
   };
 
   const onAddMapping = () => {
     if (!sctoForm.form_uid) return;
+
+    // Check if all the required fields are filled
+    if (Object.values(editingData).includes("")) {
+      message.error("Please fill all the required fields!");
+      return;
+    }
+
+    // Check whether web-app tag is a valid CSS color
+    const s = new Option().style;
+    s.color = editingData.webapp_tag_color;
+    if (s.color === "") {
+      message.error("Please enter a valid CSS color code!");
+      return;
+    }
 
     // Check if survey status and survey status label already exists
     targetStatusMapping.forEach((ele: any) => {
@@ -156,12 +186,54 @@ function SurveyStatusMapping() {
     ).then((res) => {
       if (res.payload.data.success) {
         message.success("Mapping added successfully!");
-        setIsEditing(false);
+        setEditingMode(null);
+        setSelectedRowKeys([]);
 
         if (!sctoForm.form_uid) return;
         dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
       } else {
         message.error("Failed to add mapping!");
+      }
+    });
+  };
+
+  const onEditMapping = () => {
+    if (!sctoForm.form_uid) return;
+
+    // Check if all the required fields are filled
+    if (Object.values(editingData).includes("")) {
+      message.error("Please fill all the required fields!");
+      return;
+    }
+
+    // Check whether web-app tag is a valid CSS color
+    const s = new Option().style;
+    s.color = editingData.webapp_tag_color;
+    if (s.color === "") {
+      message.error("Please enter a valid CSS color code!");
+      return;
+    }
+
+    dispatch(
+      updateTargetStatusMapping({
+        formUID: sctoForm.form_uid,
+        data: [
+          ...targetStatusMapping.filter(
+            (ele: any) => ele.survey_status !== editingData.survey_status
+          ),
+          editingData,
+        ],
+      })
+    ).then((res) => {
+      if (res.payload.data.success) {
+        message.success("Mapping edit successfully!");
+        setEditingMode(null);
+        setSelectedRowKeys([]);
+
+        if (!sctoForm.form_uid) return;
+        dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
+      } else {
+        message.error("Failed to edit mapping!");
       }
     });
   };
@@ -197,31 +269,25 @@ function SurveyStatusMapping() {
     }
 
     dispatch(getSurveyCTOForm({ survey_uid: survey_uid }));
+    dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
   }, [dispatch, survey_uid]);
 
   return (
     <>
       <Header items={NavItems} />
-      {isLoading || isMappingLoading ? (
+      {isLoading || isMappingLoading || isBasicInfoLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <Container title="Survey status" />
           <div style={{ marginLeft: 56, marginRight: 56 }}>
             <p style={{ color: "rgba(0,0,0, 0.45)" }}>
-              ACME / Survey status{" "}
+              {basicInfo?.survey_name} / Survey status{" "}
               {isFormConfirmed ? "/ Select survey status" : null}
             </p>
             {isFormConfirmed ? (
               <>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginTop: 12,
-                    marginBottom: 12,
-                  }}
-                >
+                <BodyContainer>
                   <p>{formIdName}</p>
                   <CustomBtn
                     type="primary"
@@ -236,6 +302,7 @@ function SurveyStatusMapping() {
                       type="primary"
                       icon={<EditOutlined />}
                       style={{ marginLeft: 10 }}
+                      onClick={onEditClick}
                     >
                       Edit
                     </CustomBtn>
@@ -250,16 +317,13 @@ function SurveyStatusMapping() {
                       Delete
                     </CustomBtn>
                   ) : null}
-                </div>
+                </BodyContainer>
                 <Table
                   columns={tableColumns}
                   dataSource={tableDataSources}
                   rowSelection={rowSelection}
                   bordered
                 />
-                <Button type="primary" disabled style={{ marginTop: 12 }}>
-                  Confirm
-                </Button>
               </>
             ) : (
               <>
@@ -297,7 +361,10 @@ function SurveyStatusMapping() {
                         required
                         tooltip="This is a required field"
                       >
-                        <Input defaultValue="In-person" disabled />
+                        <Input
+                          defaultValue={basicInfo.surveying_method}
+                          disabled
+                        />
                       </Form.Item>
                       <Form.Item shouldUpdate>
                         <CustomBtn type="primary" onClick={onConfirmClick}>
@@ -310,19 +377,8 @@ function SurveyStatusMapping() {
               </>
             )}
           </div>
-          {isEditing ? (
-            <div
-              style={{
-                height: "100%",
-                background: "white",
-                position: "absolute",
-                right: 0,
-                width: 520,
-                top: 70,
-                padding: "40px 60px",
-                border: "1px solid #f0f0f0",
-              }}
-            >
+          {editingMode ? (
+            <EditingModel>
               <p
                 style={{
                   color: "#262626",
@@ -331,23 +387,19 @@ function SurveyStatusMapping() {
                   fontWeight: 500,
                 }}
               >
-                Add
+                {editingMode === "add" ? "Add mapping" : "Edit mapping"}
               </p>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Survey status:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Input
                     type="number"
+                    defaultValue={editingData.survey_status || ""}
+                    disabled={editingMode === "edit"}
                     onChange={(e) => {
                       setEditingData((prev: any) => {
                         return {
@@ -361,18 +413,13 @@ function SurveyStatusMapping() {
               </Row>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Survey status label:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Input
+                    defaultValue={editingData.survey_status_label}
                     onChange={(e) => {
                       setEditingData((prev: any) => {
                         return {
@@ -386,19 +433,13 @@ function SurveyStatusMapping() {
               </Row>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Completed flag:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Select
-                    defaultValue={true}
+                    defaultValue={editingData.completed_flag ?? true}
                     style={{ width: 120 }}
                     options={[
                       { value: true, label: "TRUE" },
@@ -417,19 +458,13 @@ function SurveyStatusMapping() {
               </Row>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Refusal flag:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Select
-                    defaultValue={false}
+                    defaultValue={editingData.refusal_flag ?? false}
                     style={{ width: 120 }}
                     options={[
                       { value: true, label: "TRUE" },
@@ -448,19 +483,13 @@ function SurveyStatusMapping() {
               </Row>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Target assignable:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Select
-                    defaultValue={false}
+                    defaultValue={editingData.target_assignable ?? false}
                     style={{ width: 120 }}
                     options={[
                       { value: true, label: "TRUE" },
@@ -479,15 +508,9 @@ function SurveyStatusMapping() {
               </Row>
               <Row align="middle" style={{ marginBottom: 12 }}>
                 <Col span={8}>
-                  <p
-                    style={{
-                      color: "#434343",
-                      fontSize: 14,
-                      lineHeight: "22px",
-                    }}
-                  >
+                  <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Web-app tag:
-                  </p>
+                  </FormItemLabel>
                 </Col>
                 <Col span={16}>
                   <Row align="middle">
@@ -518,7 +541,7 @@ function SurveyStatusMapping() {
               <Button
                 type="default"
                 style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
-                onClick={() => setIsEditing(false)}
+                onClick={() => setEditingMode(null)}
               >
                 Cancel
               </Button>
@@ -531,11 +554,11 @@ function SurveyStatusMapping() {
                   color: "white",
                   borderRadius: 2,
                 }}
-                onClick={onAddMapping}
+                onClick={editingMode === "add" ? onAddMapping : onEditMapping}
               >
-                Add
+                {editingMode === "add" ? "Add" : "Edit"}
               </Button>
-            </div>
+            </EditingModel>
           ) : null}
         </>
       )}
