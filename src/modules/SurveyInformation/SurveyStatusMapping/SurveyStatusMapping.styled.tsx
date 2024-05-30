@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Table } from "antd";
 import styled from "styled-components";
 
 export const TextHeading = styled.h1`
@@ -10,6 +10,7 @@ export const TextHeading = styled.h1`
 export const BodyContainer = styled.div`
   display: flex;
   align-items: "center";
+  margin-left: auto;
   margin-top: 12px;
   margin-bottom: 12px;
 `;
@@ -40,5 +41,13 @@ export const CustomBtn = styled(Button)`
   &:hover {
     background-color: #2f54eb !important;
     color: white !important;
+  }
+`;
+
+export const TargetMappingTable = styled(Table)`
+  & th {
+    color: #434343 !important;
+    background-color: #d6e4ff !important;
+    font-family: "Lato", sans-serif;
   }
 `;

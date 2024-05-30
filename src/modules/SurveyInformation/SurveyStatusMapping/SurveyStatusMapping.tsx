@@ -24,6 +24,7 @@ import {
   CustomBtn,
   EditingModel,
   FormItemLabel,
+  TargetMappingTable,
 } from "./SurveyStatusMapping.styled";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
@@ -31,6 +32,8 @@ import {
   updateTargetStatusMapping,
 } from "../../../redux/targetStatusMapping/targetStatusMappingActions";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
+import { HeaderContainer } from "../../Assignments/Assignments.styled";
+import { Title } from "../../../shared/Nav.styled";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();
@@ -63,6 +66,24 @@ function SurveyStatusMapping() {
     target_assignable: false,
     webapp_tag_color: "green",
   });
+
+  const webAppTagColors = [
+    "green",
+    "gold",
+    "cyan",
+    "red",
+    "blue",
+    "yellow",
+    "orange",
+    "purple",
+    "pink",
+    "brown",
+    "gray",
+    "maroon",
+    "olive",
+    "navy",
+    "teal",
+  ];
 
   const tableColumns = [
     {
@@ -279,46 +300,47 @@ function SurveyStatusMapping() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container title="Survey status" />
-          <div style={{ marginLeft: 56, marginRight: 56 }}>
-            <p style={{ color: "rgba(0,0,0, 0.45)" }}>
-              {basicInfo?.survey_name} / Survey status{" "}
-              {isFormConfirmed ? "/ Select survey status" : null}
-            </p>
+          <Container />
+          <HeaderContainer>
+            <Title>Target status mapping</Title>
             {isFormConfirmed ? (
-              <>
-                <BodyContainer>
-                  <p>{formIdName}</p>
+              <BodyContainer>
+                <CustomBtn
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  style={{ marginLeft: "auto" }}
+                  onClick={onAddClick}
+                >
+                  Add
+                </CustomBtn>
+                {selectedRowKeys.length === 1 ? (
                   <CustomBtn
                     type="primary"
-                    icon={<PlusOutlined />}
-                    style={{ marginLeft: "auto" }}
-                    onClick={onAddClick}
+                    icon={<EditOutlined />}
+                    style={{ marginLeft: 10 }}
+                    onClick={onEditClick}
                   >
-                    Add
+                    Edit
                   </CustomBtn>
-                  {selectedRowKeys.length === 1 ? (
-                    <CustomBtn
-                      type="primary"
-                      icon={<EditOutlined />}
-                      style={{ marginLeft: 10 }}
-                      onClick={onEditClick}
-                    >
-                      Edit
-                    </CustomBtn>
-                  ) : null}
-                  {selectedRowKeys.length > 0 ? (
-                    <CustomBtn
-                      type="primary"
-                      icon={<DeleteOutlined />}
-                      style={{ marginLeft: 10 }}
-                      onClick={onDeleteMapping}
-                    >
-                      Delete
-                    </CustomBtn>
-                  ) : null}
-                </BodyContainer>
-                <Table
+                ) : null}
+                {selectedRowKeys.length > 0 ? (
+                  <CustomBtn
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    style={{ marginLeft: 10 }}
+                    onClick={onDeleteMapping}
+                  >
+                    Delete
+                  </CustomBtn>
+                ) : null}
+              </BodyContainer>
+            ) : null}
+          </HeaderContainer>
+          <div style={{ marginLeft: 56, marginRight: 56 }}>
+            {isFormConfirmed ? (
+              <>
+                <p>{formIdName}</p>
+                <TargetMappingTable
                   columns={tableColumns}
                   dataSource={tableDataSources}
                   rowSelection={rowSelection}
@@ -336,7 +358,7 @@ function SurveyStatusMapping() {
                     label="SCTO form ID"
                     name="scto-form-id"
                     required
-                    tooltip="This is a required field"
+                    tooltip="Select the form ID of the main SCTO form. Ex: agrifieldnet_main_form"
                     rules={[
                       { required: true, message: "Please select the form id!" },
                     ]}
@@ -345,7 +367,7 @@ function SurveyStatusMapping() {
                       placeholder="Select SCTO form ID"
                       onSelect={(e) => setFormIdName(e)}
                     >
-                      {Object.keys(sctoForm).length > 0 ? (
+                      {sctoForm && Object.keys(sctoForm).length > 0 ? (
                         <Select.Option value={sctoForm.scto_form_id}>
                           {sctoForm.scto_form_id}
                         </Select.Option>
@@ -359,7 +381,7 @@ function SurveyStatusMapping() {
                         label="Survey modality"
                         name="survey-modality"
                         required
-                        tooltip="This is a required field"
+                        tooltip="The survey method can help determine how other parts of SurveyStream will be setup for your survey."
                       >
                         <Input
                           defaultValue={basicInfo.surveying_method}
@@ -515,16 +537,20 @@ function SurveyStatusMapping() {
                 <Col span={16}>
                   <Row align="middle">
                     <Col span={16}>
-                      <Input
-                        onChange={(e) => {
+                      <Select
+                        defaultValue={editingData.webapp_tag_color}
+                        style={{ width: 120 }}
+                        options={webAppTagColors.map((color) => {
+                          return { value: color, label: color };
+                        })}
+                        onChange={(val) => {
                           setEditingData((prev: any) => {
                             return {
                               ...prev,
-                              webapp_tag_color: e.target.value,
+                              webapp_tag_color: val,
                             };
                           });
                         }}
-                        defaultValue={editingData.webapp_tag_color}
                       />
                     </Col>
                     <Col span={8}>
