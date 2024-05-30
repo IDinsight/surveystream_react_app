@@ -44,7 +44,7 @@ const surveyCTOInformationSlice = createSlice({
       state.timezones = action.payload;
     },
     getSurveyCTOFormRequest: (state) => {
-      state.loading = false;
+      state.loading = true;
       state.error = null;
     },
     getSurveyCTOFormSuccess: (
