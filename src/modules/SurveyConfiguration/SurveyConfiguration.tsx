@@ -33,6 +33,7 @@ import {
   MailFilled,
   ProfileFilled,
   ReadFilled,
+  BuildFilled,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -81,6 +82,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     "Survey locations": "location/upload",
     Enumerators: "enumerators",
     Targets: "targets",
+    "Target status mapping": "survey/status-mapping",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
@@ -172,6 +174,8 @@ const SurveyConfiguration: React.FC = () => {
         );
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Target status mapping":
+        return <BuildFilled style={{ color: "#CF1322", ...iconProps }} />;
       case "Assign targets to surveyors":
         return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Track productivity":
@@ -207,6 +211,9 @@ const SurveyConfiguration: React.FC = () => {
         break;
       case "Targets":
         permission_name = "READ Targets";
+        break;
+      case "Target status mapping":
+        permission_name = "READ Target Status Mapping";
         break;
       case "Assign targets to surveyors":
         permission_name = "READ Assignments";
