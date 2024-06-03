@@ -253,7 +253,7 @@ const AppRoutes = () => {
         element={<ProtectedPermissionRoute permission_name="READ Emails" />}
       >
         <Route
-          path="/module-configuration/emails/:survey_uid?/:form_uid?/:tabId?"
+          path="/module-configuration/emails/:survey_uid?/:tabId?"
           element={<Emails />}
         />
       </Route>
@@ -261,7 +261,7 @@ const AppRoutes = () => {
         element={<ProtectedPermissionRoute permission_name="WRITE Emails" />}
       >
         <Route
-          path="/module-configuration/emails/:survey_uid?/:form_uid?/create"
+          path="/module-configuration/emails/:survey_uid?/create"
           element={<ConfigureEmails />}
         />
       </Route>

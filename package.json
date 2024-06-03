@@ -20,6 +20,7 @@
     "axios": "^1.4.0",
     "buffer": "^6.0.3",
     "csv-file-validator": "^2.1.0",
+    "date-fns": "^3.6.0",
     "dayjs": "^1.11.8",
     "env-cmd": "^10.1.0",
     "lodash": "^4.17.21",

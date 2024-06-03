@@ -62,7 +62,7 @@ export const createEmailConfig = createAsyncThunk(
     try {
       dispatch(createEmailConfigRequest());
       const response: any = await api.createEmailConfig(emailConfigData);
-      if (response.status === 200) {
+      if (response.status === 201) {
         dispatch(createEmailConfigSuccess(response.data));
         return { ...response, success: true };
       }
@@ -201,7 +201,7 @@ export const createEmailSchedule = createAsyncThunk(
     try {
       dispatch(createEmailScheduleRequest());
       const response: any = await api.createEmailSchedule(emailScheduleData);
-      if (response.status === 200) {
+      if (response.status === 201) {
         dispatch(createEmailScheduleSuccess(response.data));
         return { ...response, success: true };
       }
@@ -348,7 +348,7 @@ export const createManualEmailTrigger = createAsyncThunk(
       const response: any = await api.createManualEmailTrigger(
         manualEmailTriggerData
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         dispatch(createManualEmailTriggerSuccess(response.data));
         return { ...response, success: true };
       }
@@ -493,7 +493,7 @@ export const createEmailTemplate = createAsyncThunk(
     try {
       dispatch(createEmailTemplateRequest());
       const response: any = await api.createEmailTemplate(emailTemplateData);
-      if (response.status === 200) {
+      if (response.status === 201) {
         dispatch(createEmailTemplateSuccess(response.data));
         return { ...response, success: true };
       }

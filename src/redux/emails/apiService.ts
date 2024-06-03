@@ -185,7 +185,7 @@ export const createEmailSchedule = async (emailScheduleData: any) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.post(
-      `${API_BASE_URL}/emails/schedules`,
+      `${API_BASE_URL}/emails/schedule`,
       emailScheduleData,
       {
         headers: {

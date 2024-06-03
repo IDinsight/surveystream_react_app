@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { MailOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
 import { useEffect, useState } from "react";
@@ -25,11 +26,9 @@ function Emails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { form_uid = "", tabId = "" } =
-    useParams<{
-      form_uid?: string;
-      tabId?: string;
-    }>() ?? {};
+  const { tabId } = useParams<{ tabId: string }>() ?? {
+    tabId: "",
+  };
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
@@ -38,83 +37,142 @@ function Emails() {
 
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
-  const fetchEmailConfigs = async () => {
-    console.log("fetchEmailConfigs");
+  const [sctoForms, setSCTOForms] = useState<any[]>([]);
 
-    if (form_uid) {
-      const configResponse = await dispatch(getEmailConfigs({ form_uid }));
-      console.log("configResponse", configResponse);
+  const [formUID, setFormUID] = useState<string>();
+
+  const fetchEmailSchedules = async () => {
+    setLoading(true);
+    console.log("fetchEmailSchedules");
+
+    if (formUID) {
+      const res = await dispatch(getEmailConfigs({ form_uid: formUID }));
+
+      console.log("configResponse", res);
+
+      if (res.payload.success) {
+        const scheduleTableData = [];
+        const emailConfigs = res.payload?.data?.data;
+        for (let i = 0; i < emailConfigs.length; i++) {
+          const config = emailConfigs[i];
+          const emailSchedulesRes = await dispatch(
+            getEmailSchedules({ email_config_uid: config.email_config_uid })
+          );
+
+          if (emailSchedulesRes.payload.success) {
+            scheduleTableData.push({
+              ...config,
+              schedules: emailSchedulesRes.payload?.data?.data,
+            });
+          } else {
+            message.error("Could not fetch email schedules for this survey");
+            setLoading(true);
+
+            return;
+          }
+        }
+        console.log("scheduleTableData", scheduleTableData);
+        setSchedulesData(scheduleTableData);
+      } else {
+        message.error("Could not fetch email configurations for this survey");
+      }
     } else {
       message.error(
-        "Cannot fetch email configs, kindly check that the form_uid is provided"
+        "Cannot fetch email configurations, kindly check that the form_uid is provided"
       );
       navigate(`/module-configuration/emails/${survey_uid}`);
     }
+    setLoading(false);
   };
 
-  const fetchManualTriggers = async (email_config_uid: string) => {
+  const fetchManualTriggers = async () => {
+    setLoading(true);
     console.log("fetchEmailSchedules");
 
-    const manualTriggersRes = await dispatch(
-      getManualEmailTriggers({ email_config_uid })
-    );
-    console.log("manualTriggersRes", manualTriggersRes);
-  };
-  const fetchEmailSchedules = async (email_config_uid: string) => {
-    console.log("fetchEmailSchedules");
+    if (formUID) {
+      const res = await dispatch(getEmailConfigs({ form_uid: formUID }));
 
-    const manualTriggersRes = await dispatch(
-      getEmailSchedules({ email_config_uid })
-    );
-    console.log("manualTriggersRes", manualTriggersRes);
-  };
+      console.log("configResponse", res);
 
-  const combineScheduleData = async () => {
-    try {
-      // // Combine data from both responses based on email_config_uid
-      // const combinedData = configResponse.payload.data.map(
-      //   (config: { email_config_uid: any }) => ({
-      //     ...config,
-      //     schedule: scheduleResponse.payload.data.find(
-      //       (schedule: { email_config_uid: any }) =>
-      //         schedule.email_config_uid === config.email_config_uid
-      //     ),
-      //   })
-      // );
-      // setData(combinedData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      if (res.payload.success) {
+        const triggersTableData = [];
+        const emailConfigs = res.payload?.data?.data;
+        for (let i = 0; i < emailConfigs.length; i++) {
+          const config = emailConfigs[i];
+          const manualTriggersRes = await dispatch(
+            getManualEmailTriggers({
+              email_config_uid: config.email_config_uid,
+            })
+          );
+
+          if (manualTriggersRes.payload.success) {
+            triggersTableData.push({
+              ...config,
+              schedules: manualTriggersRes.payload?.data?.data,
+            });
+          } else {
+            message.error(
+              "Could not fetch email manual triggers for this survey"
+            );
+            setLoading(true);
+
+            return;
+          }
+        }
+        console.log("triggersTableData", triggersTableData);
+        setManaualTriggersData(triggersTableData);
+      } else {
+        message.error("Could not fetch email configurations for this survey");
+      }
+    } else {
+      message.error(
+        "Cannot fetch email configurations, kindly check that the form_uid is provided"
+      );
+      navigate(`/module-configuration/emails/${survey_uid}`);
     }
-  };
-  const combineTriggersData = async () => {
-    console.log("combineTriggerData");
-  };
-
-  const combineSchedulesData = async () => {
-    console.log("combineTriggerData");
+    setLoading(false);
   };
 
   const scheduleColumns = [
     {
-      title: "Email Config Type",
+      title: "Config Type",
       dataIndex: "config_type",
       key: "config_type",
     },
     {
-      title: "Schedule",
-      key: "schedule",
+      title: "Schedules",
+      key: "schedules",
       render: (
         _: any,
         record: {
-          schedule: {
-            dates: any[];
+          schedules: {
+            dates: string[];
             time: string;
-          };
+            email_schedule_name: string;
+          }[];
         }
       ) => (
         <div>
-          <p>Dates: {record.schedule?.dates.join(", ")}</p>
-          <p>Time: {record.schedule?.time}</p>
+          {record.schedules.length > 0 ? (
+            record.schedules.map((schedule, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <p>Schedule Name: {schedule?.email_schedule_name}</p>
+                <p>
+                  Dates:{" "}
+                  {schedule.dates
+                    .map((date) => format(new Date(date), "MMM dd, yyyy"))
+                    .join(", ")}
+                </p>
+                <p>
+                  Time:{" "}
+                  {format(new Date(`1970-01-01T${schedule.time}Z`), "hh:mm a")}
+                </p>
+                {index < record.schedules.length - 1 && <hr />}
+              </div>
+            ))
+          ) : (
+            <p>No schedules available</p>
+          )}
         </div>
       ),
     },
@@ -148,44 +206,45 @@ function Emails() {
   const handleFormUID = async () => {
     console.log("handleFormUID", handleFormUID);
 
-    if (!form_uid) {
-      try {
-        dispatch(setLoading(true));
-        const sctoForm = await dispatch(
-          getSurveyCTOForm({ survey_uid: survey_uid })
-        );
+    try {
+      dispatch(setLoading(true));
+      const sctoForm = await dispatch(
+        getSurveyCTOForm({ survey_uid: survey_uid })
+      );
 
-        if (sctoForm?.payload[0]?.form_uid) {
-          navigate(
-            `/module-configuration/emails/${survey_uid}/${sctoForm?.payload[0]?.form_uid}/schedules`
-          );
-        } else {
-          message.error("Kindly configure SCTO Form to proceed");
-          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
-        }
-      } catch (error) {
-        console.log("Error fetching sctoForm:", error);
-      } finally {
-        dispatch(setLoading(false));
+      if (sctoForm?.payload[0]?.form_uid) {
+        console.log("sctoForm?.payload", sctoForm?.payload);
+
+        setFormUID(sctoForm?.payload[0]?.form_uid);
+
+        setSCTOForms(sctoForm?.payload);
+      } else {
+        message.error("Kindly configure SCTO Form to proceed");
+        navigate(`/survey-information/survey-cto-information/${survey_uid}`);
       }
+    } catch (error) {
+      console.log("Error fetching sctoForm:", error);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
   useEffect(() => {
     handleFormUID();
-    if (form_uid) {
-      fetchEmailConfigs();
-    }
 
-    // if (tabId == "manual") {
-    //   fetchEmailSchedules()
-    // } else   {
-    //   fetchManualTriggers()
-    // }
-  }, [tabId]);
+    if (formUID && tabId == "manual") {
+      fetchManualTriggers();
+    } else if (formUID) {
+      fetchEmailSchedules();
+    }
+  }, [formUID, tabId]);
 
   const handleConfigureEmails = () => {
-    navigate(`/module-configuration/emails/${survey_uid}/${form_uid}/create`);
+    console.log("sctoForms", sctoForms);
+
+    navigate(`/module-configuration/emails/${survey_uid}/create`, {
+      state: { sctoForms: sctoForms },
+    });
   };
 
   return (

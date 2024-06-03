@@ -3,10 +3,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface EmailsState {
   loading: boolean;
   error: any;
-  emailConfigList: any[];
-  emailScheduleList: any[];
-  manualEmailTriggerList: any[];
-  emailTemplateList: any[];
+  emailConfigList: any;
+  emailScheduleList: any;
+  manualEmailTriggerList: any;
+  emailTemplateList: any;
   currentEmailConfig: any;
   currentEmailSchedule: any;
   currentManualEmailTrigger: any;
@@ -41,7 +41,7 @@ const emailsSlice = createSlice({
     createEmailConfigSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailConfigList.push(action.payload);
+      state.emailConfigList = action.payload;
     },
     createEmailConfigFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -98,7 +98,7 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.emailConfigList = state.emailConfigList.filter(
-        (config) => config.id !== action.payload
+        (config: any) => config.email_config_uid !== action.payload
       );
     },
     deleteEmailConfigFailure: (state, action: PayloadAction<any>) => {
@@ -113,7 +113,7 @@ const emailsSlice = createSlice({
     createEmailScheduleSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailScheduleList.push(action.payload);
+      state.emailScheduleList = action.payload;
     },
     createEmailScheduleFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -170,7 +170,7 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.emailScheduleList = state.emailScheduleList.filter(
-        (schedule) => schedule.id !== action.payload
+        (schedule: any) => schedule.email_schedule_uid !== action.payload
       );
     },
     deleteEmailScheduleFailure: (state, action: PayloadAction<any>) => {
@@ -185,7 +185,7 @@ const emailsSlice = createSlice({
     createManualEmailTriggerSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.manualEmailTriggerList.push(action.payload);
+      state.manualEmailTriggerList = action.payload;
     },
     createManualEmailTriggerFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -242,7 +242,7 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.manualEmailTriggerList = state.manualEmailTriggerList.filter(
-        (trigger) => trigger.id !== action.payload
+        (trigger: any) => trigger.manual_email_trigger_uid !== action.payload
       );
     },
     deleteManualEmailTriggerFailure: (state, action: PayloadAction<any>) => {
@@ -257,7 +257,7 @@ const emailsSlice = createSlice({
     createEmailTemplateSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailTemplateList.push(action.payload);
+      state.emailTemplateList = action.payload;
     },
     createEmailTemplateFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -314,7 +314,7 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.emailTemplateList = state.emailTemplateList.filter(
-        (template) => template.id !== action.payload
+        (template: any) => template.email_template_uid !== action.payload
       );
     },
     deleteEmailTemplateFailure: (state, action: PayloadAction<any>) => {

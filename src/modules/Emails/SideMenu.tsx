@@ -1,10 +1,5 @@
 import { useLocation, useParams } from "react-router-dom";
-import {
-  CalendarOutlined,
-  ContactsOutlined,
-  MailFilled,
-  ShareAltOutlined,
-} from "@ant-design/icons";
+import { CalendarOutlined, MailFilled } from "@ant-design/icons";
 
 import { Menu, MenuProps } from "antd";
 
@@ -23,9 +18,6 @@ function SideMenu() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const { form_uid } = useParams<{ form_uid?: string }>() ?? {
-    form_uid: "",
-  };
   const { tabId } = useParams<{ tabId?: string }>() ?? {
     tabId: "",
   };
@@ -39,11 +31,11 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          className={`${isActive(
-            `/module-configuration/emails/${survey_uid}/${form_uid}/schedules` ||
-              `/module-configuration/emails/${survey_uid}/${form_uid}`
-          )}`}
-          to={`/module-configuration/emails/${survey_uid}/${form_uid}/schedules`}
+          className={
+            isActive(`/module-configuration/emails/${survey_uid}/schedules`) ||
+            isActive(`/module-configuration/emails/${survey_uid}`)
+          }
+          to={`/module-configuration/emails/${survey_uid}/schedules`}
         >
           <IconWrapper>
             <CalendarOutlined />
@@ -57,9 +49,9 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${isActive(
-            `/module-configuration/emails/${survey_uid}/${form_uid}/manual`
+            `/module-configuration/emails/${survey_uid}/manual`
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/${form_uid}/manual`}
+          to={`/module-configuration/emails/${survey_uid}/manual`}
         >
           <IconWrapper>
             <MailFilled />
@@ -82,7 +74,7 @@ function SideMenu() {
     if (path.includes("/manual")) return "manualTriggers";
     if (path.includes("/schedules")) return "emailSchedules";
 
-    return "";
+    return "schedules";
   };
 
   useEffect(() => {

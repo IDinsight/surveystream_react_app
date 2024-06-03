@@ -1,18 +1,5 @@
-import {
-  CloseCircleOutlined,
-  MailOutlined,
-  MailTwoTone,
-  PushpinOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  DatePicker,
-  TimePicker,
-  Radio,
-  Form,
-  Alert,
-  message,
-} from "antd";
+import { CloseCircleOutlined, MailOutlined } from "@ant-design/icons";
+import { Button, message } from "antd";
 import { useEffect, useState } from "react";
 
 import { useForm } from "antd/es/form/Form";
@@ -20,7 +7,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorHandler from "../../../components/ErrorHandler";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { AssignmentPayload } from "../../../redux/assignments/types";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import { EmailConfigurationSteps } from "./ConfigureEmails.styled";
@@ -36,19 +22,12 @@ import { getEmailConfigs } from "../../../redux/emails/emailsActions";
 function ConfigureEmails() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   // State variables for component
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [stepIndex, setStepIndex] = useState<number>(0);
-  const [selectedSurveyorRows, setSelectedSurveyorRows] = useState<any>([]);
-  const [targetAssignments, setTargetAssignments] = useState<any[]>([]);
-  const [assignmentPayload, setAssignmentPayload] = useState<
-    AssignmentPayload[]
-  >([]);
-  const [surveyorsFilter, setSurveyorsFilter] = useState(null);
-  const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
-  const [nextEmailDate, setNextEmailDate] = useState<string>();
 
   const [manualTriggerData, setManualTriggerData] = useState({
     date: null,
@@ -60,24 +39,60 @@ function ConfigureEmails() {
   const [configTypes, setConfigTypes] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [configUid, setConfigUid] = useState(null);
-
-  const { form_uid } = useParams<{ form_uid: string }>() ?? {
-    form_uid: "",
-  };
+  const [configUid, setConfigUid] = useState<string>("");
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
 
-  const handleContinue = async () => {
-    console.log("handle continue");
+  const { sctoForms } = location.state || {};
+
+  const handleBack = async (emailConfigUid = "") => {
+    console.log("handle back", stepIndex, emailConfigUid);
 
     setStepLoading(true);
 
-    if (stepIndex < 1) {
+    if (stepIndex == 1) {
+      //check for email config
+      if (emailConfigUid) {
+        setConfigUid(emailConfigUid);
+        setStepIndex((prev: number) => prev - 1);
+        setStepLoading(false);
+        return;
+      } else {
+        setStepLoading(false);
+
+        message.error("the email config is not selected or configured");
+        return;
+      }
+    } else if (stepIndex > 0) {
+      setStepIndex((prev: number) => prev - 1);
+      setStepLoading(false);
+      return;
+    }
+  };
+  const handleContinue = async (emailConfigUid = "") => {
+    console.log("handle continue", stepIndex, emailConfigUid);
+
+    setStepLoading(true);
+
+    if (stepIndex == 0) {
+      //check for email config
+      if (emailConfigUid) {
+        setConfigUid(emailConfigUid);
+        setStepIndex((prev: number) => prev + 1);
+        setStepLoading(false);
+        return;
+      } else {
+        setStepLoading(false);
+
+        message.error("the email config is not selected or configured");
+        return;
+      }
+    } else if (stepIndex < 3) {
       setStepIndex((prev: number) => prev + 1);
       setStepLoading(false);
+      return;
     }
   };
 
@@ -88,7 +103,8 @@ function ConfigureEmails() {
   const fetchEmailConfigs = async () => {
     console.log("fetchEmailConfigs");
 
-    if (form_uid) {
+    if (sctoForms.length > 0) {
+      const form_uid = sctoForms[0].form_uid;
       const configResponse = await dispatch(getEmailConfigs({ form_uid }));
       console.log("configResponse", configResponse.payload.data.data);
       if (configResponse.payload?.success) {
@@ -96,7 +112,7 @@ function ConfigureEmails() {
       }
     } else {
       message.error(
-        "Cannot fetch email configs, kindly check that the form_uid is provided"
+        "Cannot load email configs, kindly check that the form_uid is provided"
       );
       navigate(`/module-configuration/emails/${survey_uid}`);
     }
@@ -157,6 +173,9 @@ function ConfigureEmails() {
               {
                 title: "Email Templates",
               },
+              {
+                title: "Template Variables",
+              },
             ]}
           />
         </div>
@@ -173,15 +192,22 @@ function ConfigureEmails() {
             <EmailConfigForm
               handleContinue={handleContinue}
               configTypes={configTypes}
+              sctoForms={sctoForms}
             ></EmailConfigForm>
           ) : null}
           {stepIndex === 1 ? (
             <EmailScheduleForm
+              handleBack={handleBack}
+              emailConfigUID={configUid}
+              configTypes={configTypes}
               handleContinue={handleContinue}
             ></EmailScheduleForm>
           ) : null}
           {stepIndex === 2 ? (
             <EmailTemplateForm
+              handleBack={handleBack}
+              emailConfigUID={configUid}
+              configTypes={configTypes}
               handleContinue={handleContinue}
             ></EmailTemplateForm>
           ) : null}

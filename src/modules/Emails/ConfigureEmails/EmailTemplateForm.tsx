@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, message } from "antd";
 import axios from "axios";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-const EmailTemplateForm = ({ handleContinue }: any) => {
+const EmailTemplateForm = ({
+  handleContinue,
+  handleBack,
+  emailConfigUID,
+}: any) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [emailConfigs, setEmailConfigs] = useState([]);
@@ -24,13 +29,11 @@ const EmailTemplateForm = ({ handleContinue }: any) => {
     }
   };
 
-  const onFinish = async (values: any) => {
+  const handleSubmit = async () => {
     setLoading(true);
     try {
-      // Call backend API to add/update email template
-      const response = await axios.post("/api/email-template", values);
-      message.success(response.data.message);
-      form.resetFields();
+      const formValues = form.getFieldsValue();
+      console.log("formValues", formValues);
     } catch (error) {
       message.error("Failed to add/update email template");
     }
@@ -38,59 +41,92 @@ const EmailTemplateForm = ({ handleContinue }: any) => {
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
-      <Form.Item
-        name="email_config_uid"
-        label="Email Configuration"
-        rules={[
-          { required: true, message: "Please select email configuration" },
-        ]}
-      >
-        <Select placeholder="Select email configuration">
-          {/* Render email configurations as options */}
-          {/* {emailConfigs.map((config) => (
-            <Option key={config.email_config_uid} value={config.email_config_uid}>
-              {config.config_type}
-            </Option>
-          ))} */}
-        </Select>
-      </Form.Item>
+    <Form form={form} layout="vertical">
+      <Form.List name="templates" initialValue={[{ dateType: "single" }]}>
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, ...restField }) => (
+              <div key={key} style={{ marginBottom: 8 }}>
+                {fields.length > 1 && (
+                  <MinusCircleOutlined
+                    onClick={() => remove(name)}
+                    style={{ float: "right" }}
+                  />
+                )}
+                <Form.Item
+                  {...restField}
+                  name="subject"
+                  label="Subject"
+                  rules={[{ required: true, message: "Please enter subject" }]}
+                >
+                  <Input placeholder="Enter subject" />
+                </Form.Item>
 
-      <Form.Item
-        name="subject"
-        label="Subject"
-        rules={[{ required: true, message: "Please enter subject" }]}
-      >
-        <Input placeholder="Enter subject" />
-      </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name="language"
+                  label="Language"
+                  rules={[
+                    { required: true, message: "Please select language" },
+                  ]}
+                >
+                  <Input placeholder="Enter language" />
+                </Form.Item>
 
-      <Form.Item
-        name="language"
-        label="Language"
-        rules={[{ required: true, message: "Please select language" }]}
-      >
-        <Select placeholder="Select language">
-          <Option value="English">English</Option>
-          <Option value="French">French</Option>
-          {/* Add more language options as needed */}
-        </Select>
-      </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name="content"
+                  label="Content"
+                  rules={[{ required: true, message: "Please enter content" }]}
+                >
+                  <Input.TextArea
+                    rows={5}
+                    placeholder='Enter content using the variables indicated by ${}, for instance, "Hello, ${enumerator_name}."'
+                  />
+                </Form.Item>
+              </div>
+            ))}
 
-      <Form.Item
-        name="content"
-        label="Content"
-        rules={[{ required: true, message: "Please enter content" }]}
-      >
-        <Input.TextArea rows={4} placeholder="Enter content" />
-      </Form.Item>
+            <Form.Item>
+              <Button
+                type="dashed"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+              >
+                Add another language
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
 
-      {/* Other form fields for EmailTemplate */}
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          Submit
+      <div>
+        <Button
+          style={{
+            display: "flex",
+            float: "left",
+          }}
+          loading={loading}
+          onClick={handleBack}
+        >
+          Back
         </Button>
-      </Form.Item>
+
+        <Button
+          type="primary"
+          style={{
+            display: "flex",
+            backgroundColor: "#597EF7",
+            color: "white",
+            float: "right",
+          }}
+          loading={loading}
+          onClick={handleSubmit}
+        >
+          Continue
+        </Button>
+      </div>
     </Form>
   );
 };

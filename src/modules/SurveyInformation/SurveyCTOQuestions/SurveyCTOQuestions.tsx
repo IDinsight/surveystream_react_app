@@ -536,7 +536,6 @@ function SurveyCTOQuestions() {
         </MainWrapper>
       </div>
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleContinue}>
           Continue
         </ContinueButton>
