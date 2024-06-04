@@ -14,13 +14,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import {
-  getEmailDetails,
-  getEmailConfigs,
-  getEmailSchedules,
-  getEmailTemplates,
-  getManualEmailTriggers,
-} from "../../redux/emails/emailsActions";
+import { getEmailDetails } from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 
 function Emails() {
@@ -72,38 +66,18 @@ function Emails() {
 
   const fetchManualTriggers = async () => {
     setLoading(true);
-    console.log("fetchEmailSchedules");
+    console.log("fetchManualTriggers");
 
     if (formUID) {
-      const res = await dispatch(getEmailConfigs({ form_uid: formUID }));
+      const res = await dispatch(getEmailDetails({ form_uid: formUID }));
 
       console.log("configResponse", res);
 
       if (res.payload.success) {
-        const triggersTableData = [];
         const emailConfigs = res.payload?.data?.data;
-        for (let i = 0; i < emailConfigs.length; i++) {
-          const config = emailConfigs[i];
-          const manualTriggersRes = await dispatch(
-            getManualEmailTriggers({
-              email_config_uid: config.email_config_uid,
-            })
-          );
-
-          if (manualTriggersRes.payload.success) {
-            triggersTableData.push({
-              ...config,
-              schedules: manualTriggersRes.payload?.data?.data,
-            });
-          } else {
-            message.error(
-              "Could not fetch email manual triggers for this survey"
-            );
-            setLoading(true);
-
-            return;
-          }
-        }
+        const triggersTableData = emailConfigs.filter(
+          (emailConfig: any) => emailConfig.manual_triggers.length > 0
+        );
         console.log("triggersTableData", triggersTableData);
         setManaualTriggersData(triggersTableData);
       } else {
@@ -196,29 +170,87 @@ function Emails() {
 
   const manualTriggerColumns = [
     {
-      title: "Email Config Type",
+      title: "Config Type",
       dataIndex: "config_type",
       key: "config_type",
     },
     {
-      title: "Schedule",
-      key: "schedule",
+      title: "Manual Triggers",
+      key: "manual_triggers",
       render: (
         _: any,
         record: {
-          schedule: {
-            dates: any[];
+          manual_triggers: {
+            date: string;
             time: string;
-          };
+            status: string;
+            receipients: string[];
+          }[];
         }
       ) => (
         <div>
-          <p>Dates: {record.schedule?.dates.join(", ")}</p>
-          <p>Time: {record.schedule?.time}</p>
+          {record.manual_triggers.length > 0 ? (
+            record.manual_triggers.map((manual_trigger, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <p>Date: {manual_trigger?.date}</p>
+                <p>
+                  Time:{" "}
+                  {format(
+                    new Date(`1970-01-01T${manual_trigger.time}Z`),
+                    "hh:mm a"
+                  )}
+                </p>
+                <p>Status: {manual_trigger?.status}</p>
+
+                {/* <p>
+                  Dates:{" "}
+                  {schedule.dates
+                    .map((date) => format(new Date(date), "MMM dd, yyyy"))
+                    .join(", ")}
+                </p> */}
+
+                {index < record.manual_triggers.length - 1 && <hr />}
+              </div>
+            ))
+          ) : (
+            <p>No manual triggers available</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Templates",
+      key: "templates",
+      render: (
+        _: any,
+        record: {
+          templates: {
+            language: string;
+            subject: string;
+            content: string;
+          }[];
+        }
+      ) => (
+        <div>
+          {record.templates.length > 0 ? (
+            record.templates.map((template, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <p>Language: {template?.language}</p>
+                <p>Subject: {template?.subject}</p>
+
+                <p>Content: {template?.content}</p>
+
+                {index < record.templates.length - 1 && <hr />}
+              </div>
+            ))
+          ) : (
+            <p>No templates available</p>
+          )}
         </div>
       ),
     },
   ];
+
   const handleFormUID = async () => {
     console.log("handleFormUID", handleFormUID);
 
@@ -263,6 +295,14 @@ function Emails() {
     });
   };
 
+  const handleCreateManaulTrigger = () => {
+    console.log("sctoForms", sctoForms);
+
+    navigate(`/module-configuration/emails/${survey_uid}/manual-trigger`, {
+      state: { sctoForms: sctoForms },
+    });
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -283,7 +323,19 @@ function Emails() {
             >
               Configure Emails
             </Button>
-          ) : null}
+          ) : (
+            <Button
+              type="primary"
+              style={{
+                marginLeft: "25px",
+                backgroundColor: "#2F54EB",
+              }}
+              icon={<MailOutlined />}
+              onClick={handleCreateManaulTrigger}
+            >
+              Create Manual Email Trigger
+            </Button>
+          )}
         </div>
       </HeaderContainer>
 
