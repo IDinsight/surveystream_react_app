@@ -53,6 +53,9 @@ import {
   getEmailTemplatesRequest,
   getEmailTemplatesSuccess,
   getEmailTemplatesFailure,
+  getEmailDetailsRequest,
+  getEmailDetailsSuccess,
+  getEmailDetailsFailure,
 } from "./emailsSlice";
 
 // Email Config Actions
@@ -105,6 +108,33 @@ export const getEmailConfigs = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to fetch email configs.";
       dispatch(getEmailConfigsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getEmailDetails = createAsyncThunk(
+  "emails/getEmailDetails",
+  async ({ form_uid }: { form_uid: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(getEmailDetailsRequest());
+      const response: any = await api.getAllEmailDetails(form_uid);
+      if (response.status === 200) {
+        dispatch(getEmailDetailsSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to fetch email details.",
+        success: false,
+      };
+      dispatch(getEmailDetailsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to fetch email details.";
+      dispatch(getEmailDetailsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }
@@ -516,10 +546,13 @@ export const createEmailTemplate = createAsyncThunk(
 
 export const getEmailTemplates = createAsyncThunk(
   "emails/getEmailTemplates",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (
+    { email_config_uid }: { email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getEmailTemplatesRequest());
-      const response: any = await api.getEmailTemplates();
+      const response: any = await api.getEmailTemplates(email_config_uid);
       if (response.status === 200) {
         dispatch(getEmailTemplatesSuccess(response.data));
         return { ...response, success: true };

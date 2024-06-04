@@ -7,7 +7,6 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { RootState } from "../../redux/store";
 import { GlobalStyle } from "../../shared/Global.styled";
 import EmailSchedules from "./EmailSchedules/EmailSchedules";
-import { setLoading } from "../../redux/emails/emailsSlice";
 import { BodyWrapper } from "./Emails.styled";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -16,8 +15,10 @@ import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
 import {
+  getEmailDetails,
   getEmailConfigs,
   getEmailSchedules,
+  getEmailTemplates,
   getManualEmailTriggers,
 } from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
@@ -41,36 +42,20 @@ function Emails() {
 
   const [formUID, setFormUID] = useState<string>();
 
+  const [loading, setLoading] = useState(false);
+
   const fetchEmailSchedules = async () => {
     setLoading(true);
     console.log("fetchEmailSchedules");
 
     if (formUID) {
-      const res = await dispatch(getEmailConfigs({ form_uid: formUID }));
+      const res = await dispatch(getEmailDetails({ form_uid: formUID }));
 
       console.log("configResponse", res);
 
       if (res.payload.success) {
-        const scheduleTableData = [];
         const emailConfigs = res.payload?.data?.data;
-        for (let i = 0; i < emailConfigs.length; i++) {
-          const config = emailConfigs[i];
-          const emailSchedulesRes = await dispatch(
-            getEmailSchedules({ email_config_uid: config.email_config_uid })
-          );
-
-          if (emailSchedulesRes.payload.success) {
-            scheduleTableData.push({
-              ...config,
-              schedules: emailSchedulesRes.payload?.data?.data,
-            });
-          } else {
-            message.error("Could not fetch email schedules for this survey");
-            setLoading(true);
-
-            return;
-          }
-        }
+        const scheduleTableData = emailConfigs;
         console.log("scheduleTableData", scheduleTableData);
         setSchedulesData(scheduleTableData);
       } else {
@@ -176,6 +161,37 @@ function Emails() {
         </div>
       ),
     },
+    {
+      title: "Templates",
+      key: "templates",
+      render: (
+        _: any,
+        record: {
+          templates: {
+            language: string;
+            subject: string;
+            content: string;
+          }[];
+        }
+      ) => (
+        <div>
+          {record.templates.length > 0 ? (
+            record.templates.map((template, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <p>Language: {template?.language}</p>
+                <p>Subject: {template?.subject}</p>
+
+                <p>Content: {template?.content}</p>
+
+                {index < record.templates.length - 1 && <hr />}
+              </div>
+            ))
+          ) : (
+            <p>No templates available</p>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const manualTriggerColumns = [
@@ -207,7 +223,7 @@ function Emails() {
     console.log("handleFormUID", handleFormUID);
 
     try {
-      dispatch(setLoading(true));
+      setLoading(true);
       const sctoForm = await dispatch(
         getSurveyCTOForm({ survey_uid: survey_uid })
       );
@@ -225,7 +241,7 @@ function Emails() {
     } catch (error) {
       console.log("Error fetching sctoForm:", error);
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   };
 
@@ -271,7 +287,7 @@ function Emails() {
         </div>
       </HeaderContainer>
 
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface EmailsState {
   loading: boolean;
   error: any;
+  emailDetails: any;
   emailConfigList: any;
   emailScheduleList: any;
   manualEmailTriggerList: any;
@@ -16,6 +17,7 @@ interface EmailsState {
 const initialState: EmailsState = {
   loading: false,
   error: null,
+  emailDetails: [],
   emailConfigList: [],
   emailScheduleList: [],
   manualEmailTriggerList: [],
@@ -44,6 +46,19 @@ const emailsSlice = createSlice({
       state.emailConfigList = action.payload;
     },
     createEmailConfigFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    getEmailDetailsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getEmailDetailsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+      state.emailDetails = action.payload;
+    },
+    getEmailDetailsFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -386,6 +401,9 @@ export const {
   deleteEmailTemplateRequest,
   deleteEmailTemplateSuccess,
   deleteEmailTemplateFailure,
+  getEmailDetailsRequest,
+  getEmailDetailsSuccess,
+  getEmailDetailsFailure,
 } = emailsSlice.actions;
 
 export default emailsSlice.reducer;

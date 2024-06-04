@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, message } from "antd";
 import axios from "axios";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { useAppDispatch } from "../../../redux/hooks";
+import { createEmailTemplate } from "../../../redux/emails/emailsActions";
 
 const { Option } = Select;
 
@@ -13,36 +15,61 @@ const EmailTemplateForm = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [emailConfigs, setEmailConfigs] = useState([]);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Fetch email configurations on component mount
-    fetchEmailConfigs();
+    console.log("emailConfigUID", emailConfigUID);
   }, []);
-
-  const fetchEmailConfigs = async () => {
-    try {
-      // Call backend API to fetch email configurations
-      const response = await axios.get("/api/email-configs");
-      setEmailConfigs(response.data.emailConfigs);
-    } catch (error) {
-      message.error("Failed to fetch email configurations");
-    }
-  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const formValues = form.getFieldsValue();
+      const formValues = await form.validateFields();
       console.log("formValues", formValues);
+
+      const { templates } = form.getFieldsValue();
+      if (templates) {
+        for (let i = 0; i < templates.length; i++) {
+          const template = templates[i];
+
+          const templateData = {
+            email_config_uid: emailConfigUID,
+            language: template.language,
+            subject: template.subject,
+            content: template.content,
+          };
+
+          console.log("templateData", templateData);
+
+          const res = await dispatch(createEmailTemplate({ ...templateData }));
+
+          console.log("createEmailTemplate res", res);
+
+          if (!res.payload.success) {
+            // Error occurred
+            message.error(
+              res.payload?.message
+                ? res.payload?.message
+                : "An error occurred, email template could not be created. Kindly check form data and try again"
+            );
+            setLoading(false);
+            return;
+          }
+        }
+
+        message.success("Email templates updated successfully");
+        handleContinue(emailConfigUID);
+      }
     } catch (error) {
-      message.error("Failed to add/update email template");
+      console.error("error", error);
+      message.error("Failed to update email templates");
     }
     setLoading(false);
   };
 
   return (
     <Form form={form} layout="vertical">
-      <Form.List name="templates" initialValue={[{ dateType: "single" }]}>
+      <Form.List name="templates" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name, ...restField }) => (
@@ -53,9 +80,20 @@ const EmailTemplateForm = ({
                     style={{ float: "right" }}
                   />
                 )}
+
                 <Form.Item
                   {...restField}
-                  name="subject"
+                  name={[name, "language"]}
+                  label="Language"
+                  rules={[
+                    { required: true, message: "Please select language" },
+                  ]}
+                >
+                  <Input placeholder="Enter language" />
+                </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name={[name, "subject"]}
                   label="Subject"
                   rules={[{ required: true, message: "Please enter subject" }]}
                 >
@@ -64,18 +102,7 @@ const EmailTemplateForm = ({
 
                 <Form.Item
                   {...restField}
-                  name="language"
-                  label="Language"
-                  rules={[
-                    { required: true, message: "Please select language" },
-                  ]}
-                >
-                  <Input placeholder="Enter language" />
-                </Form.Item>
-
-                <Form.Item
-                  {...restField}
-                  name="content"
+                  name={[name, "content"]}
                   label="Content"
                   rules={[{ required: true, message: "Please enter content" }]}
                 >

@@ -32,7 +32,7 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
   const [sourceType, setSourceType] = useState("");
   const [selectedConfigType, setSelectedConfigType] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const [emailConfigTypes, setEmailConfigTypes] = useState<any[]>(configTypes);
+  const [emailConfigTypes, setEmailConfigTypes] = useState<any>(configTypes);
 
   const handleSourceChange = (e: any) => {
     setSourceType(e.target.value);
@@ -193,7 +193,9 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
       navigate(`/module-configuration/emails/${survey_uid}`);
     }
     fetchSurveyUsers();
-  }, []);
+
+    setEmailConfigTypes(configTypes);
+  }, [configTypes]);
 
   if (isLoading || userLoading) {
     return <FullScreenLoader />;

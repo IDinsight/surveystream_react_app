@@ -82,21 +82,14 @@ const EmailScheduleForm = ({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const formValues = await form.validateFields();
+      const formValues = form.validateFields();
       console.log("formValues", formValues);
       console.log("emailConfigUID", emailConfigUID);
 
-      const { schedules } = formValues;
+      const { schedules } = form.getFieldsValue();
 
-      // Validate and process each schedule
       for (let i = 0; i < schedules.length; i++) {
         const schedule = schedules[i];
-        const validationErrors = validateSchedule(schedule, i);
-        if (validationErrors.length > 0) {
-          validationErrors.forEach((error) => message.error(error));
-          setLoading(false);
-          return;
-        }
 
         const formattedDates = formatDates(schedule);
         const formattedTime = schedule?.emailTime.format("HH:mm");
@@ -135,31 +128,6 @@ const EmailScheduleForm = ({
       message.error("Failed to update email schedules");
     }
     setLoading(false);
-  };
-
-  // Helper function to validate a schedule
-  const validateSchedule = (schedule: any, index: any) => {
-    const errors = [];
-    if (!schedule.emailScheduleName) {
-      errors.push(`Schedule ${index + 1}: Schedule name is required`);
-    }
-    if (!schedule.dates) {
-      errors.push(`Schedule ${index + 1}: Schedule dates are required`);
-    }
-    if (!schedule.emailTime) {
-      errors.push(`Schedule ${index + 1}: Email time is required`);
-    }
-    if (!schedule.dateType) {
-      errors.push(`Schedule ${index + 1}: Date type is required`);
-    }
-    if (schedule.dateType === "multiple" && !schedule.emailFrequency) {
-      errors.push(
-        `Schedule ${
-          index + 1
-        }: Email Frequency is required when Date Type is Multiple`
-      );
-    }
-    return errors;
   };
 
   // Helper function to format dates
@@ -339,16 +307,27 @@ const EmailScheduleForm = ({
         )}
       </Form.List>
 
-      <div>
+      <div style={{ display: "flex", marginTop: "40px" }}>
         <Button
           style={{
             display: "flex",
-            float: "left",
+            marginRight: "35%",
           }}
           loading={loading}
           onClick={handleBack}
         >
           Back
+        </Button>
+
+        <Button
+          style={{
+            display: "flex",
+            marginRight: "35%",
+          }}
+          loading={loading}
+          onClick={handleContinue}
+        >
+          Skip
         </Button>
 
         <Button

@@ -110,6 +110,25 @@ export const getEmailConfigs = async (form_uid: string) => {
   }
 };
 
+export const getAllEmailDetails = async (form_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(`${API_BASE_URL}/emails/${form_uid}`, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 // Email Schedule Endpoints
 
 export const getEmailSchedule = async (id: string) => {
@@ -341,7 +360,6 @@ export const getManualEmailTriggers = async (email_config_uid: string) => {
 };
 
 // Email Template Endpoints
-const EMAIL_TEMPLATE_BASE_URL = `${API_BASE_URL}/email-templates`;
 
 export const createEmailTemplate = async (emailTemplateData: any) => {
   try {
@@ -349,7 +367,7 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.post(
-      EMAIL_TEMPLATE_BASE_URL,
+      `${API_BASE_URL}/emails/template`,
       emailTemplateData,
       {
         headers: {
@@ -366,18 +384,21 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
   }
 };
 
-export const getEmailTemplates = async () => {
+export const getEmailTemplates = async (email_config_uid: any) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const response = await axios.get(EMAIL_TEMPLATE_BASE_URL, {
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/templates?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
 
     return response;
   } catch (error) {
@@ -388,6 +409,7 @@ export const getEmailTemplates = async () => {
 export const api = {
   createEmailConfig,
   getEmailConfigs,
+  getAllEmailDetails,
   getEmailConfig,
   updateEmailConfig,
   deleteEmailConfig,
