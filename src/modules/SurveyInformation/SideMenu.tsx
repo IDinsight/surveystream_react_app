@@ -23,10 +23,8 @@ import { Menu, MenuProps } from "antd";
 
 import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { AsyncThunkAction } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
-import { is } from "cypress/types/bluebird";
 
 function SideMenu() {
   const location = useLocation();
