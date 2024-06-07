@@ -24,10 +24,6 @@ export const surveyConfigs: Record<string, any> = {
       status: "Not Started",
     },
     {
-      name: "Mapping",
-      status: "Not Started",
-    },
-    {
       name: "Target status mapping",
       status: "Not Started",
     },

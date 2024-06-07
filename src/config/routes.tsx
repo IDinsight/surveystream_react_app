@@ -39,6 +39,7 @@ import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUser
 import { useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
+import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 
@@ -263,6 +264,16 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/emails/:survey_uid?/create"
           element={<ConfigureEmails />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Target Status Mapping" />
+        }
+      >
+        <Route
+          path="/survey-information/survey/status-mapping/:survey_uid?"
+          element={<SurveyStatusMapping />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />
