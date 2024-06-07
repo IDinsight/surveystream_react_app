@@ -32,8 +32,7 @@ import {
   updateTargetStatusMapping,
 } from "../../../redux/targetStatusMapping/targetStatusMappingActions";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
-import { HeaderContainer } from "../../Assignments/Assignments.styled";
-import { Title } from "../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();

@@ -1,8 +1,6 @@
-import React, { ReactNode } from "react";
-import { NavWrapper, Title } from "../../shared/Nav.styled";
-import { useAppSelector } from "../../redux/hooks";
 import React, { ReactNode, useEffect } from "react";
-import { Title } from "../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../shared/Nav.styled";
+
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { Wrapper } from "./Container.styled";
