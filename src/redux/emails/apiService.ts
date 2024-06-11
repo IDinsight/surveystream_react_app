@@ -94,7 +94,7 @@ export const getEmailConfigs = async (form_uid: string) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/configs?form_uid=${form_uid}`,
+      `${API_BASE_URL}/emails/config?form_uid=${form_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,

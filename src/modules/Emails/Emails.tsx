@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { MailOutlined } from "@ant-design/icons";
 import {
   Form,
@@ -10,7 +9,6 @@ import {
   Drawer,
   TimePicker,
 } from "antd";
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -24,12 +22,10 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import {
-  createManualEmailTrigger,
-  getEmailDetails,
-} from "../../redux/emails/emailsActions";
+import { getEmailDetails } from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
+import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
 
 function Emails() {
   const navigate = useNavigate();
@@ -53,7 +49,6 @@ function Emails() {
   const [formUID, setFormUID] = useState<string>();
 
   const [loading, setLoading] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
 
   const [surveyEnumerators, setSurveyEnumerators] = useState<any[]>([]);
 
@@ -64,7 +59,7 @@ function Emails() {
     setIsAddManualDrawerVisible(true);
   };
 
-  const closeAddManaualDrawer = () => {
+  const closeAddManualDrawer = () => {
     setIsAddManualDrawerVisible(false);
   };
 
@@ -76,42 +71,6 @@ function Emails() {
     navigate(`/module-configuration/emails/${survey_uid}/create`, {
       state: { sctoForms: sctoForms },
     });
-  };
-
-  const handleAddManualTriggerSubmit = async () => {
-    setFormLoading(true);
-
-    await form.validateFields();
-    const formData = form.getFieldsValue();
-
-    const formattedDate = formData?.date.format("YYYY-MM-DD");
-    const formattedTime = formData?.time.format("HH:mm");
-
-    const manualTriggerData = {
-      ...formData,
-      date: formattedDate,
-      time: formattedTime,
-    };
-
-    try {
-      if (Object.keys(formData).length !== 0) {
-        const res = await dispatch(createManualEmailTrigger(manualTriggerData));
-        if (res.payload.success) {
-          message.success("Email manual trigger created successfully");
-          closeAddManaualDrawer();
-          await fetchManualTriggers();
-        } else {
-          message.error(res.payload.message);
-        }
-      } else {
-        message.error("Form data is empty");
-      }
-    } catch (error) {
-      console.error("error", error);
-      message.error("Failed to create manual email trigger");
-    }
-
-    setFormLoading(false);
   };
 
   const fetchEmailSchedules = async () => {
@@ -159,165 +118,6 @@ function Emails() {
     }
     setLoading(false);
   };
-
-  const scheduleColumns = [
-    {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-    },
-    {
-      title: "Schedules",
-      key: "schedules",
-      render: (
-        _: any,
-        record: {
-          schedules: {
-            dates: string[];
-            time: string;
-            email_schedule_name: string;
-          }[];
-        }
-      ) => (
-        <div>
-          {record.schedules.length > 0 ? (
-            record.schedules.map((schedule, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Schedule Name: {schedule?.email_schedule_name}</p>
-                <p>
-                  Dates:{" "}
-                  {schedule.dates
-                    .map((date) => format(new Date(date), "MMM dd, yyyy"))
-                    .join(", ")}
-                </p>
-                <p>
-                  Time:{" "}
-                  {format(new Date(`1970-01-01T${schedule.time}Z`), "hh:mm a")}
-                </p>
-                {index < record.schedules.length - 1 && <hr />}
-              </div>
-            ))
-          ) : (
-            <p>No schedules available</p>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: "Templates",
-      key: "templates",
-      render: (
-        _: any,
-        record: {
-          templates: {
-            language: string;
-            subject: string;
-            content: string;
-          }[];
-        }
-      ) => (
-        <div>
-          {record.templates.length > 0 ? (
-            record.templates.map((template, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Language: {template?.language}</p>
-                <p>Subject: {template?.subject}</p>
-
-                <p>Content: {template?.content}</p>
-
-                {index < record.templates.length - 1 && <hr />}
-              </div>
-            ))
-          ) : (
-            <p>No templates available</p>
-          )}
-        </div>
-      ),
-    },
-  ];
-
-  const manualTriggerColumns = [
-    {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-    },
-    {
-      title: "Manual Triggers",
-      key: "manual_triggers",
-      render: (
-        _: any,
-        record: {
-          manual_triggers: {
-            date: string;
-            time: string;
-            status: string;
-            receipients: string[];
-          }[];
-        }
-      ) => (
-        <div>
-          {record.manual_triggers.length > 0 ? (
-            record.manual_triggers.map((manual_trigger, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Date: {manual_trigger?.date}</p>
-                <p>
-                  Time:{" "}
-                  {format(
-                    new Date(`1970-01-01T${manual_trigger.time}Z`),
-                    "hh:mm a"
-                  )}
-                </p>
-                <p>Status: {manual_trigger?.status}</p>
-
-                {/* <p>
-                  Dates:{" "}
-                  {schedule.dates
-                    .map((date) => format(new Date(date), "MMM dd, yyyy"))
-                    .join(", ")}
-                </p> */}
-
-                {index < record.manual_triggers.length - 1 && <hr />}
-              </div>
-            ))
-          ) : (
-            <p>No manual triggers available</p>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: "Templates",
-      key: "templates",
-      render: (
-        _: any,
-        record: {
-          templates: {
-            language: string;
-            subject: string;
-            content: string;
-          }[];
-        }
-      ) => (
-        <div>
-          {record.templates.length > 0 ? (
-            record.templates.map((template, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Language: {template?.language}</p>
-                <p>Subject: {template?.subject}</p>
-
-                <p>Content: {template?.content}</p>
-
-                {index < record.templates.length - 1 && <hr />}
-              </div>
-            ))
-          ) : (
-            <p>No templates available</p>
-          )}
-        </div>
-      ),
-    },
-  ];
 
   const handleFormUID = async () => {
     try {
@@ -409,11 +209,11 @@ function Emails() {
           <BodyWrapper>
             {tabId === "manual" ? (
               <ManualTriggers
-                columns={manualTriggerColumns}
                 data={manualTriggersData}
+                surveyEnumerators={surveyEnumerators}
               />
             ) : (
-              <EmailSchedules columns={scheduleColumns} data={schedulesData} />
+              <EmailSchedules data={schedulesData} />
             )}
           </BodyWrapper>
         </div>
@@ -422,70 +222,15 @@ function Emails() {
       <Drawer
         title={"Create Manual Trigger"}
         width={650}
-        onClose={closeAddManaualDrawer}
+        onClose={closeAddManualDrawer}
         open={isAddManualDrawerVisible}
         style={{ paddingBottom: 80, fontFamily: "Lato" }}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="email_config_uid"
-            label="Email Configuration"
-            rules={[
-              {
-                required: true,
-                message: "Please select an email configuration",
-              },
-            ]}
-          >
-            <Select
-              placeholder="Select email configuration"
-              options={emailConfigData.map((config: any) => ({
-                label: config?.config_type,
-                value: config?.email_config_uid,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item
-            name="date"
-            label="Date"
-            rules={[{ required: true, message: "Please select the date" }]}
-          >
-            <DatePicker />
-          </Form.Item>
-          <Form.Item
-            name="time"
-            label="Time"
-            rules={[{ required: true, message: "Please select the time" }]}
-          >
-            <TimePicker format="HH:mm" />
-          </Form.Item>
-          <Form.Item
-            name="recipients"
-            label="Recipients"
-            rules={[
-              { required: false, message: "Please select the recipients" },
-            ]}
-          >
-            <Select
-              showSearch
-              mode="multiple"
-              placeholder="Select recipients"
-              options={surveyEnumerators.map((enumerator: any) => ({
-                label: enumerator.name,
-                value: enumerator.enumerator_id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              onClick={handleAddManualTriggerSubmit}
-              loading={formLoading}
-            >
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
+        <ManualEmailTriggerForm
+          closeAddManualDrawer={closeAddManualDrawer}
+          surveyEnumerators={surveyEnumerators}
+          emailConfigData={emailConfigData}
+        />
       </Drawer>
     </>
   );

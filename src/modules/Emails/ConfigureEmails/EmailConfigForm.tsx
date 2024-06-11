@@ -94,9 +94,9 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
     try {
       const configType = form.getFieldValue("config_type");
       const sctoFormUID = form.getFieldValue("scto_form_uid");
-      const googleSheetLink = form.getFieldValue("google_sheet_link");
+      const googleSheetLink = form.getFieldValue("email_source_gsheet_key");
       const headerRow = form.getFieldValue("header_row");
-      const notificationUsers = form.getFieldValue("notification_users");
+      const notificationUsers = form.getFieldValue("report_users");
       const emailDataSource = form.getFieldValue("email_data_source");
 
       console.log("configType", configType);
@@ -119,10 +119,12 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         const emailConfigData = {
           form_uid: sctoFormUID,
           config_type: configType,
-          google_sheet_link: googleSheetLink,
-          email_data_source: emailDataSource,
+          email_source_gsheet_key: googleSheetLink,
+          email_source: emailDataSource,
           google_sheet_header_row: headerRow,
-          nofication_users: notificationUsers,
+          email_source_tablename: null,
+          email_source_columns: [],
+          report_users: notificationUsers,
         };
 
         console.log("emailConfigData", emailConfigData);
@@ -262,7 +264,7 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         </Select>
       </Form.Item>
       <Form.Item
-        name="notification_users"
+        name="report_users"
         label="Select the name(s) of the team member(s) to be notified on successfully sending emails. The team members will be notified via an email. "
         rules={[
           {
@@ -297,15 +299,15 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         ]}
       >
         <Radio.Group onChange={handleSourceChange}>
-          <Radio value="google_sheet">Google Sheet</Radio>
-          <Radio value="surveystream_data">SurveyStream Data</Radio>
+          <Radio value="Google Sheet">Google Sheet</Radio>
+          <Radio value="SurveyStream Data">SurveyStream Data</Radio>
         </Radio.Group>
       </Form.Item>
 
-      {sourceType === "google_sheet" && (
+      {sourceType === "Google Sheet" && (
         <>
           <Form.Item
-            name="google_sheet_link"
+            name="email_source_gsheet_key"
             label="Link to Google Sheet"
             rules={[
               {
@@ -357,9 +359,6 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
       >
         Continue
       </Button>
-
-      {/* Display config_uid if available */}
-      {configUid && <p>Config UID: {configUid}</p>}
     </Form>
   );
 };
