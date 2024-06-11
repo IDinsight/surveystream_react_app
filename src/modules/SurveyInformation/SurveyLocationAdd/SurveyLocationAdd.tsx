@@ -281,7 +281,6 @@ function SurveyLocationAdd() {
         </div>
       )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton
           onClick={handleLocationAddContinue}
           loading={loading}

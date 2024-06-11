@@ -342,7 +342,6 @@ function SurveyLocationHierarchy() {
         </div>
       )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
           Continue
         </ContinueButton>

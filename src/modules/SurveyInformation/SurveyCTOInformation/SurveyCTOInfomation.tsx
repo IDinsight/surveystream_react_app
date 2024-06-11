@@ -3,7 +3,7 @@ import { Form, Row, Col, Input, Select, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../../components/Header";
-import { NavWrapper, Title } from "../../../shared/Nav.styled";
+import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
 import {
   FooterWrapper,
   SaveButton,
@@ -30,6 +30,7 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import HandleBackButton from "../../../components/HandleBackButton";
+import Container from "../../../components/Layout/Container";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -168,20 +169,14 @@ function SurveyCTOInfomation() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container />
+      <HeaderContainer>
+        <Title>SurveyCTO information</Title>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+      </HeaderContainer>
 
       {isLoading || loading ? (
         <FullScreenLoader />
@@ -190,7 +185,6 @@ function SurveyCTOInfomation() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <SCTOInformationFormWrapper>
-              <Title>SurveyCTO information</Title>
               <DescriptionText>
                 Please fill out the SurveyCTO form details
               </DescriptionText>
@@ -355,7 +349,6 @@ function SurveyCTOInfomation() {
             </SCTOInformationFormWrapper>
           </div>
           <FooterWrapper>
-            <SaveButton onClick={() => navigate(-1)}>Back</SaveButton>
             <ContinueButton onClick={handleContinue} loading={loading}>
               Continue
             </ContinueButton>

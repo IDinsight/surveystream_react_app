@@ -478,7 +478,6 @@ function SurveyLocationUpload() {
         </div>
       )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton
           loading={loading}
           onClick={handleUploadContinue}

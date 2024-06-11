@@ -83,9 +83,6 @@ const EmailScheduleForm = ({
     setLoading(true);
     try {
       const formValues = form.validateFields();
-      console.log("formValues", formValues);
-      console.log("emailConfigUID", emailConfigUID);
-
       const { schedules } = form.getFieldsValue();
 
       for (let i = 0; i < schedules.length; i++) {

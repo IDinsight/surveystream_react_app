@@ -1,6 +1,16 @@
 import { format } from "date-fns";
 import { MailOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  message,
+  DatePicker,
+  Drawer,
+  TimePicker,
+} from "antd";
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -14,12 +24,17 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import { getEmailDetails } from "../../redux/emails/emailsActions";
+import {
+  createManualEmailTrigger,
+  getEmailDetails,
+} from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
+import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 
 function Emails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [form] = Form.useForm();
 
   const { tabId } = useParams<{ tabId: string }>() ?? {
     tabId: "",
@@ -29,6 +44,7 @@ function Emails() {
   };
   const [schedulesData, setSchedulesData] = useState<any[]>([]);
   const [manualTriggersData, setManaualTriggersData] = useState<any[]>([]);
+  const [emailConfigData, setEmailConfigData] = useState<any>([]);
 
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
@@ -37,20 +53,76 @@ function Emails() {
   const [formUID, setFormUID] = useState<string>();
 
   const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+
+  const [surveyEnumerators, setSurveyEnumerators] = useState<any[]>([]);
+
+  const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
+    useState(false);
+
+  const showAddManualDrawer = () => {
+    setIsAddManualDrawerVisible(true);
+  };
+
+  const closeAddManaualDrawer = () => {
+    setIsAddManualDrawerVisible(false);
+  };
+
+  const handleCreateManualTrigger = () => {
+    showAddManualDrawer();
+  };
+
+  const handleConfigureEmails = () => {
+    navigate(`/module-configuration/emails/${survey_uid}/create`, {
+      state: { sctoForms: sctoForms },
+    });
+  };
+
+  const handleAddManualTriggerSubmit = async () => {
+    setFormLoading(true);
+
+    await form.validateFields();
+    const formData = form.getFieldsValue();
+
+    const formattedDate = formData?.date.format("YYYY-MM-DD");
+    const formattedTime = formData?.time.format("HH:mm");
+
+    const manualTriggerData = {
+      ...formData,
+      date: formattedDate,
+      time: formattedTime,
+    };
+
+    try {
+      if (Object.keys(formData).length !== 0) {
+        const res = await dispatch(createManualEmailTrigger(manualTriggerData));
+        if (res.payload.success) {
+          message.success("Email manual trigger created successfully");
+          closeAddManaualDrawer();
+          await fetchManualTriggers();
+        } else {
+          message.error(res.payload.message);
+        }
+      } else {
+        message.error("Form data is empty");
+      }
+    } catch (error) {
+      console.error("error", error);
+      message.error("Failed to create manual email trigger");
+    }
+
+    setFormLoading(false);
+  };
 
   const fetchEmailSchedules = async () => {
     setLoading(true);
-    console.log("fetchEmailSchedules");
-
     if (formUID) {
       const res = await dispatch(getEmailDetails({ form_uid: formUID }));
 
-      console.log("configResponse", res);
-
       if (res.payload.success) {
         const emailConfigs = res.payload?.data?.data;
+        setEmailConfigData(emailConfigs);
         const scheduleTableData = emailConfigs;
-        console.log("scheduleTableData", scheduleTableData);
         setSchedulesData(scheduleTableData);
       } else {
         message.error("Could not fetch email configurations for this survey");
@@ -66,19 +138,15 @@ function Emails() {
 
   const fetchManualTriggers = async () => {
     setLoading(true);
-    console.log("fetchManualTriggers");
-
     if (formUID) {
       const res = await dispatch(getEmailDetails({ form_uid: formUID }));
-
-      console.log("configResponse", res);
-
       if (res.payload.success) {
         const emailConfigs = res.payload?.data?.data;
+        setEmailConfigData(emailConfigs);
+
         const triggersTableData = emailConfigs.filter(
           (emailConfig: any) => emailConfig.manual_triggers.length > 0
         );
-        console.log("triggersTableData", triggersTableData);
         setManaualTriggersData(triggersTableData);
       } else {
         message.error("Could not fetch email configurations for this survey");
@@ -252,8 +320,6 @@ function Emails() {
   ];
 
   const handleFormUID = async () => {
-    console.log("handleFormUID", handleFormUID);
-
     try {
       setLoading(true);
       const sctoForm = await dispatch(
@@ -261,8 +327,6 @@ function Emails() {
       );
 
       if (sctoForm?.payload[0]?.form_uid) {
-        console.log("sctoForm?.payload", sctoForm?.payload);
-
         setFormUID(sctoForm?.payload[0]?.form_uid);
 
         setSCTOForms(sctoForm?.payload);
@@ -277,31 +341,28 @@ function Emails() {
     }
   };
 
+  const getEnumeratorsList = async (form_uid: string) => {
+    setLoading(true);
+    const enumeratorRes = await dispatch(getEnumerators({ formUID: form_uid }));
+
+    if (enumeratorRes.payload.status == 200) {
+      setSurveyEnumerators(enumeratorRes.payload.data.data);
+    } else {
+      message.error("Enumerators failed to load, kindly reload to try again.");
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     handleFormUID();
 
     if (formUID && tabId == "manual") {
       fetchManualTriggers();
+      getEnumeratorsList(formUID);
     } else if (formUID) {
       fetchEmailSchedules();
     }
   }, [formUID, tabId]);
-
-  const handleConfigureEmails = () => {
-    console.log("sctoForms", sctoForms);
-
-    navigate(`/module-configuration/emails/${survey_uid}/create`, {
-      state: { sctoForms: sctoForms },
-    });
-  };
-
-  const handleCreateManaulTrigger = () => {
-    console.log("sctoForms", sctoForms);
-
-    navigate(`/module-configuration/emails/${survey_uid}/manual-trigger`, {
-      state: { sctoForms: sctoForms },
-    });
-  };
 
   return (
     <>
@@ -331,7 +392,8 @@ function Emails() {
                 backgroundColor: "#2F54EB",
               }}
               icon={<MailOutlined />}
-              onClick={handleCreateManaulTrigger}
+              loading={loading || isLoading}
+              onClick={handleCreateManualTrigger}
             >
               Create Manual Email Trigger
             </Button>
@@ -356,6 +418,75 @@ function Emails() {
           </BodyWrapper>
         </div>
       )}
+
+      <Drawer
+        title={"Create Manual Trigger"}
+        width={650}
+        onClose={closeAddManaualDrawer}
+        open={isAddManualDrawerVisible}
+        style={{ paddingBottom: 80, fontFamily: "Lato" }}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="email_config_uid"
+            label="Email Configuration"
+            rules={[
+              {
+                required: true,
+                message: "Please select an email configuration",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select email configuration"
+              options={emailConfigData.map((config: any) => ({
+                label: config?.config_type,
+                value: config?.email_config_uid,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="date"
+            label="Date"
+            rules={[{ required: true, message: "Please select the date" }]}
+          >
+            <DatePicker />
+          </Form.Item>
+          <Form.Item
+            name="time"
+            label="Time"
+            rules={[{ required: true, message: "Please select the time" }]}
+          >
+            <TimePicker format="HH:mm" />
+          </Form.Item>
+          <Form.Item
+            name="recipients"
+            label="Recipients"
+            rules={[
+              { required: false, message: "Please select the recipients" },
+            ]}
+          >
+            <Select
+              showSearch
+              mode="multiple"
+              placeholder="Select recipients"
+              options={surveyEnumerators.map((enumerator: any) => ({
+                label: enumerator.name,
+                value: enumerator.enumerator_id,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              onClick={handleAddManualTriggerSubmit}
+              loading={formLoading}
+            >
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Drawer>
     </>
   );
 }

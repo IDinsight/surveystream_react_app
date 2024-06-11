@@ -115,13 +115,16 @@ export const getAllEmailDetails = async (form_uid: string) => {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const response = await axios.get(`${API_BASE_URL}/emails/${form_uid}`, {
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/emails?form_uid=${form_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
 
     return response;
   } catch (error) {
@@ -320,7 +323,7 @@ export const createManualEmailTrigger = async (manualEmailTriggerData: any) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.post(
-      `${API_BASE_URL}/emails/manual-triggers`,
+      `${API_BASE_URL}/emails/manual-trigger`,
       manualEmailTriggerData,
       {
         headers: {
@@ -343,7 +346,7 @@ export const getManualEmailTriggers = async (email_config_uid: string) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/manual-triggers?email_config_uid=${email_config_uid}`,
+      `${API_BASE_URL}/emails/manual-trigger?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -390,7 +393,7 @@ export const getEmailTemplates = async (email_config_uid: any) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/templates?email_config_uid=${email_config_uid}`,
+      `${API_BASE_URL}/emails/template?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,

@@ -5,6 +5,7 @@ import {
   BackArrow,
   Title,
   MainWrapper,
+  HeaderContainer,
 } from "../../../shared/Nav.styled";
 
 import { Form, Select, message } from "antd";
@@ -43,6 +44,7 @@ import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/sur
 import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import HandleBackButton from "../../../components/HandleBackButton";
+import Container from "../../../components/Layout/Container";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -306,26 +308,27 @@ function SurveyCTOQuestions() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container />
+      <HeaderContainer>
+        <Title> SurveyCTO Questions</Title>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        >
+          <SCTOQuestionsButton
+            type="dashed"
+            loading={loading}
+            onClick={() => loadFormQuestions(true)}
+            disabled={form_uid == undefined}
+          >
+            Load questions from SCTO form
+          </SCTOQuestionsButton>
+        </div>
+      </HeaderContainer>
       <div style={{ display: "flex" }}>
         <SideMenu />
         <MainWrapper>
           <DescriptionWrap>
-            <DescriptionTitle> SurveyCTO Questions </DescriptionTitle>
-
             <DescriptionText>
               This step has 2 pre-requisites:
               <ol>
@@ -344,15 +347,6 @@ function SurveyCTOQuestions() {
                 </li>
               </ol>
             </DescriptionText>
-
-            <SCTOQuestionsButton
-              type="dashed"
-              loading={loading}
-              onClick={() => loadFormQuestions(true)}
-              disabled={form_uid == undefined}
-            >
-              Load questions from SCTO form
-            </SCTOQuestionsButton>
           </DescriptionWrap>
 
           {isLoading ? (
