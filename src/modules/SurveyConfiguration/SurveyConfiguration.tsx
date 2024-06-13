@@ -173,7 +173,7 @@ const SurveyConfiguration: React.FC = () => {
       case "User and role management":
         return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
       case "Survey locations":
-        return <PushpinFilled style={{ color: "#D4B106", ...iconProps }} />;
+        return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Enumerators":
         return (
           <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
@@ -190,13 +190,10 @@ const SurveyConfiguration: React.FC = () => {
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
       case "Assignments column configuration":
         return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "Audio audits":
-        return <SoundOutlined style={{ color: "#D4B106", ...iconProps }} />;
-      case "Photo audits":
-        return <PictureOutlined style={{ color: "#D4380D", ...iconProps }} />;
-
+      case "Media (Audio/Photo) audits":
+        return <SoundOutlined style={{ color: "#D4380D", ...iconProps }} />;
       case "Track productivity":
-        return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
+        return <ProfileFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Track data quality":
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
       default:
