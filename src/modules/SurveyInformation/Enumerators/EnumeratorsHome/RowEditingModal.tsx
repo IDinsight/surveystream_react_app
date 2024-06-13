@@ -182,7 +182,7 @@ function RowEditingModal({
       getEnumeratorsColumnConfig({ formUID: form_uid })
     );
     if (configRes.payload.status == 200) {
-      const configData = configRes.payload?.data?.data;
+      const configData = configRes.payload?.data?.data?.file_columns;
 
       if (configData) {
         const editableFields = configData
