@@ -23,6 +23,10 @@ function MediaAuditsManage() {
     survey_uid: "",
   };
 
+  const { media_config_uid } = useParams<{ media_config_uid?: string }>() ?? {
+    media_config_uid: "",
+  };
+
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
   );
@@ -84,7 +88,7 @@ function MediaAuditsManage() {
         message.error(res.payload?.error);
       } else {
         message.success("Media Audit Config saved successfully.");
-        navigate(-1);
+        navigate(`/module-configuration/media-audits/${survey_uid}`);
       }
     });
   };
@@ -118,7 +122,7 @@ function MediaAuditsManage() {
         <>
           <Container />
           <HeaderContainer>
-            <Title>Media Audit Config 1</Title>
+            <Title>Media Audit Config</Title>
           </HeaderContainer>
           <BodyContainer>
             <Row align="middle" style={{ marginBottom: 6 }}>

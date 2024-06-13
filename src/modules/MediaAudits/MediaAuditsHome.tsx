@@ -8,10 +8,9 @@ import Header from "../../components/Header";
 import { HeaderContainer } from "../Assignments/Assignments.styled";
 import { Title } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn } from "./MediaAudits.styled";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import MediaForm from "../../components/MediaForm";
 import { RootState } from "../../redux/store";
-import { getSurveyBasicInformation } from "../../redux/surveyConfig/surveyConfigActions";
+import { getMediaAuditsConfigs } from "../../redux/mediaAudits/mediaAuditsActions";
 
 function MediaAuditsHome() {
   const navigate = useNavigate();
@@ -21,55 +20,40 @@ function MediaAuditsHome() {
     survey_uid: "",
   };
 
-  const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
-    (state: RootState) => state.surveyCTOInformation
-  );
-  const { loading: isBasicInfoLoading, basicInfo } = useAppSelector(
-    (state: RootState) => state.surveyConfig
-  );
+  const {
+    loading: isMediaAuditsConfigLoading,
+    mediaConfigs: mediaAuditsConfig,
+  } = useAppSelector((state: RootState) => state.mediaAudits);
 
-  const sctoFormId = surveyCTOForm?.scto_form_id;
-
-  // if (!isSurveyCTOFormLoading && !sctoFormId) {
-  //   message.error("No Survey CTO Information found for this survey");
-  // }
-
-  const mediaForms = [
-    {
-      form_name: "Audio audit form 1",
-      scto_main_form_id: sctoFormId,
-      scto_media_form_id: basicInfo?.survey_id + "_audit_form_1",
-    },
-  ];
+  const addFormClickHandler = () => {
+    navigate(`/module-configuration/media-audits/${survey_uid}/manage`);
+  };
 
   useEffect(() => {
     if (!survey_uid) {
       navigate("/surveys");
+    } else {
+      dispatch(getMediaAuditsConfigs({ survey_uid }));
     }
-
-    dispatch(getSurveyCTOForm({ survey_uid: survey_uid }));
-    dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
   }, [dispatch, survey_uid]);
-
-  const isLoading = isBasicInfoLoading || isSurveyCTOFormLoading;
 
   return (
     <>
       <Header items={NavItems} />
-      {isLoading ? (
+      {isMediaAuditsConfigLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <Container />
           <HeaderContainer>
-            <Title>Audio audits config</Title>
+            <Title>Media Audits Config</Title>
           </HeaderContainer>
           <BodyContainer>
-            {mediaForms.map((form) => (
-              <MediaForm key={form.form_name} data={form} />
+            {mediaAuditsConfig.map((config: any) => (
+              <MediaForm key={config.media_files_config_uid} data={config} />
             ))}
-            <CustomBtn style={{ marginTop: 24 }}>
-              Add audio audit form
+            <CustomBtn style={{ marginTop: 24 }} onClick={addFormClickHandler}>
+              Add Media Audit form
             </CustomBtn>
           </BodyContainer>
         </>

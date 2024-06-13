@@ -21,10 +21,13 @@ import {
 
 export const getMediaAuditsConfigs = createAsyncThunk(
   "mediaAudits/getMediaAuditsConfigs",
-  async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
+  async (
+    { survey_uid }: { survey_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getMediaAuditsConfigsRequest());
-      const response: any = await api.fetchAllMediaAuditsConfigs(formUID);
+      const response: any = await api.fetchAllMediaAuditsConfigs(survey_uid);
       if (response.status == 200) {
         dispatch(getMediaAuditsConfigsSuccess(response.data));
         return { ...response, success: true };

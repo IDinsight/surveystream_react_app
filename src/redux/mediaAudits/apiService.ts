@@ -3,11 +3,11 @@ import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 
-export const fetchAllMediaAuditsConfigs = async (formUID: string) => {
+export const fetchAllMediaAuditsConfigs = async (surveyUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/media-files?form_uid=${formUID}`;
+    const url = `${API_BASE_URL}/media-files?survey_uid=${surveyUID}`;
 
     const res = await axios.get(url, {
       headers: {
