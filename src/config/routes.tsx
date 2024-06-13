@@ -39,6 +39,7 @@ import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUser
 import { useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
+import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -207,9 +208,7 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={
-          <ProtectedPermissionRoute permission_name="WRITE Enumerators" />
-        }
+        element={<ProtectedPermissionRoute permission_name="READ Targets" />}
       >
         <Route
           path="/survey-information/targets/:survey_uid?/:form_uid?"
@@ -217,9 +216,7 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={
-          <ProtectedPermissionRoute permission_name="WRITE Enumerators" />
-        }
+        element={<ProtectedPermissionRoute permission_name="WRITE Targets" />}
       >
         <Route
           path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
@@ -249,6 +246,16 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/assignments/:survey_uid?/:form_uid?/create"
           element={<CreateAssignments />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Target Status Mapping" />
+        }
+      >
+        <Route
+          path="/survey-information/survey/status-mapping/:survey_uid?"
+          element={<SurveyStatusMapping />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

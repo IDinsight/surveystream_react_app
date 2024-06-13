@@ -7,11 +7,11 @@ export const TargetsMapFormWrapper = styled.div`
   padding-left: 80px;
   padding-top: 23px;
   padding-bottom: 30px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;
 
 export const DescriptionContainer = styled.p`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -22,7 +22,7 @@ export const DescriptionContainer = styled.p`
 `;
 
 export const DescriptionText = styled.p`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -31,7 +31,7 @@ export const DescriptionText = styled.p`
 `;
 
 export const HeadingText = styled.p`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -40,7 +40,7 @@ export const HeadingText = styled.p`
 `;
 
 export const OptionText = styled.span`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -55,6 +55,7 @@ export const ErrorTable = styled(Table)`
     color: #820014 !important;
     background-color: #ffccc7 !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #ff7875 !important;
@@ -73,6 +74,9 @@ export const ErrorTable = styled(Table)`
   & tr:nth-child(even):hover td {
     background-color: #fff1f0 !important;
   }
+  & td {
+    font-family: "Lato", sans-serif;
+  }
 `;
 
 export const WarningTable = styled(Table)`
@@ -82,8 +86,12 @@ export const WarningTable = styled(Table)`
     color: #873800 !important;
     background-color: #ffe7ba !important;
     height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #ffc069 !important;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
   }
 `;

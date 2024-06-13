@@ -34,6 +34,9 @@ const authSlice = createSlice({
       state.profile = {};
       state.updateErr = action.payload;
     },
+    setUserProfile: (state, action: PayloadAction<any>) => {
+      state.profile = action.payload;
+    },
     loginRequest(state) {
       state.updateLoading = true;
     },
@@ -104,6 +107,7 @@ export const {
   resetPasswordRequest,
   resetPasswordSuccess,
   resetPasswordFailure,
+  setUserProfile,
 } = authSlice.actions;
 
 export default authSlice.reducer;

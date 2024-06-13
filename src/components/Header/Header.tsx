@@ -1,5 +1,4 @@
-import { BellOutlined, DownOutlined } from "@ant-design/icons";
-import { Dropdown, Menu, MenuProps, message } from "antd";
+import { Dropdown, Menu, MenuProps } from "antd";
 import Logo from "./../../assets/logo.svg";
 import UserAvatar from "./UserAvatar";
 import styled from "styled-components";
@@ -13,10 +12,11 @@ import { useEffect } from "react";
 import { RootState } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { setUserProfile } from "../../redux/auth/authSlice";
 
 const ProfileWrapper = styled.div`
   color: white;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   font-size: 18px;
   font-weight: 300;
   line-height: 28px;
@@ -33,7 +33,9 @@ function Header({ items }: { items?: any }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const storedProfile = localStorage.getItem("userProfile");
+  const reduxProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
 
   const getUsernameText = (): string => {
     if (userProfile?.first_name !== null && userProfile?.last_name !== null) {
@@ -56,7 +58,12 @@ function Header({ items }: { items?: any }) {
     if (isAuthenticated() && !userProfile?.first_name) {
       dispatch(performGetUserProfile());
     }
-  }, [dispatch]);
+    console.log("storedProfile", userProfile);
+
+    if (storedProfile) {
+      dispatch(setUserProfile({ ...userProfile }));
+    }
+  }, [storedProfile]);
 
   const avatarMenu: MenuProps["items"] = [
     {

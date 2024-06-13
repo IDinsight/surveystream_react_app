@@ -35,7 +35,7 @@ export const performLogin = createAsyncThunk(
 
       if (response.status === false) {
         dispatch(loginFailure(response.error as string));
-        return false;
+        return response;
       }
 
       dispatch(loginSuccess(response));
@@ -56,6 +56,7 @@ export const performLogout = createAsyncThunk(
       dispatch(logoutRequest());
       const response = await performLogoutRequest();
       response.status = true;
+      localStorage.setItem("userProfile", JSON.stringify({}));
       dispatch(logoutSuccess(response));
       deleteAllCookies();
       return response;
@@ -73,6 +74,10 @@ export const performGetUserProfile = createAsyncThunk(
     try {
       dispatch(profileRequest());
       const response = await getUserProfile();
+
+      console.log("getUserProfile", response);
+      localStorage.setItem("userProfile", JSON.stringify({ ...response }));
+
       dispatch(profileSuccess(response));
 
       return response;

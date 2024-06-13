@@ -33,8 +33,10 @@ import {
   MailFilled,
   ProfileFilled,
   ReadFilled,
+  BuildFilled,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
+import { GlobalStyle } from "../../shared/Global.styled";
 
 interface CheckboxProps {
   checked: boolean;
@@ -77,9 +79,10 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   "Survey information": {
     "SurveyCTO information": "survey-cto-information",
     "User and role management": "survey-roles/roles",
-    "Survey locations": "location/add",
+    "Survey locations": "location/upload",
     Enumerators: "enumerators",
     Targets: "targets",
+    "Target status mapping": "survey/status-mapping",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
@@ -171,6 +174,8 @@ const SurveyConfiguration: React.FC = () => {
         );
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Target status mapping":
+        return <BuildFilled style={{ color: "#CF1322", ...iconProps }} />;
       case "Assign targets to surveyors":
         return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Track productivity":
@@ -207,6 +212,9 @@ const SurveyConfiguration: React.FC = () => {
       case "Targets":
         permission_name = "READ Targets";
         break;
+      case "Target status mapping":
+        permission_name = "READ Target Status Mapping";
+        break;
       case "Assign targets to surveyors":
         permission_name = "READ Assignments";
         break;
@@ -232,26 +240,25 @@ const SurveyConfiguration: React.FC = () => {
       return (
         <div key={index}>
           {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
-            <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+            <SectionTitle>{`${sectionTitle}`}</SectionTitle>
           )}
 
           <div style={{ flexWrap: "wrap", display: "flex" }}>
             {sectionConfig.map((item: any, i: number) => {
               const hasPermission = checkPermissions(item?.name);
-
               return hasPermission ? (
                 <Link
                   key={i}
                   style={{
+                    width: 309,
+                    display: "inline-block",
                     color: "#434343",
                     cursor: "pointer",
-                    flex: "0 0 30%",
-                    width: "33%",
                     textDecoration: "none",
                   }}
                   to={generateLink(sectionTitle, item.name)}
                 >
-                  <StyledCard style={{ margin: "0.2rem" }}>
+                  <StyledCard style={{ margin: "0.2rem", height: 165 }}>
                     <div
                       style={{
                         display: "flex",
@@ -279,21 +286,19 @@ const SurveyConfiguration: React.FC = () => {
 
       return hasPermission ? (
         <div key={index}>
-          <SectionTitle>{`${index + 1} -> ${sectionTitle}`}</SectionTitle>
+          <SectionTitle>{`${sectionTitle}`}</SectionTitle>
 
           <Link
             style={{
+              width: 309,
+              display: "inline-block",
               color: "#434343",
               cursor: "pointer",
               textDecoration: "none",
             }}
             to={generateLink(sectionTitle, "")}
           >
-            <StyledCard
-              style={{
-                width: "33%",
-              }}
-            >
+            <StyledCard style={{ height: 165 }}>
               <div
                 style={{
                   display: "flex",
@@ -336,6 +341,8 @@ const SurveyConfiguration: React.FC = () => {
 
   return (
     <>
+      <GlobalStyle />
+
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>

@@ -31,6 +31,7 @@ import {
 } from "../../../../redux/userManagement/userManagementActions";
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ function ManageSurveyUsers() {
   };
   const [userTableDataSource, setUserTableDataSource] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [hasSelected, setHasSelected] = useState<boolean>(false);
   const [searchText, setSearchText] = useState("");
   const [filteredUserTableData, setFilteredUserTableData] =
@@ -86,6 +87,8 @@ function ManageSurveyUsers() {
 
     if (selectedRows.length > 0) {
       setHasSelected(true);
+    } else {
+      setHasSelected(false);
     }
   };
 
@@ -114,6 +117,13 @@ function ManageSurveyUsers() {
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
 
+    if (rolesToRemove.length < 1) {
+      //handle survey admin removal
+      selectedUserData.is_survey_admin = false;
+      selectedUserData.survey_uid = survey_uid
+        ? parseInt(survey_uid, 10)
+        : null;
+    }
     const updateRes = await dispatch(
       putUpdateUser({
         userUId: selectedUserData.user_uid,
@@ -123,11 +133,11 @@ function ManageSurveyUsers() {
     if (updateRes.payload?.user_data) {
       message.success("User removed from project successfully");
       setHasSelected(false);
-      fetchAllUsers();
     } else {
       message.error("Failed to remove user from project, kindly try again");
       console.log("error", updateRes.payload);
     }
+    fetchAllUsers();
     setIsOpenDeleteModel(false);
   };
 
@@ -158,6 +168,11 @@ function ManageSurveyUsers() {
           return <>{record.user_role_names}</>;
         }
       },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
     },
   ];
 
@@ -220,6 +235,7 @@ function ManageSurveyUsers() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -304,7 +320,7 @@ function ManageSurveyUsers() {
                         }}
                         onClick={onDeleteUser}
                       >
-                        Delete
+                        Remove User
                       </Button>
                     </>
                   )}
@@ -352,7 +368,7 @@ function ManageSurveyUsers() {
                     <ExclamationCircleFilled
                       style={{ color: "orange", fontSize: 20 }}
                     />
-                    <p style={{ marginLeft: "10px" }}>Delete the user</p>
+                    <p style={{ marginLeft: "10px" }}>Remove the user</p>
                   </div>
                 }
                 okText="Yes, remove user"

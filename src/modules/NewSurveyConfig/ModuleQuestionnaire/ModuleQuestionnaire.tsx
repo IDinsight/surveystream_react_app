@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../shared/Global.styled";
 
 interface IModuleQuestionnaire {
   stepIndex: number;
@@ -293,22 +294,25 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   }
 
   return (
-    <ModuleQuestionnaireWrapper>
-      <Title>Module questionnaire</Title>
-      <p
-        style={{
-          color: "#8C8C8C",
-          fontSize: "14px",
-          fontFamily: '"Inter", sans-serif',
-        }}
-      >
-        Please fill out the questionnaire to help us recommend useful
-        SurveyStream modules for your survey
-      </p>
-      <Form form={form} onValuesChange={handleFormValuesChange}>
-        {Questionnaire()}
-      </Form>
-    </ModuleQuestionnaireWrapper>
+    <>
+      <GlobalStyle />
+      <ModuleQuestionnaireWrapper>
+        <Title>Module questionnaire</Title>
+        <p
+          style={{
+            color: "#8C8C8C",
+            fontSize: "14px",
+            fontFamily: '"Lato", sans-serif',
+          }}
+        >
+          Please fill out the questionnaire to help us recommend useful
+          SurveyStream modules for your survey
+        </p>
+        <Form form={form} onValuesChange={handleFormValuesChange}>
+          {Questionnaire()}
+        </Form>
+      </ModuleQuestionnaireWrapper>
+    </>
   );
 };
 

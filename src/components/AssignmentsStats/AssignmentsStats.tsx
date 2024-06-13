@@ -30,7 +30,7 @@ function AssignmentsStats({ stats }: IAssignmentsStatusProps) {
           <p
             style={{
               marginLeft: 8,
-              fontFamily: "Inter",
+              fontFamily: "Lato",
               fontSize: 14,
               fontWeight: 500,
             }}
@@ -54,7 +54,7 @@ function AssignmentsStats({ stats }: IAssignmentsStatusProps) {
           <p
             style={{
               marginLeft: 8,
-              fontFamily: "Inter",
+              fontFamily: "Lato",
               fontSize: 14,
               fontWeight: 500,
             }}
@@ -78,7 +78,7 @@ function AssignmentsStats({ stats }: IAssignmentsStatusProps) {
           <p
             style={{
               marginLeft: 8,
-              fontFamily: "Inter",
+              fontFamily: "Lato",
               fontSize: 14,
               fontWeight: 500,
             }}

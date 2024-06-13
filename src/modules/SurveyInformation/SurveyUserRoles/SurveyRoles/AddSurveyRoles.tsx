@@ -29,6 +29,7 @@ import {
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -89,14 +90,22 @@ function AddSurveyRoles() {
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
 
-      const transformedData: TransformedRolesData[] = (
-        Array.isArray(originalRolesData)
-          ? originalRolesData
-          : [originalRolesData]
-      ).map((item: any) => ({
-        role_uid: item.role_uid,
-        role: item.role_name,
-      }));
+      const roleData = Array.isArray(originalRolesData)
+        ? originalRolesData
+        : [originalRolesData];
+
+      const transformedData: TransformedRolesData[] = [];
+      roleData.forEach((role: OriginalRolesData) => {
+        // Remove the Survey Admin role from the list
+        if (role.role_name === "Survey Admin") {
+          return;
+        }
+
+        transformedData.push({
+          role: role.role_name,
+          role_uid: role.role_uid,
+        });
+      });
 
       setRolesTableData(transformedData);
     } else {
@@ -139,6 +148,17 @@ function AddSurveyRoles() {
             (role) => role.role_name !== "Survey Admin"
           );
 
+          const roleExists = otherRoles.some(
+            (role) => role.role_name === formValues.role_name
+          );
+
+          if (roleExists) {
+            message.error(
+              "Role with the same name already exists, kindly change the name to create a new role!"
+            );
+            return;
+          }
+
           otherRoles.push(formValues);
 
           const rolesRes = await dispatch(
@@ -177,6 +197,7 @@ function AddSurveyRoles() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -270,9 +291,6 @@ function AddSurveyRoles() {
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
-                          <Select.Option value={null}>
-                            No reporting role
-                          </Select.Option>
                           {rolesTableData.map(
                             (
                               r: { role_uid: any; role: any },

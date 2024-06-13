@@ -23,6 +23,10 @@ export const surveyConfigs: Record<string, any> = {
       name: "Targets",
       status: "Not Started",
     },
+    {
+      name: "Target status mapping",
+      status: "Not Started",
+    },
   ],
   "Module configuration": [],
 };

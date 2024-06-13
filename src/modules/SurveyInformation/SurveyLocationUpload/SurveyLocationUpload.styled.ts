@@ -6,11 +6,11 @@ export const SurveyLocationUploadFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;
 
 export const DescriptionText = styled.p`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -21,7 +21,7 @@ export const DescriptionText = styled.p`
 
 export const IconText = styled.span`
   margin-left: 6px;
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;

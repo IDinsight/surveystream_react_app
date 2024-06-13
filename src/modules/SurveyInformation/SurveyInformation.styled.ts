@@ -3,12 +3,12 @@ import { Form } from "antd";
 import styled from "styled-components";
 
 export const DescriptionWrap = styled.div`
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
 `;
 
 export const DescriptionTitle = styled.h2`
   margin: 0px;
-  font-family: Inter, sans-serif;
+  font-family: "Lato", sans-serif;
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
@@ -16,7 +16,7 @@ export const DescriptionTitle = styled.h2`
 `;
 
 export const DescriptionText = styled.p`
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -38,7 +38,7 @@ export const StyledFormItem = styled(Form.Item)`
   .ant-input {
     width: 100%;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
 
   && {
@@ -54,7 +54,7 @@ export const StyledFormItem = styled(Form.Item)`
   && .ant-form-item-label > label {
     color: #4a4a4a;
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
   }
 
   && .ant-form-item-control {
@@ -73,7 +73,7 @@ export const AddAnotherButton = styled(Button)`
   margin-top: 20px;
   background-color: #2f54eb;
   color: #fff;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
   &:hover {
     border: 1px solid #2f54eb;
     background-color: #fff;

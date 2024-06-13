@@ -1,10 +1,4 @@
-import {
-  ApartmentOutlined,
-  CaretDownOutlined,
-  HomeFilled,
-  IdcardOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
+import { ApartmentOutlined, HomeFilled } from "@ant-design/icons";
 import "./NavItems.css";
 import { Link, useLocation } from "react-router-dom";
 import { getCookie } from "../../utils/helper";

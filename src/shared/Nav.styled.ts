@@ -17,7 +17,7 @@ export const Title = styled.h1`
   margin: 0;
 
   ${css`
-    font-family: "Inter", sans-serif;
+    font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -42,5 +42,23 @@ export const MainWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  font-family: "Inter", sans-serif;
+  font-family: "Lato", sans-serif;
+`;
+
+export const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 55px;
+  padding-left: 48px;
+  padding-right: 48px;
+  border-top: 1px solid #00000026;
+  border-bottom: 1px solid #00000026;
+`;
+
+export const TextHeading = styled.h1`
+  color: #262626;
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
 `;

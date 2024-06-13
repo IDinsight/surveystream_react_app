@@ -10,6 +10,7 @@ export const CustomTab = styled(Tabs)`
 export const SearchBox = styled(Input.Search)`
   & button {
     background-color: #2f54eb;
+    font-family: "Lato", sans-serif;
   }
 `;
 

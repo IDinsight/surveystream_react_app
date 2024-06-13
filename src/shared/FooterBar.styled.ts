@@ -15,7 +15,7 @@ export const SaveButton = styled(Button)`
   margin-top: 20px;
   margin-left: 315px;
   float: left;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
 `;
 
 export const ContinueButton = styled(Button)`
@@ -23,7 +23,7 @@ export const ContinueButton = styled(Button)`
   margin-left: 55%;
   background-color: #597ef7;
   color: #fff;
-  font-family: Inter;
+  font-family: "Lato", sans-serif;
 
   &:hover {
     border: 1px solid #597ef7;

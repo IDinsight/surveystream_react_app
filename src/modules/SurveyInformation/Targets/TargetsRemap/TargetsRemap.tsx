@@ -41,6 +41,7 @@ import { CSVLink } from "react-csv";
 import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
 import { ContinueButton } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -511,6 +512,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
   return (
     <>
+      <GlobalStyle />
       <TargetsRemapFormWrapper>
         <div style={{ display: "flex" }}>
           <Title>Add new targets</Title>
@@ -899,7 +901,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",
@@ -922,7 +924,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <div>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

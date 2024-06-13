@@ -42,6 +42,7 @@ import { EnumeratorMapping } from "../../../../redux/enumerators/types";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface CSVError {
   type: string;
@@ -412,6 +413,7 @@ function EnumeratorsMap() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
@@ -567,7 +569,7 @@ function EnumeratorsMap() {
                         <p
                           style={{
                             color: "#434343",
-                            fontFamily: "Inter",
+                            fontFamily: "Lato",
                             fontSize: 12,
                             lineHeight: "20px",
                           }}
@@ -705,7 +707,7 @@ function EnumeratorsMap() {
                   <div style={{ marginTop: 22 }}>
                     <p
                       style={{
-                        fontFamily: "Inter",
+                        fontFamily: "Lato",
                         fontSize: "14px",
                         fontWeight: "700",
                         lineHeight: "22px",

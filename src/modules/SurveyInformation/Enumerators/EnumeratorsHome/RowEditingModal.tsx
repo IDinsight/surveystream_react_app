@@ -13,6 +13,7 @@ import {
 } from "../../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../../redux/hooks";
 import { use } from "chai";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -267,64 +268,67 @@ function RowEditingModal({
   }, []);
 
   return (
-    <RowEditingModalContainer>
-      <RowEditingModalHeading>
-        {data && data.length > 1
-          ? `Edit ${data.length} enumerators in bulk`
-          : "Edit enumerator"}
-      </RowEditingModalHeading>
-      {data && data.length > 1 ? (
-        <OptionText
-          style={{ width: 410, display: "inline-block", marginBottom: 20 }}
-        >
-          {`Bulk editing is only allowed for ${updatedFields
-            .map((item: any) => item.labelKey)
-            .join(", ")}.`}
-        </OptionText>
-      ) : null}
-      <br />
-      {data && data.length > 0 ? (
-        <>
-          <Form
-            labelCol={{ span: 7 }}
-            form={editForm}
-            style={{ textAlign: "left" }}
+    <>
+      <GlobalStyle />
+      <RowEditingModalContainer>
+        <RowEditingModalHeading>
+          {data && data.length > 1
+            ? `Edit ${data.length} enumerators in bulk`
+            : "Edit enumerator"}
+        </RowEditingModalHeading>
+        {data && data.length > 1 ? (
+          <OptionText
+            style={{ width: 410, display: "inline-block", marginBottom: 20 }}
           >
-            {updatedFields.map((field: Field, idx: number) => (
-              <Form.Item
-                required
-                key={idx}
-                id={`${field.label}-id`}
-                name={field.label}
-                initialValue={field.label ? data[0][field.label] : ""}
-                label={<span>{field.labelKey}</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: `Please enter ${field.labelKey}`,
-                  },
-                ]}
-              >
-                <Input
-                  placeholder={`Enter ${field.labelKey}`}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            ))}
-          </Form>
-        </>
-      ) : null}
-      <div style={{ marginTop: 20 }}>
-        <Button onClick={cancelHandler}>Cancel</Button>
-        <Button
-          type="primary"
-          style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
-          onClick={updateHandler}
-        >
-          Update
-        </Button>
-      </div>
-    </RowEditingModalContainer>
+            {`Bulk editing is only allowed for ${updatedFields
+              .map((item: any) => item.labelKey)
+              .join(", ")}.`}
+          </OptionText>
+        ) : null}
+        <br />
+        {data && data.length > 0 ? (
+          <>
+            <Form
+              labelCol={{ span: 7 }}
+              form={editForm}
+              style={{ textAlign: "left" }}
+            >
+              {updatedFields.map((field: Field, idx: number) => (
+                <Form.Item
+                  required
+                  key={idx}
+                  id={`${field.label}-id`}
+                  name={field.label}
+                  initialValue={field.label ? data[0][field.label] : ""}
+                  label={<span>{field.labelKey}</span>}
+                  rules={[
+                    {
+                      required: true,
+                      message: `Please enter ${field.labelKey}`,
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder={`Enter ${field.labelKey}`}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              ))}
+            </Form>
+          </>
+        ) : null}
+        <div style={{ marginTop: 20 }}>
+          <Button onClick={cancelHandler}>Cancel</Button>
+          <Button
+            type="primary"
+            style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
+            onClick={updateHandler}
+          >
+            Update
+          </Button>
+        </div>
+      </RowEditingModalContainer>
+    </>
   );
 }
 

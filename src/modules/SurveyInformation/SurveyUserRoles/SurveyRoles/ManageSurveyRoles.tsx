@@ -28,6 +28,7 @@ import {
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
+import { GlobalStyle } from "../../../../shared/Global.styled";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -62,7 +63,7 @@ function ManageSurveyRoles() {
 
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(15);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   const [deleteRoleId, setDeleteRoleId] = useState<number>();
 
@@ -120,10 +121,11 @@ function ManageSurveyRoles() {
         survey_uid: survey_uid ?? null,
         permissions: filteredRole?.permissions ?? [],
         role_uid: role_uid,
-        duplicate: true,
       })
     );
-    navigate(`/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`);
+    navigate(
+      `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+    );
   };
 
   const handleEdit = (role_uid: any): void => {
@@ -249,6 +251,7 @@ function ManageSurveyRoles() {
 
   return (
     <>
+      <GlobalStyle />
       <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
