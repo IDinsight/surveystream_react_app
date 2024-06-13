@@ -1,14 +1,5 @@
 import { MailOutlined } from "@ant-design/icons";
-import {
-  Form,
-  Input,
-  Button,
-  Select,
-  message,
-  DatePicker,
-  Drawer,
-  TimePicker,
-} from "antd";
+import { Form, Button, message, Drawer } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -156,13 +147,18 @@ function Emails() {
   useEffect(() => {
     handleFormUID();
 
-    if (formUID && tabId == "manual") {
-      fetchManualTriggers();
-      getEnumeratorsList(formUID);
-    } else if (formUID) {
-      fetchEmailSchedules();
+    if (formUID) {
+      //trigger fetch again after closing the drawer
+      if (!isAddManualDrawerVisible) {
+        if (tabId === "manual") {
+          fetchManualTriggers();
+          getEnumeratorsList(formUID);
+        } else {
+          fetchEmailSchedules();
+        }
+      }
     }
-  }, [formUID, tabId]);
+  }, [formUID, tabId, isAddManualDrawerVisible]);
 
   return (
     <>
@@ -211,6 +207,7 @@ function Emails() {
               <ManualTriggers
                 data={manualTriggersData}
                 surveyEnumerators={surveyEnumerators}
+                emailConfigData={emailConfigData}
               />
             ) : (
               <EmailSchedules data={schedulesData} />

@@ -491,7 +491,7 @@ export const updateManualEmailTrigger = createAsyncThunk(
 
 export const deleteManualEmailTrigger = createAsyncThunk(
   "emails/deleteManualEmailTrigger",
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async ({ id }: { id: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteManualEmailTriggerRequest());
       const response: any = await api.deleteManualEmailTrigger(id);

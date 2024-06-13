@@ -1,22 +1,40 @@
 import { useState } from "react";
-import { Button, Popconfirm, Tooltip } from "antd";
+import { Button, Drawer, Popconfirm, Tooltip } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { ManualTriggersTable } from "./ManualTriggers.styled";
+import ManualEmailTriggerForm from "./ManualTriggerForm";
+import { useAppDispatch } from "../../../redux/hooks";
+import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
 
-function ManualTriggers({ data, surveyEnumerators }: any) {
+function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [isEditManualDrawerVisible, setIsEditManualDrawerVisible] =
+    useState(false);
+  const [editTriggerValues, setEditTriggerValues] = useState();
+  const dispatch = useAppDispatch();
 
-  const handleDeleteTrigger = (trigger: any) => {
-    // Implement the delete logic here
+  const showEditManualDrawer = () => {
+    setIsEditManualDrawerVisible(true);
+  };
+
+  const closeEditManualDrawer = () => {
+    setIsEditManualDrawerVisible(false);
+  };
+
+  const handleDeleteTrigger = async (trigger: any) => {
     console.log("Deleting trigger:", trigger);
-    // Call API to delete the trigger or update the state`
+    dispatch(
+      deleteManualEmailTrigger({ id: trigger.manual_email_trigger_uid })
+    );
   };
 
   const handleEditTrigger = (trigger: any) => {
     // Show the drawer for editing with the trigger data
     console.log("edit trigger:", trigger);
+    setEditTriggerValues(trigger);
+    showEditManualDrawer();
   };
   const manualTriggerColumns = [
     {
@@ -150,6 +168,22 @@ function ManualTriggers({ data, surveyEnumerators }: any) {
           </div>
         </div>
       )}
+
+      <Drawer
+        title={"Edit Manual Trigger"}
+        width={650}
+        onClose={closeEditManualDrawer}
+        open={isEditManualDrawerVisible}
+        style={{ paddingBottom: 80, fontFamily: "Lato" }}
+      >
+        <ManualEmailTriggerForm
+          closeAddManualDrawer={closeEditManualDrawer}
+          surveyEnumerators={surveyEnumerators}
+          initialValues={editTriggerValues}
+          emailConfigData={emailConfigData}
+          isEditMode={true}
+        />
+      </Drawer>
     </>
   );
 }

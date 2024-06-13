@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button, Select, DatePicker, message, TimePicker } from "antd";
-import { createManualEmailTrigger } from "../../../redux/emails/emailsActions";
+import {
+  createManualEmailTrigger,
+  updateManualEmailTrigger,
+} from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
+import { format, parse } from "date-fns";
 
 const { Option } = Select;
 
@@ -9,44 +13,77 @@ const ManualEmailTriggerForm = ({
   emailConfigData,
   surveyEnumerators,
   closeAddManualDrawer,
+  initialValues = {},
+  isEditMode = false,
 }: any) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const handleAddManualTriggerSubmit = async () => {
+
+  const handleSubmit = async () => {
     setLoading(true);
-
-    await form.validateFields();
-    const formData = form.getFieldsValue();
-
-    const formattedDate = formData?.date.format("YYYY-MM-DD");
-    const formattedTime = formData?.time.format("HH:mm");
-
-    const manualTriggerData = {
-      ...formData,
-      date: formattedDate,
-      time: formattedTime,
-    };
-
     try {
-      if (Object.keys(formData).length !== 0) {
-        const res = await dispatch(createManualEmailTrigger(manualTriggerData));
-        if (res.payload.success) {
-          message.success("Email manual trigger created successfully");
-          closeAddManualDrawer();
-        } else {
-          message.error(res.payload.message);
-        }
+      await form.validateFields();
+      const formData = form.getFieldsValue();
+      const formattedDate = formData?.date
+        ? format(formData.date, "yyyy-MM-dd")
+        : null;
+      const formattedTime = formData?.time
+        ? format(formData.time, "HH:mm")
+        : null;
+
+      const manualTriggerData = {
+        ...formData,
+        date: formattedDate,
+        time: formattedTime,
+      };
+
+      let res;
+      if (isEditMode) {
+        res = await dispatch(
+          updateManualEmailTrigger({
+            ...manualTriggerData,
+            id: initialValues.manual_email_trigger_uid,
+          })
+        );
       } else {
-        message.error("Form data is empty");
+        res = await dispatch(createManualEmailTrigger(manualTriggerData));
+      }
+
+      if (res.payload.success) {
+        message.success(
+          `Email manual trigger ${
+            isEditMode ? "updated" : "created"
+          } successfully`
+        );
+        form.resetFields();
+        closeAddManualDrawer();
+      } else {
+        message.error(res.payload.message);
       }
     } catch (error) {
       console.error("error", error);
-      message.error("Failed to create manual email trigger");
+      message.error(
+        `Failed to ${isEditMode ? "update" : "create"} manual email trigger`
+      );
     }
-
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (isEditMode && initialValues) {
+      console.log("initialValues", initialValues);
+      form.setFieldsValue({
+        ...initialValues,
+        date: initialValues.date
+          ? parse(initialValues.date, "yyyy-MM-dd", new Date())
+          : null,
+        time: initialValues.time
+          ? parse(initialValues.time, "HH:mm", new Date())
+          : null,
+      });
+    }
+  }, [isEditMode, initialValues, form]);
 
   return (
     <Form form={form} layout="vertical">
@@ -54,17 +91,14 @@ const ManualEmailTriggerForm = ({
         name="email_config_uid"
         label="Email Configuration"
         rules={[
-          {
-            required: true,
-            message: "Please select an email configuration",
-          },
+          { required: true, message: "Please select an email configuration" },
         ]}
       >
         <Select
           placeholder="Select email configuration"
           options={emailConfigData.map((config: any) => ({
-            label: config?.config_type,
-            value: config?.email_config_uid,
+            label: config.config_type,
+            value: config.email_config_uid,
           }))}
         />
       </Form.Item>
@@ -73,7 +107,7 @@ const ManualEmailTriggerForm = ({
         label="Date"
         rules={[{ required: true, message: "Please select the date" }]}
       >
-        <DatePicker />
+        <DatePicker format="yyyy-MM-dd" />
       </Form.Item>
       <Form.Item
         name="time"
@@ -98,12 +132,8 @@ const ManualEmailTriggerForm = ({
         />
       </Form.Item>
       <Form.Item>
-        <Button
-          type="primary"
-          onClick={handleAddManualTriggerSubmit}
-          loading={loading}
-        >
-          Submit
+        <Button type="primary" onClick={handleSubmit} loading={loading}>
+          {isEditMode ? "Update" : "Submit"}
         </Button>
       </Form.Item>
     </Form>

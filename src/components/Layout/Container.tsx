@@ -27,15 +27,16 @@ const Container: React.FC<IContainer> = ({ children }) => {
     if (survey_uid && !activeSurvey) {
       // fetch survey list
       dispatch(fetchSurveys()).then((surveyList) => {
-        // find the survey info
-        const surveyInfo = surveyList.payload.find(
-          (survey: any) => survey.survey_uid === parseInt(survey_uid)
-        );
+        if (surveyList.payload?.length > 0) {
+          const surveyInfo = surveyList.payload.find(
+            (survey: any) => survey.survey_uid === parseInt(survey_uid)
+          );
 
-        // set the active survey
-        dispatch(
-          setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
-        );
+          // set the active survey
+          dispatch(
+            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+          );
+        }
       });
     }
   }, [survey_uid]);
