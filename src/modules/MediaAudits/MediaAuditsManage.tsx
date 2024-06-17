@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -10,10 +10,14 @@ import { Title } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./MediaAudits.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Button, Col, Input, Row, Select, Spin, message } from "antd";
+import { Button, Col, Row, Select, Spin, message } from "antd";
 import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
 import { LoadingOutlined } from "@ant-design/icons";
-import { createMediaAuditConfig } from "../../redux/mediaAudits/mediaAuditsActions";
+import {
+  createMediaAuditConfig,
+  getMediaAuditConfig,
+  updateMediaAuditConfig,
+} from "../../redux/mediaAudits/mediaAuditsActions";
 
 function MediaAuditsManage() {
   const navigate = useNavigate();
@@ -23,9 +27,13 @@ function MediaAuditsManage() {
     survey_uid: "",
   };
 
-  const { media_config_uid } = useParams<{ media_config_uid?: string }>() ?? {
-    media_config_uid: "",
-  };
+  if (!survey_uid) {
+    navigate("/surveys");
+  }
+
+  const [searchParam] = useSearchParams();
+  const mediaConfigUID = searchParam.get("media_config_uid");
+  console.log(mediaConfigUID);
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
@@ -78,19 +86,44 @@ function MediaAuditsManage() {
   };
 
   const handleSave = () => {
-    dispatch(
-      createMediaAuditConfig({
-        formUID: formFieldsData.form_uid,
-        data: formFieldsData,
-      })
-    ).then((res) => {
-      if (res.payload?.error) {
-        message.error(res.payload?.error);
-      } else {
-        message.success("Media Audit Config saved successfully.");
-        navigate(`/module-configuration/media-audits/${survey_uid}`);
+    const fields = Object.keys(formFieldsData);
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i] === "mapping_criteria") continue;
+      if (formFieldsData[fields[i]] === "") {
+        message.error("Please fill all the required fields.");
+        break;
       }
-    });
+    }
+
+    if (mediaConfigUID) {
+      dispatch(
+        updateMediaAuditConfig({
+          mediaConfigUID: mediaConfigUID,
+          data: formFieldsData,
+        })
+      ).then((res) => {
+        if (res.payload?.error) {
+          message.error(res.payload?.error);
+        } else {
+          message.success("Media Audit Config updated successfully.");
+          navigate(`/module-configuration/media-audits/${survey_uid}`);
+        }
+      });
+    } else {
+      dispatch(
+        createMediaAuditConfig({
+          formUID: formFieldsData.form_uid,
+          data: formFieldsData,
+        })
+      ).then((res) => {
+        if (res.payload?.error) {
+          message.error(res.payload?.error);
+        } else {
+          message.success("Media Audit Config saved successfully.");
+          navigate(`/module-configuration/media-audits/${survey_uid}`);
+        }
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -98,12 +131,30 @@ function MediaAuditsManage() {
   };
 
   useEffect(() => {
-    if (!survey_uid) {
-      navigate("/surveys");
-    }
-
     dispatch(getSurveyCTOForm({ survey_uid: survey_uid }));
   }, [dispatch, survey_uid]);
+
+  useEffect(() => {
+    if (mediaConfigUID) {
+      dispatch(getMediaAuditConfig({ mediaConfigUID: mediaConfigUID })).then(
+        (res) => {
+          if (res.payload?.success) {
+            const data = res.payload?.data.data;
+            setFormFieldsData((pre: any) => ({
+              ...pre,
+              form_uid: data.form_uid,
+              file_type: data.file_type,
+              source: data.source,
+              scto_fields: data.scto_fields,
+              mapping_criteria: data.mapping_criteria,
+            }));
+          } else {
+            message.error("Something went wrong!");
+          }
+        }
+      );
+    }
+  }, [mediaConfigUID]);
 
   useEffect(() => {
     if (formFieldsData.form_uid) {
@@ -134,6 +185,7 @@ function MediaAuditsManage() {
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
+                  value={formFieldsData?.form_uid}
                   onSelect={(val) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -159,6 +211,7 @@ function MediaAuditsManage() {
                 <Select
                   style={{ width: "100%" }}
                   placeholder="Photo / Audio"
+                  value={formFieldsData?.file_type}
                   onSelect={(val: any) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -181,6 +234,7 @@ function MediaAuditsManage() {
                 <Select
                   style={{ width: "100%" }}
                   placeholder="SCTO form / Exotel"
+                  value={formFieldsData?.source}
                   onSelect={(val) =>
                     setFormFieldsData((prev: any) => ({ ...prev, source: val }))
                   }
@@ -206,6 +260,7 @@ function MediaAuditsManage() {
                   options={questions}
                   mode="multiple"
                   allowClear
+                  value={formFieldsData?.scto_fields}
                   onChange={(val) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -233,6 +288,7 @@ function MediaAuditsManage() {
                 <Select
                   style={{ width: "100%" }}
                   placeholder="Location / Language"
+                  value={formFieldsData?.mapping_criteria}
                   onSelect={(val) =>
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -240,6 +296,7 @@ function MediaAuditsManage() {
                     }))
                   }
                 >
+                  <Select.Option value={null}>Not required</Select.Option>
                   <Select.Option value="location">Location</Select.Option>
                   <Select.Option value="language">Language</Select.Option>
                 </Select>

@@ -1,7 +1,60 @@
-import { Col, Input, Row, Select } from "antd";
+import { Button, Col, Modal, Row, Select, message } from "antd";
 import { FormItemLabel } from "../../modules/MediaAudits/MediaAudits.styled";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+import { useAppDispatch } from "../../redux/hooks";
+import {
+  deleteMediaAuditConfig,
+  getMediaAuditsConfigs,
+} from "../../redux/mediaAudits/mediaAuditsActions";
+import { useNavigate } from "react-router-dom";
 
-function MediaForm({ data }: any) {
+interface MediaFormProps {
+  data: any;
+  editable: boolean;
+  surveyUID: string;
+}
+
+function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [modal, contextHolder] = Modal.useModal();
+
+  const mediaFilesConfigUID = data.media_files_config_uid;
+
+  const editHandler = () => {
+    navigate(
+      `/module-configuration/media-audits/${surveyUID}/manage?media_config_uid=${mediaFilesConfigUID}`
+    );
+  };
+
+  const deleteHandler = async () => {
+    const deleteResp = await modal.confirm({
+      title: "Deletion confirmation",
+      icon: <ExclamationCircleOutlined />,
+      content: "Are you sure you want to delete this media audit config?",
+      okText: "Delete",
+      cancelText: "Cancel",
+    });
+    if (deleteResp) {
+      dispatch(
+        deleteMediaAuditConfig({
+          mediaConfigUID: mediaFilesConfigUID,
+        })
+      ).then((response: any) => {
+        if (response.payload.success) {
+          message.success("Media audit config deleted successfully.");
+          dispatch(getMediaAuditsConfigs({ survey_uid: surveyUID }));
+        } else if (response.error) {
+          message.error("Something went wrong!");
+        }
+      });
+    }
+  };
+
   return (
     <>
       <div
@@ -45,6 +98,29 @@ function MediaForm({ data }: any) {
             </Select>
           </Col>
         </Row>
+        <Row>
+          <Button
+            style={{ marginTop: 24 }}
+            size="small"
+            icon={<EditOutlined />}
+            disabled={!editable}
+            onClick={editHandler}
+          >
+            {editable ? "View / Edit" : "View"}
+          </Button>
+          <Button
+            style={{ marginTop: 24, marginLeft: 12 }}
+            type="primary"
+            danger
+            size="small"
+            icon={<DeleteOutlined />}
+            disabled={!editable}
+            onClick={deleteHandler}
+          >
+            Delete
+          </Button>
+        </Row>
+        {contextHolder}
       </div>
     </>
   );

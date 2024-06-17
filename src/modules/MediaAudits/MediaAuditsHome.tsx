@@ -11,6 +11,7 @@ import { BodyContainer, CustomBtn } from "./MediaAudits.styled";
 import MediaForm from "../../components/MediaForm";
 import { RootState } from "../../redux/store";
 import { getMediaAuditsConfigs } from "../../redux/mediaAudits/mediaAuditsActions";
+import { userHasPermission } from "../../utils/helper";
 
 function MediaAuditsHome() {
   const navigate = useNavigate();
@@ -20,19 +21,28 @@ function MediaAuditsHome() {
     survey_uid: "",
   };
 
+  if (!survey_uid) {
+    navigate("/surveys");
+  }
+
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
   const {
     loading: isMediaAuditsConfigLoading,
     mediaConfigs: mediaAuditsConfig,
   } = useAppSelector((state: RootState) => state.mediaAudits);
+
+  const canUserWrite = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Media Files Config"
+  );
 
   const addFormClickHandler = () => {
     navigate(`/module-configuration/media-audits/${survey_uid}/manage`);
   };
 
   useEffect(() => {
-    if (!survey_uid) {
-      navigate("/surveys");
-    } else {
+    if (survey_uid) {
       dispatch(getMediaAuditsConfigs({ survey_uid }));
     }
   }, [dispatch, survey_uid]);
@@ -50,9 +60,18 @@ function MediaAuditsHome() {
           </HeaderContainer>
           <BodyContainer>
             {mediaAuditsConfig.map((config: any) => (
-              <MediaForm key={config.media_files_config_uid} data={config} />
+              <MediaForm
+                key={config.media_files_config_uid}
+                data={config}
+                editable={canUserWrite}
+                surveyUID={survey_uid || ""}
+              />
             ))}
-            <CustomBtn style={{ marginTop: 24 }} onClick={addFormClickHandler}>
+            <CustomBtn
+              style={{ marginTop: 24 }}
+              disabled={!canUserWrite}
+              onClick={addFormClickHandler}
+            >
               Add Media Audit form
             </CustomBtn>
           </BodyContainer>
