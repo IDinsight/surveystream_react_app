@@ -42,18 +42,10 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 12,
-    title: "Audio audits",
+    title: "Media (Audio/Photo) audits",
     link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
     description:
-      "<ul><li>Assign audio recordings for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
-    icon: FileSearchOutlined,
-  },
-  {
-    module_id: 14,
-    title: "Photo audits",
-    link: "https://docs.google.com/document/d/1D1mohkcPn4RfZ8swaQXno6jnxyW1H4Fv_aboy6f19SY/edit",
-    description:
-      "<ul><li>Assign photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
+      "<ul><li>Assign audio recordings or photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
     icon: FileSearchOutlined,
   },
 ];

@@ -40,6 +40,8 @@ import { useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
 import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
+import MediaAuditsHome from "../modules/MediaAudits";
+import MediaAuditsManage from "../modules/MediaAudits/MediaAuditsManage";
 import TableConfig from "../modules/TableConfig/TableConfig";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -266,6 +268,20 @@ const AppRoutes = () => {
         <Route
           path="/survey-information/survey/status-mapping/:survey_uid?"
           element={<SurveyStatusMapping />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="READ Media Files Config" />
+        }
+      >
+        <Route
+          path="/module-configuration/media-audits/:survey_uid?"
+          element={<MediaAuditsHome />}
+        />
+        <Route
+          path="/module-configuration/media-audits/:survey_uid/manage"
+          element={<MediaAuditsManage />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

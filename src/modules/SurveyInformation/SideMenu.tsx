@@ -23,8 +23,8 @@ import { Menu, MenuProps } from "antd";
 
 import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { AsyncThunkAction } from "@reduxjs/toolkit";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 
 function SideMenu() {
   const location = useLocation();
@@ -37,7 +37,11 @@ function SideMenu() {
     form_uid: "",
   };
 
-  const [formUID, setFormUID] = useState<string>();
+  const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
+    (state: RootState) => state.surveyCTOInformation
+  );
+
+  const [formUID, setFormUID] = useState<string>("");
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
@@ -212,17 +216,15 @@ function SideMenu() {
   const handleFormUID = async () => {
     if (form_uid == "" || form_uid == undefined) {
       try {
-        const sctoForm = await dispatch(
-          getSurveyCTOForm({ survey_uid: survey_uid })
-        );
-        if (sctoForm?.payload[0]?.form_uid) {
-          setFormUID(sctoForm?.payload[0]?.form_uid);
+        // TODO: Investigate more on this
+        if (isSurveyCTOFormLoading) return;
+
+        if (surveyCTOForm.form_uid) {
+          setFormUID(surveyCTOForm.form_uid);
         }
       } catch (error) {
         console.log("Error fetching sctoForm:", error);
       }
-    } else {
-      setFormUID(form_uid);
     }
   };
 
@@ -230,7 +232,7 @@ function SideMenu() {
     handleFormUID();
     const key: string = getPossibleKey();
     setOpenKeys([key]);
-  }, [setOpenKeys]);
+  }, [setOpenKeys, surveyCTOForm, form_uid]);
 
   return (
     <SideMenuWrapper>
