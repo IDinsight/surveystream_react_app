@@ -34,6 +34,7 @@ import {
   ProfileFilled,
   ReadFilled,
   BuildFilled,
+  AudioOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -86,6 +87,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
+    "Media (Audio/Photo) audits": "media-audits",
   },
 };
 
@@ -182,6 +184,8 @@ const SurveyConfiguration: React.FC = () => {
         return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
       case "Track data quality":
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
+      case "Media (Audio/Photo) audits":
+        return <AudioOutlined style={{ color: "#08979C", ...iconProps }} />;
       default:
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
     }
@@ -217,6 +221,9 @@ const SurveyConfiguration: React.FC = () => {
         break;
       case "Assign targets to surveyors":
         permission_name = "READ Assignments";
+        break;
+      case "Media (Audio/Photo) audits":
+        permission_name = "READ Media Files Config";
         break;
       case "Track productivity":
         permission_name = "READ Productivity";

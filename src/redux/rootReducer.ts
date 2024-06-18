@@ -14,6 +14,7 @@ import targetsReducer from "./targets/targetSlice";
 import userManagementReducer from "./userManagement/userManagementSlice";
 import assignmentsReducer from "./assignments/assignmentsSlice";
 import targetStatusMappingReducer from "./targetStatusMapping/targetStatusMappingSlice";
+import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   userManagement: userManagementReducer,
   assignments: assignmentsReducer,
   targetStatusMapping: targetStatusMappingReducer,
+  mediaAudits: mediaAuditsReducer,
 });
 
 export default rootReducer;
