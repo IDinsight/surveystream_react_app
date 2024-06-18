@@ -11,6 +11,7 @@ import {
   getMediaAuditsConfigs,
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { useNavigate } from "react-router-dom";
+import { DeleteBtn } from "./MediaForm.styled";
 
 interface MediaFormProps {
   data: any;
@@ -103,22 +104,18 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
             style={{ marginTop: 24 }}
             size="small"
             icon={<EditOutlined />}
-            disabled={!editable}
             onClick={editHandler}
           >
             {editable ? "View / Edit" : "View"}
           </Button>
-          <Button
-            style={{ marginTop: 24, marginLeft: 12 }}
-            type="primary"
-            danger
+          <DeleteBtn
             size="small"
             icon={<DeleteOutlined />}
             disabled={!editable}
             onClick={deleteHandler}
           >
             Delete
-          </Button>
+          </DeleteBtn>
         </Row>
         {contextHolder}
       </div>

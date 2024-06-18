@@ -72,7 +72,7 @@ function MediaAuditsHome() {
               disabled={!canUserWrite}
               onClick={addFormClickHandler}
             >
-              Add Media Audit form
+              Add Media Audit Config
             </CustomBtn>
           </BodyContainer>
         </>

@@ -90,7 +90,7 @@ export const createMediaAuditConfig = createAsyncThunk(
     try {
       dispatch(createMediaAuditConfigRequest());
       const response: any = await api.createMediaAuditConfig(formUID, data);
-      if (response.status == 200) {
+      if (response.status == 201) {
         dispatch(createMediaAuditConfigSuccess(response.data));
         return { ...response, success: true };
       }

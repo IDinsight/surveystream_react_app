@@ -10,14 +10,15 @@ import { Title } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./MediaAudits.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Button, Col, Row, Select, Spin, message } from "antd";
+import { Button, Col, Row, Select, Spin, Tooltip, message } from "antd";
 import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
-import { LoadingOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
   createMediaAuditConfig,
   getMediaAuditConfig,
   updateMediaAuditConfig,
 } from "../../redux/mediaAudits/mediaAuditsActions";
+import { userHasPermission } from "../../utils/helper";
 
 function MediaAuditsManage() {
   const navigate = useNavigate();
@@ -33,7 +34,13 @@ function MediaAuditsManage() {
 
   const [searchParam] = useSearchParams();
   const mediaConfigUID = searchParam.get("media_config_uid");
-  console.log(mediaConfigUID);
+
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const canUserWrite = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Media Files Config"
+  );
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
@@ -42,9 +49,9 @@ function MediaAuditsManage() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
   const [formFieldsData, setFormFieldsData] = useState<any>({
-    form_uid: "",
-    file_type: "",
-    source: "",
+    form_uid: null,
+    file_type: null,
+    source: null,
     scto_fields: [],
     mapping_criteria: "",
   });
@@ -102,11 +109,11 @@ function MediaAuditsManage() {
           data: formFieldsData,
         })
       ).then((res) => {
-        if (res.payload?.error) {
-          message.error(res.payload?.error);
-        } else {
+        if (res.payload?.success) {
           message.success("Media Audit Config updated successfully.");
           navigate(`/module-configuration/media-audits/${survey_uid}`);
+        } else {
+          message.error(res.payload?.message);
         }
       });
     } else {
@@ -116,11 +123,11 @@ function MediaAuditsManage() {
           data: formFieldsData,
         })
       ).then((res) => {
-        if (res.payload?.error) {
-          message.error(res.payload?.error);
-        } else {
+        if (res.payload?.success) {
           message.success("Media Audit Config saved successfully.");
           navigate(`/module-configuration/media-audits/${survey_uid}`);
+        } else {
+          message.error(res.payload?.message);
         }
       });
     }
@@ -185,7 +192,9 @@ function MediaAuditsManage() {
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
+                  placeholder="SCTO Form"
                   value={formFieldsData?.form_uid}
+                  disabled={!canUserWrite}
                   onSelect={(val) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -212,6 +221,7 @@ function MediaAuditsManage() {
                   style={{ width: "100%" }}
                   placeholder="Photo / Audio"
                   value={formFieldsData?.file_type}
+                  disabled={!canUserWrite}
                   onSelect={(val: any) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -235,6 +245,7 @@ function MediaAuditsManage() {
                   style={{ width: "100%" }}
                   placeholder="SCTO form / Exotel"
                   value={formFieldsData?.source}
+                  disabled={!canUserWrite}
                   onSelect={(val) =>
                     setFormFieldsData((prev: any) => ({ ...prev, source: val }))
                   }
@@ -250,7 +261,11 @@ function MediaAuditsManage() {
               <Col span={6}>
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> Select column
-                  variables:
+                  variables{" "}
+                  <Tooltip title="The columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={8} style={{ display: "flex" }}>
@@ -261,6 +276,7 @@ function MediaAuditsManage() {
                   mode="multiple"
                   allowClear
                   value={formFieldsData?.scto_fields}
+                  disabled={!canUserWrite}
                   onChange={(val) => {
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -281,7 +297,11 @@ function MediaAuditsManage() {
               <Col span={6}>
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> Select mapping
-                  criteria:
+                  criteria{" "}
+                  <Tooltip title="Mapping criteria will be used to create multiple Google Sheets - one per prime geo location or language as per the mapping criteria selected. If location/language level Google Sheets are not required, kindly select 'Not required'.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={8}>
@@ -289,6 +309,7 @@ function MediaAuditsManage() {
                   style={{ width: "100%" }}
                   placeholder="Location / Language"
                   value={formFieldsData?.mapping_criteria}
+                  disabled={!canUserWrite}
                   onSelect={(val) =>
                     setFormFieldsData((prev: any) => ({
                       ...prev,
@@ -309,7 +330,11 @@ function MediaAuditsManage() {
               >
                 Cancel
               </Button>
-              <CustomBtn style={{ marginTop: 24 }} onClick={handleSave}>
+              <CustomBtn
+                style={{ marginTop: 24 }}
+                disabled={!canUserWrite}
+                onClick={handleSave}
+              >
                 Save
               </CustomBtn>
             </div>
