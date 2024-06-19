@@ -37,13 +37,13 @@ export const getMediaAuditsConfigs = createAsyncThunk(
         errors: response.response.data.errors,
         message: response.message
           ? response.message
-          : "Failed to fetch target status mapping.",
+          : "Failed to fetch media audit config.",
         success: false,
       };
       dispatch(getMediaAuditsConfigsFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to fetch target status mapping.";
+      const errorMessage = error || "Failed to fetch media audit config.";
       dispatch(getMediaAuditsConfigsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -68,13 +68,13 @@ export const getMediaAuditConfig = createAsyncThunk(
         errors: response.response.data.errors,
         message: response.message
           ? response.message
-          : "Failed to fetch target status mapping.",
+          : "Failed to fetch media audit config.",
         success: false,
       };
       dispatch(getMediaAuditConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to fetch target status mapping.";
+      const errorMessage = error || "Failed to fetch media audit config.";
       dispatch(getMediaAuditConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -95,17 +95,28 @@ export const createMediaAuditConfig = createAsyncThunk(
         return { ...response, success: true };
       }
 
+      if (response?.response?.data?.success === false) {
+        const error = {
+          message: response?.response?.data?.error?.message
+            ? response?.response?.data?.error?.message
+            : "Failed to create media audit config.",
+          success: false,
+        };
+        dispatch(createMediaAuditConfigFailure(error));
+        return error;
+      }
+
       const error = {
         errors: response.response.data.errors,
         message: response.message
           ? response.message
-          : "Failed to update target status mapping.",
+          : "Failed to create media audit config.",
         success: false,
       };
       dispatch(createMediaAuditConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to update target status mapping.";
+      const errorMessage = error || "Failed to create media audit config.";
       dispatch(createMediaAuditConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -124,22 +135,34 @@ export const updateMediaAuditConfig = createAsyncThunk(
         mediaConfigUID,
         data
       );
+      console.log("response", response);
       if (response.status == 200) {
         dispatch(updateMediaAuditConfigSuccess(response.data));
         return { ...response, success: true };
+      }
+
+      if (response?.response?.data?.success === false) {
+        const error = {
+          message: response?.response?.data?.error?.message
+            ? response?.response?.data?.error?.message
+            : "Failed to create media audit config.",
+          success: false,
+        };
+        dispatch(createMediaAuditConfigFailure(error));
+        return error;
       }
 
       const error = {
         errors: response.response.data.errors,
         message: response.message
           ? response.message
-          : "Failed to update target status mapping.",
+          : "Failed to update media audit config.",
         success: false,
       };
       dispatch(updateMediaAuditConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to update target status mapping.";
+      const errorMessage = error || "Failed to update media audit config.";
       dispatch(updateMediaAuditConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
@@ -164,13 +187,13 @@ export const deleteMediaAuditConfig = createAsyncThunk(
         errors: response.response.data.errors,
         message: response.message
           ? response.message
-          : "Failed to update target status mapping.",
+          : "Failed to delete media audit config.",
         success: false,
       };
       dispatch(deleteMediaAuditConfigFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to update target status mapping.";
+      const errorMessage = error || "Failed to delete media audit config.";
       dispatch(deleteMediaAuditConfigFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
