@@ -64,4 +64,12 @@ export const moduleDescriptions: Module[] = [
       "<ul><li>Set up data quality tracking based on rule-based checks</li><li>Choose your platform for data quality tracking: Superset or Google Sheets</li></ul>",
     icon: UnorderedListOutlined,
   },
+  {
+    module_id: 12,
+    title: "Media (Audio/Photo) audits",
+    link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
+    description:
+      "<ul><li>Assign audio recordings or photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
+    icon: FileSearchOutlined,
+  },
 ];
