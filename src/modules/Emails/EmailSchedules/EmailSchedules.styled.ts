@@ -15,4 +15,19 @@ export const SchedulesTable = styled(Table)`
   & td {
     font-family: "Lato", sans-serif;
   }
+  .custom-card {
+    padding: 8px;
+    border: 1px solid #d6e4ff;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .section-content {
+    margin-bottom: 12px;
+  }
+
+  .section-separator {
+    border-top: 1px solid #e8e8e8;
+    margin: 12px 0;
+  }
 `;

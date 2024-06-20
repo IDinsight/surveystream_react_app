@@ -192,8 +192,6 @@ const SurveyConfiguration: React.FC = () => {
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
       case "Assignments column configuration":
         return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "Media (Audio/Photo) audits":
-        return <SoundOutlined style={{ color: "#D4380D", ...iconProps }} />;
       case "Track productivity":
         return <ProfileFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Track data quality":

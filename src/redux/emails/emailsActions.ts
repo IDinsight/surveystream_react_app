@@ -344,7 +344,7 @@ export const updateEmailSchedule = createAsyncThunk(
 
 export const deleteEmailSchedule = createAsyncThunk(
   "emails/deleteEmailSchedule",
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async ({ id }: { id: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteEmailScheduleRequest());
       const response: any = await api.deleteEmailSchedule(id);
@@ -464,6 +464,7 @@ export const updateManualEmailTrigger = createAsyncThunk(
   ) => {
     try {
       dispatch(updateManualEmailTriggerRequest());
+
       const response: any = await api.updateManualEmailTrigger(
         id,
         manualEmailTriggerData
@@ -491,10 +492,16 @@ export const updateManualEmailTrigger = createAsyncThunk(
 
 export const deleteManualEmailTrigger = createAsyncThunk(
   "emails/deleteManualEmailTrigger",
-  async ({ id }: { id: string }, { dispatch, rejectWithValue }) => {
+  async (
+    { id, email_config_uid }: { id: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(deleteManualEmailTriggerRequest());
-      const response: any = await api.deleteManualEmailTrigger(id);
+      const response: any = await api.deleteManualEmailTrigger(
+        id,
+        email_config_uid
+      );
       if (response.status === 200) {
         dispatch(deleteManualEmailTriggerSuccess(response.data));
         return { ...response, success: true };

@@ -71,9 +71,18 @@ function Emails() {
 
       if (res.payload.success) {
         const emailConfigs = res.payload?.data?.data;
-        setEmailConfigData(emailConfigs);
-        const scheduleTableData = emailConfigs;
-        setSchedulesData(scheduleTableData);
+        // Create a shallow copy of the emailConfigs array
+        const emailConfigsCopy = [...emailConfigs];
+
+        // Sort the copy based on the length of the schedule arrays
+        const sortedEmailConfigs = emailConfigsCopy.sort((a, b) => {
+          const lengthB = Array.isArray(a?.schedules) ? a.schedules.length : 0;
+          const lengthA = Array.isArray(b?.schedules) ? b.schedules.length : 0;
+          return lengthA - lengthB;
+        });
+
+        setEmailConfigData(sortedEmailConfigs);
+        setSchedulesData(sortedEmailConfigs);
       } else {
         message.error("Could not fetch email configurations for this survey");
       }
@@ -149,16 +158,14 @@ function Emails() {
 
     if (formUID) {
       //trigger fetch again after closing the drawer
-      if (!isAddManualDrawerVisible) {
-        if (tabId === "manual") {
-          fetchManualTriggers();
-          getEnumeratorsList(formUID);
-        } else {
-          fetchEmailSchedules();
-        }
+      if (tabId === "manual") {
+        fetchManualTriggers();
+        getEnumeratorsList(formUID);
+      } else {
+        fetchEmailSchedules();
       }
     }
-  }, [formUID, tabId, isAddManualDrawerVisible]);
+  }, [formUID, tabId]);
 
   return (
     <>

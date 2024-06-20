@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { Form, Button, Select, DatePicker, message, TimePicker } from "antd";
 import {
   createManualEmailTrigger,
   updateManualEmailTrigger,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
-import { format, parse } from "date-fns";
+import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 
 const { Option } = Select;
 
@@ -19,6 +21,26 @@ const ManualEmailTriggerForm = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+
+  const validateDate = (rule: any, value: any) => {
+    if (!value) {
+      return Promise.reject("Please select the date");
+    }
+
+    const selectedDate = dayjs(value); // Convert value to dayjs or moment object
+    const today = dayjs(); // Get today's date
+
+    if (selectedDate.isBefore(today, "day")) {
+      return Promise.reject("Date must be in the future");
+    }
+
+    return Promise.resolve();
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -26,14 +48,25 @@ const ManualEmailTriggerForm = ({
       await form.validateFields();
       const formData = form.getFieldsValue();
       const formattedDate = formData?.date
-        ? format(formData.date, "yyyy-MM-dd")
+        ? dayjs(formData.date).format("YYYY-MM-DD")
         : null;
+
       const formattedTime = formData?.time
-        ? format(formData.time, "HH:mm")
+        ? dayjs(formData.time).format("HH:mm")
         : null;
+
+      const recipients = formData?.recipients
+        ? formData.recipients.map((recipient: any) =>
+            typeof recipient === "object" ? recipient.value : recipient
+          )
+        : [];
+      const uniqueRecipients = Array.from(new Set(recipients));
+
+      console.log("uniqueRecipients", uniqueRecipients);
 
       const manualTriggerData = {
         ...formData,
+        recipients: uniqueRecipients,
         date: formattedDate,
         time: formattedTime,
       };
@@ -42,7 +75,7 @@ const ManualEmailTriggerForm = ({
       if (isEditMode) {
         res = await dispatch(
           updateManualEmailTrigger({
-            ...manualTriggerData,
+            manualEmailTriggerData: manualTriggerData,
             id: initialValues.manual_email_trigger_uid,
           })
         );
@@ -58,11 +91,25 @@ const ManualEmailTriggerForm = ({
         );
         form.resetFields();
         closeAddManualDrawer();
+        window.location.reload();
       } else {
-        message.error(res.payload.message);
+        const { message } = res.payload;
+        let errorMessage = "Error: ";
+
+        // Iterate through each key in the message object
+        Object.keys(message).forEach((key) => {
+          if (message[key] && message[key].length > 0) {
+            errorMessage += `${key}: ${message[key][0]}. `;
+          }
+        });
+
+        message.error(
+          errorMessage
+            ? errorMessage
+            : "Failed to update manual trigger, kindly check values and try again"
+        );
       }
     } catch (error) {
-      console.error("error", error);
       message.error(
         `Failed to ${isEditMode ? "update" : "create"} manual email trigger`
       );
@@ -72,14 +119,27 @@ const ManualEmailTriggerForm = ({
 
   useEffect(() => {
     if (isEditMode && initialValues) {
-      console.log("initialValues", initialValues);
+      const updatedInitialValues = { ...initialValues };
+      if (updatedInitialValues?.recipients) {
+        updatedInitialValues.recipients = initialValues.recipients.map(
+          (id: number) => ({
+            label: surveyEnumerators.find((e: any) => e.enumerator_id == id)
+              ?.name,
+            value: id,
+          })
+        );
+        console.log(
+          "updatedInitialValues.recipients",
+          updatedInitialValues.recipients
+        );
+      }
       form.setFieldsValue({
-        ...initialValues,
-        date: initialValues.date
-          ? parse(initialValues.date, "yyyy-MM-dd", new Date())
+        ...updatedInitialValues,
+        date: updatedInitialValues.date
+          ? dayjs(updatedInitialValues.date)
           : null,
-        time: initialValues.time
-          ? parse(initialValues.time, "HH:mm", new Date())
+        time: updatedInitialValues.time
+          ? dayjs(updatedInitialValues.time, "HH:mm")
           : null,
       });
     }
@@ -105,9 +165,15 @@ const ManualEmailTriggerForm = ({
       <Form.Item
         name="date"
         label="Date"
-        rules={[{ required: true, message: "Please select the date" }]}
+        rules={[
+          { required: true, message: "Please select the date" },
+          { validator: validateDate },
+        ]}
       >
-        <DatePicker format="yyyy-MM-dd" />
+        <DatePicker
+          format="YYYY-MM-DD"
+          defaultValue={dayjs(initialValues?.date)}
+        />
       </Form.Item>
       <Form.Item
         name="time"
@@ -125,9 +191,10 @@ const ManualEmailTriggerForm = ({
           showSearch
           mode="multiple"
           placeholder="Select recipients"
-          options={surveyEnumerators.map((enumerator: any) => ({
+          options={surveyEnumerators.map((enumerator: any, index: any) => ({
             label: enumerator.name,
             value: enumerator.enumerator_id,
+            key: index,
           }))}
         />
       </Form.Item>

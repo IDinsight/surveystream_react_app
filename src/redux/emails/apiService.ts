@@ -280,7 +280,7 @@ export const updateManualEmailTrigger = async (
 
     const response = await axios.put(
       `${API_BASE_URL}/emails/manual-trigger/${id}`,
-      manualEmailTriggerData,
+      { ...manualEmailTriggerData },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -296,13 +296,16 @@ export const updateManualEmailTrigger = async (
   }
 };
 
-export const deleteManualEmailTrigger = async (id: string) => {
+export const deleteManualEmailTrigger = async (
+  id: string,
+  email_config_uid: string
+) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.delete(
-      `${API_BASE_URL}/emails/manual-triggers/${id}`,
+      `${API_BASE_URL}/emails/manual-trigger/${id}?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,

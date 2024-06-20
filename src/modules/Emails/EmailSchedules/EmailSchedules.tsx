@@ -1,19 +1,68 @@
-import { useState } from "react";
+import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { format } from "date-fns";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Tooltip, Button, Popconfirm, Drawer } from "antd";
+import { deleteEmailSchedule } from "../../../redux/emails/emailsActions";
+import { useAppDispatch } from "../../../redux/hooks";
+import EmailScheduleEditForm from "./EmailScheduleEditForm";
 
 function EmailSchedules({ data }: any) {
+  const dispatch = useAppDispatch();
+  const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
+    useState(false);
+  const [editScheduleValues, setEditScheduleValues] = useState();
+
+  const showEditScheduleDrawer = () => {
+    setIsEditScheduleDrawerVisible(true);
+  };
+
+  const closeEditScheduleDrawer = () => {
+    setIsEditScheduleDrawerVisible(false);
+  };
+
+  const formatDates = (dates: any) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return dates
+      .map((date: any) => {
+        return new Date(date).toLocaleDateString("en-US", options);
+      })
+      .join("; ");
+  };
+
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const scheduleColumns = [
     {
       title: "Config Type",
       dataIndex: "config_type",
       key: "config_type",
+      sorter: (a: any, b: any) => a.config_type.localeCompare(b.config_type),
     },
     {
-      title: "Schedules",
+      title: "Email Source",
+      dataIndex: "email_source",
+      key: "email_source",
+      sorter: (a: any, b: any) => a.email_source.localeCompare(b.email_source),
+    },
+
+    {
+      title: "Email Schedules",
       key: "schedules",
+      sorter: (a: any, b: any) => {
+        const dateA = a.schedules[0]?.dates[0]
+          ? new Date(a.schedules[0]?.dates[0]).getTime()
+          : 0;
+        const dateB = b.schedules[0]?.dates[0]
+          ? new Date(b.schedules[0]?.dates[0]).getTime()
+          : 0;
+        return dateA - dateB;
+      },
       render: (record: {
         schedules: {
           dates: string[];
@@ -23,22 +72,84 @@ function EmailSchedules({ data }: any) {
       }) => (
         <div>
           {record.schedules.length > 0 ? (
-            record.schedules.map((schedule, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Schedule Name: {schedule?.email_schedule_name}</p>
-                <p>
-                  Dates:{" "}
-                  {schedule.dates
-                    .map((date) => format(new Date(date), "MMM dd, yyyy"))
-                    .join(", ")}
-                </p>
-                <p>
-                  Time:{" "}
-                  {format(new Date(`1970-01-01T${schedule.time}Z`), "hh:mm a")}
-                </p>
-                {index < record.schedules.length - 1 && <hr />}
-              </div>
-            ))
+            record.schedules.map((schedule, index) => {
+              const { email_schedule_name, dates, time } = schedule;
+              const formattedDates = formatDates(dates).split("; ");
+
+              return (
+                <div
+                  className="custom-card"
+                  style={{
+                    display: "flex",
+                    marginBottom: "10px",
+                    flexDirection: "row",
+                  }}
+                  key={index}
+                >
+                  <div>
+                    <p>Schedule Name {email_schedule_name}</p>
+                    <p>
+                      Time: {format(new Date(`1970-01-01T${time}Z`), "hh:mm a")}
+                    </p>
+                  </div>
+
+                  <div style={{ marginRight: "10px", width: "50%" }}>
+                    <p>
+                      Dates
+                      <ul>
+                        {formattedDates
+                          .slice(0, Math.ceil(formattedDates.length / 2))
+                          .map((formattedDate: any, idx: any) => (
+                            <li key={idx}>{formattedDate}</li>
+                          ))}
+                      </ul>
+                    </p>
+                  </div>
+                  <div style={{ marginRight: "10px", width: "50%" }}>
+                    <p>&nbsp;</p>
+                    <p>
+                      <ul>
+                        {formattedDates
+                          .slice(Math.ceil(formattedDates.length / 2))
+                          .map((formattedDate: any, idx: any) => (
+                            <li key={idx}>{formattedDate}</li>
+                          ))}
+                      </ul>
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      float: "right",
+                    }}
+                  >
+                    <Tooltip title="Edit">
+                      <Button
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditSchedule(schedule)}
+                        style={{ marginBottom: 8 }}
+                      >
+                        Edit
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <Popconfirm
+                        title="Are you sure you want to delete this schedule?"
+                        onConfirm={() => handleDeleteSchedule(schedule)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button type="link" icon={<DeleteOutlined />} danger>
+                          Delete
+                        </Button>
+                      </Popconfirm>
+                    </Tooltip>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             <p>No schedules available</p>
           )}
@@ -46,39 +157,76 @@ function EmailSchedules({ data }: any) {
       ),
     },
     {
-      title: "Templates",
-      key: "templates",
-      render: (record: {
-        templates: {
-          language: string;
-          subject: string;
-          content: string;
-        }[];
-      }) => (
-        <div>
-          {record.templates.length > 0 ? (
-            record.templates.map((template, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
-                <p>Language: {template?.language}</p>
-                <p>Subject: {template?.subject}</p>
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (text: any, record: any) => (
+        <span>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            disabled={!record?.email_config_uid}
+            onClick={() => handleEditConfig(record?.email_config_uid)}
+          >
+            Edit Config
+          </Button>
 
-                <p>Content: {template?.content}</p>
-
-                {index < record.templates.length - 1 && <hr />}
-              </div>
-            ))
-          ) : (
-            <p>No templates available</p>
-          )}
-        </div>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title="Are you sure you want to delete this config type?"
+              onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                disabled={!record?.email_config_uid}
+                type="link"
+                icon={<DeleteOutlined />}
+                danger
+              >
+                Delete Config
+              </Button>
+            </Popconfirm>
+          </Tooltip>
+        </span>
       ),
     },
   ];
 
+  const handleEditConfig = async (config_uid: string) => {
+    console.log("handleEditConfig:", config_uid);
+  };
+
+  const handleDeleteConfig = async (config_uid: string) => {
+    console.log("handleDeleteConfig:", config_uid);
+  };
+  const handleDeleteSchedule = async (schedule: any) => {
+    console.log("Deleting schedule:", schedule);
+    const emailScheduleUid = schedule.email_schedule_uid;
+    dispatch(deleteEmailSchedule({ id: emailScheduleUid }));
+  };
+
+  const handleEditSchedule = (schedule: any) => {
+    // Show the drawer for editing with the trigger data
+    console.log("edit schedule:", schedule);
+    setEditScheduleValues(schedule);
+    showEditScheduleDrawer();
+  };
+
   return (
     <>
       {data.length > 0 ? (
-        <SchedulesTable dataSource={data} columns={scheduleColumns} />
+        <SchedulesTable
+          dataSource={data}
+          columns={scheduleColumns}
+          pagination={{
+            pageSize: paginationPageSize,
+            pageSizeOptions: [10, 25, 50, 100],
+            showSizeChanger: true,
+            showQuickJumper: true,
+            onShowSizeChange: (_, size) => setPaginationPageSize(size),
+          }}
+        />
       ) : (
         <div
           style={{
@@ -105,6 +253,19 @@ function EmailSchedules({ data }: any) {
           </div>
         </div>
       )}
+      <Drawer
+        title={"Edit Email Schedule"}
+        width={650}
+        onClose={closeEditScheduleDrawer}
+        open={isEditScheduleDrawerVisible}
+        style={{ paddingBottom: 80, fontFamily: "Lato" }}
+      >
+        <EmailScheduleEditForm
+          handleBack={closeEditScheduleDrawer}
+          handleContinue={closeEditScheduleDrawer}
+          initialValues={editScheduleValues}
+        />
+      </Drawer>{" "}
     </>
   );
 }

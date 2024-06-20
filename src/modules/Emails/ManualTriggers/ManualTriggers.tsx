@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Drawer, Popconfirm, Tooltip } from "antd";
+import { Button, Drawer, Popconfirm, Tooltip, message } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 import NotebooksImg from "../../../assets/notebooks.svg";
@@ -7,8 +7,15 @@ import { ManualTriggersTable } from "./ManualTriggers.styled";
 import ManualEmailTriggerForm from "./ManualTriggerForm";
 import { useAppDispatch } from "../../../redux/hooks";
 import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
+import { useNavigate, useParams } from "react-router";
 
 function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
+  const navigate = useNavigate();
+
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [isEditManualDrawerVisible, setIsEditManualDrawerVisible] =
     useState(false);
@@ -23,11 +30,34 @@ function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
     setIsEditManualDrawerVisible(false);
   };
 
+  const formatDate = (date: any) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(date).toLocaleDateString("en-US", options);
+  };
   const handleDeleteTrigger = async (trigger: any) => {
-    console.log("Deleting trigger:", trigger);
-    dispatch(
-      deleteManualEmailTrigger({ id: trigger.manual_email_trigger_uid })
-    );
+    try {
+      const result = await dispatch(
+        deleteManualEmailTrigger({
+          id: trigger.manual_email_trigger_uid,
+          email_config_uid: trigger.email_config_uid,
+        })
+      );
+
+      if (result.payload?.data?.success) {
+        message.success("Email manual trigger deleted successfully");
+        navigate(`/module-configuration/emails/${survey_uid}/manual`);
+      } else {
+        message.error("Failed to delete trigger");
+      }
+    } catch (error) {
+      console.error("Error deleting trigger:", error);
+      message.error("An error occurred while deleting trigger");
+    }
   };
 
   const handleEditTrigger = (trigger: any) => {
@@ -67,37 +97,62 @@ function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
           {record.manual_triggers.length > 0 ? (
             record.manual_triggers.map((manual_trigger, index) => {
               const { date, time, recipients, status } = manual_trigger;
+              const formattedDate = formatDate(date);
               return (
                 <div
                   className="custom-card"
-                  style={{ display: "flex", marginBottom: "10px" }}
+                  style={{
+                    display: "flex",
+                    marginBottom: "10px",
+                    flexDirection: "row",
+                  }}
                   key={index}
                 >
-                  <div style={{ marginRight: "10px" }}>
-                    <p>Date: {date}</p>
+                  <div style={{ marginRight: "10px", width: "50%" }}>
+                    <p>Date: {formattedDate}</p>
                     <p>
-                      Time: {format(new Date(`1970-01-01T${time}Z`), "hh:mm a")}
+                      Time:{" "}
+                      {format(new Date(`1970-01-01T${time}Z`), " hh:mm a")}
                     </p>
+                  </div>
+
+                  <div style={{ marginRight: "10px", width: "50%" }}>
                     <p>
-                      Recipients:{" "}
-                      {recipients
-                        .map(
-                          (id) =>
-                            surveyEnumerators?.find(
-                              (e: any) => e.enumerator_id == id
-                            )?.name || ""
-                        )
-                        .join(", ")}
+                      Recipients{" "}
+                      <ul>
+                        {recipients
+                          .slice(0, Math.ceil(recipients.length / 2))
+                          .map((id: any, idx: any) => (
+                            <li key={idx}>
+                              {surveyEnumerators?.find(
+                                (e: any) => e.enumerator_id == id
+                              )?.name || ""}
+                            </li>
+                          ))}
+                      </ul>
                     </p>
-                    <p>Status: {status}</p>
+                  </div>
+
+                  <div style={{ marginRight: "10px", width: "50%" }}>
+                    <p>&nbsp;</p>
+                    <p>
+                      <ul>
+                        {recipients
+                          .slice(Math.ceil(recipients.length / 2))
+                          .map((id: any, idx: any) => (
+                            <li key={idx}>
+                              {surveyEnumerators?.find(
+                                (e: any) => e.enumerator_id == id
+                              )?.name || ""}
+                            </li>
+                          ))}
+                      </ul>
+                    </p>
                   </div>
                   <div
                     style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      marginRight: "auto",
                       marginTop: "10px",
-                      marginLeft: "30%",
+                      float: "right",
                     }}
                   >
                     <Tooltip title="Edit">
@@ -140,7 +195,13 @@ function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
         <ManualTriggersTable
           dataSource={data}
           columns={manualTriggerColumns}
-          pagination={{ pageSize: paginationPageSize }}
+          pagination={{
+            pageSize: paginationPageSize,
+            pageSizeOptions: [10, 25, 50, 100],
+            showSizeChanger: true,
+            showQuickJumper: true,
+            onShowSizeChange: (_, size) => setPaginationPageSize(size),
+          }}
           rowKey={(record) => record.config_type}
         />
       ) : (

@@ -39,15 +39,6 @@ export const moduleDescriptions: Module[] = [
     description: "<ul><li>Configure emails to enumerators</li></ul>",
     icon: FileSearchOutlined,
   },
-
-  {
-    module_id: 12,
-    title: "Media (Audio/Photo) audits",
-    link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
-    description:
-      "<ul><li>Assign audio recordings for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
-    icon: FileSearchOutlined,
-  },
   {
     module_id: 10,
     title: "Track productivity",
