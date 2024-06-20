@@ -60,7 +60,7 @@ function DQFormCard({ data, editable, surveyUID }: DQFormCardProps) {
             <FormItemLabel>Main Form ID:</FormItemLabel>
           </Col>
           <Col span={8}>
-            <Input disabled value={data.parent_form_uid} />
+            <Input disabled value={data.parent_scto_form_id} />
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
