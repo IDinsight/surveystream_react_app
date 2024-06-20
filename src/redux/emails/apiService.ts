@@ -179,13 +179,16 @@ export const updateEmailSchedule = async (
   }
 };
 
-export const deleteEmailSchedule = async (id: string) => {
+export const deleteEmailSchedule = async (
+  id: string,
+  email_config_uid: string
+) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.delete(
-      `${API_BASE_URL}/emails/schedule/${id}`,
+      `${API_BASE_URL}/emails/schedule/${id}?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,

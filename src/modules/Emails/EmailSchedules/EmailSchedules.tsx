@@ -3,13 +3,19 @@ import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { format } from "date-fns";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Tooltip, Button, Popconfirm, Drawer } from "antd";
+import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
 import { deleteEmailSchedule } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
+import { useNavigate, useParams } from "react-router";
 
 function EmailSchedules({ data }: any) {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+
   const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
     useState(false);
   const [editScheduleValues, setEditScheduleValues] = useState();
@@ -86,10 +92,11 @@ function EmailSchedules({ data }: any) {
                   }}
                   key={index}
                 >
-                  <div>
-                    <p>Schedule Name {email_schedule_name}</p>
+                  <div style={{ marginRight: "10px", width: "50%" }}>
+                    <p>Schedule Name : {email_schedule_name}</p>
                     <p>
-                      Time: {format(new Date(`1970-01-01T${time}Z`), "hh:mm a")}
+                      Time :{" "}
+                      {format(new Date(`1970-01-01T${time}Z`), "hh:mm a")}
                     </p>
                   </div>
 
@@ -201,9 +208,27 @@ function EmailSchedules({ data }: any) {
     console.log("handleDeleteConfig:", config_uid);
   };
   const handleDeleteSchedule = async (schedule: any) => {
-    console.log("Deleting schedule:", schedule);
-    const emailScheduleUid = schedule.email_schedule_uid;
-    dispatch(deleteEmailSchedule({ id: emailScheduleUid }));
+    try {
+      console.log("Deleting schedule:", schedule);
+      const emailScheduleUid = schedule.email_schedule_uid;
+      const emailConfigUid = schedule.email_config_uid;
+      const response = await dispatch(
+        deleteEmailSchedule({
+          id: emailScheduleUid,
+          email_config_uid: emailConfigUid,
+        })
+      );
+
+      if (response?.payload?.data?.success) {
+        message.success("Schedule deleted successfully");
+        navigate(`/module-configuration/emails/${survey_uid}/schedules`);
+      } else {
+        message.error("Failed to delete schedule");
+      }
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+      message.error("An error occurred while deleting schedule");
+    }
   };
 
   const handleEditSchedule = (schedule: any) => {

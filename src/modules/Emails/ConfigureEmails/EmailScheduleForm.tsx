@@ -89,7 +89,7 @@ const EmailScheduleForm = ({
         const schedule = schedules[i];
 
         const formattedDates = formatDates(schedule);
-        const formattedTime = schedule?.emailTime.format("HH:mm");
+        const formattedTime = schedule?.emailTime?.format("HH:mm");
 
         const emailScheduleData = {
           email_config_uid: emailConfigUID,

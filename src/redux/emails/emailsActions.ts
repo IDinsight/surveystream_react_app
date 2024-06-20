@@ -344,10 +344,13 @@ export const updateEmailSchedule = createAsyncThunk(
 
 export const deleteEmailSchedule = createAsyncThunk(
   "emails/deleteEmailSchedule",
-  async ({ id }: { id: string }, { dispatch, rejectWithValue }) => {
+  async (
+    { id, email_config_uid }: { id: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(deleteEmailScheduleRequest());
-      const response: any = await api.deleteEmailSchedule(id);
+      const response: any = await api.deleteEmailSchedule(id, email_config_uid);
       if (response.status === 200) {
         dispatch(deleteEmailScheduleSuccess(response.data));
         return { ...response, success: true };
