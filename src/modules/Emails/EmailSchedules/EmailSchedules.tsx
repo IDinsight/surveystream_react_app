@@ -103,29 +103,37 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
                     </p>
                   </div>
 
-                  <div style={{ marginRight: "10px", width: "50%" }}>
-                    <p>
-                      Dates
-                      <ul>
-                        {formattedDates
-                          .slice(0, Math.ceil(formattedDates.length / 2))
-                          .map((formattedDate: any, idx: any) => (
-                            <li key={idx}>{formattedDate}</li>
-                          ))}
-                      </ul>
-                    </p>
-                  </div>
-                  <div style={{ marginRight: "10px", width: "50%" }}>
-                    <p>&nbsp;</p>
-                    <p>
-                      <ul>
-                        {formattedDates
-                          .slice(Math.ceil(formattedDates.length / 2))
-                          .map((formattedDate: any, idx: any) => (
-                            <li key={idx}>{formattedDate}</li>
-                          ))}
-                      </ul>
-                    </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <div style={{ marginRight: "10px", width: "50%" }}>
+                      <p>
+                        Dates
+                        <ul>
+                          {formattedDates
+                            .slice(0, Math.ceil(formattedDates.length / 2))
+                            .map((formattedDate: any, idx: any) => (
+                              <li key={idx}>{formattedDate}</li>
+                            ))}
+                        </ul>
+                      </p>
+                    </div>
+                    <div style={{ marginRight: "10px", width: "50%" }}>
+                      <p>&nbsp;</p>
+                      <p>
+                        <ul>
+                          {formattedDates
+                            .slice(Math.ceil(formattedDates.length / 2))
+                            .map((formattedDate: any, idx: any) => (
+                              <li key={idx}>{formattedDate}</li>
+                            ))}
+                        </ul>
+                      </p>
+                    </div>
                   </div>
 
                   <div
@@ -311,6 +319,7 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
           handleBack={closeEditScheduleDrawer}
           handleContinue={closeEditScheduleDrawer}
           initialValues={editScheduleValues}
+          fetchEmailSchedules={fetchEmailSchedules}
         />
       </Drawer>{" "}
     </>
