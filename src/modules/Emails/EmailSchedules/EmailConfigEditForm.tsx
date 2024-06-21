@@ -199,11 +199,11 @@ const EmailConfigEditForm = ({
             rules={[
               {
                 required: true,
-                message: "Please provide the link to the Google Sheet",
+                message: "Please provide the tab to the Google Sheet",
               },
             ]}
           >
-            <Input placeholder="Enter Google Sheet link" />
+            <Input placeholder="Enter Google Sheet tab" />
           </Form.Item>
 
           <Form.Item

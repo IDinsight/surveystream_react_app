@@ -94,12 +94,11 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
     try {
       const configType = form.getFieldValue("config_type");
       const sctoFormUID = form.getFieldValue("scto_form_uid");
-      const googleSheetLink = form.getFieldValue("email_source_gsheet_key");
-      const headerRow = form.getFieldValue("header_row");
       const notificationUsers = form.getFieldValue("report_users");
-      const emailDataSource = form.getFieldValue("email_data_source");
 
-      console.log("configType", configType);
+      const formValues = await form.validateFields();
+
+      console.log("formValues", formValues);
 
       //check if config type exists
       const checkConfigs = configTypes.filter((type: any) => {
@@ -119,12 +118,10 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         const emailConfigData = {
           form_uid: sctoFormUID,
           config_type: configType,
-          email_source_gsheet_key: googleSheetLink,
-          email_source: emailDataSource,
-          google_sheet_header_row: headerRow,
           email_source_tablename: null,
           email_source_columns: [],
           report_users: notificationUsers,
+          ...formValues,
         };
 
         console.log("emailConfigData", emailConfigData);
@@ -155,10 +152,8 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         const emailConfigData = {
           form_uid: sctoFormUID,
           config_type: configType,
-          google_sheet_link: googleSheetLink,
-          email_data_source: emailDataSource,
-          google_sheet_header_row: headerRow,
           nofication_users: notificationUsers,
+          ...formValues,
         };
 
         console.log("emailConfigData", emailConfigData);
@@ -292,7 +287,7 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
       </Form.Item>
 
       <Form.Item
-        name="email_data_source"
+        name="email_source"
         label="Select the source of Emails"
         rules={[
           { required: true, message: "Please select the source of Emails" },
@@ -307,7 +302,7 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
       {sourceType === "Google Sheet" && (
         <>
           <Form.Item
-            name="email_source_gsheet_key"
+            name="email_source_gsheet_link"
             label="Link to Google Sheet"
             rules={[
               {
@@ -332,7 +327,20 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
           </Form.Item>
 
           <Form.Item
-            name="google_sheet_header_row"
+            name="email_source_gsheet_tab"
+            label="Google Sheet Tab"
+            rules={[
+              {
+                required: true,
+                message: "Please provide the tab to the Google Sheet",
+              },
+            ]}
+          >
+            <Input placeholder="Enter Google Sheet tab" />
+          </Form.Item>
+
+          <Form.Item
+            name="email_source_gsheet_header_row"
             label="Header Row"
             rules={[
               {
