@@ -10,18 +10,21 @@ import {
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
-import { useNavigate, useParams } from "react-router";
+import EmailConfigEditForm from "./EmailConfigEditForm";
 
-function EmailSchedules({ data, fetchEmailSchedules }: any) {
+function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
-    survey_uid: "",
-  };
-
   const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
     useState(false);
+
+  const [isEditConfigDrawerVisible, setIsEditConfigDrawerVisible] =
+    useState(false);
+
   const [editScheduleValues, setEditScheduleValues] = useState();
+
+  const [editConfigValues, setEditConfigValues] = useState();
+
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   const showEditScheduleDrawer = () => {
     setIsEditScheduleDrawerVisible(true);
@@ -29,6 +32,14 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
 
   const closeEditScheduleDrawer = () => {
     setIsEditScheduleDrawerVisible(false);
+  };
+
+  const showEditConfigDrawer = () => {
+    setIsEditConfigDrawerVisible(true);
+  };
+
+  const closeEditConfigDrawer = () => {
+    setIsEditConfigDrawerVisible(false);
   };
 
   const formatDates = (dates: any) => {
@@ -45,7 +56,6 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
       .join("; ");
   };
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const scheduleColumns = [
     {
       title: "Config Type",
@@ -180,14 +190,16 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
       key: "actions",
       render: (text: any, record: any) => (
         <span>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            disabled={!record?.email_config_uid}
-            onClick={() => handleEditConfig(record?.email_config_uid)}
-          >
-            Edit Config
-          </Button>
+          <Tooltip title="Edit Config">
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              disabled={!record?.email_config_uid}
+              onClick={() => handleEditConfig(record)}
+            >
+              Edit Config
+            </Button>
+          </Tooltip>
 
           <Tooltip title="Delete">
             <Popconfirm
@@ -211,8 +223,12 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
     },
   ];
 
-  const handleEditConfig = async (config_uid: string) => {
-    console.log("handleEditConfig:", config_uid);
+  const handleEditConfig = async (schedule: any) => {
+    console.log("handleEditConfig:", schedule);
+
+    // Show the drawer for editing with the trigger data
+    setEditConfigValues(schedule);
+    showEditConfigDrawer();
   };
 
   const handleDeleteConfig = async (config_uid: string) => {
@@ -322,6 +338,19 @@ function EmailSchedules({ data, fetchEmailSchedules }: any) {
           fetchEmailSchedules={fetchEmailSchedules}
         />
       </Drawer>{" "}
+      <Drawer
+        title={"Edit Email Config"}
+        width={650}
+        onClose={closeEditConfigDrawer}
+        open={isEditConfigDrawerVisible}
+        style={{ paddingBottom: 80, fontFamily: "Lato" }}
+      >
+        <EmailConfigEditForm
+          initialValues={editConfigValues}
+          fetchEmailSchedules={fetchEmailSchedules}
+          sctoForms={sctoForms}
+        ></EmailConfigEditForm>
+      </Drawer>
     </>
   );
 }

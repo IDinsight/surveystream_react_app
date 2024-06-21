@@ -13,7 +13,10 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import { getEmailDetails } from "../../redux/emails/emailsActions";
+import {
+  getEmailConfigs,
+  getEmailDetails,
+} from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
@@ -221,6 +224,7 @@ function Emails() {
               <EmailSchedules
                 data={schedulesData}
                 fetchEmailSchedules={fetchEmailSchedules}
+                sctoForms={sctoForms}
               />
             )}
           </BodyWrapper>
