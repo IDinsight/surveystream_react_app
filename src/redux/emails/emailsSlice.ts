@@ -112,9 +112,6 @@ const emailsSlice = createSlice({
     deleteEmailConfigSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailConfigList = state.emailConfigList.filter(
-        (config: any) => config.email_config_uid !== action.payload
-      );
     },
     deleteEmailConfigFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -184,9 +181,6 @@ const emailsSlice = createSlice({
     deleteEmailScheduleSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailScheduleList = state.emailScheduleList.filter(
-        (schedule: any) => schedule.email_schedule_uid !== action.payload
-      );
     },
     deleteEmailScheduleFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -256,9 +250,6 @@ const emailsSlice = createSlice({
     deleteManualEmailTriggerSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.manualEmailTriggerList = state.manualEmailTriggerList.filter(
-        (trigger: any) => trigger.manual_email_trigger_uid !== action.payload
-      );
     },
     deleteManualEmailTriggerFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
@@ -328,9 +319,6 @@ const emailsSlice = createSlice({
     deleteEmailTemplateSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
       state.error = null;
-      state.emailTemplateList = state.emailTemplateList.filter(
-        (template: any) => template.email_template_uid !== action.payload
-      );
     },
     deleteEmailTemplateFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;

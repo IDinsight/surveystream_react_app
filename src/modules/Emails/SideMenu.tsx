@@ -1,5 +1,5 @@
 import { useLocation, useParams } from "react-router-dom";
-import { CalendarOutlined, MailFilled } from "@ant-design/icons";
+import { CalendarOutlined, MailFilled, SendOutlined } from "@ant-design/icons";
 
 import { Menu, MenuProps } from "antd";
 
@@ -54,7 +54,7 @@ function SideMenu() {
           to={`/module-configuration/emails/${survey_uid}/manual`}
         >
           <IconWrapper>
-            <MailFilled />
+            <SendOutlined />
           </IconWrapper>
           Manual Triggers
         </MenuItem>

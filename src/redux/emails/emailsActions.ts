@@ -199,7 +199,7 @@ export const updateEmailConfig = createAsyncThunk(
 
 export const deleteEmailConfig = createAsyncThunk(
   "emails/deleteEmailConfig",
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async ({ id }: { id: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(deleteEmailConfigRequest());
       const response: any = await api.deleteEmailConfig(id);

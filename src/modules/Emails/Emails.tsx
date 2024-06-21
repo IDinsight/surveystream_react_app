@@ -217,7 +217,10 @@ function Emails() {
                 emailConfigData={emailConfigData}
               />
             ) : (
-              <EmailSchedules data={schedulesData} />
+              <EmailSchedules
+                data={schedulesData}
+                fetchEmailSchedules={fetchEmailSchedules}
+              />
             )}
           </BodyWrapper>
         </div>

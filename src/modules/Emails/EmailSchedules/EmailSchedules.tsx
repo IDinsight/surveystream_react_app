@@ -4,12 +4,15 @@ import NotebooksImg from "../../../assets/notebooks.svg";
 import { format } from "date-fns";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
-import { deleteEmailSchedule } from "../../../redux/emails/emailsActions";
+import {
+  deleteEmailConfig,
+  deleteEmailSchedule,
+} from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
 import { useNavigate, useParams } from "react-router";
 
-function EmailSchedules({ data }: any) {
+function EmailSchedules({ data, fetchEmailSchedules }: any) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
@@ -205,7 +208,25 @@ function EmailSchedules({ data }: any) {
   };
 
   const handleDeleteConfig = async (config_uid: string) => {
-    console.log("handleDeleteConfig:", config_uid);
+    try {
+      console.log("handleDeleteConfig:", config_uid);
+
+      const response = await dispatch(
+        deleteEmailConfig({
+          id: config_uid,
+        })
+      );
+
+      if (response?.payload?.data?.success) {
+        message.success("Email config deleted successfully");
+        fetchEmailSchedules();
+      } else {
+        message.error("Failed to delete email config");
+      }
+    } catch (error) {
+      console.error("Error deleting config:", error);
+      message.error("An error occurred while deleting email config");
+    }
   };
   const handleDeleteSchedule = async (schedule: any) => {
     try {
@@ -221,7 +242,8 @@ function EmailSchedules({ data }: any) {
 
       if (response?.payload?.data?.success) {
         message.success("Schedule deleted successfully");
-        navigate(`/module-configuration/emails/${survey_uid}/schedules`);
+        const res = await fetchEmailSchedules();
+        console.log("fetchEmailSchedules", res);
       } else {
         message.error("Failed to delete schedule");
       }
