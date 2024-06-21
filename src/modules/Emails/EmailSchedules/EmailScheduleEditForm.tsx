@@ -60,6 +60,9 @@ const EmailScheduleEditForm = ({
           throw new Error(`Unknown frequency: ${frequency}`);
       }
     }
+
+    console.log("dates", dates);
+
     return dates;
   };
 
@@ -85,26 +88,27 @@ const EmailScheduleEditForm = ({
         return;
       }
 
-      console.log("formValues", formValues);
-
       const schedule = {
         dateType: dateType,
         dates: dates,
         emailFrequency: emailFrequency,
       };
 
-      console.log("schedule", schedule);
-
       const formattedDates = formatDates(schedule);
+
+      if (formattedDates.length < 1) {
+        message.error("Dates not well formatted, check and try again");
+        setLoading(false);
+        return;
+      }
       const formattedTime = emailTime.format("HH:mm");
 
       const emailScheduleData = {
         dates: formattedDates,
         time: formattedTime,
         email_schedule_name: emailScheduleName,
+        email_config_uid: initialValues.email_config_uid,
       };
-
-      console.log("emailScheduleData", emailScheduleData);
 
       const emailScheduleUID = initialValues.email_schedule_uid;
 
@@ -114,8 +118,6 @@ const EmailScheduleEditForm = ({
           emailScheduleData: emailScheduleData,
         })
       );
-
-      console.log("updateEmailSchedule res", res);
 
       if (!res.payload.success) {
         // Error occurred
@@ -138,19 +140,16 @@ const EmailScheduleEditForm = ({
   };
 
   const formatDates = (schedule: any) => {
-    console.log("schedule", schedule);
-    return schedule.dateType === "multiple"
+    return schedule.dateType == "multiple"
       ? generateDateRange(
           schedule.dates[0],
-          schedule.dates[-1],
+          schedule.dates[schedule.dates.length - 1],
           schedule.emailFrequency
         )
       : [schedule.dates.format("YYYY-MM-DD")];
   };
 
   useEffect(() => {
-    console.log("initialValues", initialValues);
-
     if (initialValues) {
       const dateType = initialValues.dates.length > 1 ? "multiple" : "single";
 
@@ -159,13 +158,14 @@ const EmailScheduleEditForm = ({
         emailScheduleName: initialValues.email_schedule_name,
         dates:
           dateType === "multiple"
-            ? [dayjs(initialValues.dates[0]), dayjs(initialValues.dates[-1])]
+            ? [
+                dayjs(initialValues.dates[0]),
+                dayjs(initialValues.dates[initialValues.dates.length - 1]),
+              ]
             : dayjs(initialValues.dates),
         emailTime: dayjs(initialValues.time, "HH:mm"),
         emailFrequency: initialValues.emailFrequency,
       };
-
-      console.log("formValues", formValues);
 
       form.setFieldsValue({ ...formValues });
     }
