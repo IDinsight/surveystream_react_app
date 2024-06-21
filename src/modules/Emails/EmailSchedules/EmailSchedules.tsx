@@ -1,7 +1,7 @@
 import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
 import {
@@ -108,8 +108,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   <div style={{ marginRight: "10px", width: "50%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
                     <p>
-                      Time :{" "}
-                      {format(new Date(`1970-01-01T${time}Z`), "hh:mm a")}
+                      Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
                     </p>
                   </div>
 

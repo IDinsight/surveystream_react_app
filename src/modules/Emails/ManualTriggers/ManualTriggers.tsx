@@ -8,6 +8,7 @@ import ManualEmailTriggerForm from "./ManualTriggerForm";
 import { useAppDispatch } from "../../../redux/hooks";
 import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
 import { useNavigate, useParams } from "react-router";
+import dayjs from "dayjs";
 
 function ManualTriggers({
   data,
@@ -110,8 +111,7 @@ function ManualTriggers({
                   <div style={{ marginRight: "10px", width: "50%" }}>
                     <p>Date: {formattedDate}</p>
                     <p>
-                      Time:{" "}
-                      {format(new Date(`1970-01-01T${time}Z`), " hh:mm a")}
+                      Time: {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
                     </p>
                   </div>
 
