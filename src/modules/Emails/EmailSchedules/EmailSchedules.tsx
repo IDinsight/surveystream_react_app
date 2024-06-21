@@ -115,7 +115,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   <div
                     style={{
                       display: "flex",
-                      maxHeight: "300px",
+                      maxHeight: "180px",
                       overflowY: "auto",
                     }}
                   >
@@ -124,7 +124,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         Dates
                         <ul>
                           {formattedDates
-                            .slice(0, Math.ceil(formattedDates.length / 2))
+                            .slice(Math.ceil(formattedDates.length / 2))
                             .map((formattedDate: any, idx: any) => (
                               <li key={idx}>{formattedDate}</li>
                             ))}
@@ -136,7 +136,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                       <p>
                         <ul>
                           {formattedDates
-                            .slice(Math.ceil(formattedDates.length / 2))
+                            .slice(0, Math.ceil(formattedDates.length / 2))
                             .map((formattedDate: any, idx: any) => (
                               <li key={idx}>{formattedDate}</li>
                             ))}

@@ -108,45 +108,53 @@ function ManualTriggers({
                   }}
                   key={index}
                 >
-                  <div style={{ marginRight: "10px", width: "50%" }}>
+                  <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Date: {formattedDate}</p>
                     <p>
                       Time: {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
                     </p>
+                    <p>Status: {status}</p>
                   </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      maxHeight: "180px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <div style={{ marginRight: "10px" }}>
+                      <p>
+                        Recipients{" "}
+                        <ul>
+                          {recipients
+                            .slice(0, Math.ceil(recipients.length / 2))
+                            .map((id: any, idx: any) => (
+                              <li key={idx}>
+                                {surveyEnumerators?.find(
+                                  (e: any) => e.enumerator_id == id
+                                )?.name || ""}
+                              </li>
+                            ))}
+                        </ul>
+                      </p>
+                    </div>
 
-                  <div style={{ marginRight: "10px", width: "50%" }}>
-                    <p>
-                      Recipients{" "}
-                      <ul>
-                        {recipients
-                          .slice(0, Math.ceil(recipients.length / 2))
-                          .map((id: any, idx: any) => (
-                            <li key={idx}>
-                              {surveyEnumerators?.find(
-                                (e: any) => e.enumerator_id == id
-                              )?.name || ""}
-                            </li>
-                          ))}
-                      </ul>
-                    </p>
-                  </div>
-
-                  <div style={{ marginRight: "10px", width: "50%" }}>
-                    <p>&nbsp;</p>
-                    <p>
-                      <ul>
-                        {recipients
-                          .slice(Math.ceil(recipients.length / 2))
-                          .map((id: any, idx: any) => (
-                            <li key={idx}>
-                              {surveyEnumerators?.find(
-                                (e: any) => e.enumerator_id == id
-                              )?.name || ""}
-                            </li>
-                          ))}
-                      </ul>
-                    </p>
+                    <div style={{ marginRight: "10px", width: "50%" }}>
+                      <p>&nbsp;</p>
+                      <p>
+                        <ul>
+                          {recipients
+                            .slice(Math.ceil(recipients.length / 2))
+                            .map((id: any, idx: any) => (
+                              <li key={idx}>
+                                {surveyEnumerators?.find(
+                                  (e: any) => e.enumerator_id == id
+                                )?.name || ""}
+                              </li>
+                            ))}
+                        </ul>
+                      </p>
+                    </div>
                   </div>
                   <div
                     style={{
