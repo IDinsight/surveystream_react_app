@@ -15,17 +15,13 @@ const ManualEmailTriggerForm = ({
   emailConfigData,
   surveyEnumerators,
   closeAddManualDrawer,
+  fetchManualTriggers,
   initialValues = {},
   isEditMode = false,
 }: any) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
-    survey_uid: "",
-  };
 
   const validateDate = (rule: any, value: any) => {
     if (!value) {
@@ -91,7 +87,7 @@ const ManualEmailTriggerForm = ({
         );
         form.resetFields();
         closeAddManualDrawer();
-        window.location.reload();
+        fetchManualTriggers();
       } else {
         const { message } = res.payload;
         let errorMessage = "Error: ";

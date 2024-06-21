@@ -9,13 +9,12 @@ import { useAppDispatch } from "../../../redux/hooks";
 import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
 import { useNavigate, useParams } from "react-router";
 
-function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
-  const navigate = useNavigate();
-
-  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
-    survey_uid: "",
-  };
-
+function ManualTriggers({
+  data,
+  surveyEnumerators,
+  emailConfigData,
+  fetchManualTriggers,
+}: any) {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [isEditManualDrawerVisible, setIsEditManualDrawerVisible] =
     useState(false);
@@ -50,7 +49,7 @@ function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
 
       if (result.payload?.data?.success) {
         message.success("Email manual trigger deleted successfully");
-        navigate(`/module-configuration/emails/${survey_uid}/manual`);
+        fetchManualTriggers();
       } else {
         message.error("Failed to delete trigger");
       }
@@ -241,6 +240,7 @@ function ManualTriggers({ data, surveyEnumerators, emailConfigData }: any) {
           closeAddManualDrawer={closeEditManualDrawer}
           surveyEnumerators={surveyEnumerators}
           initialValues={editTriggerValues}
+          fetchManualTriggers={fetchManualTriggers}
           emailConfigData={emailConfigData}
           isEditMode={true}
         />

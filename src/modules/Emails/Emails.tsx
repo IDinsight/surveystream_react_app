@@ -30,7 +30,7 @@ function Emails() {
     survey_uid: "",
   };
   const [schedulesData, setSchedulesData] = useState<any[]>([]);
-  const [manualTriggersData, setManaualTriggersData] = useState<any[]>([]);
+  const [manualTriggersData, setManualTriggersData] = useState<any[]>([]);
   const [emailConfigData, setEmailConfigData] = useState<any>([]);
 
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
@@ -106,7 +106,7 @@ function Emails() {
         const triggersTableData = emailConfigs.filter(
           (emailConfig: any) => emailConfig.manual_triggers.length > 0
         );
-        setManaualTriggersData(triggersTableData);
+        setManualTriggersData(triggersTableData);
       } else {
         message.error("Could not fetch email configurations for this survey");
       }
@@ -215,6 +215,7 @@ function Emails() {
                 data={manualTriggersData}
                 surveyEnumerators={surveyEnumerators}
                 emailConfigData={emailConfigData}
+                fetchManualTriggers={fetchManualTriggers}
               />
             ) : (
               <EmailSchedules
@@ -237,6 +238,7 @@ function Emails() {
           closeAddManualDrawer={closeAddManualDrawer}
           surveyEnumerators={surveyEnumerators}
           emailConfigData={emailConfigData}
+          fetchManualTriggers={fetchManualTriggers}
         />
       </Drawer>
     </>
