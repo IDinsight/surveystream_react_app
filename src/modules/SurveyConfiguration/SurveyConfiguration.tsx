@@ -94,6 +94,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     "Assign targets to surveyors": "assignments",
     Emails: "emails",
     "Media (Audio/Photo) audits": "media-audits",
+    "Track data quality": "dq-forms",
   },
 };
 

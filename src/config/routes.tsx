@@ -42,6 +42,8 @@ import PermissionDenied from "../components/PermissionDenied";
 import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
 import MediaAuditsHome from "../modules/MediaAudits";
 import MediaAuditsManage from "../modules/MediaAudits/MediaAuditsManage";
+import DQFormHome from "../modules/DQForm";
+import DQFormManage from "../modules/DQForm/DQFormManage";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 
@@ -290,6 +292,16 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/media-audits/:survey_uid/manage"
           element={<MediaAuditsManage />}
+        />
+      </Route>
+      <Route>
+        <Route
+          path="/module-configuration/dq-forms/:survey_uid?"
+          element={<DQFormHome />}
+        />
+        <Route
+          path="/module-configuration/dq-forms/:survey_uid/manage"
+          element={<DQFormManage />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

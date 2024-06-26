@@ -16,6 +16,7 @@ import assignmentsReducer from "./assignments/assignmentsSlice";
 import emailsReducer from "./emails/emailsSlice";
 import targetStatusMappingReducer from "./targetStatusMapping/targetStatusMappingSlice";
 import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
+import dqFormsReducer from "./dqForm/dqFormSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   emails: emailsReducer,
   targetStatusMapping: targetStatusMappingReducer,
   mediaAudits: mediaAuditsReducer,
+  dqForms: dqFormsReducer,
 });
 
 export default rootReducer;
