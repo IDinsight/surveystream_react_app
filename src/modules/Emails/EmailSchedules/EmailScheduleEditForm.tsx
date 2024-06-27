@@ -61,8 +61,6 @@ const EmailScheduleEditForm = ({
       }
     }
 
-    console.log("dates", dates);
-
     return dates;
   };
 
@@ -133,7 +131,6 @@ const EmailScheduleEditForm = ({
       message.success("Email schedule updated successfully");
       fetchEmailSchedules();
     } catch (error) {
-      console.error("error", error);
       message.error("Failed to update email schedule");
     }
     setLoading(false);

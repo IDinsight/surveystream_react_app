@@ -75,7 +75,6 @@ export const performGetUserProfile = createAsyncThunk(
       dispatch(profileRequest());
       const response = await getUserProfile();
 
-      console.log("getUserProfile", response);
       localStorage.setItem("userProfile", JSON.stringify({ ...response }));
 
       dispatch(profileSuccess(response));

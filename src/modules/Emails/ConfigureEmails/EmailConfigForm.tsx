@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Form, Input, Button, Select, message, Radio } from "antd";
 import { RootState } from "../../../redux/store";
 import {
   createEmailConfig,
-  getEmailConfigs,
   updateEmailConfig,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { update } from "lodash";
 
 const { Option } = Select;
 
@@ -98,17 +96,13 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
 
       const formValues = await form.validateFields();
 
-      console.log("formValues", formValues);
-
       //check if config type exists
       const checkConfigs = configTypes.filter((type: any) => {
         return type.config_type == configType;
       });
-      console.log("checkConfigs", checkConfigs);
       if (checkConfigs.length > 0) {
         //
         setLoading(false);
-        console.log("config type exists");
 
         message.warning(
           "The configuration type name already exists updating the data and then proceeding to setting up schedules"
@@ -123,8 +117,6 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
           report_users: notificationUsers,
           ...formValues,
         };
-
-        console.log("emailConfigData", emailConfigData);
 
         const emailConfigUid = checkConfigs[0]?.email_config_uid;
 
@@ -156,11 +148,7 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
           ...formValues,
         };
 
-        console.log("emailConfigData", emailConfigData);
-
         const response = await dispatch(createEmailConfig(emailConfigData));
-
-        console.log("config form response", response);
 
         if (response.payload.success) {
           const emailConfigUid = response.payload.data?.data?.email_config_uid;
@@ -177,8 +165,6 @@ const EmailConfigForm = ({ handleContinue, configTypes, sctoForms }: any) => {
         }
       }
     } catch (error) {
-      console.log("error", error);
-
       message.error("Failed to update email configuration");
     }
     setLoading(false);

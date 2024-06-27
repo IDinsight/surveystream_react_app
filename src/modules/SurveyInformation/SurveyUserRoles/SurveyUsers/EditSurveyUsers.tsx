@@ -148,7 +148,6 @@ function EditSurveyUsers() {
         navigate(`/survey-information/survey-users/users/${survey_uid}`);
       } else {
         message.error("Failed to update user kindly check");
-        console.log("error", updateRes.payload);
       }
     });
 
@@ -168,7 +167,6 @@ function EditSurveyUsers() {
         reporting_role_uid: item.reporting_role_uid,
       }));
 
-      console.log("transformedData", transformedData);
       setRolesTableData(transformedData);
 
       const role = transformedData?.find((r: any) =>
@@ -181,8 +179,6 @@ function EditSurveyUsers() {
       } else {
         setHasReportingRole(false);
       }
-    } else {
-      console.log("missing roles");
     }
   };
 
@@ -224,9 +220,6 @@ function EditSurveyUsers() {
         // Update state with filtered user list and editUser details
         setFilteredUserList(_filteredUserList);
         setUserDetails({ ...editUser });
-
-        console.log("editUser", editUser);
-        console.log("rolesTableData", rolesTableData);
       }
     };
 
@@ -428,9 +421,6 @@ function EditSurveyUsers() {
                         showSearch={true}
                         allowClear={true}
                         placeholder="Select supervisor"
-                        onChange={(value) => {
-                          console.log("value", value);
-                        }}
                       >
                         {filteredUserList?.map((user: any, i: any) => (
                           <Select.Option key={i} value={user?.user_uid}>

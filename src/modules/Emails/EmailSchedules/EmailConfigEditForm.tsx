@@ -70,8 +70,6 @@ const EmailConfigEditForm = ({
       );
 
       if (response.payload?.data?.success) {
-        console.log("response.payload?.data", response.payload?.data);
-
         message.success("Email config updated successfully");
 
         fetchEmailSchedules();
@@ -82,7 +80,6 @@ const EmailConfigEditForm = ({
         );
       }
     } catch (error) {
-      console.error("Error:", error);
       message.error("Failed to update email configuration");
     }
     setLoading(false);

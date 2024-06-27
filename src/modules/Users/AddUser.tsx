@@ -104,7 +104,6 @@ function AddUser() {
           navigate(`/users`);
         } else {
           message.error("Failed to update user kindly check");
-          console.log("error", updateRes.payload);
         }
       } else {
         //perform add user
@@ -125,7 +124,6 @@ function AddUser() {
           navigate(`/users`);
         } else {
           message.error("Failed to add user kindly check");
-          console.log("error", addRes.payload);
         }
       }
     });

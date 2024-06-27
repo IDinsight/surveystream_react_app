@@ -72,11 +72,9 @@ const EmailScheduleForm = ({
 
   const fetchEmailSchedules = async () => {
     const email_config_uid = emailConfigUID;
-    console.log("fetchEmailSchedules", email_config_uid);
     const emailSchedulesRes = await dispatch(
       getEmailSchedules({ email_config_uid })
     );
-    console.log("emailSchedulesRes", emailSchedulesRes);
   };
 
   const handleSubmit = async () => {
@@ -98,13 +96,9 @@ const EmailScheduleForm = ({
           email_schedule_name: schedule?.emailScheduleName,
         };
 
-        console.log("emailScheduleData", emailScheduleData);
-
         const res = await dispatch(
           createEmailSchedule({ ...emailScheduleData })
         );
-
-        console.log("createEmailSchedule res", res);
 
         if (!res.payload.success) {
           // Error occurred
@@ -121,7 +115,6 @@ const EmailScheduleForm = ({
       message.success("Email schedules updated successfully");
       handleContinue(emailConfigUID);
     } catch (error) {
-      console.error("error", error);
       message.error("Failed to update email schedules");
     }
     setLoading(false);

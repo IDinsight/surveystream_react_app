@@ -58,7 +58,6 @@ function EditUser() {
         navigate(`/users`);
       } else {
         message.error("Failed to update user kindly check");
-        console.log("error", updateRes.payload);
       }
     });
 

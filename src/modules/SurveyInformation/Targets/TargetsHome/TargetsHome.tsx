@@ -112,7 +112,6 @@ function TargetsHome() {
             selectedRows[0][field] &&
             typeof selectedRows[0][field] === "object"
           ) {
-            console.log("selectedRows[0][field]", selectedRows[0][field]);
             const customFields = selectedRows[0][field];
 
             return Object.keys(customFields)
