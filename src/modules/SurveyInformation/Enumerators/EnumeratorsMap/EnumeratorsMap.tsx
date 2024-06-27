@@ -340,7 +340,6 @@ function EnumeratorsMap() {
 
           const customConfig = Object.keys(flattenedColumnMapping).map(
             (key) => {
-              console.log("key", key);
               if (key && flattenedColumnMapping[key] !== undefined) {
                 const personal = personalBatchField.includes(key);
                 const location = locationBatchField.includes(key);
@@ -359,10 +358,11 @@ function EnumeratorsMap() {
           );
 
           const filteredCustomConfig = customConfig.filter(
-            (config) => config !== null && config !== undefined
+            (config: any) =>
+              config != null &&
+              config !== undefined &&
+              config.column_name !== `custom_fields`
           );
-
-          console.log("filteredCustomConfig", filteredCustomConfig);
 
           dispatch(
             updateEnumeratorColumnConfig({
