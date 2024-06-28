@@ -440,6 +440,63 @@ export const deleteEmailTemplate = async (
   }
 };
 
+export const getGoogleSheetHeaders = async (
+  form_uid: any,
+  email_source_gsheet_link: any,
+  email_source_gsheet_tab: any,
+  email_source_gsheet_header_row: any
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const response = await axios.get(`${API_BASE_URL}/emails/gsheet`, {
+      params: {
+        form_uid,
+        email_source_gsheet_link,
+        email_source_gsheet_tab,
+        email_source_gsheet_header_row,
+      },
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateGoogleSheetHeaders = async (updateData: {
+  email_config_uid: string;
+  email_source_gsheet_link: string;
+  email_source_gsheet_tab: string;
+  email_source_gsheet_header_row: string;
+}) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.patch(
+      `${API_BASE_URL}/emails/gsheet`,
+      updateData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   createEmailConfig,
   getEmailConfigs,
@@ -460,4 +517,6 @@ export const api = {
   createEmailTemplate,
   getEmailTemplates,
   deleteEmailTemplate,
+  getGoogleSheetHeaders,
+  updateGoogleSheetHeaders,
 };

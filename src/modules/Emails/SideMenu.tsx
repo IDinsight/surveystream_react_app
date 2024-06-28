@@ -91,6 +91,7 @@ function SideMenu() {
     const path = location.pathname;
     if (path.includes("/manual")) return "manualTriggers";
     if (path.includes("/schedules")) return "emailSchedules";
+    if (path.includes("/templates")) return "emailTemplates";
 
     return "schedules";
   };
