@@ -56,6 +56,9 @@ import {
   getEmailDetailsRequest,
   getEmailDetailsSuccess,
   getEmailDetailsFailure,
+  deleteEmailTemplateRequest,
+  deleteEmailTemplateSuccess,
+  deleteEmailTemplateFailure,
 } from "./emailsSlice";
 
 // Email Config Actions
@@ -584,6 +587,36 @@ export const getEmailTemplates = createAsyncThunk(
   }
 );
 
+export const deleteEmailTemplate = createAsyncThunk(
+  "emails/deleteEmailTemplate",
+  async (
+    { id, email_config_uid }: { id: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(deleteEmailTemplateRequest());
+      const response: any = await api.deleteEmailTemplate(id, email_config_uid);
+      if (response.status === 200) {
+        dispatch(deleteEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to delete email template.",
+        success: false,
+      };
+      dispatch(deleteEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to delete email template.";
+      dispatch(deleteManualEmailTriggerFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const emailActions = {
   getEmailConfigs,
   getEmailSchedule,
@@ -601,4 +634,5 @@ export const emailActions = {
   getManualEmailTriggers,
   getEmailTemplates,
   createEmailTemplate,
+  deleteEmailTemplate,
 };

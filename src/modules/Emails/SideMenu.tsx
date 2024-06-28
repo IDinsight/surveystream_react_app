@@ -1,10 +1,13 @@
 import { useLocation, useParams } from "react-router-dom";
-import { CalendarOutlined, MailFilled, SendOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  MailOutlined,
+  SendOutlined,
+} from "@ant-design/icons";
 
 import { Menu, MenuProps } from "antd";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch } from "../../redux/hooks";
 import {
   IconWrapper,
   MenuItem,
@@ -13,7 +16,6 @@ import {
 
 function SideMenu() {
   const location = useLocation();
-  const dispatch = useAppDispatch();
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -60,6 +62,22 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "manualTriggers",
+    },
+    {
+      label: (
+        <MenuItem
+          className={`${isActive(
+            `/module-configuration/emails/${survey_uid}/templates`
+          )}`}
+          to={`/module-configuration/emails/${survey_uid}/templates`}
+        >
+          <IconWrapper>
+            <MailOutlined />
+          </IconWrapper>
+          Email Templates
+        </MenuItem>
+      ),
+      key: "emailTemplates",
     },
   ];
   const [current, setCurrent] = useState("mail");

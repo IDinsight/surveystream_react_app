@@ -415,6 +415,31 @@ export const getEmailTemplates = async (email_config_uid: any) => {
   }
 };
 
+export const deleteEmailTemplate = async (
+  id: string,
+  email_config_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.delete(
+      `${API_BASE_URL}/emails/template/${id}?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   createEmailConfig,
   getEmailConfigs,
@@ -434,4 +459,5 @@ export const api = {
   deleteManualEmailTrigger,
   createEmailTemplate,
   getEmailTemplates,
+  deleteEmailTemplate,
 };
