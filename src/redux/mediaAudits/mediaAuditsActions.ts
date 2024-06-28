@@ -135,7 +135,6 @@ export const updateMediaAuditConfig = createAsyncThunk(
         mediaConfigUID,
         data
       );
-      console.log("response", response);
       if (response.status == 200) {
         dispatch(updateMediaAuditConfigSuccess(response.data));
         return { ...response, success: true };

@@ -30,6 +30,7 @@ import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -68,10 +69,6 @@ function AddSurveyRoles() {
   const [allPermissions, setAllPermissions] = useState<any>([]);
 
   const [localPermissions, setLocalPermissions] = useState<any>([]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const [addRolesForm] = Form.useForm();
   const navigate = useNavigate();
@@ -177,8 +174,6 @@ function AddSurveyRoles() {
           }
         })
         .catch((error) => {
-          // Handle validation errors
-          console.error("Validation error:", error);
           message.error(
             `Validation error: ${error?.errorFields[0]?.errors[0]}`
           );
@@ -200,9 +195,8 @@ function AddSurveyRoles() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

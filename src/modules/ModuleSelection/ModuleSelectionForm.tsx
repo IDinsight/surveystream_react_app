@@ -313,7 +313,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
       </MainWrapper>
 
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleContinue}>
           Continue
         </ContinueButton>

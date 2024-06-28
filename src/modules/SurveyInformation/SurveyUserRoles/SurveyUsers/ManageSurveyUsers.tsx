@@ -32,6 +32,7 @@ import {
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -56,10 +57,6 @@ function ManageSurveyUsers() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const fetchAllUsers = async () => {
     const usersRes = await dispatch(getAllUsers({ survey_uid }));
@@ -135,7 +132,6 @@ function ManageSurveyUsers() {
       setHasSelected(false);
     } else {
       message.error("Failed to remove user from project, kindly try again");
-      console.log("error", updateRes.payload);
     }
     fetchAllUsers();
     setIsOpenDeleteModel(false);
@@ -223,8 +219,6 @@ function ManageSurveyUsers() {
         has_reporting_role: item.reporting_role_uid ? true : false,
       }));
       setRolesTableData(transformedData);
-    } else {
-      console.log("missing roles");
     }
   };
 
@@ -238,9 +232,8 @@ function ManageSurveyUsers() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

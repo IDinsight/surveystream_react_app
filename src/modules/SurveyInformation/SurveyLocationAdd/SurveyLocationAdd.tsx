@@ -26,16 +26,12 @@ import {
   FooterWrapper,
   SaveButton,
 } from "../../../shared/FooterBar.styled";
-import {
-  NavWrapper,
-  BackLink,
-  BackArrow,
-  Title,
-} from "../../../shared/Nav.styled";
+import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import Header from "../../../components/Header";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import Container from "../../../components/Layout/Container";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -46,9 +42,6 @@ function SurveyLocationAdd() {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
@@ -249,28 +242,29 @@ function SurveyLocationAdd() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container />
+      <HeaderContainer>
+        <Title>Survey location types</Title>
+
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        >
+          <AddAnotherButton
+            onClick={handleAddGeoLevel}
+            type="dashed"
+            style={{ width: "100%" }}
+            disabled={!isAllowedEdit}
+          >
+            <FileAddOutlined /> Add another location
+          </AddAnotherButton>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
           <SideMenu />
           <SurveyLocationFormWrapper>
-            <Title>Survey location: Add location</Title>
             <DescriptionText>
               Please create the locations for your survey. Examples of
               locations: state, district, and block
@@ -281,26 +275,12 @@ function SurveyLocationAdd() {
                 onValuesChange={handleFormValuesChange}
               >
                 {renderLocationFields()}
-                <StyledFormItem
-                  labelCol={{ span: 5 }}
-                  wrapperCol={{ span: 11 }}
-                >
-                  <AddAnotherButton
-                    onClick={handleAddGeoLevel}
-                    type="dashed"
-                    style={{ width: "100%" }}
-                    disabled={!isAllowedEdit}
-                  >
-                    <FileAddOutlined /> Add another location
-                  </AddAnotherButton>
-                </StyledFormItem>
               </DynamicItemsForm>
             </div>
           </SurveyLocationFormWrapper>
         </div>
       )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton
           onClick={handleLocationAddContinue}
           loading={loading}

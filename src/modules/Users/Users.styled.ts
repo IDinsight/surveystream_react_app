@@ -24,7 +24,6 @@ export const DescriptionText = styled.p`
 `;
 
 export const UsersTable = styled(Table)`
-  margin-top: 15px;
   margin-bottom: 68px;
   & th {
     color: #434343 !important;

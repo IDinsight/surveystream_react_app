@@ -304,7 +304,6 @@ function CreateAssignments() {
               postAssignmentEmail({
                 formData: manualTriggerPayload,
                 callFn: (response: any) => {
-                  console.log("postAssignmentEmail", response);
                   if (response.success) {
                     message.success(
                       "Email schedule updated successfully.",
@@ -321,7 +320,6 @@ function CreateAssignments() {
             setStepLoading(false);
           });
         } catch (error) {
-          console.error("Validation failed:", error);
           message.error(
             "Validation failed. Please ensure all email trigger fields are properly set."
           );
