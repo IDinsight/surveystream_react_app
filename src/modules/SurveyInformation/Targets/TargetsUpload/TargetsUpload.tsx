@@ -34,6 +34,7 @@ import {
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -42,10 +43,6 @@ interface CSVError {
 }
 function TargetsUpload() {
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -138,9 +135,8 @@ function TargetsUpload() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

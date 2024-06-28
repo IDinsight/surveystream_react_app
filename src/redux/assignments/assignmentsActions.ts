@@ -101,7 +101,6 @@ export const updateAssignments = createAsyncThunk(
       };
       callFn(errorObj);
     } catch (error: any) {
-      console.log(error);
       const errorMessage = error || "Failed to update assignments.";
       const errorObj = {
         message: errorMessage,
@@ -203,7 +202,6 @@ export const postAssignmentEmail = createAsyncThunk(
   async ({ formData, callFn }: any) => {
     try {
       const response: any = await scheduleAssignmentsEmail(formData);
-      console.log("response", response);
       if (response.status == 201) {
         callFn({ ...response.data, success: true });
         return;
@@ -217,7 +215,6 @@ export const postAssignmentEmail = createAsyncThunk(
       };
       callFn(errorObj);
     } catch (error: any) {
-      console.log(error);
       const errorMessage = error || "Failed to schedule assignments email.";
       const errorObj = {
         message: errorMessage,

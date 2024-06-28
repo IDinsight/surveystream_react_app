@@ -9,6 +9,8 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
 import { GlobalStyle } from "../../shared/Global.styled";
+import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { CloseCircleOutlined } from "@ant-design/icons";
 
 function EditUser() {
   const navigate = useNavigate();
@@ -56,7 +58,6 @@ function EditUser() {
         navigate(`/users`);
       } else {
         message.error("Failed to update user kindly check");
-        console.log("error", updateRes.payload);
       }
     });
 
@@ -80,13 +81,27 @@ function EditUser() {
     <>
       <GlobalStyle />
       <Header items={NavItems} />
+      <HeaderContainer>
+        <Title>
+          {`Edit User :  ${userDetails.first_name} ${userDetails.last_name}`}
+        </Title>
+
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Button
+            onClick={() => navigate(`/users/`)}
+            style={{ marginLeft: 20 }}
+            icon={<CloseCircleOutlined />}
+          >
+            Dismiss
+          </Button>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <BodyWrapper>
             <MainContainer>
-              <DescriptionText>Edit user</DescriptionText>
               <div>
                 <Form
                   form={updateUserForm}
@@ -345,12 +360,6 @@ function EditUser() {
                       style={{ backgroundColor: "#2F54EB" }}
                     >
                       Update User
-                    </Button>
-                    <Button
-                      onClick={() => navigate(`/users/`)}
-                      style={{ marginLeft: 20 }}
-                    >
-                      Dismiss
                     </Button>
                   </Form.Item>
                 </Form>

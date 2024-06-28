@@ -288,8 +288,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         dispatch(setMappingErrorStatus(true));
       }
     } catch (error) {
-      console.log("Form validation error:", error);
-
       const requiredErrors: any = {};
       const formFields = targetMappingForm.getFieldsValue();
 
@@ -299,8 +297,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           requiredErrors[field] = true;
         }
       }
-
-      console.log("Required errors:", requiredErrors);
     }
   };
 

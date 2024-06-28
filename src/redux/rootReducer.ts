@@ -13,8 +13,10 @@ import enumeratorsReducer from "./enumerators/enumeratorsSlice";
 import targetsReducer from "./targets/targetSlice";
 import userManagementReducer from "./userManagement/userManagementSlice";
 import assignmentsReducer from "./assignments/assignmentsSlice";
+import emailsReducer from "./emails/emailsSlice";
 import targetStatusMappingReducer from "./targetStatusMapping/targetStatusMappingSlice";
 import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
+import dqFormsReducer from "./dqForm/dqFormSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -30,8 +32,10 @@ const rootReducer = combineReducers({
   targets: targetsReducer,
   userManagement: userManagementReducer,
   assignments: assignmentsReducer,
+  emails: emailsReducer,
   targetStatusMapping: targetStatusMappingReducer,
   mediaAudits: mediaAuditsReducer,
+  dqForms: dqFormsReducer,
 });
 
 export default rootReducer;
