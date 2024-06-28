@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button, Drawer, Popconfirm, Tooltip, message } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { format } from "date-fns";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { ManualTriggersTable } from "./ManualTriggers.styled";
 import ManualEmailTriggerForm from "./ManualTriggerForm";
@@ -55,14 +54,12 @@ function ManualTriggers({
         message.error("Failed to delete trigger");
       }
     } catch (error) {
-      console.error("Error deleting trigger:", error);
       message.error("An error occurred while deleting trigger");
     }
   };
 
   const handleEditTrigger = (trigger: any) => {
     // Show the drawer for editing with the trigger data
-    console.log("edit trigger:", trigger);
     setEditTriggerValues(trigger);
     showEditManualDrawer();
   };
