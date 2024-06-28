@@ -132,7 +132,6 @@ function ManageSurveyUsers() {
       setHasSelected(false);
     } else {
       message.error("Failed to remove user from project, kindly try again");
-      console.log("error", updateRes.payload);
     }
     fetchAllUsers();
     setIsOpenDeleteModel(false);
@@ -220,8 +219,6 @@ function ManageSurveyUsers() {
         has_reporting_role: item.reporting_role_uid ? true : false,
       }));
       setRolesTableData(transformedData);
-    } else {
-      console.log("missing roles");
     }
   };
 

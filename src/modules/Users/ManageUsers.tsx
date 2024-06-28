@@ -193,7 +193,6 @@ function UsersManage() {
         message.error(
           "User cannot be deactivated from the system,kindly check active projects."
         );
-        console.log("error", deactivateRes.payload);
       }
     });
     setIsOpenDeactivateModel(false);

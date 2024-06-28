@@ -302,12 +302,6 @@ function TargetsMap() {
     formUID: any,
     column_mapping: any
   ) => {
-    // Auto-configure columns for users, setting personal as non_batch and the rest as batch
-    // Use the column mapping to do this
-
-    console.log("column_mapping", column_mapping);
-    console.log("checkboxValues", checkboxValues);
-
     const customConfig = Object.keys(column_mapping).flatMap((key) => {
       if (
         key !== null &&
@@ -331,13 +325,6 @@ function TargetsMap() {
 
             const bulk = checkboxValues?.[`${columnName}_bulk`] ?? true;
             const pii = checkboxValues?.[`${columnName}_pii`] ?? true;
-
-            console.log({
-              bulk_editable: bulk,
-              column_name: columnName,
-              column_type: "custom_fields",
-              contains_pii: pii,
-            });
 
             return {
               bulk_editable: bulk,

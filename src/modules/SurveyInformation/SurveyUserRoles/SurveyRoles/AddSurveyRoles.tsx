@@ -174,8 +174,6 @@ function AddSurveyRoles() {
           }
         })
         .catch((error) => {
-          // Handle validation errors
-          console.error("Validation error:", error);
           message.error(
             `Validation error: ${error?.errorFields[0]?.errors[0]}`
           );
