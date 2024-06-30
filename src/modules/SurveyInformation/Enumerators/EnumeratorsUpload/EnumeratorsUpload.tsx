@@ -35,6 +35,7 @@ import {
 } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -49,10 +50,6 @@ function EnumeratorsUpload() {
     form_uid: "",
   };
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const [form] = Form.useForm();
 
@@ -147,9 +144,8 @@ function EnumeratorsUpload() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
       {isLoading ? (

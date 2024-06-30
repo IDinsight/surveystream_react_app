@@ -5,14 +5,11 @@ import Footer from "../../components/Footer";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import SuccessCard from "../../components/SuccessCard";
-import {
-  performLogout,
-  performResetPassword,
-} from "../../redux/auth/authActions";
+import { performLogout } from "../../redux/auth/authActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import ResetPasswordComponent from "../../components/ResetPasswordComponent";
-import { ResetParams, ResetPasswordData } from "../../redux/auth/types";
+import { ResetParams } from "../../redux/auth/types";
 
 import { LockOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
@@ -76,7 +73,6 @@ function CompleteRegistration() {
 
   const handleLogOut = async () => {
     const logoutRes = await dispatch(performLogout());
-    console.log("logoutRes", logoutRes);
   };
 
   useEffect(() => {

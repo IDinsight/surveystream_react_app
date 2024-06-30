@@ -6,6 +6,7 @@ import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
+  HeaderContainer,
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
@@ -34,13 +35,10 @@ import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions
 import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import Container from "../../../../components/Layout/Container";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const { CSVDownloader, Type } = useCSVDownloader();
 
@@ -179,7 +177,6 @@ function EnumeratorsHome() {
     );
 
     if (enumeratorRes.payload.status == 200) {
-      message.success("Enumerators loaded successfully.");
       //create rowbox data
       const originalData = enumeratorRes.payload.data.data;
 
@@ -188,8 +185,11 @@ function EnumeratorsHome() {
         navigate(
           `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
         );
+        message.info("No enumerators found. Kindly upload the enumerators.");
         return;
       }
+
+      message.success("Enumerators loaded successfully.");
 
       // Initialize counters
       let activeCount = 0;
@@ -381,7 +381,7 @@ function EnumeratorsHome() {
       await handleFormUID();
 
       if (form_uid && screenMode === "manage") {
-        getEnumeratorsList(form_uid);
+        await getEnumeratorsList(form_uid);
       }
     };
 
@@ -392,21 +392,72 @@ function EnumeratorsHome() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container />
+      <HeaderContainer>
+        <Title>Enumerators</Title>
+        {screenMode == "manage" ? (
+          <>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "auto",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  marginLeft: "auto",
+                  color: "#2F54EB",
+                }}
+              >
+                {editMode ? (
+                  <>
+                    <Button
+                      icon={<EditOutlined />}
+                      style={{ marginRight: 20 }}
+                      onClick={onEditDataHandler}
+                    >
+                      Edit data
+                    </Button>
+                  </>
+                ) : null}
+                <Button
+                  type="primary"
+                  icon={editMode ? null : <EditOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  onClick={() => setEditMode((prev) => !prev)}
+                >
+                  {editMode ? "Done editing" : "Edit"}
+                </Button>
+                <Button
+                  onClick={handlerAddEnumBtn}
+                  type="primary"
+                  icon={<CloudUploadOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                >
+                  Add enumerators
+                </Button>
+                <CSVDownloader
+                  data={tableDataSource}
+                  filename={"enumerators.csv"}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#2F54EB",
+                    color: "#FFF",
+                    fontSize: "12px",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    marginRight: 80,
+                  }}
+                >
+                  <DownloadOutlined />
+                </CSVDownloader>
+              </div>
+            </div>
+          </>
+        ) : null}
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -415,59 +466,6 @@ function EnumeratorsHome() {
           {screenMode === "manage" ? (
             <>
               <EnumeratorsHomeFormWrapper>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Title>Enumerators</Title>
-                  <div
-                    style={{
-                      display: "flex",
-                      marginLeft: "auto",
-                      color: "#2F54EB",
-                    }}
-                  >
-                    {editMode ? (
-                      <>
-                        <Button
-                          icon={<EditOutlined />}
-                          style={{ marginRight: 20 }}
-                          onClick={onEditDataHandler}
-                        >
-                          Edit data
-                        </Button>
-                      </>
-                    ) : null}
-                    <Button
-                      type="primary"
-                      icon={editMode ? null : <EditOutlined />}
-                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                      onClick={() => setEditMode((prev) => !prev)}
-                    >
-                      {editMode ? "Done editing" : "Edit"}
-                    </Button>
-                    <Button
-                      onClick={handlerAddEnumBtn}
-                      type="primary"
-                      icon={<CloudUploadOutlined />}
-                      style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                    >
-                      Add enumerators
-                    </Button>
-                    <CSVDownloader
-                      data={tableDataSource}
-                      filename={"enumerators.csv"}
-                      style={{
-                        cursor: "pointer",
-                        backgroundColor: "#2F54EB",
-                        color: "#FFF",
-                        fontSize: "12px",
-                        padding: "8px 16px",
-                        borderRadius: "5px",
-                        marginRight: 80,
-                      }}
-                    >
-                      <DownloadOutlined />
-                    </CSVDownloader>
-                  </div>
-                </div>
                 <br />
                 <EnumeratorsCountBox
                   active={activeEnums}

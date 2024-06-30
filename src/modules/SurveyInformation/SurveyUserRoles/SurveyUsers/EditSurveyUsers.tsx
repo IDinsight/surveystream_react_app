@@ -25,6 +25,7 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -70,10 +71,6 @@ function EditSurveyUsers() {
   });
 
   const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const updateUserHierarchy = async (
     userUid: any,
@@ -151,7 +148,6 @@ function EditSurveyUsers() {
         navigate(`/survey-information/survey-users/users/${survey_uid}`);
       } else {
         message.error("Failed to update user kindly check");
-        console.log("error", updateRes.payload);
       }
     });
 
@@ -171,7 +167,6 @@ function EditSurveyUsers() {
         reporting_role_uid: item.reporting_role_uid,
       }));
 
-      console.log("transformedData", transformedData);
       setRolesTableData(transformedData);
 
       const role = transformedData?.find((r: any) =>
@@ -184,8 +179,6 @@ function EditSurveyUsers() {
       } else {
         setHasReportingRole(false);
       }
-    } else {
-      console.log("missing roles");
     }
   };
 
@@ -227,9 +220,6 @@ function EditSurveyUsers() {
         // Update state with filtered user list and editUser details
         setFilteredUserList(_filteredUserList);
         setUserDetails({ ...editUser });
-
-        console.log("editUser", editUser);
-        console.log("rolesTableData", rolesTableData);
       }
     };
 
@@ -241,9 +231,8 @@ function EditSurveyUsers() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");
@@ -432,9 +421,6 @@ function EditSurveyUsers() {
                         showSearch={true}
                         allowClear={true}
                         placeholder="Select supervisor"
-                        onChange={(value) => {
-                          console.log("value", value);
-                        }}
                       >
                         {filteredUserList?.map((user: any, i: any) => (
                           <Select.Option key={i} value={user?.user_uid}>

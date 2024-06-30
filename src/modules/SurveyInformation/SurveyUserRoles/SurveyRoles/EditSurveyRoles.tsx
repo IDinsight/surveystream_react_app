@@ -30,6 +30,7 @@ import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -71,10 +72,6 @@ function EditSurveyRoles() {
   const [allPermissions, setAllPermissions] = useState<any>([]);
   const [localPermissions, setLocalPermissions] = useState<any>([]);
   const [rolesTableData, setRolesTableData] = useState<any>([]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -216,9 +213,8 @@ function EditSurveyRoles() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

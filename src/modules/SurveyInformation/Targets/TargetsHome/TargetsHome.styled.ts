@@ -15,22 +15,16 @@ export const TargetsHomeFormWrapper = styled.div`
 export const TargetsTable = styled(Table)`
   overflow: auto;
   width: 90%;
+  margin-top: 15px;
+  margin-bottom: 68px;
   & th {
     color: #434343 !important;
-    background-color: #feffe6 !important;
+    background-color: #d6e4ff !important;
     height: 40px;
-    font-weight: 400 !important;
     font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
-  }
-  & .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: #feffe6;
-    border-color: #434343;
-  }
-  & .ant-checkbox-checked .ant-checkbox-inner::after {
-    border-color: #434343;
   }
   & td {
     font-family: "Lato", sans-serif;

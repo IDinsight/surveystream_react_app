@@ -9,10 +9,11 @@ import SideMenu from "./SideMenu";
 import { Form } from "antd";
 import ModuleSelectionForm from "./ModuleSelectionForm";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { GlobalStyle } from "../../shared/Global.styled";
+import HandleBackButton from "../../components/HandleBackButton";
 
 function ModuleSelection() {
   const [form] = Form.useForm();
@@ -22,18 +23,12 @@ function ModuleSelection() {
     (state: RootState) => state.surveys.activeSurvey
   );
 
-  const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
-  };
-
   return (
     <>
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");
