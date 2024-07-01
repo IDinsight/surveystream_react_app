@@ -58,7 +58,6 @@ function Header({ items }: { items?: any }) {
     if (isAuthenticated() && !userProfile?.first_name) {
       dispatch(performGetUserProfile());
     }
-    console.log("storedProfile", userProfile);
 
     if (storedProfile) {
       dispatch(setUserProfile({ ...userProfile }));

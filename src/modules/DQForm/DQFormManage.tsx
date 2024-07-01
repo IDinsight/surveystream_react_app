@@ -16,6 +16,7 @@ import {
   getDQForm,
   updateDQForm,
 } from "../../redux/dqForm/dqFormActions";
+import { userHasPermission } from "../../utils/helper";
 
 function DQFormManage() {
   const navigate = useNavigate();
@@ -32,8 +33,12 @@ function DQFormManage() {
   const [searchParam] = useSearchParams();
   const dqFormUID = searchParam.get("dq_form_uid");
 
-  // TODO: Add user permission check
-  const canUserWrite = true;
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const canUserWrite = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Data Quality Forms"
+  );
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
@@ -74,8 +79,11 @@ function DQFormManage() {
         })
       ).then((res) => {
         if (res.payload?.success) {
+          const formUID = res.payload?.data.form_uid;
           message.success("DQ form updated successfully.");
-          navigate(`/module-configuration/dq-forms/${survey_uid}`);
+          navigate(
+            `/module-configuration/dq-forms/${survey_uid}/scto-questions/${formUID}`
+          );
         } else {
           message.error(res.payload?.message);
         }
@@ -87,8 +95,11 @@ function DQFormManage() {
         })
       ).then((res) => {
         if (res.payload?.success) {
+          const formUID = res.payload?.data.data.survey.form_uid;
           message.success("DQ form created successfully.");
-          navigate(`/module-configuration/dq-forms/${survey_uid}`);
+          navigate(
+            `/module-configuration/dq-forms/${survey_uid}/scto-questions/${formUID}`
+          );
         } else {
           message.error(res.payload?.message);
         }

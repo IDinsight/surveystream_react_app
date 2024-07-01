@@ -73,6 +73,42 @@ const dqFormSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    getSCTOFormMappingRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getSCTOFormMappingSuccess: (state) => {
+      state.loading = false;
+      state.error = null;
+    },
+    getSCTOFormMappingFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    createSCTOFormMappingRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createSCTOFormMappingSuccess: (state) => {
+      state.loading = false;
+      state.error = null;
+    },
+    createSCTOFormMappingFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    updateSCTOFormMappingRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateSCTOFormMappingSuccess: (state) => {
+      state.loading = false;
+      state.error = null;
+    },
+    updateSCTOFormMappingFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -92,6 +128,15 @@ export const {
   deleteDQFormRequest,
   deleteDQFormSuccess,
   deleteDQFormFailure,
+  getSCTOFormMappingRequest,
+  getSCTOFormMappingSuccess,
+  getSCTOFormMappingFailure,
+  createSCTOFormMappingRequest,
+  createSCTOFormMappingSuccess,
+  createSCTOFormMappingFailure,
+  updateSCTOFormMappingRequest,
+  updateSCTOFormMappingSuccess,
+  updateSCTOFormMappingFailure,
 } = dqFormSlice.actions;
 
 export default dqFormSlice.reducer;
