@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -33,8 +33,13 @@ import {
   MailFilled,
   ProfileFilled,
   ReadFilled,
+  ControlOutlined,
   BuildFilled,
   AudioOutlined,
+  TableOutlined,
+  MailOutlined,
+  SoundOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -87,6 +92,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
+    Emails: "emails",
     "Media (Audio/Photo) audits": "media-audits",
     "Track data quality": "dq-forms",
   },
@@ -170,19 +176,25 @@ const SurveyConfiguration: React.FC = () => {
       case "User and role management":
         return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
       case "Survey locations":
-        return <PushpinFilled style={{ color: "#D4B106", ...iconProps }} />;
+        return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Enumerators":
         return (
           <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
         );
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
+      case "Mapping":
+        return <ControlOutlined style={{ color: "#531DAB", ...iconProps }} />;
       case "Target status mapping":
-        return <BuildFilled style={{ color: "#CF1322", ...iconProps }} />;
+        return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Assign targets to surveyors":
         return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+      case "Emails":
+        return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
+      case "Assignments column configuration":
+        return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Track productivity":
-        return <ProfileFilled style={{ color: "#D4B106", ...iconProps }} />;
+        return <ProfileFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Track data quality":
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
       case "Media (Audio/Photo) audits":
@@ -225,6 +237,12 @@ const SurveyConfiguration: React.FC = () => {
         break;
       case "Media (Audio/Photo) audits":
         permission_name = "READ Media Files Config";
+        break;
+      case "Assignments column configuration":
+        permission_name = "READ Assignments";
+        break;
+      case "Emails":
+        permission_name = "READ Emails";
         break;
       case "Track productivity":
         permission_name = "READ Productivity";
@@ -375,8 +393,9 @@ const SurveyConfiguration: React.FC = () => {
           <SideMenu surveyProgress={surveyConfigs} />
           <MainWrapper>
             {Object.entries(surveyConfigs).map(
-              ([sectionTitle, sectionConfig], index) =>
-                renderSection(sectionTitle, sectionConfig, index)
+              ([sectionTitle, sectionConfig], index) => (
+                <>{renderSection(sectionTitle, sectionConfig, index)}</>
+              )
             )}
           </MainWrapper>
         </div>

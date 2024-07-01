@@ -6,12 +6,6 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: 24px;
-`;
-
-export const Title = styled.p`
-  color: #000;
-  font-family: "Lato", sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 28px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 `;

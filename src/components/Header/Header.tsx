@@ -58,11 +58,10 @@ function Header({ items }: { items?: any }) {
     if (isAuthenticated() && !userProfile?.first_name) {
       dispatch(performGetUserProfile());
     }
-
     if (storedProfile) {
       dispatch(setUserProfile({ ...userProfile }));
     }
-  }, [storedProfile]);
+  }, []);
 
   const avatarMenu: MenuProps["items"] = [
     {

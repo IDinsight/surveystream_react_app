@@ -26,6 +26,7 @@ import {
   putUserHierarchy,
 } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -70,10 +71,6 @@ function AddSurveyUsers() {
   const isLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const updateUserHierarchy = async (
     userUid: any,
@@ -266,9 +263,8 @@ function AddSurveyUsers() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

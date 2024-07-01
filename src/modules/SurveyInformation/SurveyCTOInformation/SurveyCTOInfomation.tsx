@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Row, Col, Input, Select, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../../components/Header";
-import {
-  NavWrapper,
-  BackLink,
-  BackArrow,
-  Title,
-} from "../../../shared/Nav.styled";
+import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
 import {
   FooterWrapper,
   SaveButton,
@@ -34,6 +29,8 @@ import {
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
+import Container from "../../../components/Layout/Container";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -48,9 +45,6 @@ function SurveyCTOInfomation() {
     (state: RootState) => state.surveys.activeSurvey
   );
   const [formData, setFormData] = useState<SurveyCTOForm | null>(null);
-  const handleGoBack = () => {
-    navigate(-1);
-  };
   const [loading, setLoading] = useState(false);
   const [surveyCTOForm, setSurveyCTOForm] = useState<SurveyCTOForm | null>(
     null
@@ -175,21 +169,14 @@ function SurveyCTOInfomation() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container />
+      <HeaderContainer>
+        <Title>SurveyCTO information</Title>
+
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+      </HeaderContainer>
 
       {isLoading || loading ? (
         <FullScreenLoader />
@@ -198,7 +185,6 @@ function SurveyCTOInfomation() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <SCTOInformationFormWrapper>
-              <Title>SurveyCTO information</Title>
               <DescriptionText>
                 Please fill out the SurveyCTO form details
               </DescriptionText>
@@ -363,7 +349,6 @@ function SurveyCTOInfomation() {
             </SCTOInformationFormWrapper>
           </div>
           <FooterWrapper>
-            <SaveButton onClick={handleGoBack}>Back</SaveButton>
             <ContinueButton onClick={handleContinue} loading={loading}>
               Continue
             </ContinueButton>

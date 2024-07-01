@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Input } from "antd";
 
 export const NavWrapper = styled.nav`
   background-color: #fff;
@@ -43,6 +44,11 @@ export const MainWrapper = styled.div`
   padding-left: 80px;
   padding-top: 23px;
   font-family: "Lato", sans-serif;
+`;
+export const SearchBox = styled(Input.Search)`
+  & button {
+    background-color: #2f54eb;
+  }
 `;
 
 export const HeaderContainer = styled.div`
