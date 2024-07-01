@@ -309,7 +309,7 @@ function Emails() {
 
       <Drawer
         title={"Create Email Template"}
-        width={650}
+        width={750}
         onClose={closeAddTemplateDrawer}
         open={isAddTemplateDrawerVisible}
         style={{ paddingBottom: 80, fontFamily: "Lato" }}
