@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
-import { Form, Button, Select, DatePicker, message, TimePicker } from "antd";
+import { Form, Button, Select, message, Input } from "antd";
 import {
   createManualEmailTrigger,
   updateManualEmailTrigger,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -152,42 +151,65 @@ const EmailTemplateEditForm = ({
           }))}
         />
       </Form.Item>
-      <Form.Item
-        name="date"
-        label="Date"
-        rules={[
-          { required: true, message: "Please select the date" },
-          { validator: validateDate },
-        ]}
-      >
-        <DatePicker
-          format="YYYY-MM-DD"
-          defaultValue={dayjs(initialValues?.date)}
-        />
-      </Form.Item>
-      <Form.Item
-        name="time"
-        label="Time"
-        rules={[{ required: true, message: "Please select the time" }]}
-      >
-        <TimePicker format="HH:mm" />
-      </Form.Item>
-      <Form.Item
-        name="recipients"
-        label="Recipients"
-        rules={[{ required: false, message: "Please select the recipients" }]}
-      >
-        <Select
-          showSearch
-          mode="multiple"
-          placeholder="Select recipients"
-          options={surveyEnumerators.map((enumerator: any, index: any) => ({
-            label: enumerator.name,
-            value: enumerator.enumerator_id,
-            key: index,
-          }))}
-        />
-      </Form.Item>
+      <Form.List name="templates" initialValue={[{}]}>
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, ...restField }) => (
+              <div key={key} style={{ marginBottom: 8 }}>
+                {fields.length > 1 && (
+                  <MinusCircleOutlined
+                    onClick={() => remove(name)}
+                    style={{ float: "right" }}
+                  />
+                )}
+
+                <Form.Item
+                  {...restField}
+                  name={[name, "language"]}
+                  label="Language"
+                  rules={[
+                    { required: true, message: "Please select language" },
+                  ]}
+                >
+                  <Input placeholder="Enter language" />
+                </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name={[name, "subject"]}
+                  label="Subject"
+                  rules={[{ required: true, message: "Please enter subject" }]}
+                >
+                  <Input placeholder="Enter subject" />
+                </Form.Item>
+
+                <Form.Item
+                  {...restField}
+                  name={[name, "content"]}
+                  label="Content"
+                  rules={[{ required: true, message: "Please enter content" }]}
+                >
+                  <Input.TextArea
+                    rows={5}
+                    placeholder='Enter content using the variables indicated by ${}, for instance, "Hello, ${enumerator_name}."'
+                  />
+                </Form.Item>
+              </div>
+            ))}
+
+            <Form.Item>
+              <Button
+                type="dashed"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+              >
+                Add another language
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+
       <Form.Item>
         <Button type="primary" onClick={handleSubmit} loading={loading}>
           {isEditMode ? "Update" : "Submit"}
