@@ -13,15 +13,12 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../../components/Header";
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import {
-  getEmailConfigs,
-  getEmailDetails,
-} from "../../redux/emails/emailsActions";
+import { getEmailDetails } from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
-import EmailTemplateForm from "./ConfigureEmails/EmailTemplateForm";
 import EmailTemplates from "./EmailTemplates/EmailTemplates";
+import EmailTemplateEditForm from "./EmailTemplates/EmailTemplateEditForm";
 
 function Emails() {
   const navigate = useNavigate();
@@ -317,7 +314,7 @@ function Emails() {
         open={isAddTemplateDrawerVisible}
         style={{ paddingBottom: 80, fontFamily: "Lato" }}
       >
-        <EmailTemplateForm
+        <EmailTemplateEditForm
           closeAddManualDrawer={closeAddManualDrawer}
           surveyEnumerators={surveyEnumerators}
           emailConfigData={emailConfigData}
