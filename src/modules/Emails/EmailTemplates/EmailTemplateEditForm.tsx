@@ -266,7 +266,8 @@ const EmailTemplateEditForm = ({
   return (
     <>
       <Row gutter={16}>
-        <Col span={16}>
+        <Col span={12}>
+          {/* Left column content */}
           <Form form={form} layout="vertical">
             <Form.Item
               name="email_config_uid"
@@ -316,7 +317,8 @@ const EmailTemplateEditForm = ({
             </Form.Item>
           </Form>
         </Col>
-        <Col span={8}>
+        <Col span={6}>
+          {/* Middle column content */}
           <Input.Search
             placeholder="Search variables"
             value={searchTerm}
@@ -324,98 +326,95 @@ const EmailTemplateEditForm = ({
             style={{ marginBottom: 8 }}
           />
 
-          <Col span={4}>
-            {filteredVariables.length > 0 && (
-              <div style={{ marginBottom: 8 }}>
-                <h3>Variables</h3>
-                <ul>
-                  {filteredVariables.map((variable) => (
-                    <li
-                      key={variable}
-                      style={{
-                        cursor: "pointer",
-                        color: "blue",
-                        textDecoration: "underline",
-                      }}
-                      onClick={() => insertVariable(variable)}
-                    >
-                      {variable}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </Col>
-          <Col span={4}>
-            <div>
-              {filteredTables.length > 0 && (
-                <div>
-                  <h3>Tables</h3>
-                  <ul>
-                    {filteredTables.map((table) => (
-                      <li
-                        key={table}
-                        style={{
-                          cursor: "pointer",
-                          color: "green",
-                          textDecoration: "underline",
-                        }}
-                        onClick={() => handleInsertTable(table)}
-                      >
-                        {table}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {selectedTable && (
-                <div style={{ marginBottom: 8 }}>
-                  <h3>Columns in {selectedTable}</h3>
-                  <ul>
-                    {tables[selectedTable].map((column: any) => (
-                      <li
-                        key={column}
-                        style={{
-                          cursor: "pointer",
-                          color: "purple",
-                          textDecoration: "underline",
-                        }}
-                        onClick={() => handleInsertColumn(column)}
-                      >
-                        {column}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <Select
-                placeholder="Select function"
-                style={{ width: "100%", marginBottom: 8 }}
-                value={selectedFunction}
-                onChange={(value) => setSelectedFunction(value)}
-              >
-                {aggregationFunctions.map((func) => (
-                  <Option key={func} value={func}>
-                    {func}
-                  </Option>
+          {filteredVariables.length > 0 && (
+            <div style={{ marginBottom: 8 }}>
+              <h3>Variables</h3>
+              <ul>
+                {filteredVariables.map((variable) => (
+                  <li
+                    key={variable}
+                    style={{
+                      cursor: "pointer",
+                      color: "blue",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() => insertVariable(variable)}
+                  >
+                    {variable}
+                  </li>
                 ))}
-              </Select>
-
-              <Input
-                placeholder="Enter expression"
-                style={{ width: "100%", marginBottom: 8 }}
-                value={expression}
-                onChange={(e) => setExpression(e.target.value)}
-              />
-              <Button type="primary" onClick={handleInsertExpression}>
-                Insert Expression
-              </Button>
+              </ul>
             </div>
-          </Col>
+          )}
+
+          {filteredTables.length > 0 && (
+            <div>
+              <h3>Tables</h3>
+              <ul>
+                {filteredTables.map((table) => (
+                  <li
+                    key={table}
+                    style={{
+                      cursor: "pointer",
+                      color: "green",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() => handleInsertTable(table)}
+                  >
+                    {table}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {selectedTable && (
+            <div style={{ marginBottom: 8 }}>
+              <h3>Columns in {selectedTable}</h3>
+              <ul>
+                {tables[selectedTable].map((column: any) => (
+                  <li
+                    key={column}
+                    style={{
+                      cursor: "pointer",
+                      color: "purple",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() => handleInsertColumn(column)}
+                  >
+                    {column}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </Col>
+        <Col span={6}>
+          {/* Right column content */}
+          <div>
+            <Select
+              placeholder="Select function"
+              style={{ width: "100%", marginBottom: 8 }}
+              value={selectedFunction}
+              onChange={(value) => setSelectedFunction(value)}
+            >
+              {aggregationFunctions.map((func) => (
+                <Option key={func} value={func}>
+                  {func}
+                </Option>
+              ))}
+            </Select>
+
+            <Input
+              placeholder="Enter expression"
+              style={{ width: "100%", marginBottom: 8 }}
+              value={expression}
+              onChange={(e) => setExpression(e.target.value)}
+            />
+            <Button type="primary" onClick={handleInsertExpression}>
+              Insert Expression
+            </Button>
+          </div>
         </Col>
       </Row>
     </>
