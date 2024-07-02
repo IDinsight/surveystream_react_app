@@ -23,7 +23,7 @@ import {
   getSCTOFormMapping,
   updateSCTOFormMapping,
 } from "../../redux/dqForm/dqFormActions";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -303,7 +303,7 @@ function DQFormSCTOQuestion() {
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> Target ID{" "}
                   <Tooltip title="Select the variable that is used to track the Target ID.">
-                    <InfoCircleOutlined />
+                    <QuestionCircleOutlined />
                   </Tooltip>{" "}
                   :
                 </FormItemLabel>
@@ -328,7 +328,7 @@ function DQFormSCTOQuestion() {
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
                   <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
-                    <InfoCircleOutlined />
+                    <QuestionCircleOutlined />
                   </Tooltip>{" "}
                   :
                 </FormItemLabel>
@@ -353,7 +353,7 @@ function DQFormSCTOQuestion() {
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
                   <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
-                    <InfoCircleOutlined />
+                    <QuestionCircleOutlined />
                   </Tooltip>{" "}
                   :
                 </FormItemLabel>
@@ -384,8 +384,14 @@ function DQFormSCTOQuestion() {
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span>{" "}
                         {geoLevel.geo_level_name} ID{" "}
-                        <Tooltip title={geoLevel.geo_level_name + " ID"}>
-                          <InfoCircleOutlined />
+                        <Tooltip
+                          title={
+                            "Select the variable that is used to track the " +
+                            geoLevel.geo_level_name +
+                            " ID."
+                          }
+                        >
+                          <QuestionCircleOutlined />
                         </Tooltip>{" "}
                         :
                       </FormItemLabel>
