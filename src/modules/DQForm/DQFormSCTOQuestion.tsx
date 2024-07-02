@@ -14,7 +14,7 @@ import {
 } from "./DQForm.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Button, Col, Row, Select, message } from "antd";
+import { Button, Col, Row, Select, Tooltip, message } from "antd";
 import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
 import { getSurveyLocationGeoLevels } from "../../redux/surveyLocations/surveyLocationsActions";
 import { userHasPermission } from "../../utils/helper";
@@ -23,6 +23,7 @@ import {
   getSCTOFormMapping,
   updateSCTOFormMapping,
 } from "../../redux/dqForm/dqFormActions";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -90,7 +91,8 @@ function DQFormSCTOQuestion() {
           errorMsg =
             "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
         } else if (questionsRes.payload?.error.includes("Client Error")) {
-          errorMsg = "Either Main Form ID is wrong or access is not given.";
+          errorMsg =
+            "Either the SurveyCTO Form ID provided is wrong or access is not given.";
         } else {
           errorMsg = questionsRes.payload?.error;
         }
@@ -260,14 +262,22 @@ function DQFormSCTOQuestion() {
   return (
     <>
       <Header items={NavItems} />
-      {isLoading ? (
-        <FullScreenLoader />
-      ) : (
-        <>
-          <Container />
-          <HeaderContainer>
-            <Title>DQ forms - SurveyCTO Questions</Title>
-          </HeaderContainer>
+      <>
+        <Container />
+        <HeaderContainer>
+          <Title>DQ forms - SurveyCTO Questions</Title>
+          <CustomBtn
+            onClick={() => loadFormQuestions(true)}
+            disabled={!canUserWrite}
+            style={{ marginLeft: "auto" }}
+            loading={isQuestionLoading}
+          >
+            Load questions from SCTO form
+          </CustomBtn>
+        </HeaderContainer>
+        {isLoading ? (
+          <FullScreenLoader />
+        ) : (
           <BodyContainer>
             <DescriptionText>
               This step has 3 pre-requisites:
@@ -287,17 +297,15 @@ function DQFormSCTOQuestion() {
                 </li>
               </ol>
             </DescriptionText>
-            <CustomBtn
-              onClick={() => loadFormQuestions(true)}
-              disabled={!canUserWrite}
-            >
-              Load questions from SCTO form
-            </CustomBtn>
             <p style={{ marginTop: 36 }}>Questions to be mapped</p>
             <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
               <Col span={4}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Target ID:
+                  <span style={{ color: "red" }}>*</span> Target ID{" "}
+                  <Tooltip title="Select the variable that is used to track the Target ID.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={5}>
@@ -318,7 +326,11 @@ function DQFormSCTOQuestion() {
             <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
               <Col span={4}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Enumerator ID:
+                  <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
+                  <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={5}>
@@ -339,7 +351,11 @@ function DQFormSCTOQuestion() {
             <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
               <Col span={4}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> DQ enumerator ID:
+                  <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
+                  <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={5}>
@@ -367,7 +383,11 @@ function DQFormSCTOQuestion() {
                     <Col span={4}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span>{" "}
-                        {geoLevel.geo_level_name} ID:
+                        {geoLevel.geo_level_name} ID{" "}
+                        <Tooltip title={geoLevel.geo_level_name + " ID"}>
+                          <InfoCircleOutlined />
+                        </Tooltip>{" "}
+                        :
                       </FormItemLabel>
                     </Col>
                     <Col span={5}>
@@ -415,8 +435,8 @@ function DQFormSCTOQuestion() {
               Cancel
             </Button>
           </BodyContainer>
-        </>
-      )}
+        )}
+      </>
     </>
   );
 }
