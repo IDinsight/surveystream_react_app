@@ -17,7 +17,21 @@ import {
   deleteDQFormRequest,
   deleteDQFormSuccess,
   deleteDQFormFailure,
+  updateSCTOFormMappingRequest,
+  updateSCTOFormMappingSuccess,
+  updateSCTOFormMappingFailure,
+  createSCTOFormMappingFailure,
+  createSCTOFormMappingSuccess,
+  createSCTOFormMappingRequest,
+  getSCTOFormMappingRequest,
+  getSCTOFormMappingSuccess,
+  getSCTOFormMappingFailure,
 } from "./dqFormSlice";
+import {
+  createSurveyCTOFormMapping,
+  getSurveyCTOFormMapping,
+  updateSurveyCTOFormMapping,
+} from "../surveyCTOQuestions/apiService";
 
 export const getDQForms = createAsyncThunk(
   "dqForm/getDQForms",
@@ -128,7 +142,7 @@ export const updateDQForm = createAsyncThunk(
             : "Failed to update dq form.",
           success: false,
         };
-        dispatch(createDQFormFailure(error));
+        dispatch(updateDQFormFailure(error));
         return error;
       }
 
@@ -177,10 +191,121 @@ export const deleteDQForm = createAsyncThunk(
   }
 );
 
+export const getSCTOFormMapping = createAsyncThunk(
+  "surveyCTOQuestions/getSCTOFormMapping",
+  async (formUid: string, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(getSCTOFormMappingRequest());
+      const res: any = await getSurveyCTOFormMapping(formUid);
+
+      if (res.status === 200) {
+        dispatch(getSCTOFormMappingSuccess(res.data.data));
+        return res.data.data;
+      }
+      const error = { ...res.response.data, code: res.response.status };
+      dispatch(getSCTOFormMappingFailure(error));
+      return res.response.data;
+    } catch (error) {
+      const errorMessage = error || "Failed to get surveyCTO form mapping";
+      dispatch(getSCTOFormMappingFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const createSCTOFormMapping = createAsyncThunk(
+  "dqForm/createSCTOFormMapping",
+  async (
+    { formUID, data }: { formUID: string; data: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(createSCTOFormMappingRequest());
+      const response: any = await createSurveyCTOFormMapping(data, formUID);
+      if (response.status == 201) {
+        dispatch(createSCTOFormMappingSuccess());
+        return { ...response, success: true };
+      }
+
+      if (response?.response?.data?.success === false) {
+        const error = {
+          message: response?.response?.data?.error?.message
+            ? response?.response?.data?.error?.message
+            : "Failed to update DQ form SCTO question mapping.",
+          success: false,
+        };
+        dispatch(createSCTOFormMappingFailure(error));
+        return error;
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update DQ form SCTO question mapping.",
+        success: false,
+      };
+      dispatch(createSCTOFormMappingFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage =
+        error || "Failed to update DQ form SCTO question mapping.";
+      dispatch(createSCTOFormMappingFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateSCTOFormMapping = createAsyncThunk(
+  "dqForm/updateSCTOFormMapping",
+  async (
+    { formUID, data }: { formUID: string; data: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateSCTOFormMappingRequest());
+      const response: any = await updateSurveyCTOFormMapping(data, formUID);
+      if (response.status == 200) {
+        dispatch(updateSCTOFormMappingSuccess());
+        return { ...response, success: true };
+      }
+
+      if (response?.response?.data?.success === false) {
+        const error = {
+          message: response?.response?.data?.error?.message
+            ? response?.response?.data?.error?.message
+            : "Failed to update DQ form SCTO question mapping.",
+          success: false,
+        };
+        dispatch(updateSCTOFormMappingFailure(error));
+        return error;
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update DQ form SCTO question mapping.",
+        success: false,
+      };
+      dispatch(updateSCTOFormMappingFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage =
+        error || "Failed to update DQ form SCTO question mapping.";
+      dispatch(updateSCTOFormMappingFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const enumeratorsActions = {
   getDQForms,
   getDQForm,
   createDQForm,
   updateDQForm,
   deleteDQForm,
+  getSCTOFormMapping,
+  createSCTOFormMapping,
+  updateSCTOFormMapping,
 };

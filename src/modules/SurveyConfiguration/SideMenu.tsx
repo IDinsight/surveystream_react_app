@@ -37,7 +37,6 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                   : "#1D39C4"
               }
               showInfo={false}
-              strokeWidth={10}
             />
           </div>
           <div
@@ -60,7 +59,6 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                   : "#1D39C4"
               }
               showInfo={false}
-              strokeWidth={10}
             />
           </div>
           <div
@@ -102,7 +100,6 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                     (step) => step.status === "Done"
                   ).length
               }
-              strokeWidth={10}
             />
           </div>
           <div style={{ width: "24%", display: "inline-block" }}>
@@ -138,7 +135,6 @@ function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
                     (step) => step.status === "Done"
                   ).length
               }
-              strokeWidth={10}
             />
           </div>
         </StepsWrapper>
