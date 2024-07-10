@@ -59,6 +59,9 @@ import {
   deleteEmailTemplateRequest,
   deleteEmailTemplateSuccess,
   deleteEmailTemplateFailure,
+  updateEmailTemplateRequest,
+  updateEmailTemplateSuccess,
+  updateEmailTemplateFailure,
 } from "./emailsSlice";
 
 // Email Config Actions
@@ -552,6 +555,40 @@ export const createEmailTemplate = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to create email template.";
       dispatch(createEmailTemplateFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateEmailTemplate = createAsyncThunk(
+  "emails/updateEmailTemplate",
+  async (
+    { id, emailTemplateData }: { id: string; emailTemplateData: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateEmailTemplateRequest());
+
+      const response: any = await api.updateEmailTemplate(
+        id,
+        emailTemplateData
+      );
+      if (response.status === 200) {
+        dispatch(updateEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update email template.",
+        success: false,
+      };
+      dispatch(updateEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update email template.";
+      dispatch(updateEmailTemplateFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }

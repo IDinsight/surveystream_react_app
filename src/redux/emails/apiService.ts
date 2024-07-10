@@ -393,6 +393,32 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
   }
 };
 
+export const updateEmailTemplate = async (
+  id: string,
+  emailTemplateData: any
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/emails/template/${id}`,
+      { ...emailTemplateData },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getEmailTemplates = async (email_config_uid: any) => {
   try {
     await getCSRFToken();
@@ -515,6 +541,7 @@ export const api = {
   updateManualEmailTrigger,
   deleteManualEmailTrigger,
   createEmailTemplate,
+  updateEmailTemplate,
   getEmailTemplates,
   deleteEmailTemplate,
   getGoogleSheetHeaders,

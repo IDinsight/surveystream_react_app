@@ -13,9 +13,7 @@ const { Option } = Select;
 
 const EmailTemplateEditForm = ({
   emailConfigData,
-  surveyEnumerators,
-  closeAddManualDrawer,
-  fetchManualTriggers,
+  fetchEmailTemplates,
   initialValues = {},
   isEditMode = false,
 }: any) => {
@@ -62,7 +60,7 @@ const EmailTemplateEditForm = ({
   };
 
   const handleInsertColumn = (columnName: any) => {
-    if (selectedTable) {
+    if (selectedTable && editorRef.current) {
       const columnWithTable = `${selectedTable}.${columnName}`;
       const html = `<span data-column="${columnWithTable}" style="background-color: lightgreen;">${columnWithTable}</span>`;
       const range = editorRef.current.getSelection();
@@ -80,7 +78,7 @@ const EmailTemplateEditForm = ({
 
   const handleInsertTable = (tableName: any) => {
     const html = `<span data-table="${tableName}" style="background-color: lightblue;">${tableName}</span>`;
-    const range = editorRef.current.getSelection();
+    const range = editorRef?.current?.getSelection();
     if (range && range.index !== undefined) {
       editorRef.current.clipboard.dangerouslyPasteHTML(range.index, html);
     } else {
@@ -112,14 +110,14 @@ const EmailTemplateEditForm = ({
       }
 
       const html = `<span data-variable="${variable}" style="font-style: italic; color:blue">${insertionText}</span>`;
-      const range = editorRef.current.getSelection();
+      const range = editorRef?.current?.getSelection();
 
       if (range && range.index !== undefined) {
-        editorRef.current.clipboard.dangerouslyPasteHTML(range.index, html);
+        editorRef.current?.clipboard.dangerouslyPasteHTML(range.index, html);
       } else {
         // If there's no selection, just insert at the end of the editor
-        editorRef.current.clipboard.dangerouslyPasteHTML(
-          editorRef.current.getLength(),
+        editorRef.current?.clipboard.dangerouslyPasteHTML(
+          editorRef.current?.getLength(),
           html
         );
       }
@@ -146,7 +144,47 @@ const EmailTemplateEditForm = ({
     }
   };
 
-  const filteredVariables = variables.filter((variable) =>
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const formValues = await form.validateFields();
+      console.log("formValues", formValues);
+
+      const template = form.getFieldsValue();
+
+      const templateData = {
+        email_config_uid: template.email_config_uid,
+        language: template.language,
+        subject: template.subject,
+        content: template.content,
+      };
+
+      console.log("templateData", templateData);
+
+      const res = await dispatch(createEmailTemplate({ ...templateData }));
+
+      console.log("createEmailTemplate res", res);
+
+      if (!res.payload.success) {
+        // Error occurred
+        message.error(
+          res.payload?.message
+            ? res.payload?.message
+            : "An error occurred, email template could not be created. Kindly check form data and try again"
+        );
+        setLoading(false);
+        return;
+      }
+
+      message.success("Email templates updated successfully");
+    } catch (error) {
+      console.error("error", error);
+      message.error("Failed to update email templates");
+    }
+    setLoading(false);
+  };
+
+  const filteredVariables = variables.filter((variable: string) =>
     variable.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -195,73 +233,9 @@ const EmailTemplateEditForm = ({
 
   useEffect(() => {
     if (isEditMode && initialValues) {
-      const updatedInitialValues = { ...initialValues };
-      if (updatedInitialValues?.recipients) {
-        updatedInitialValues.recipients = initialValues.recipients.map(
-          (id: number) => ({
-            label: surveyEnumerators.find((e: any) => e.enumerator_id == id)
-              ?.name,
-            value: id,
-          })
-        );
-      }
-      form.setFieldsValue({
-        ...updatedInitialValues,
-        date: updatedInitialValues.date
-          ? dayjs(updatedInitialValues.date)
-          : null,
-        time: updatedInitialValues.time
-          ? dayjs(updatedInitialValues.time, "HH:mm")
-          : null,
-      });
+      console.log("initialValues", initialValues);
     }
   }, [isEditMode, initialValues, form]);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const formValues = await form.validateFields();
-      console.log("formValues", formValues);
-
-      const { templates } = form.getFieldsValue();
-      if (templates) {
-        for (let i = 0; i < templates.length; i++) {
-          const template = templates[i];
-
-          const templateData = {
-            email_config_uid: emailConfigUID,
-            language: template.language,
-            subject: template.subject,
-            content: template.content,
-          };
-
-          console.log("templateData", templateData);
-
-          const res = await dispatch(createEmailTemplate({ ...templateData }));
-
-          console.log("createEmailTemplate res", res);
-
-          if (!res.payload.success) {
-            // Error occurred
-            message.error(
-              res.payload?.message
-                ? res.payload?.message
-                : "An error occurred, email template could not be created. Kindly check form data and try again"
-            );
-            setLoading(false);
-            return;
-          }
-        }
-
-        message.success("Email templates updated successfully");
-        handleContinue(emailConfigUID);
-      }
-    } catch (error) {
-      console.error("error", error);
-      message.error("Failed to update email templates");
-    }
-    setLoading(false);
-  };
 
   return (
     <>
@@ -327,7 +301,7 @@ const EmailTemplateEditForm = ({
           />
 
           {filteredVariables.length > 0 && (
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 8, fontFamily: "Lato" }}>
               <h3>Variables</h3>
               <ul>
                 {filteredVariables.map((variable) => (
@@ -348,7 +322,7 @@ const EmailTemplateEditForm = ({
           )}
 
           {filteredTables.length > 0 && (
-            <div>
+            <div style={{ marginBottom: 8, fontFamily: "Lato" }}>
               <h3>Tables</h3>
               <ul>
                 {filteredTables.map((table) => (
@@ -369,7 +343,7 @@ const EmailTemplateEditForm = ({
           )}
 
           {selectedTable && (
-            <div style={{ marginBottom: 8 }}>
+            <div style={{ marginBottom: 8, fontFamily: "Lato" }}>
               <h3>Columns in {selectedTable}</h3>
               <ul>
                 {tables[selectedTable].map((column: any) => (
@@ -391,7 +365,7 @@ const EmailTemplateEditForm = ({
         </Col>
         <Col span={6}>
           {/* Right column content */}
-          <div>
+          <div style={{ marginBottom: 8, fontFamily: "Lato" }}>
             <Select
               placeholder="Select function"
               style={{ width: "100%", marginBottom: 8 }}
