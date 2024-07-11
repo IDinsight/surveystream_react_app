@@ -21,7 +21,6 @@ export const TextHeading = styled.h1`
 
 export const PreviewBtn = styled(Button)`
   margin-left: auto;
-  margin-right: 24px;
   background-color: #2f54eb;
   color: white;
   border-radius: 4px !important;
@@ -39,7 +38,6 @@ export const BackBtn = styled(Button)`
 
 export const SubmitBtn = styled(Button)`
   margin-left: 12px;
-  margin-right: 24px;
   background-color: #2f54eb;
   color: white;
   border-radius: 4px !important;

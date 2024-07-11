@@ -1,11 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState = {
-  tableConfig: {
-    loading: false,
-    data: {},
-    err: null,
-  },
+  loading: false,
+  data: null,
+  err: null,
 };
 
 const authSlice = createSlice({
@@ -13,15 +11,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     tableConfigRequest(state) {
-      state.tableConfig.loading = true;
+      state.loading = true;
     },
     tableConfigSuccess(state, action: PayloadAction<any>) {
-      state.tableConfig.loading = false;
-      state.tableConfig.data = action.payload;
+      state.loading = false;
+      state.data = action.payload;
     },
     tableConfigFailure(state, action: PayloadAction<any>) {
-      state.tableConfig.loading = false;
-      state.tableConfig.err = action.payload;
+      state.loading = false;
+      state.err = action.payload;
     },
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { PlusOutlined } from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Divider, Input, Select, Space, Button } from "antd";
 import type { InputRef } from "antd";
 
@@ -7,7 +7,7 @@ interface ISelectGroupProps {
   label: string;
   groups: string[];
   setGroup: React.Dispatch<React.SetStateAction<string[]>>;
-  onSelectChange: (value: string) => void;
+  onSelectChange: (value: string | null) => void;
 }
 
 function SelectGroup({
@@ -42,6 +42,7 @@ function SelectGroup({
     <Select
       style={{ width: 250 }}
       value={label}
+      placeholder="Select a group"
       dropdownRender={(menu) => (
         <>
           {menu}
@@ -62,6 +63,17 @@ function SelectGroup({
           >
             Add item
           </Button>
+          {label ? (
+            <Button
+              danger
+              size="small"
+              icon={<MinusOutlined />}
+              onClick={() => onSelectChange(null)}
+              style={{ width: "100%", marginTop: 6, marginBottom: 4 }}
+            >
+              Remove group
+            </Button>
+          ) : null}
         </>
       )}
       options={groups.map((item) => ({ label: item, value: item }))}

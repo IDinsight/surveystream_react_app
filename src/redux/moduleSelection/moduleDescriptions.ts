@@ -26,7 +26,7 @@ export const moduleDescriptions: Module[] = [
     icon: SendOutlined,
   },
   {
-    module_id: 15,
+    module_id: 9,
     title: "Assignments column configuration",
     link: "",
     description: "<ul><li>Configure assignments columns/li></ul>",
