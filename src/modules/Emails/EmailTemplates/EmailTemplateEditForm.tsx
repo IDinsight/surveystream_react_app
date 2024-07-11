@@ -55,8 +55,6 @@ const EmailTemplateEditForm = ({
 
   const tables = {
     users: ["id", "first_name", "last_name", "email"],
-    orders: ["order_id", "user_id", "amount", "date"],
-    products: ["product_id", "name", "price", "category"],
   };
 
   const handleInsertColumn = (columnName: any) => {
@@ -208,15 +206,14 @@ const EmailTemplateEditForm = ({
           ],
         },
       });
-
       // Event listener for text-change to update editorHtml state
       editorRef.current.on("text-change", () => {
         setEditorHtml(editorRef.current.root.innerHTML);
+        console.log("change content text", editorRef.current.root.innerHTML);
+        form.setFieldValue("content", editorRef.current.root.innerHTML);
       });
-
       // Event listener for clicking on editor content
       editorRef.current.root.addEventListener("click", handleEditorClick);
-
       // Append editor to the DOM
       const editorContainer = document.getElementById("editor-container");
       if (editorContainer) {
@@ -226,7 +223,10 @@ const EmailTemplateEditForm = ({
 
     return () => {
       if (editorRef.current) {
-        editorRef.current.root.removeEventListener("click", handleEditorClick);
+        editorRef.current?.root?.removeEventListener(
+          "click",
+          handleEditorClick
+        );
       }
     };
   }, []);
