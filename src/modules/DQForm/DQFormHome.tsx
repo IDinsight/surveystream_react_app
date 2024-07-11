@@ -10,6 +10,7 @@ import { BodyContainer, CustomBtn } from "./DQForm.styled";
 import { RootState } from "../../redux/store";
 import { getDQForms } from "../../redux/dqForm/dqFormActions";
 import DQFormCard from "../../components/DQFormCard";
+import { userHasPermission } from "../../utils/helper";
 
 function DQFormHome() {
   const navigate = useNavigate();
@@ -27,8 +28,12 @@ function DQFormHome() {
     (state: RootState) => state.dqForms
   );
 
-  // TODO: Add user permission check
-  const canUserWrite = true;
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const canUserWrite = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Data Quality Forms"
+  );
 
   const addFormClickHandler = () => {
     navigate(`/module-configuration/dq-forms/${survey_uid}/manage`);

@@ -44,6 +44,7 @@ import MediaAuditsHome from "../modules/MediaAudits";
 import MediaAuditsManage from "../modules/MediaAudits/MediaAuditsManage";
 import DQFormHome from "../modules/DQForm";
 import DQFormManage from "../modules/DQForm/DQFormManage";
+import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 
@@ -294,7 +295,11 @@ const AppRoutes = () => {
           element={<MediaAuditsManage />}
         />
       </Route>
-      <Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="READ Data Quality Forms" />
+        }
+      >
         <Route
           path="/module-configuration/dq-forms/:survey_uid?"
           element={<DQFormHome />}
@@ -302,6 +307,10 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/dq-forms/:survey_uid/manage"
           element={<DQFormManage />}
+        />
+        <Route
+          path="/module-configuration/dq-forms/:survey_uid/scto-questions/:dq_form_uid"
+          element={<DQFormSCTOQuestion />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

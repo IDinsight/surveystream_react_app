@@ -48,8 +48,6 @@ function ConfigureEmails() {
   const { sctoForms } = location.state || {};
 
   const handleBack = async (emailConfigUid = "") => {
-    console.log("handle back", stepIndex, emailConfigUid);
-
     setStepLoading(true);
 
     if (stepIndex == 1) {
@@ -72,8 +70,6 @@ function ConfigureEmails() {
     }
   };
   const handleContinue = async (emailConfigUid = "") => {
-    console.log("handle continue", stepIndex, emailConfigUid);
-
     setStepLoading(true);
 
     if (stepIndex == 0) {
@@ -101,8 +97,6 @@ function ConfigureEmails() {
   };
 
   const fetchEmailConfigs = async () => {
-    console.log("fetchEmailConfigs");
-
     if (sctoForms.length > 0) {
       const form_uid = sctoForms[0].form_uid;
       const configResponse = await dispatch(getEmailConfigs({ form_uid }));
