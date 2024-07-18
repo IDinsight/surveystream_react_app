@@ -136,7 +136,7 @@ export const uploadAssignments = async (formUID: string, fileData: any) => {
           enumerator_id: "enumerator_id",
         },
         file: fileData,
-        mode: "overwrite",
+        mode: "merge",
       },
       {
         headers: {
