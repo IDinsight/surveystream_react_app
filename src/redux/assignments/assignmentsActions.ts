@@ -22,6 +22,7 @@ import {
   makeAssignments,
   scheduleAssignmentsEmail,
   updateAssignableEnumerators,
+  uploadAssignments,
 } from "./apiService";
 import { fetchTargets } from "../targets/apiService";
 import { AssignmentFormPayload } from "./types";
@@ -107,6 +108,42 @@ export const updateAssignments = createAsyncThunk(
         success: false,
       };
       callFn(errorObj);
+    }
+  }
+);
+
+export const uploadCSVAssignments = createAsyncThunk(
+  "assignments/uploadCSVAssignments",
+  async (
+    { formUID, fileData }: { formUID: string; fileData: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(assignmentsRequest());
+      const response: any = await uploadAssignments(formUID, fileData);
+      if (response.status == 200) {
+        dispatch(assignmentsSuccess(response.data.data));
+        return { ...response.data, success: true };
+      }
+
+      const errorObj = {
+        message: response.message
+          ? response.message
+          : "Failed to update assignments.",
+        success: false,
+      };
+      dispatch(assignmentsFailure(errorObj));
+
+      return errorObj;
+    } catch (error: any) {
+      const errorMessage = error || "Failed to update assignments.";
+      const errorObj = {
+        message: errorMessage,
+        success: false,
+      };
+      dispatch(assignmentsFailure(errorObj));
+
+      return errorObj;
     }
   }
 );
