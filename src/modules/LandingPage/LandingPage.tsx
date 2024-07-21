@@ -41,7 +41,7 @@ const NavItems = () => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
+            href="https://docs.surveystream.idinsight.io"
           >
             Documentation
           </a>
