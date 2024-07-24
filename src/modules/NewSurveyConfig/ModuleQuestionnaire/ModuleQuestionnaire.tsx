@@ -69,7 +69,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     assignment_process: null,
     language_location_mapping: null,
     reassignment_required: null,
-    supervisor_assignment_criteria: [],
+    target_mapping_criteria: [],
+    supervisor_mapping_criteria: [],
     supervisor_surveyor_relation: null,
     supervisor_hierarchy_exists: null,
     survey_uid: moduleQuestionnaire?.survey_uid
@@ -154,12 +155,13 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   ];
 
   useEffect(() => {
-    const supervisorsSelected = mqFormData["supervisor_assignment_criteria"];
+    const surveyormappingSelected = mqFormData["surveyor_mapping_criteria"];
+    const targetmappingSelected = mqFormData["target_mapping_criteria"];
     const enumeratorsSelected = mqFormData["target_assignment_criteria"];
 
     // Condition 1: If Location and Language is selected
     const result1 = ["Location", "Language"].every((val) =>
-      supervisorsSelected.includes(val)
+      surveyormappingSelected.includes(val)
     );
 
     // Condition 2: ("Location of target" or "Location of enumerators") and language
