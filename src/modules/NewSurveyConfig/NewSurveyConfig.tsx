@@ -106,11 +106,13 @@ function NewSurveyConfig() {
         const validationRules = [
           {
             key: "target_mapping_criteria",
-            message: "Please select the supervisor to target assignment criteria",
+            message:
+              "Please select the supervisor to target assignment criteria",
           },
           {
             key: "surveyor_mapping_criteria",
-            message: "Please select the supervisor to surveyor assignment criteria",
+            message:
+              "Please select the supervisor to surveyor assignment criteria",
           },
           {
             key: "supervisor_hierarchy_exists",
