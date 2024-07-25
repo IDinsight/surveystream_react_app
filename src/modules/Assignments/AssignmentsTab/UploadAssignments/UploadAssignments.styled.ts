@@ -1,7 +1,7 @@
 import { Table } from "antd";
 import styled from "styled-components";
 
-export const DescriptionContainer = styled.p`
+export const DescriptionContainer = styled.div`
   font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
@@ -9,6 +9,7 @@ export const DescriptionContainer = styled.p`
   line-height: 22px;
   color: #8c8c8c;
   margin-top: 6px;
+  margin-bottom: 12px;
 `;
 
 export const ErrorTable = styled(Table)`

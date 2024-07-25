@@ -14,6 +14,7 @@ import FileUpload from "./FileUpload";
 import { RootState } from "../../../../redux/store";
 import { DescriptionContainer, ErrorTable } from "./UploadAssignments.styled";
 import { Button, Col, message, Row } from "antd";
+import EmailSchedule from "./EmailSchedule";
 
 interface CSVError {
   type: string;
@@ -35,11 +36,19 @@ function UploadAssignments() {
     (state: RootState) => state.assignments.assignments
   );
 
+  // Error states
   const [hasError, setHasError] = useState<boolean>(false);
+  const [hasRespError, setHasRespError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
+
+  // File upload states
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
   const [rowsCount, setRowsCount] = useState<number>(0);
   const [base64Data, setBase64Data] = useState<string>("");
+
+  const [isAssignmentsDone, setIsAssignmentsDone] = useState<boolean>(false);
+  const [emailSchedule, setEmailSchedule] = useState<any>(null);
+  const [enumIds, setEnumIds] = useState<string[]>([]);
 
   const handleFileUpload = (
     file: File,
@@ -47,6 +56,12 @@ function UploadAssignments() {
     rows: string[],
     base64Data: string
   ) => {
+    const enumColIdx = columnNames.indexOf("enumerator_id");
+    if (enumColIdx !== -1) {
+      const enumIds = rows.map((row) => row.split(",")[enumColIdx]);
+      enumIds.shift();
+      setEnumIds(Array.from(new Set(enumIds)));
+    }
     setRowsCount(rows.length - 1);
     setBase64Data(base64Data);
   };
@@ -56,14 +71,55 @@ function UploadAssignments() {
       dispatch(
         uploadCSVAssignments({ formUID: form_uid, fileData: base64Data })
       ).then((response) => {
-        console.log("response", response);
         if (response.payload.success) {
           message.success("Assignments uploaded successfully.");
-          navigate(
-            `/module-configuration/assignments/${survey_uid}/${form_uid}`
-          );
+
+          if (response.payload.data["email_schedule"]) {
+            setEmailSchedule(response.payload.data["email_schedule"]);
+          }
+
+          setIsAssignmentsDone(true);
         } else {
           message.error("Failed to upload assignments.");
+          if (response.payload?.errors) {
+            const transformedErrors: CSVError[] = [];
+
+            for (const errorKey in response.payload.errors) {
+              let errorObj = response.payload.errors[errorKey];
+
+              if (errorKey === "record_errors") {
+                errorObj =
+                  response.payload.errors[errorKey]["summary_by_error_type"];
+
+                for (let i = 0; i < errorObj.length; i++) {
+                  const summaryError: any = errorObj[i];
+
+                  transformedErrors.push({
+                    type: summaryError["error_type"]
+                      ? summaryError["error_type"]
+                      : errorKey,
+                    count: summaryError["error_count"]
+                      ? summaryError["error_count"]
+                      : errorObj.length,
+                    message: summaryError["error_message"]
+                      ? summaryError["error_message"]
+                      : errorObj,
+                  });
+                }
+              } else {
+                transformedErrors.push({
+                  type: errorObj["error_type"]
+                    ? errorObj["error_type"]
+                    : errorKey,
+                  count: errorObj.length,
+                  message: errorObj,
+                });
+              }
+            }
+
+            setHasRespError(true);
+            setErrorList(transformedErrors);
+          }
         }
       });
     } else {
@@ -86,11 +142,13 @@ function UploadAssignments() {
       title: "Error message",
       dataIndex: "message",
       key: "message",
-      render: (message: string[]) => (
+      render: (message: any) => (
         <ul>
-          {message?.map((msg, index) => (
-            <li key={index}>{msg}</li>
-          ))}
+          {Array.isArray(message) ? (
+            message?.map((msg, index) => <li key={index}>{msg}</li>)
+          ) : (
+            <li>{message}</li>
+          )}
         </ul>
       ),
     },
@@ -111,69 +169,110 @@ function UploadAssignments() {
             <HeaderContainer>
               <Title>Upload assignments</Title>
             </HeaderContainer>
-            <div style={{ margin: 36 }}>
-              {fileUploaded && !hasError ? (
-                <div>
-                  <DescriptionContainer>
-                    {rowsCount} assignments found in CSV. Are you sure to upload
-                    them?
-                  </DescriptionContainer>
-                  <Button type="primary" onClick={handleUploadBtnClick}>
-                    Upload assignments
-                  </Button>
-                  <Button
-                    type="default"
-                    onClick={() => navigate(0)}
-                    style={{ marginLeft: 24 }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <DescriptionContainer>
-                    <ul style={{ marginBottom: 24 }}>
-                      <li>
-                        Upload assignments data in csv format. Please go through
-                        the template and filled csv sheet before uploading.
-                      </li>
-                      <li>Mandatory csv fields: Target ID and Enumerator ID</li>
-                    </ul>
-                  </DescriptionContainer>
-                  <FileUpload
-                    style={{ height: "274px" }}
-                    setUploadStatus={setFileUploaded}
-                    onFileUpload={handleFileUpload}
-                    hasError={hasError}
-                    setHasError={setHasError}
-                    setErrorList={setErrorList}
-                  />
-                  {hasError ? (
-                    <div style={{ marginTop: "32px" }}>
-                      <p
-                        style={{
-                          fontFamily: "Lato",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          lineHeight: "22px",
-                        }}
-                      >
-                        Errors table
-                      </p>
-                      <Row>
-                        <Col span={23}>
-                          <ErrorTable
-                            dataSource={errorList}
-                            columns={errorTableColumn}
-                            pagination={false}
-                          />
-                        </Col>
-                      </Row>
-                    </div>
-                  ) : null}
-                </>
-              )}
-            </div>
+            {isAssignmentsDone ? (
+              <EmailSchedule
+                emailSchedule={emailSchedule}
+                surveyUID={survey_uid}
+                formUID={form_uid}
+                enumIds={enumIds}
+              />
+            ) : (
+              <div style={{ margin: 36 }}>
+                {fileUploaded && !hasError ? (
+                  <>
+                    {!hasRespError ? (
+                      <>
+                        <DescriptionContainer>
+                          {rowsCount} assignments found in CSV. Are you sure to
+                          upload them?
+                        </DescriptionContainer>
+                        <Button type="primary" onClick={handleUploadBtnClick}>
+                          Upload assignments
+                        </Button>
+                        <Button
+                          type="default"
+                          onClick={() => navigate(0)}
+                          style={{ marginLeft: 24 }}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <div style={{ marginTop: "32px" }}>
+                        <p
+                          style={{
+                            fontFamily: "Lato",
+                            fontSize: "14px",
+                            fontWeight: "700",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          Errors table
+                        </p>
+                        <Row>
+                          <Col span={23}>
+                            <ErrorTable
+                              dataSource={errorList}
+                              columns={errorTableColumn}
+                              pagination={false}
+                            />
+                          </Col>
+                        </Row>
+                        <Button type="default" onClick={() => navigate(0)}>
+                          Reupload
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <DescriptionContainer>
+                      <ul style={{ marginBottom: 24 }}>
+                        <li>
+                          Upload assignments data in csv format. Please go
+                          through the template and filled csv sheet before
+                          uploading.
+                        </li>
+                        <li>
+                          Mandatory csv fields: Target ID and Enumerator ID
+                        </li>
+                      </ul>
+                    </DescriptionContainer>
+                    <FileUpload
+                      style={{ height: "274px" }}
+                      setUploadStatus={setFileUploaded}
+                      onFileUpload={handleFileUpload}
+                      hasError={hasError}
+                      setHasError={setHasError}
+                      setErrorList={setErrorList}
+                    />
+                    {hasError ? (
+                      <div style={{ marginTop: "32px" }}>
+                        <p
+                          style={{
+                            fontFamily: "Lato",
+                            fontSize: "14px",
+                            fontWeight: "700",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          Errors table
+                        </p>
+                        <Row>
+                          <Col span={23}>
+                            <ErrorTable
+                              dataSource={errorList}
+                              columns={errorTableColumn}
+                              pagination={false}
+                            />
+                          </Col>
+                        </Row>
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            )}
           </>
         )}
       </>

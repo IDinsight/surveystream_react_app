@@ -126,6 +126,11 @@ export const uploadCSVAssignments = createAsyncThunk(
         return { ...response.data, success: true };
       }
 
+      if (response?.response?.status == 422) {
+        dispatch(assignmentsFailure(response.response.data));
+        return { ...response?.response?.data, success: false };
+      }
+
       const errorObj = {
         message: response.message
           ? response.message
