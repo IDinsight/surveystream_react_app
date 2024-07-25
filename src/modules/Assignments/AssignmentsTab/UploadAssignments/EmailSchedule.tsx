@@ -142,8 +142,8 @@ function EmailSchedule({
             style={{
               color: "#434343",
               fontFamily: "Lato",
-              fontSize: "16px",
-              lineHeight: "24px",
+              fontSize: "14px",
+              lineHeight: "22px",
               marginTop: 30,
             }}
           >
@@ -182,8 +182,8 @@ function EmailSchedule({
             style={{
               color: "#434343",
               fontFamily: "Lato",
-              fontSize: "16px",
-              lineHeight: "24px",
+              fontSize: "14px",
+              lineHeight: "22px",
               marginTop: 30,
             }}
           >
@@ -226,7 +226,8 @@ function EmailSchedule({
             style={{
               color: "#434343",
               fontFamily: "Lato",
-              lineHeight: "24px",
+              fontSize: "14px",
+              lineHeight: "22px",
             }}
           >
             Please select the date and time when you want the emails with
