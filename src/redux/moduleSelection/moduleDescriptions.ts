@@ -26,14 +26,14 @@ export const moduleDescriptions: Module[] = [
     icon: SendOutlined,
   },
   {
-    module_id: 15,
+    module_id: 16,
     title: "Assignments column configuration",
     link: "",
     description: "<ul><li>Configure assignments columns/li></ul>",
     icon: FileSearchOutlined,
   },
   {
-    module_id: 14,
+    module_id: 15,
     title: "Emails",
     link: "",
     description: "<ul><li>Configure emails to enumerators</li></ul>",
