@@ -20,7 +20,8 @@ export const SaveButton = styled(Button)`
 
 export const ContinueButton = styled(Button)`
   margin: 20px;
-  margin-left: 65%;
+  margin-left: auto;
+  margin-right: 10%;
   background-color: #597ef7;
   color: #fff;
   font-family: "Lato", sans-serif;
