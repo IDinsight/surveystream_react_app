@@ -41,3 +41,12 @@ export const ErrorTable = styled(Table)`
     font-family: "Lato", sans-serif;
   }
 `;
+
+export const IconText = styled.span`
+  margin-left: 6px;
+  font-family: "Lato", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+`;

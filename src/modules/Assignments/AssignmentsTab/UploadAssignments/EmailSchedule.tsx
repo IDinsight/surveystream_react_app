@@ -135,7 +135,7 @@ function EmailSchedule({
   }, [dispatch]);
 
   return (
-    <div style={{ margin: 36 }}>
+    <>
       {emailSchedule ? (
         <>
           <p
@@ -288,7 +288,7 @@ function EmailSchedule({
           </div>
         </>
       ) : null}
-    </div>
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import Header from "../../../../components/Header";
 import NavItems from "../../../../components/NavItems";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { uploadCSVAssignments } from "../../../../redux/assignments/assignmentsActions";
@@ -12,9 +12,15 @@ import Container from "../../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import FileUpload from "./FileUpload";
 import { RootState } from "../../../../redux/store";
-import { DescriptionContainer, ErrorTable } from "./UploadAssignments.styled";
-import { Button, Col, message, Row } from "antd";
+import {
+  DescriptionContainer,
+  ErrorTable,
+  IconText,
+} from "./UploadAssignments.styled";
+import { Alert, Button, Col, message, Row } from "antd";
 import EmailSchedule from "./EmailSchedule";
+import { CSVLink } from "react-csv";
+import { ProfileOutlined } from "@ant-design/icons";
 
 interface CSVError {
   type: string;
@@ -40,6 +46,7 @@ function UploadAssignments() {
   const [hasError, setHasError] = useState<boolean>(false);
   const [hasRespError, setHasRespError] = useState<boolean>(false);
   const [errorList, setErrorList] = useState<CSVError[]>([]);
+  const [csvErrorData, setCsvErrorData] = useState<any>(null);
 
   // File upload states
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
@@ -47,6 +54,12 @@ function UploadAssignments() {
   const [base64Data, setBase64Data] = useState<string>("");
 
   const [isAssignmentsDone, setIsAssignmentsDone] = useState<boolean>(false);
+  const [assignmentStats, setAssignmentStats] = useState<any>({
+    new_assignments_count: null,
+    re_assignments_count: null,
+    assignments_count: null,
+    no_changes_count: null,
+  });
   const [emailSchedule, setEmailSchedule] = useState<any>(null);
   const [enumIds, setEnumIds] = useState<string[]>([]);
 
@@ -73,6 +86,14 @@ function UploadAssignments() {
       ).then((response) => {
         if (response.payload.success) {
           message.success("Assignments uploaded successfully.");
+
+          setAssignmentStats({
+            new_assignments_count:
+              response.payload.data["new_assignments_count"],
+            re_assignments_count: response.payload.data["re_assignments_count"],
+            assignments_count: response.payload.data["assignments_count"],
+            no_changes_count: response.payload.data["no_changes_count"],
+          });
 
           if (response.payload.data["email_schedule"]) {
             setEmailSchedule(response.payload.data["email_schedule"]);
@@ -154,6 +175,20 @@ function UploadAssignments() {
     },
   ];
 
+  useEffect(() => {
+    if (errorList.length > 0) {
+      const errors = errorList.map((error) => {
+        return {
+          type: error.type,
+          count: error.count,
+          rows: error.message,
+        };
+      });
+      console.log(errors);
+      setCsvErrorData(errors);
+    }
+  }, [errorList]);
+
   const isLoading = assignmentsLoading;
 
   return (
@@ -170,12 +205,99 @@ function UploadAssignments() {
               <Title>Upload assignments</Title>
             </HeaderContainer>
             {isAssignmentsDone ? (
-              <EmailSchedule
-                emailSchedule={emailSchedule}
-                surveyUID={survey_uid}
-                formUID={form_uid}
-                enumIds={enumIds}
-              />
+              <div style={{ margin: 36 }}>
+                <p
+                  style={{
+                    color: "#434343",
+                    fontFamily: "Lato",
+                    lineHeight: "24px",
+                    fontWeight: 500,
+                    marginBottom: 0,
+                  }}
+                >
+                  Summary of assignments to surveyors:
+                </p>
+                <div style={{ display: "flex" }}>
+                  <div>
+                    <p
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                      }}
+                    >
+                      New assignments
+                    </p>
+                    <p>{assignmentStats.new_assignments_count}</p>
+                  </div>
+                  <div style={{ marginLeft: 80 }}>
+                    <p
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                      }}
+                    >
+                      Reassignments
+                    </p>
+                    <p>{assignmentStats.re_assignments_count}</p>
+                  </div>
+                  <div style={{ marginLeft: 80 }}>
+                    <p
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                      }}
+                    >
+                      Total Assignments
+                    </p>
+                    <p>{assignmentStats.assignments_count}</p>
+                  </div>
+                </div>
+                {assignmentStats.assignments_count ===
+                assignmentStats.no_changes_count ? (
+                  // no changes effected
+                  <>
+                    <Alert
+                      closable={false}
+                      style={{
+                        color: "#434343",
+                        fontFamily: "Lato",
+                        fontSize: "16px",
+                        lineHeight: "24px",
+                        marginTop: "36px",
+                        marginBottom: "36px",
+                      }}
+                      message="No changes to assignments"
+                      description="No adjustments have been made to the assignments. It's likely that the surveyors were assigned to 
+                    the same targets as before. To make changes, please go through the assignments flow again."
+                      type="warning"
+                      showIcon
+                    />
+                    <Button
+                      type="primary"
+                      onClick={() =>
+                        navigate(
+                          `/module-configuration/assignments/${survey_uid}/${form_uid}`
+                        )
+                      }
+                    >
+                      Done
+                    </Button>
+                  </>
+                ) : (
+                  <EmailSchedule
+                    emailSchedule={emailSchedule}
+                    surveyUID={survey_uid}
+                    formUID={form_uid}
+                    enumIds={enumIds}
+                  />
+                )}
+              </div>
             ) : (
               <div style={{ margin: 36 }}>
                 {fileUploaded && !hasError ? (
@@ -218,14 +340,68 @@ function UploadAssignments() {
                             />
                           </Col>
                         </Row>
-                        <Button type="default" onClick={() => navigate(0)}>
-                          Reupload
+                        <Button style={{ marginRight: 16 }}>
+                          <CSVLink
+                            data={csvErrorData ?? ""}
+                            filename={"assignments-error.csv"}
+                          >
+                            Download errors and warnings
+                          </CSVLink>
+                        </Button>
+                        <Button type="primary" onClick={() => navigate(0)}>
+                          Upload corrected CSV
                         </Button>
                       </div>
                     )}
                   </>
                 ) : (
                   <>
+                    <div style={{ display: "flex", marginBottom: 24 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          color: "#2F54EB",
+                        }}
+                      >
+                        <ProfileOutlined style={{ fontSize: "24px" }} />
+                        <IconText
+                          style={{
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            window.open(
+                              "https://drive.google.com/drive/folders/1MJzj2z3d2xIxJekONuyOpkQnkdBorfXP?usp=sharing",
+                              "__blank"
+                            )
+                          }
+                        >
+                          csv template
+                        </IconText>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          marginRight: "55px",
+                          marginLeft: "32px",
+                          color: "#2F54EB",
+                        }}
+                      >
+                        <ProfileOutlined style={{ fontSize: "24px" }} />
+                        <IconText
+                          style={{
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            window.open(
+                              "https://drive.google.com/drive/folders/1MJzj2z3d2xIxJekONuyOpkQnkdBorfXP?usp=sharing",
+                              "__blank"
+                            )
+                          }
+                        >
+                          Filled csv sample
+                        </IconText>
+                      </div>
+                    </div>
                     <DescriptionContainer>
                       <ul style={{ marginBottom: 24 }}>
                         <li>
@@ -267,6 +443,14 @@ function UploadAssignments() {
                             />
                           </Col>
                         </Row>
+                        <Button>
+                          <CSVLink
+                            data={csvErrorData ?? ""}
+                            filename={"assignments-error.csv"}
+                          >
+                            Download errors and warnings
+                          </CSVLink>
+                        </Button>
                       </div>
                     ) : null}
                   </>
