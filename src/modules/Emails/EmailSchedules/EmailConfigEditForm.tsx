@@ -30,9 +30,28 @@ const EmailConfigEditForm = ({
   const [sourceType, setSourceType] = useState(
     initialValues.email_source || ""
   );
+  const [pdfAttachment, setPdfAttachment] = useState(
+    initialValues.pdf_attachment || ""
+  );
+  const [pdfEncryption, setPdfEncryption] = useState(
+    initialValues.pdf_encryption || ""
+  );
+  const [pdfPassword, setPdfPassword] = useState(
+    initialValues.pdfPassword || ""
+  );
 
   const handleSourceChange = (e: any) => {
     setSourceType(e.target.value);
+  };
+
+  const handlePdfAttachmentChange = (e: any) => {
+    setPdfAttachment(e.target.value);
+  };
+  const handlePdfEncryptionChange = (e: any) => {
+    setPdfEncryption(e.target.value);
+  };
+  const handlePdfPasswordChange = (e: any) => {
+    setPdfPassword(e.target.value);
   };
 
   const fetchSurveyUsers = async () => {
@@ -114,17 +133,18 @@ const EmailConfigEditForm = ({
         </Select>
       </Form.Item>
       <Form.Item
-        name="config_type"
-        label="Configuration Type"
+        name="config_name"
+        label="Configuration Name"
+        tooltip="Configuration name is the name of the email configuration ex- Assignments,Finance. This should be unique across all configurations for a form"
         rules={[
           {
             required: true,
             message:
-              "Please select or enter configuration type example: Finance , Assignments",
+              "Please select or enter configuration name example: Finance , Assignments",
           },
         ]}
       >
-        <Input placeholder="Enter configuration type" />
+        <Input placeholder="Enter configuration name" />
       </Form.Item>
       <Form.Item
         name="report_users"
@@ -151,11 +171,33 @@ const EmailConfigEditForm = ({
         </Select>
       </Form.Item>
       <Form.Item
+        name="cc_users"
+        label="Select the name(s) of the team member(s) to be copied on the emails sent."
+        tooltip="The team members will be copied on the emails sent they will be added as CC in each email."
+      >
+        <Select
+          showSearch
+          mode="tags"
+          autoClearSearchValue={false}
+          placeholder="Select the users to send a copy of emails"
+        >
+          {/* Render existing Config Names as options */}
+          {surveyUsers.length > 0
+            ? surveyUsers.map((user: any) => (
+                <Option key={user?.user_uid} value={user?.user_uid}>
+                  {user?.first_name} {user?.last_name}
+                </Option>
+              ))
+            : null}
+        </Select>
+      </Form.Item>
+      <Form.Item
         name="email_source"
         label="Select the source of Emails"
         rules={[
           { required: true, message: "Please select the source of Emails" },
         ]}
+        tooltip="Select the source of data for the emails to be sent, Source can either be a Google sheet or SurveyStream Data (Assignments, Productivity etc.)"
       >
         <Radio.Group onChange={handleSourceChange}>
           <Radio value="Google Sheet">Google Sheet</Radio>
@@ -168,6 +210,7 @@ const EmailConfigEditForm = ({
           <Form.Item
             name="email_source_gsheet_link"
             label="Link to Google Sheet"
+            tooltip="Provide the link to the Google Sheet containing the data to be sent in the email"
             rules={[
               {
                 required: true,
@@ -178,21 +221,10 @@ const EmailConfigEditForm = ({
             <Input placeholder="Enter Google Sheet link" />
           </Form.Item>
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="button"
-              onClick={() => {
-                /* Add load functionality here */
-              }}
-            >
-              Load
-            </Button>
-          </Form.Item>
-
           <Form.Item
             name="email_source_gsheet_tab"
             label="Google Sheet Tab"
+            tooltip="Provide the tabname on the Google Sheet containing the data to be sent in the email"
             rules={[
               {
                 required: true,
@@ -206,6 +238,7 @@ const EmailConfigEditForm = ({
           <Form.Item
             name="email_source_gsheet_header_row"
             label="Header Row"
+            tooltip="Specify the row number containing the headers/column names in the Google Sheet"
             rules={[
               {
                 required: true,
@@ -215,6 +248,59 @@ const EmailConfigEditForm = ({
           >
             <Input placeholder="Enter header row number" type="number" />
           </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="button"
+              onClick={() => {
+                /* Add load functionality here */
+              }}
+            >
+              Load
+            </Button>
+          </Form.Item>
+        </>
+      )}
+
+      <Form.Item
+        name="pdf_attachment"
+        label="Do you want to attach a PDF to the email?"
+        tooltip="Select Yes if you want to attach a PDF of tables in the email"
+      >
+        <Radio.Group onChange={handlePdfAttachmentChange}>
+          <Radio value="True">Yes</Radio>
+          <Radio value="False">No</Radio>
+        </Radio.Group>
+      </Form.Item>
+
+      {pdfAttachment === "True" && (
+        <>
+          <Form.Item
+            name="pdf_encryption"
+            label="Do you want to attach a PDF to the email?"
+            tooltip="If you select yes, the PDF will be encrypted with a password"
+          >
+            <Radio.Group onChange={handlePdfEncryptionChange}>
+              <Radio value="True">Yes</Radio>
+              <Radio value="False">No</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          {pdfEncryption === "True" && (
+            <>
+              <Form.Item
+                name="pdf_password"
+                label="Enter the password type for the PDF"
+                tooltip="Pattern passowrd is unique for each enumerator- the pattern of password is enum_id@enum_name. Password is a common password for all enumerators which you can share with SurveyStream team via Flowcrypt"
+              >
+                <Radio.Group onChange={handlePdfPasswordChange}>
+                  <Radio value="Pattern">Pattern</Radio>
+                  <Radio value="Password">Password</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </>
+          )}
         </>
       )}
 

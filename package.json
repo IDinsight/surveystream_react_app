@@ -16,7 +16,7 @@
     "@types/react-dom": "^18.2.4",
     "@types/react-redux": "^7.1.25",
     "@types/redux": "^3.6.0",
-    "antd": "^5.2.3",
+    "antd": "^5.19.3",
     "axios": "^1.4.0",
     "buffer": "^6.0.3",
     "csv-file-validator": "^2.1.0",
