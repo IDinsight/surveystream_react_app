@@ -280,6 +280,7 @@ function UploadAssignments() {
                     />
                     <Button
                       type="primary"
+                      style={{ backgroundColor: "#597EF7", color: "white" }}
                       onClick={() =>
                         navigate(
                           `/module-configuration/assignments/${survey_uid}/${form_uid}`
@@ -348,7 +349,10 @@ function UploadAssignments() {
                             Download errors and warnings
                           </CSVLink>
                         </Button>
-                        <Button type="primary" onClick={() => navigate(0)}>
+                        <Button
+                          style={{ backgroundColor: "#597EF7", color: "white" }}
+                          onClick={() => navigate(0)}
+                        >
                           Upload corrected CSV
                         </Button>
                       </div>
