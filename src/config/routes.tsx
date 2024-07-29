@@ -34,6 +34,7 @@ import ManageUsers from "../modules/Users/ManageUsers";
 import EditUser from "../modules/Users/EditUser";
 import Assignments from "../modules/Assignments/Assignments";
 import CreateAssignments from "../modules/Assignments/AssignmentsTab/CreateAssignments/CreateAssignments";
+import UploadAssignments from "../modules/Assignments/AssignmentsTab/UploadAssignments/UploadAssignments";
 import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
 import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
 import { useAppSelector } from "../redux/hooks";
@@ -253,6 +254,16 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/assignments/:survey_uid?/:form_uid?/create"
           element={<CreateAssignments />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Assignments Upload" />
+        }
+      >
+        <Route
+          path="/module-configuration/assignments/:survey_uid?/:form_uid?/upload"
+          element={<UploadAssignments />}
         />
       </Route>
       <Route
