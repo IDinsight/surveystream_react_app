@@ -211,7 +211,7 @@ function EnumeratorsMap() {
         getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
       );
       if (
-        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
           "Location"
         )
       ) {
@@ -481,7 +481,7 @@ function EnumeratorsMap() {
                             {
                               required:
                                 (item.key === "language" &&
-                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
                                     "Language"
                                   )) ||
                                 item.key === "home_address"
