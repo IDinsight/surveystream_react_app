@@ -56,7 +56,6 @@ function SelectGroup({
             style={{ fontFamily: `"Lato", sans-serif` }}
           />
           <Button
-            type="primary"
             size="small"
             icon={<PlusOutlined />}
             onClick={addItem}
@@ -65,6 +64,8 @@ function SelectGroup({
               marginTop: 10,
               marginBottom: 4,
               fontFamily: `"Lato", sans-serif`,
+              backgroundColor: "#597ef7",
+              color: "white",
             }}
           >
             Add item

@@ -694,6 +694,14 @@ function TableConfig() {
             open={addColModel}
             title="Add or Remove Columns"
             okText="Modify Column"
+            okButtonProps={{
+              type: "default",
+              style: {
+                fontFamily: '"Lato", sans-serif',
+                backgroundColor: "#597ef7",
+                color: "white",
+              },
+            }}
             width={900}
             onCancel={() => {
               setDefaultSelectedCols();
