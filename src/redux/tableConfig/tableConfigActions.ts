@@ -29,7 +29,7 @@ export const getTableConfig = createAsyncThunk(
           : "Failed to fetch table config.",
         success: false,
       };
-      dispatch(tableConfigFailure(error.message));
+      dispatch(tableConfigFailure(error));
       return error;
     } catch (error: any) {
       const errorMessage = error || "Failed to fetch table config.";
@@ -59,17 +59,6 @@ export const updateTableConfig = createAsyncThunk(
       if (response.status == 200) {
         dispatch(updateTableConfigSuccess(response.data));
         return { ...response, success: true };
-      }
-
-      if (response?.response?.data?.success === false) {
-        const error = {
-          message: response?.response?.data?.error?.message
-            ? response?.response?.data?.error?.message
-            : "Failed to update assignment table config.",
-          success: false,
-        };
-        dispatch(updateTableConfigFailure());
-        return error;
       }
 
       const error = {

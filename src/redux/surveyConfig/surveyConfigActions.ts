@@ -81,11 +81,9 @@ export const getSurveyConfig = createAsyncThunk(
           const moduleIds = surveyConfig?.data["Module configuration"].map(
             (module: any) => module.module_id
           );
-          console.log("moduleIds", moduleIds);
           const moduleStatus = surveyConfig?.data["Module configuration"].map(
             (module: any) => module.status
           );
-          console.log("moduleDescriptions", moduleDescriptions);
 
           transformedModules = moduleDescriptions
             .filter((module) => moduleIds.includes(module.module_id))
@@ -99,7 +97,6 @@ export const getSurveyConfig = createAsyncThunk(
             });
         }
 
-        console.log("transformedModules", transformedModules);
         dispatch(
           fetchSurveysConfigSuccess({
             ...transformedConfigs,

@@ -230,7 +230,7 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Assignments" />
+          <ProtectedPermissionRoute permission_name="WRITE Assignments" />
         }
       >
         <Route

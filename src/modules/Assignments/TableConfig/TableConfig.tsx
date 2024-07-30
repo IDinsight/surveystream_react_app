@@ -69,9 +69,11 @@ function TableConfig() {
     return <NotFound />;
   }
 
-  const { loading: isTableConfigLoading, data: tableConfig } = useAppSelector(
-    (state: RootState) => state.tableConfig
-  );
+  const {
+    loading: isTableConfigLoading,
+    data: tableConfig,
+    err: tableLoadingError,
+  } = useAppSelector((state: RootState) => state.tableConfig);
 
   const [config, setConfig] = useState<any>(null);
   const [previewTable, setPreviewTable] = useState<boolean>(false);
@@ -86,6 +88,8 @@ function TableConfig() {
 
   const [groupLabels, setGroupLabels] = useState<string[]>([]);
   const [addColModel, setAddColModel] = useState(false);
+
+  const [respError, setRespError] = useState<string[] | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -447,6 +451,9 @@ function TableConfig() {
           setPreviewTable(false);
           dispatch(getTableConfig({ formUID: form_uid }));
         } else {
+          if (res?.payload?.errors) {
+            setRespError(res.payload.errors);
+          }
           message.error(
             "An error occurred while saving the table configuration"
           );
@@ -576,7 +583,12 @@ function TableConfig() {
             <div style={{ marginLeft: "auto" }}>
               {table && previewTable === true ? (
                 <>
-                  <BackBtn onClick={() => setPreviewTable(false)}>
+                  <BackBtn
+                    onClick={() => {
+                      setPreviewTable(false);
+                      setRespError(null);
+                    }}
+                  >
                     Back to editing
                   </BackBtn>
                   <SubmitBtn onClick={handleSaveBtn}>
@@ -596,6 +608,25 @@ function TableConfig() {
               <>
                 {previewTable === true ? (
                   <>
+                    {respError !== null ? (
+                      <Alert
+                        message="An error occurred while updating the table configuration"
+                        description={
+                          Array.isArray(respError) ? (
+                            <ul>
+                              {respError.map((err, idx) => (
+                                <li key={idx}>{err}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            respError
+                          )
+                        }
+                        type="error"
+                        showIcon
+                        style={{ marginRight: 24, marginBottom: 24 }}
+                      />
+                    ) : null}
                     <Alert
                       message="Scroll horizontally to view all columns."
                       type="info"
@@ -653,41 +684,57 @@ function TableConfig() {
                 )}
               </>
             ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  marginRight: 24,
-                }}
-              >
-                <TableCard
-                  title="Targets"
-                  description="Selected columns will be visible for Targets table for
+              <>
+                {tableLoadingError === null ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      marginRight: 24,
+                    }}
+                  >
+                    <TableCard
+                      title="Targets"
+                      description="Selected columns will be visible for Targets table for
+                    assignments."
+                      btnLabel="View configuration"
+                    />
+                    <TableCard
+                      title="Surveyors"
+                      description="Selected columns will be visible for surveyors table for
                   assignments."
-                  btnLabel="View configuration"
-                />
-                <TableCard
-                  title="Surveyors"
-                  description="Selected columns will be visible for surveyors table for
-                assignments."
-                  btnLabel="View configuration"
-                />
-                <TableCard
-                  title="Assignments Main"
-                  description="Selected columns will be visible for assignments table for assignments."
-                  btnLabel="View configuration"
-                />
-                <TableCard
-                  title="Assignments Surveyors"
-                  description="Selected columns will be visible for ‘assignments surveyors’ table for assignments."
-                  btnLabel="View configuration"
-                />
-                <TableCard
-                  title="Assignments Review"
-                  description="Selected columns will be visible for ‘assignments review’ for assignments"
-                  btnLabel="View configuration"
-                />
-              </div>
+                      btnLabel="View configuration"
+                    />
+                    <TableCard
+                      title="Assignments Main"
+                      description="Selected columns will be visible for assignments table for assignments."
+                      btnLabel="View configuration"
+                    />
+                    <TableCard
+                      title="Assignments Surveyors"
+                      description="Selected columns will be visible for ‘assignments surveyors’ table for assignments."
+                      btnLabel="View configuration"
+                    />
+                    <TableCard
+                      title="Assignments Review"
+                      description="Selected columns will be visible for ‘assignments review’ for assignments"
+                      btnLabel="View configuration"
+                    />
+                  </div>
+                ) : (
+                  <Alert
+                    message="An error occurred while fetching the table configuration"
+                    description={
+                      Array.isArray(tableLoadingError["errors"])
+                        ? (tableLoadingError["errors"] as string[])?.join(", ")
+                        : tableLoadingError["errors"]
+                    }
+                    type="error"
+                    showIcon
+                    style={{ marginRight: 24 }}
+                  />
+                )}
+              </>
             )}
           </div>
           <Modal
