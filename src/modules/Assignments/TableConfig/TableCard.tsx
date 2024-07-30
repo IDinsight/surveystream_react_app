@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface TableCardProps {
   title: string;
@@ -8,7 +8,6 @@ interface TableCardProps {
 }
 
 function TableCard({ title, description, btnLabel }: TableCardProps) {
-  const location = useLocation();
   return (
     <div
       style={{
@@ -25,6 +24,7 @@ function TableCard({ title, description, btnLabel }: TableCardProps) {
           fontSize: 16,
           fontWeight: 500,
           color: "#434343",
+          fontFamily: '"Lato", sans-serif',
         }}
       >
         {title}
@@ -34,12 +34,22 @@ function TableCard({ title, description, btnLabel }: TableCardProps) {
           fontSize: 14,
           fontWeight: 500,
           color: "#BFBFBF",
+          fontFamily: '"Lato", sans-serif',
         }}
       >
         {description}
       </p>
       <Link to={`?table=${title.toLowerCase().replaceAll(" ", "_")}`}>
-        <Button type="primary" style={{ marginTop: 8, borderRadius: 2 }}>
+        <Button
+          type="primary"
+          style={{
+            marginTop: 8,
+            borderRadius: 2,
+            backgroundColor: "#597EF7",
+            color: "white",
+            fontFamily: '"Lato", sans-serif',
+          }}
+        >
           {btnLabel}
         </Button>
       </Link>

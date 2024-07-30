@@ -1,11 +1,4 @@
-import {
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-  useParams,
-  Router,
-} from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import Login from "../modules/Auth/Login";
 import LandingPage from "../modules/LandingPage";
@@ -47,7 +40,7 @@ import DQFormManage from "../modules/DQForm/DQFormManage";
 import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
-import TableConfig from "../modules/TableConfig/TableConfig";
+import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 

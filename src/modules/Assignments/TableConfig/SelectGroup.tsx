@@ -40,7 +40,7 @@ function SelectGroup({
 
   return (
     <Select
-      style={{ width: 250 }}
+      style={{ width: 250, fontFamily: `"Lato", sans-serif` }}
       value={label}
       placeholder="Select a group"
       dropdownRender={(menu) => (
@@ -53,13 +53,19 @@ function SelectGroup({
             value={newName}
             onChange={onNameChange}
             onKeyDown={(e) => e.stopPropagation()}
+            style={{ fontFamily: `"Lato", sans-serif` }}
           />
           <Button
             type="primary"
             size="small"
             icon={<PlusOutlined />}
             onClick={addItem}
-            style={{ width: "100%", marginTop: 10, marginBottom: 4 }}
+            style={{
+              width: "100%",
+              marginTop: 10,
+              marginBottom: 4,
+              fontFamily: `"Lato", sans-serif`,
+            }}
           >
             Add item
           </Button>
@@ -69,7 +75,12 @@ function SelectGroup({
               size="small"
               icon={<MinusOutlined />}
               onClick={() => onSelectChange(null)}
-              style={{ width: "100%", marginTop: 6, marginBottom: 4 }}
+              style={{
+                width: "100%",
+                marginTop: 6,
+                marginBottom: 4,
+                fontFamily: `"Lato", sans-serif`,
+              }}
             >
               Remove group
             </Button>

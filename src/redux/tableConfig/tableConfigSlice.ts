@@ -21,10 +21,25 @@ const authSlice = createSlice({
       state.loading = false;
       state.err = action.payload;
     },
+    updateTableConfigRequest(state) {
+      state.loading = true;
+    },
+    updateTableConfigSuccess(state) {
+      state.loading = false;
+    },
+    updateTableConfigFailure(state) {
+      state.loading = false;
+    },
   },
 });
 
-export const { tableConfigRequest, tableConfigSuccess, tableConfigFailure } =
-  authSlice.actions;
+export const {
+  tableConfigRequest,
+  tableConfigSuccess,
+  tableConfigFailure,
+  updateTableConfigRequest,
+  updateTableConfigSuccess,
+  updateTableConfigFailure,
+} = authSlice.actions;
 
 export default authSlice.reducer;

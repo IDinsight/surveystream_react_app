@@ -1,26 +1,35 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChangeEvent, useEffect, useState } from "react";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
-import Container from "../../components/Layout/Container";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import NotFound from "../../components/NotFound";
-import { Alert, Button, Checkbox, Input, Modal, Table, message } from "antd";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import Header from "../../../components/Header";
+import NavItems from "../../../components/NavItems";
+import Container from "../../../components/Layout/Container";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import NotFound from "../../../components/NotFound";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Col,
+  Input,
+  Modal,
+  Row,
+  Select,
+  message,
+} from "antd";
 import TableCard from "./TableCard";
-import { getTableConfig } from "../../redux/tableConfig/tableConfigActions";
-import { RootState } from "../../redux/store";
-import { properCase } from "../../utils/helper";
+import {
+  getTableConfig,
+  updateTableConfig,
+} from "../../../redux/tableConfig/tableConfigActions";
+import { RootState } from "../../../redux/store";
 import { PlusOutlined } from "@ant-design/icons";
 import SelectGroup from "./SelectGroup";
-import { fetchEnumeratorsColumnConfig } from "../../redux/enumerators/apiService";
-import { fetchTargetsColumnConfig } from "../../redux/targets/apiService";
 import {
   DndContext,
   DragEndEvent,
   PointerSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -33,12 +42,13 @@ import {
 import DraggableRow from "./DraggableRow";
 import {
   BackBtn,
+  ColumnsTable,
   PreviewBtn,
   PreviewTable,
   SubmitBtn,
 } from "./TableConfig.styled";
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
-import { set } from "lodash";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import { fetchAvailableColumn } from "../../../redux/tableConfig/apiService";
 
 function TableConfig() {
   const navigate = useNavigate();
@@ -47,6 +57,7 @@ function TableConfig() {
   // Get the table parameter from the URL
   const [searchParam] = useSearchParams();
   const table = searchParam.get("table");
+  const tableKey = table?.toLowerCase();
 
   const { survey_uid, form_uid } = useParams<{
     survey_uid: string;
@@ -63,14 +74,26 @@ function TableConfig() {
   );
 
   const [config, setConfig] = useState<any>(null);
-  const [addColModel, setAddColModel] = useState(false);
-
-  // Enumerators and Targets columns
-  const [enumeratorsColumn, setEnumeratorsColumn] = useState<any>(null);
-  const [targetsColumn, setTargetsColumn] = useState<any>(null);
   const [previewTable, setPreviewTable] = useState<boolean>(false);
 
+  const [availableColumns, setAvailableColumns] = useState<any>([]);
+  const [sctoColumns, setSctoColumns] = useState<any>([]);
+  const [otherColumns, setOtherColumns] = useState<any>([]);
+
+  const [selectedColumns, setSelectedColumns] = useState<any>([]);
+  const [selectedSctoColumns, setSelectedSctoColumns] = useState<any>([]);
+  const [selectedOtherColumns, setSelectedOtherColumns] = useState<any>([]);
+
   const [groupLabels, setGroupLabels] = useState<string[]>([]);
+  const [addColModel, setAddColModel] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 1,
+      },
+    })
+  );
 
   const tableColumns = [
     {
@@ -164,7 +187,6 @@ function TableConfig() {
 
     // Remove the column from the previous group
     const oldGroupColumns = [...newConfig[tableKey][groupIndex].columns];
-    console.log("oldGroupColumns", oldGroupColumns);
     const filteredGroupColumns = oldGroupColumns.filter(
       (col: any, i: number) => i !== colIndex
     );
@@ -175,8 +197,6 @@ function TableConfig() {
       newConfig = { ...newConfig, [tableKey]: filteredTableItems };
     } else {
       const oldTableItems = [...newConfig[tableKey]];
-      console.log("oldTableItems", oldTableItems);
-      console.log("groupIndex", groupIndex);
       oldTableItems[groupIndex] = {
         ...oldTableItems[groupIndex],
         columns: filteredGroupColumns,
@@ -188,20 +208,10 @@ function TableConfig() {
     setConfig(newConfig);
   };
 
-  const handleAddGroup = (
-    tableKey: string,
-    groupIndex: number,
-    colIndex: number
-  ) => {
-    console.log("Add Group", tableKey, groupIndex, colIndex);
-    console.log("Config", config[tableKey]);
-  };
-
   const tableDataSource = function () {
     if (config && Object.keys(config).length > 0) {
-      if (table) {
+      if (tableKey) {
         const tempD: any = [];
-        const tableKey = table.toLowerCase();
         try {
           config[tableKey].forEach((item: any, itemIdx: number) => {
             // Loop through the columns
@@ -212,7 +222,7 @@ function TableConfig() {
                 col_label: (
                   <Input
                     value={col.column_label}
-                    style={{ width: 280 }}
+                    style={{ width: 280, fontFamily: '"Lato", sans-serif' }}
                     onChange={(e) =>
                       handleInputChange(tableKey, itemIdx, colIdx, e)
                     }
@@ -241,20 +251,8 @@ function TableConfig() {
     }
   };
 
-  const [selectedEnumCols, setSelectedEnumCols] = useState<any>([]);
-  const [selectedTargetCols, setSelectedTargetCols] = useState<any>([]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 1,
-      },
-    })
-  );
-
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!table) return;
-    const tableKey = table.toLowerCase();
+    if (!tableKey) return;
 
     // Make sure the active and over columns are different
     if (active.id !== over?.id) {
@@ -329,31 +327,135 @@ function TableConfig() {
 
   // Create the preview table columns based on the config
   let previewTableColumns = undefined;
-  if (table) {
-    console.log("config?.[table.toLowerCase()]", config?.[table.toLowerCase()]);
-    previewTableColumns = config?.[table.toLowerCase()]?.map(
-      (configItem: any, i: any) => {
-        if (configItem.group_label) {
-          return {
-            title: configItem.group_label,
-            children: configItem.columns.map((groupItem: any, i: any) => {
-              return {
-                title: groupItem.column_label,
-                dataIndex: groupItem.column_key,
-                key: groupItem.column_key,
-              };
-            }),
-          };
-        } else {
-          return {
-            title: configItem.columns[0].column_label,
-            dataIndex: configItem.columns[0].column_key,
-            key: configItem.columns[0].column_key,
-          };
-        }
+  if (tableKey) {
+    previewTableColumns = config?.[tableKey]?.map((configItem: any, i: any) => {
+      if (configItem.group_label) {
+        return {
+          title: configItem.group_label,
+          children: configItem.columns.map((groupItem: any, i: any) => {
+            return {
+              title: groupItem.column_label,
+              dataIndex: groupItem.column_key,
+              key: groupItem.column_key,
+            };
+          }),
+        };
+      } else {
+        return {
+          title: configItem.columns[0].column_label,
+          dataIndex: configItem.columns[0].column_key,
+          key: configItem.columns[0].column_key,
+        };
       }
-    );
+    });
   }
+
+  const handleColumnChange = () => {
+    // Check if the table key is available
+    if (!tableKey) return;
+
+    // Close the modal
+    setAddColModel(false);
+
+    // Create a copy of the config
+    const newConfig = JSON.parse(JSON.stringify(config));
+
+    // Combine the selected scto and other columns
+    const newUpdatedColumns = [...selectedSctoColumns, ...selectedOtherColumns];
+
+    // Create a Set of new column keys for easy lookup
+    const updatedColumnKeys = new Set(
+      newUpdatedColumns.map((col) => col.value)
+    );
+
+    // Remove columns not in the newUpdatedColumns array and groups with zero columns
+    const filteredConfig = newConfig[tableKey].filter((group: any) => {
+      group.columns = group.columns.filter((col: any) =>
+        updatedColumnKeys.has(col.column_key)
+      );
+      return group.columns.length > 0;
+    });
+
+    // Collect existing column keys from the updated config
+    const existingColumnKeys = new Set();
+    filteredConfig.forEach((group: any) => {
+      group.columns.forEach((col: any) =>
+        existingColumnKeys.add(col.column_key)
+      );
+    });
+
+    // Append new columns with group_label null that are not already in the config
+    const columnsToAppend = newUpdatedColumns.filter(
+      (newCol) => !existingColumnKeys.has(newCol.value)
+    );
+
+    if (columnsToAppend.length > 0) {
+      columnsToAppend.map((col: any) => {
+        filteredConfig.push({
+          group_label: null,
+          columns: [{ column_key: col.value, column_label: col.label }],
+        });
+      });
+    }
+
+    // Update the config
+    newConfig[tableKey] = filteredConfig;
+    setConfig(newConfig);
+  };
+
+  // Set the default selected columns
+  const setDefaultSelectedCols = () => {
+    const selectedSctoCols = sctoColumns?.filter((col: any) =>
+      selectedColumns?.some((colItem: any) => colItem.column_key === col.value)
+    );
+    setSelectedSctoColumns(selectedSctoCols);
+
+    const selectedOtherCols = otherColumns?.filter((col: any) =>
+      selectedColumns?.some((colItem: any) => colItem.column_key === col.value)
+    );
+    setSelectedOtherColumns(selectedOtherCols);
+  };
+
+  const handleSaveBtn = () => {
+    if (form_uid && tableKey && config) {
+      // Flatten the table config for payload
+      const flatTableConfig: any = [];
+      config[tableKey].forEach((group: any) => {
+        group.columns.map((col: any) => {
+          flatTableConfig.push({
+            group_label: group.group_label,
+            column_key: col.column_key,
+            column_label: col.column_label,
+          });
+        });
+      });
+
+      dispatch(
+        updateTableConfig({
+          formUID: form_uid,
+          tableName: tableKey,
+          tableConfig: flatTableConfig,
+        })
+      ).then((res: any) => {
+        if (res.payload.success) {
+          message.success("Table configuration saved successfully");
+
+          navigate(
+            `/module-configuration/table-config/${survey_uid}/${form_uid}`
+          );
+
+          setPreviewTable(false);
+          dispatch(getTableConfig({ formUID: form_uid }));
+        } else {
+          message.error(
+            "An error occurred while saving the table configuration"
+          );
+        }
+      });
+    } else {
+      message.error("An error occurred while saving the table configuration");
+    }
+  };
 
   // Ensure that the form_uid is available
   useEffect(() => {
@@ -369,83 +471,21 @@ function TableConfig() {
         }
       });
     }
-  }, []);
+  }, [survey_uid, form_uid]);
 
   // Fetch the table config on redux state
   useEffect(() => {
     if (form_uid) {
       dispatch(getTableConfig({ formUID: form_uid }));
 
-      fetchEnumeratorsColumnConfig(form_uid).then((res: any) => {
+      fetchAvailableColumn(form_uid).then((res: any) => {
         if (res.status === 200) {
-          if (res.data.data) {
-            const fileCols = res.data.data?.file_columns.map((item: any) => {
-              return {
-                column_key: item.column_name,
-                column_label: item.column_name,
-              };
-            });
-
-            const locationCols = res.data.data?.location_columns.map(
-              (item: any) => ({
-                column_key: item.column_key,
-                column_label: item.column_label,
-              })
-            );
-
-            const productivityCols = res.data.data?.productivity_columns.map(
-              (item: any) => ({
-                column_key: item.column_key,
-                column_label: item.column_label,
-              })
-            );
-
-            setEnumeratorsColumn([
-              ...fileCols,
-              ...locationCols,
-              ...productivityCols,
-            ]);
+          if (res.data) {
+            setAvailableColumns(res.data);
           }
         } else {
           message.error(
-            "An error occurred while fetching the Enumerators column config"
-          );
-        }
-      });
-
-      fetchTargetsColumnConfig(form_uid).then((res: any) => {
-        if (res.status === 200) {
-          if (res.data.data) {
-            const fileCols = res.data.data?.file_columns?.map((item: any) => {
-              return {
-                column_key: item.column_name,
-                column_label: item.column_name,
-              };
-            });
-
-            const locationCols = res.data.data?.location_columns?.map(
-              (item: any) => ({
-                column_key: item.column_key,
-                column_label: item.column_label,
-              })
-            );
-
-            const targetStatusCols = res.data.data?.target_status_columns?.map(
-              (item: any) => ({
-                column_key: item.column_key,
-                column_label: item.column_label,
-              })
-            );
-
-            setTargetsColumn([
-              ...fileCols,
-              ...locationCols,
-              ...targetStatusCols,
-            ]);
-          }
-        } else {
-          message.error(
-            "An error occurred while fetching the Enumerators column config"
+            "An error occurred while fetching the available column"
           );
         }
       });
@@ -462,8 +502,7 @@ function TableConfig() {
   // Get the group labels and set the state
   useEffect(() => {
     const groupLabelsTemp: any = [];
-    if (config && Object.keys(config).length > 0 && table) {
-      const tableKey = table.toLowerCase();
+    if (config && Object.keys(config).length > 0 && tableKey) {
       try {
         config[tableKey].forEach((item: any) => {
           // Check if the group label is available
@@ -476,35 +515,53 @@ function TableConfig() {
         message.error("An error occurred while gathering the group labels");
       }
     }
+  }, [config, tableKey]);
 
-    const selectedEnumColsTemp: any = enumeratorsColumn?.filter((item: any) => {
-      if (table && config && config[table]) {
-        return config[table].some((group: any) => {
-          return group.columns.some((col: any) => {
-            return col.column_key === item.column_key;
+  // Set the selected columns
+  useEffect(() => {
+    let selectedCols: any = [];
+    if (tableKey) {
+      selectedCols = availableColumns[tableKey]?.filter((item: any) => {
+        if (tableKey && config && config[tableKey]) {
+          return config[tableKey].some((group: any) => {
+            return group.columns.some((col: any) => {
+              return col.column_key === item.column_key;
+            });
           });
-        });
-      }
-    });
-    setSelectedEnumCols(selectedEnumColsTemp);
+        }
+      });
+    }
+    setSelectedColumns(selectedCols);
+  }, [config, availableColumns, tableKey]);
 
-    const selectedTargetColsTemp: any = targetsColumn?.filter((item: any) => {
-      if (table && config && config[table]) {
-        return config[table].some((group: any) => {
-          return group.columns.some((col: any) => {
-            return col.column_key === item.column_key;
+  // Set the SCTO and other columns
+  useEffect(() => {
+    const sctoCols: any = [];
+    const otherCols: any = [];
+
+    if (tableKey && availableColumns[tableKey]) {
+      availableColumns[tableKey].forEach((item: any) => {
+        if (item.column_key.startsWith("scto_")) {
+          sctoCols.push({
+            label: item.column_label,
+            value: item.column_key,
           });
-        });
-      }
-    });
-    setSelectedTargetCols(selectedTargetColsTemp);
-  }, [config, table, enumeratorsColumn, targetsColumn]);
+        } else {
+          otherCols.push({
+            label: item.column_label,
+            value: item.column_key,
+          });
+        }
+      });
+    }
+
+    setSctoColumns(sctoCols);
+    setOtherColumns(otherCols);
+  }, [tableKey, availableColumns]);
 
   useEffect(() => {
-    if (table && config && Object.keys(config).length > 0) {
-      console.log("Config[table]", config[table.toLowerCase()]);
-    }
-  }, [config]);
+    setDefaultSelectedCols();
+  }, [selectedColumns, sctoColumns, otherColumns]);
 
   return (
     <>
@@ -522,7 +579,9 @@ function TableConfig() {
                   <BackBtn onClick={() => setPreviewTable(false)}>
                     Back to editing
                   </BackBtn>
-                  <SubmitBtn>Save table configuration</SubmitBtn>
+                  <SubmitBtn onClick={handleSaveBtn}>
+                    Save table configuration
+                  </SubmitBtn>
                 </>
               ) : null}
               {table && previewTable === false ? (
@@ -533,7 +592,7 @@ function TableConfig() {
             </div>
           </HeaderContainer>
           <div style={{ marginLeft: 36, marginTop: 24 }}>
-            {table && config && Object.keys(config).length > 0 ? (
+            {tableKey && config && Object.keys(config).length > 0 ? (
               <>
                 {previewTable === true ? (
                   <>
@@ -541,7 +600,11 @@ function TableConfig() {
                       message="Scroll horizontally to view all columns."
                       type="info"
                       showIcon
-                      style={{ marginBottom: 16, marginRight: 24 }}
+                      style={{
+                        marginBottom: 16,
+                        marginRight: 24,
+                        fontFamily: '"Lato", sans-serif',
+                      }}
                     />
                     <PreviewTable
                       columns={previewTableColumns}
@@ -561,7 +624,7 @@ function TableConfig() {
                         items={tableDataSource().map((i: any) => i.key)}
                         strategy={verticalListSortingStrategy}
                       >
-                        <Table
+                        <ColumnsTable
                           components={{
                             body: {
                               row: DraggableRow,
@@ -571,11 +634,16 @@ function TableConfig() {
                           columns={tableColumns}
                           dataSource={tableDataSource()}
                           pagination={false}
+                          style={{ fontFamily: '"Lato", sans-serif' }}
                         />
                       </SortableContext>
                     </DndContext>
                     <Button
-                      style={{ marginTop: 16 }}
+                      style={{
+                        marginTop: 16,
+                        marginBottom: 36,
+                        fontFamily: '"Lato", sans-serif',
+                      }}
                       icon={<PlusOutlined />}
                       onClick={() => setAddColModel(true)}
                     >
@@ -624,25 +692,58 @@ function TableConfig() {
           </div>
           <Modal
             open={addColModel}
-            title="Title"
-            okText="Add Column"
+            title="Add or Remove Columns"
+            okText="Modify Column"
             width={900}
-            onCancel={() => setAddColModel(false)}
+            onCancel={() => {
+              setDefaultSelectedCols();
+              setAddColModel(false);
+            }}
+            onOk={handleColumnChange}
           >
-            <p>Enumerator</p>
             <Checkbox.Group
-              options={enumeratorsColumn?.map((item: any) => item.column_key)}
-              defaultValue={selectedEnumCols?.map(
-                (item: any) => item.column_key
-              )}
-            />
-            <p>Targets</p>
-            <Checkbox.Group
-              options={targetsColumn?.map((item: any) => item.column_key)}
-              defaultValue={selectedTargetCols?.map(
-                (item: any) => item.column_key
-              )}
-            />
+              value={selectedOtherColumns.map((col: any) => col.value)}
+              onChange={(value) => {
+                const selectedCols = otherColumns.filter((col: any) =>
+                  value.includes(col.value)
+                );
+                setSelectedOtherColumns(selectedCols);
+              }}
+            >
+              <Row gutter={[16, 16]}>
+                {otherColumns.map((option: any) => (
+                  <Col xs={24} sm={12} md={8} lg={6} key={option.value}>
+                    <Checkbox
+                      value={option.value}
+                      style={{ fontFamily: '"Lato", sans-serif' }}
+                    >
+                      {option.label}
+                    </Checkbox>
+                  </Col>
+                ))}
+              </Row>
+            </Checkbox.Group>
+            {sctoColumns.length > 0 ? (
+              <div style={{ marginTop: 24, marginBottom: 32 }}>
+                <p style={{ fontFamily: '"Lato", sans-serif' }}>
+                  SCTO columns:
+                </p>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  style={{ width: "100%" }}
+                  placeholder="Please select SCTO fields"
+                  value={selectedSctoColumns.map((col: any) => col.value)}
+                  options={sctoColumns}
+                  onChange={(value: string[]) => {
+                    const selectedCols = sctoColumns.filter((col: any) =>
+                      value.includes(col.value)
+                    );
+                    setSelectedSctoColumns(selectedCols);
+                  }}
+                />
+              </div>
+            ) : null}
           </Modal>
         </>
       )}

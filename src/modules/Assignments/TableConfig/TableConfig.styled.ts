@@ -13,7 +13,7 @@ export const HeaderContainer = styled.div`
 
 export const TextHeading = styled.h1`
   color: #262626;
-  font-family: "Inter";
+  font-family: "Lato", sans-serif;
   font-size: 20px;
   font-weight: 500;
   line-height: 28px;
@@ -21,12 +21,13 @@ export const TextHeading = styled.h1`
 
 export const PreviewBtn = styled(Button)`
   margin-left: auto;
-  background-color: #2f54eb;
+  background-color: #597ef7;
   color: white;
   border-radius: 4px !important;
+  font-family: "Lato", sans-serif;
 
   &:hover {
-    background-color: #2f54eb;
+    background-color: #597ef7;
     color: white !important;
   }
 `;
@@ -34,16 +35,18 @@ export const PreviewBtn = styled(Button)`
 export const BackBtn = styled(Button)`
   margin-left: auto;
   border-radius: 4px !important;
+  font-family: "Lato", sans-serif;
 `;
 
 export const SubmitBtn = styled(Button)`
   margin-left: 12px;
-  background-color: #2f54eb;
+  background-color: #597ef7;
   color: white;
   border-radius: 4px !important;
+  font-family: "Lato", sans-serif;
 
   &:hover {
-    background-color: #2f54eb;
+    background-color: #597ef7;
     color: white !important;
   }
 `;
@@ -59,6 +62,19 @@ export const PreviewTable = styled(Table)`
   }
   & th::before {
     background-color: #f0f0f0 !important;
+  }
+  & td {
+    font-family: "Lato", sans-serif;
+  }
+`;
+
+export const ColumnsTable = styled(Table)`
+  margin-right: 24px;
+  & th {
+    color: #434343 !important;
+    background-color: #d6e4ff !important;
+    height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & td {
     font-family: "Lato", sans-serif;

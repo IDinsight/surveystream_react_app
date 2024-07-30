@@ -4,9 +4,12 @@ import {
   tableConfigRequest,
   tableConfigSuccess,
   tableConfigFailure,
+  updateTableConfigRequest,
+  updateTableConfigSuccess,
+  updateTableConfigFailure,
 } from "./tableConfigSlice";
 
-import { fetchTableConfig } from "./apiService";
+import { fetchTableConfig, putTableConfig } from "./apiService";
 
 export const getTableConfig = createAsyncThunk(
   "tableConfig/getTableConfig",
@@ -31,6 +34,56 @@ export const getTableConfig = createAsyncThunk(
     } catch (error: any) {
       const errorMessage = error || "Failed to fetch table config.";
       dispatch(tableConfigFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateTableConfig = createAsyncThunk(
+  "tableConfig/updateTableConfig",
+  async (
+    {
+      formUID,
+      tableName,
+      tableConfig,
+    }: { formUID: string; tableName: string; tableConfig: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateTableConfigRequest());
+      const response: any = await putTableConfig(
+        formUID,
+        tableName,
+        tableConfig
+      );
+      if (response.status == 200) {
+        dispatch(updateTableConfigSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      if (response?.response?.data?.success === false) {
+        const error = {
+          message: response?.response?.data?.error?.message
+            ? response?.response?.data?.error?.message
+            : "Failed to update assignment table config.",
+          success: false,
+        };
+        dispatch(updateTableConfigFailure());
+        return error;
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update assignment table config.",
+        success: false,
+      };
+      dispatch(updateTableConfigFailure());
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update assignment table config.";
+      dispatch(updateTableConfigFailure());
       return rejectWithValue(errorMessage);
     }
   }
