@@ -438,7 +438,7 @@ function EnumeratorsMap() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title>
           {(() => {

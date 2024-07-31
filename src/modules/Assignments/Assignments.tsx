@@ -411,7 +411,7 @@ function Assignments() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <div>
             <HeaderContainer>
               <Title>Assignments</Title>

@@ -577,7 +577,7 @@ function TableConfig() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={tableKey ? false : true} />
           <HeaderContainer>
             <Title>Assignments Column Configuration</Title>
             <div style={{ marginLeft: "auto" }}>
