@@ -105,9 +105,8 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
       const configName = form.getFieldValue("config_name");
       const sctoFormUID = form.getFieldValue("scto_form_uid");
       const notificationUsers = form.getFieldValue("report_users");
-
+      const ccUsers = form.getFieldValue("cc_users");
       const formValues = await form.validateFields();
-
       //check if Config Name exists
       const checkConfigs = configNames.filter((type: any) => {
         return type.config_name == configName;
@@ -127,6 +126,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           email_source_tablename: null,
           email_source_columns: [],
           report_users: notificationUsers,
+          cc_users: ccUsers,
           ...formValues,
         };
 
@@ -384,12 +384,12 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
         tooltip="Select Yes if you want to attach a PDF of tables in the email"
       >
         <Radio.Group onChange={handlePdfAttachmentChange}>
-          <Radio value="True">Yes</Radio>
-          <Radio value="False">No</Radio>
+          <Radio value="true">Yes</Radio>
+          <Radio value="false">No</Radio>
         </Radio.Group>
       </Form.Item>
 
-      {pdfAttachment === "True" && (
+      {pdfAttachment === "true" && (
         <>
           <Form.Item
             name="pdf_encryption"
@@ -397,15 +397,15 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
             tooltip="Select Yes if you want to encrypt and password protect the PDF attachment in the email"
           >
             <Radio.Group onChange={handlePdfEncryptionChange}>
-              <Radio value="True">Yes</Radio>
-              <Radio value="False">No</Radio>
+              <Radio value="true">Yes</Radio>
+              <Radio value="false">No</Radio>
             </Radio.Group>
           </Form.Item>
 
-          {pdfEncryption === "True" && (
+          {pdfEncryption === "true" && (
             <>
               <Form.Item
-                name="pdf_password"
+                name="pdf_encryption_password_type"
                 label="Enter the password type for the PDF"
                 tooltip="Pattern passowrd is unique for each enumerator- the pattern of password is enum_id@enum_name. Password is a common password for all enumerators which you can share with SurveyStream team via Flowcrypt"
               >

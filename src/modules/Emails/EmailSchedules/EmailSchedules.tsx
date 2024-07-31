@@ -62,6 +62,50 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       dataIndex: "config_name",
       key: "config_name",
       sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
+      render: (text: any, record: any) => (
+        <div
+          style={{
+            position: "relative",
+            overflowWrap: "break-word",
+            textAlign: "center",
+            top: "5px",
+          }}
+        >
+          {record?.config_name}
+          <br />
+          <span
+            style={{
+              position: "relative",
+              top: "5px",
+            }}
+          >
+            <Tooltip title="Edit Config">
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                disabled={!record?.email_config_uid}
+                onClick={() => handleEditConfig(record)}
+              ></Button>
+            </Tooltip>
+
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete this config type?"
+                onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  disabled={!record?.email_config_uid}
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  danger
+                ></Button>
+              </Popconfirm>
+            </Tooltip>
+          </span>
+        </div>
+      ),
     },
     {
       title: "Email Source",

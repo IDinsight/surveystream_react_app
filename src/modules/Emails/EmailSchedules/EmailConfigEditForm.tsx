@@ -269,12 +269,12 @@ const EmailConfigEditForm = ({
         tooltip="Select Yes if you want to attach a PDF of tables in the email"
       >
         <Radio.Group onChange={handlePdfAttachmentChange}>
-          <Radio value="True">Yes</Radio>
-          <Radio value="False">No</Radio>
+          <Radio value="true">Yes</Radio>
+          <Radio value="false">No</Radio>
         </Radio.Group>
       </Form.Item>
 
-      {pdfAttachment === "True" && (
+      {pdfAttachment === "true" && (
         <>
           <Form.Item
             name="pdf_encryption"
@@ -282,15 +282,15 @@ const EmailConfigEditForm = ({
             tooltip="If you select yes, the PDF will be encrypted with a password"
           >
             <Radio.Group onChange={handlePdfEncryptionChange}>
-              <Radio value="True">Yes</Radio>
-              <Radio value="False">No</Radio>
+              <Radio value="true">Yes</Radio>
+              <Radio value="false">No</Radio>
             </Radio.Group>
           </Form.Item>
 
-          {pdfEncryption === "True" && (
+          {pdfEncryption === "true" && (
             <>
               <Form.Item
-                name="pdf_password"
+                name="pdf_encryption_password_type"
                 label="Enter the password type for the PDF"
                 tooltip="Pattern passowrd is unique for each enumerator- the pattern of password is enum_id@enum_name. Password is a common password for all enumerators which you can share with SurveyStream team via Flowcrypt"
               >
