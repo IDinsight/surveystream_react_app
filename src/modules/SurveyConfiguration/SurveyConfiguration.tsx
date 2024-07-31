@@ -92,6 +92,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
+    "Assignments column configuration": "table-config",
     Emails: "emails",
     "Media (Audio/Photo) audits": "media-audits",
     "Track data quality": "dq-forms",

@@ -46,6 +46,7 @@ const Container: React.FC<IContainer> = ({ children }) => {
       <Wrapper>
         <HandleBackButton />
         <Title>{activeSurvey?.survey_name}</Title>
+        {children}
       </Wrapper>
     </>
   );

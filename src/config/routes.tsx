@@ -1,11 +1,4 @@
-import {
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-  useParams,
-  Router,
-} from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import Login from "../modules/Auth/Login";
 import LandingPage from "../modules/LandingPage";
@@ -48,6 +41,7 @@ import DQFormManage from "../modules/DQForm/DQFormManage";
 import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
+import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -235,7 +229,16 @@ const AppRoutes = () => {
           element={<TargetsMap />}
         />
       </Route>
-
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Assignments" />
+        }
+      >
+        <Route
+          path="/module-configuration/table-config/:survey_uid?/:form_uid?"
+          element={<TableConfig />}
+        />
+      </Route>
       <Route
         element={
           <ProtectedPermissionRoute permission_name="READ Assignments" />
