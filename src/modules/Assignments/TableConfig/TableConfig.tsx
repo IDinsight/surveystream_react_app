@@ -757,6 +757,7 @@ function TableConfig() {
             onOk={handleColumnChange}
           >
             <Checkbox.Group
+              style={{ marginTop: 16 }}
               value={selectedOtherColumns.map((col: any) => col.value)}
               onChange={(value) => {
                 const selectedCols = otherColumns.filter((col: any) =>
