@@ -5,6 +5,7 @@ import {
   BackArrow,
   Title,
   MainWrapper,
+  HeaderContainer,
 } from "../../../shared/Nav.styled";
 
 import { Form, Select, message } from "antd";
@@ -42,6 +43,8 @@ import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surve
 import { setSurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsSlice";
 import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import HandleBackButton from "../../../components/HandleBackButton";
+import Container from "../../../components/Layout/Container";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -75,9 +78,6 @@ function SurveyCTOQuestions() {
     if (survey_uid != undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
     }
-  };
-  const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
   };
 
   const handleFormChange = (changedFields: any[]) => {
@@ -308,27 +308,27 @@ function SurveyCTOQuestions() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container />
+      <HeaderContainer>
+        <Title> SurveyCTO Questions</Title>
+
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        >
+          <SCTOQuestionsButton
+            type="dashed"
+            loading={loading}
+            onClick={() => loadFormQuestions(true)}
+            disabled={form_uid == undefined}
+          >
+            Load questions from SCTO form
+          </SCTOQuestionsButton>
+        </div>
+      </HeaderContainer>
       <div style={{ display: "flex" }}>
         <SideMenu />
         <MainWrapper>
           <DescriptionWrap>
-            <DescriptionTitle> SurveyCTO Questions </DescriptionTitle>
-
             <DescriptionText>
               This step has 2 pre-requisites:
               <ol>
@@ -347,15 +347,6 @@ function SurveyCTOQuestions() {
                 </li>
               </ol>
             </DescriptionText>
-
-            <SCTOQuestionsButton
-              type="dashed"
-              loading={loading}
-              onClick={() => loadFormQuestions(true)}
-              disabled={form_uid == undefined}
-            >
-              Load questions from SCTO form
-            </SCTOQuestionsButton>
           </DescriptionWrap>
 
           {isLoading ? (
@@ -539,7 +530,6 @@ function SurveyCTOQuestions() {
         </MainWrapper>
       </div>
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleContinue}>
           Continue
         </ContinueButton>

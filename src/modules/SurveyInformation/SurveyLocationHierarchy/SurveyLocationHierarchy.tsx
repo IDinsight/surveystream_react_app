@@ -7,6 +7,7 @@ import {
   BackLink,
   BackArrow,
   Title,
+  HeaderContainer,
 } from "../../../shared/Nav.styled";
 
 import {
@@ -35,6 +36,7 @@ import {
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import Container from "../../../components/Layout/Container";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -50,7 +52,11 @@ function SurveyLocationHierarchy() {
     useState<any>("no_location");
 
   const handleGoBack = () => {
-    navigate(-1);
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(`/survey-configuration/${survey_uid}`);
+    }
   };
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -291,30 +297,22 @@ function SurveyLocationHierarchy() {
     <>
       <GlobalStyle />
       <Header />
-      <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container />
+      <HeaderContainer>
+        <Title>Survey locations hierarchy</Title>
+
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
           <SideMenu />
           <SurveyLocationHierarchyFormWrapper>
-            <Title>Survey Location: Hierarchy</Title>
             <DescriptionText>
-              Please add locations for this survey
+              Update or add location hierarchy for this survey
             </DescriptionText>
             <div style={{ marginTop: "30px" }}>
               <DynamicItemsForm form={form}>
@@ -344,7 +342,6 @@ function SurveyLocationHierarchy() {
         </div>
       )}
       <FooterWrapper>
-        <SaveButton>Save</SaveButton>
         <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
           Continue
         </ContinueButton>

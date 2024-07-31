@@ -29,6 +29,7 @@ import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -70,10 +71,6 @@ function ManageSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
@@ -254,9 +251,8 @@ function ManageSurveyRoles() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

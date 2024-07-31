@@ -24,12 +24,15 @@ export const EditingModel = styled.div`
   top: 70px;
   padding: 40px 60px;
   border: 1px solid #f0f0f0;
+  font-family: "Lato", sans-serif;
 `;
 
 export const FormItemLabel = styled.p`
   color: "#434343",
   font-size: 14px,
   line-height: 22px,
+    font-family: "Lato", sans-serif;
+
 `;
 
 export const CustomBtn = styled(Button)`
@@ -37,6 +40,7 @@ export const CustomBtn = styled(Button)`
   color: white;
   border-radius: 8px !important;
   min-width: 94px !important;
+  font-family: "Lato", sans-serif;
 
   &:hover {
     background-color: #2f54eb !important;

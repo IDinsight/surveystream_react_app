@@ -13,6 +13,12 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header";
 import NavItems from "../../components/NavItems";
 import { GlobalStyle } from "../../shared/Global.styled";
+import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import {
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 
 function AddUser() {
   const navigate = useNavigate();
@@ -98,7 +104,6 @@ function AddUser() {
           navigate(`/users`);
         } else {
           message.error("Failed to update user kindly check");
-          console.log("error", updateRes.payload);
         }
       } else {
         //perform add user
@@ -119,7 +124,6 @@ function AddUser() {
           navigate(`/users`);
         } else {
           message.error("Failed to add user kindly check");
-          console.log("error", addRes.payload);
         }
       }
     });
@@ -131,13 +135,25 @@ function AddUser() {
     <>
       <GlobalStyle />
       <Header items={NavItems} />
+      <HeaderContainer>
+        <Title> Add new user</Title>
+
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Button
+            onClick={() => navigate(`/users/`)}
+            style={{ marginLeft: 20 }}
+            icon={<CloseCircleOutlined />}
+          >
+            Dismiss
+          </Button>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <BodyWrapper>
             <MainContainer>
-              <DescriptionText>Add new user</DescriptionText>
               <div>
                 {!isVerified ? (
                   <Form
@@ -169,12 +185,6 @@ function AddUser() {
                         style={{ backgroundColor: "#2F54EB" }}
                       >
                         Check for user
-                      </Button>
-                      <Button
-                        onClick={() => navigate(`/users/`)}
-                        style={{ marginLeft: 20 }}
-                      >
-                        Dismiss
                       </Button>
                     </Form.Item>
                   </Form>
@@ -434,12 +444,6 @@ function AddUser() {
                       >
                         {isExistingUser && <>Update User</>}
                         {!isExistingUser && <>Add User</>}
-                      </Button>
-                      <Button
-                        onClick={() => navigate(`/users/`)}
-                        style={{ marginLeft: 20 }}
-                      >
-                        Dismiss
                       </Button>
                     </Form.Item>
                   </Form>

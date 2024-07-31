@@ -49,6 +49,7 @@ import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
 import { it } from "mocha";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -58,12 +59,6 @@ interface CSVError {
 function TargetsMap() {
   const navigate = useNavigate();
 
-  const handleGoBack = () => {
-    if (hasError) {
-      return setHasError(false);
-    }
-    navigate(-1);
-  };
   const dispatch = useAppDispatch();
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
@@ -307,11 +302,13 @@ function TargetsMap() {
     formUID: any,
     column_mapping: any
   ) => {
-    //auto configure columns for users setting personal as non_batch and the rest as batch
-    //use the column mapping to do this
-
-    const customConfig = Object.keys(column_mapping).map((key) => {
-      if (key !== null && key !== "" && key !== undefined) {
+    const customConfig = Object.keys(column_mapping).flatMap((key) => {
+      if (
+        key !== null &&
+        key !== "" &&
+        key !== undefined &&
+        column_mapping[key] !== undefined
+      ) {
         const personal = ["target_id"].includes(key);
         const custom = ["gender", "language"].includes(key);
 
@@ -320,21 +317,19 @@ function TargetsMap() {
           ["location_id_column"].includes(key);
 
         if (key === "custom_fields") {
-          //loop through the custom fields checking for pii
-          const customFields: any = column_mapping[key];
+          // Loop through the custom fields checking for PII
+          const customFields = column_mapping[key];
 
-          const fieldsConfig = Object.keys(customFields).map((customKey) => {
-            const bulk = checkboxValues?.[`${customKey}_bulk`]
-              ? checkboxValues?.[`${customKey}_bulk`]
-              : true;
-            const pii = checkboxValues?.[`${customKey}_pii`]
-              ? checkboxValues?.[`${customKey}_pii`]
-              : true;
+          return Object.keys(customFields).map((customKey) => {
+            const columnName = column_mapping[key][customKey]["column_name"];
+
+            const bulk = checkboxValues?.[`${columnName}_bulk`] ?? true;
+            const pii = checkboxValues?.[`${columnName}_pii`] ?? true;
 
             return {
               bulk_editable: bulk,
-              column_name: customKey,
-              column_type: "custom_field",
+              column_name: columnName,
+              column_type: "custom_fields",
               contains_pii: pii,
             };
           });
@@ -355,15 +350,14 @@ function TargetsMap() {
               ? "basic_details"
               : location
               ? "location"
-              : "custom_field",
-          contains_pii: true, //TODO: fix
+              : "custom_fields",
+          contains_pii: true, // TODO: fix
         };
       }
     });
 
-    //TODO: check for custom fields : fix
     const filteredCustomConfig = customConfig.filter(
-      (config: any) =>
+      (config) =>
         config != null &&
         config !== undefined &&
         config.column_name !== `custom_fields`
@@ -493,9 +487,8 @@ function TargetsMap() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
       {isLoading || quesLoading || locLoading ? (

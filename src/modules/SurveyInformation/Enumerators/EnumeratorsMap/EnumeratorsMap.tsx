@@ -43,6 +43,7 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
 
 interface CSVError {
   type: string;
@@ -51,13 +52,6 @@ interface CSVError {
 }
 function EnumeratorsMap() {
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    if (hasError) {
-      return setHasError(false);
-    }
-    navigate(-1);
-  };
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -152,7 +146,7 @@ function EnumeratorsMap() {
     },
     {
       title: "Address",
-      key: "home_address",
+      key: "address",
     },
     {
       title: "Gender",
@@ -169,8 +163,12 @@ function EnumeratorsMap() {
     "name",
     "email",
     "mobile_primary",
-    "home_address",
+    "address",
+    "language",
+    "gender",
+    "enumerator_type",
   ];
+  const bulkEditableFields = ["language", "gender", "enumerator_type"];
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
@@ -256,11 +254,20 @@ function EnumeratorsMap() {
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
 
-          if (mappingsRes?.payload?.errors) {
+          if (mappingsRes?.payload?.errors || mappingsRes?.payload?.message) {
             const transformedErrors: CSVError[] = [];
 
-            for (const errorKey in mappingsRes.payload.errors) {
-              let errorObj = mappingsRes.payload.errors[errorKey];
+            console.log("mappingsRes.payload", mappingsRes.payload);
+
+            const errorList = mappingsRes.payload.errors
+              ? mappingsRes.payload.errors
+              : mappingsRes?.payload?.message;
+
+            console.log("errorList", errorList);
+
+            for (const errorKey in errorList) {
+              console.log("errorKey", errorKey);
+              let errorObj = errorList[errorKey];
 
               if (errorKey === "record_errors") {
                 errorObj =
@@ -325,25 +332,36 @@ function EnumeratorsMap() {
           //auto configure columns for users setting personal as non_batch and the rest as batch
           //use the column mapping to do this
 
-          const customConfig = Object.keys(column_mapping).map((key) => {
-            if (key !== null && key !== "" && key !== undefined) {
-              const personal = personalBatchField.includes(key);
-              const location = locationBatchField.includes(key);
+          const flattenedColumnMapping = {
+            ...column_mapping,
+            ...column_mapping.custom_fields,
+          };
+          delete flattenedColumnMapping.custom_fields;
 
-              return {
-                bulk_editable: personal ? false : location ? true : true,
-                column_name: key,
-                column_type: personal
-                  ? "personal_details"
-                  : location
-                  ? "location"
-                  : "custom_fields",
-              };
+          const customConfig = Object.keys(flattenedColumnMapping).map(
+            (key) => {
+              if (key && flattenedColumnMapping[key] !== undefined) {
+                const personal = personalBatchField.includes(key);
+                const location = locationBatchField.includes(key);
+                const bulkEditable = bulkEditableFields.includes(key);
+                return {
+                  bulk_editable: bulkEditable ? true : location ? true : false,
+                  column_name: key,
+                  column_type: personal
+                    ? "personal_details"
+                    : location
+                    ? "location_details"
+                    : "custom_fields",
+                };
+              }
             }
-          });
+          );
 
           const filteredCustomConfig = customConfig.filter(
-            (config) => config !== null && config !== undefined
+            (config: any) =>
+              config != null &&
+              config !== undefined &&
+              config.column_name !== `custom_fields`
           );
 
           dispatch(
@@ -367,6 +385,10 @@ function EnumeratorsMap() {
         setHasError(true);
       }
     } catch (error) {
+      console.log("error", error);
+      message.error("Failed to upload kindly check and try again");
+      setHasError(true);
+
       const requiredErrors: any = {};
       const formFields = enumeratorMappingForm.getFieldsValue();
 
@@ -416,9 +438,8 @@ function EnumeratorsMap() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <BackLink onClick={handleGoBack}>
-          <BackArrow />
-        </BackLink>
+        <HandleBackButton></HandleBackButton>
+
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");
