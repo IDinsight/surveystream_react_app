@@ -100,7 +100,6 @@ function ConfigureEmails() {
     if (sctoForms.length > 0) {
       const form_uid = sctoForms[0].form_uid;
       const configResponse = await dispatch(getEmailConfigs({ form_uid }));
-      console.log("configResponse", configResponse.payload.data.data);
       if (configResponse.payload?.success) {
         setConfigTypes(configResponse.payload.data.data);
       }

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
 import { Form, Button, Select, DatePicker, message, TimePicker } from "antd";
 import {
   createManualEmailTrigger,
@@ -7,7 +6,6 @@ import {
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
 
 const { Option } = Select;
 
@@ -57,8 +55,6 @@ const ManualEmailTriggerForm = ({
           )
         : [];
       const uniqueRecipients = Array.from(new Set(recipients));
-
-      console.log("uniqueRecipients", uniqueRecipients);
 
       const manualTriggerData = {
         ...formData,
@@ -123,10 +119,6 @@ const ManualEmailTriggerForm = ({
               ?.name,
             value: id,
           })
-        );
-        console.log(
-          "updatedInitialValues.recipients",
-          updatedInitialValues.recipients
         );
       }
       form.setFieldsValue({

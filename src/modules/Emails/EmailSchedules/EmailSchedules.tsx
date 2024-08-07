@@ -224,8 +224,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   ];
 
   const handleEditConfig = async (schedule: any) => {
-    console.log("handleEditConfig:", schedule);
-
     // Show the drawer for editing with the trigger data
     setEditConfigValues(schedule);
     showEditConfigDrawer();
@@ -233,8 +231,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
 
   const handleDeleteConfig = async (config_uid: string) => {
     try {
-      console.log("handleDeleteConfig:", config_uid);
-
       const response = await dispatch(
         deleteEmailConfig({
           id: config_uid,
@@ -248,13 +244,11 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
         message.error("Failed to delete email config");
       }
     } catch (error) {
-      console.error("Error deleting config:", error);
       message.error("An error occurred while deleting email config");
     }
   };
   const handleDeleteSchedule = async (schedule: any) => {
     try {
-      console.log("Deleting schedule:", schedule);
       const emailScheduleUid = schedule.email_schedule_uid;
       const emailConfigUid = schedule.email_config_uid;
       const response = await dispatch(
@@ -267,12 +261,10 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       if (response?.payload?.data?.success) {
         message.success("Schedule deleted successfully");
         const res = await fetchEmailSchedules();
-        console.log("fetchEmailSchedules", res);
       } else {
         message.error("Failed to delete schedule");
       }
     } catch (error) {
-      console.error("Error deleting schedule:", error);
       message.error("An error occurred while deleting schedule");
     }
   };

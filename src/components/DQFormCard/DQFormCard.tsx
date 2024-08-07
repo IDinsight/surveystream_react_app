@@ -39,6 +39,7 @@ function DQFormCard({ data, editable, surveyUID }: DQFormCardProps) {
     });
     if (deleteResp) {
       dispatch(deleteDQForm({ formUID: dqFormUID })).then((response: any) => {
+        console.log(response);
         if (response.payload.success) {
           message.success("DQ form deleted successfully.");
           dispatch(getDQForms({ survey_uid: surveyUID }));

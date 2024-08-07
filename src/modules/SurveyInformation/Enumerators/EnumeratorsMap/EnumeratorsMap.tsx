@@ -364,8 +364,6 @@ function EnumeratorsMap() {
               config.column_name !== `custom_fields`
           );
 
-          console.log("filteredCustomConfig", filteredCustomConfig);
-
           dispatch(
             updateEnumeratorColumnConfig({
               formUID: form_uid,

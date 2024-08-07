@@ -17,15 +17,10 @@ const EmailTemplateForm = ({
   const [emailConfigs, setEmailConfigs] = useState([]);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    console.log("emailConfigUID", emailConfigUID);
-  }, []);
-
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const formValues = await form.validateFields();
-      console.log("formValues", formValues);
 
       const { templates } = form.getFieldsValue();
       if (templates) {
@@ -39,11 +34,7 @@ const EmailTemplateForm = ({
             content: template.content,
           };
 
-          console.log("templateData", templateData);
-
           const res = await dispatch(createEmailTemplate({ ...templateData }));
-
-          console.log("createEmailTemplate res", res);
 
           if (!res.payload.success) {
             // Error occurred
@@ -61,7 +52,6 @@ const EmailTemplateForm = ({
         handleContinue(emailConfigUID);
       }
     } catch (error) {
-      console.error("error", error);
       message.error("Failed to update email templates");
     }
     setLoading(false);

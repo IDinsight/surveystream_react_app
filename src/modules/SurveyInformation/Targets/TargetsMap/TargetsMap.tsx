@@ -363,9 +363,6 @@ function TargetsMap() {
         config.column_name !== `custom_fields`
     );
 
-    console.log("filteredCustomConfig", filteredCustomConfig);
-    // You can return or use filteredCustomConfig as needed
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
