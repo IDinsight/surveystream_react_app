@@ -92,3 +92,9 @@ export const userHasPermission = (
 
   return false;
 };
+
+export const properCase = function (str: string) {
+  return str.replace(/\w\S*/g, function (str) {
+    return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+  });
+};

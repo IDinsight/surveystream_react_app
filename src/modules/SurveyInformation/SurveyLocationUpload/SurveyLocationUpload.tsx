@@ -99,9 +99,6 @@ function SurveyLocationUpload() {
   };
 
   useEffect(() => {
-    fetchSurveyLocations();
-
-    fetchSurveyLocationGeoLevels();
     if (surveyLocations?.records?.length > 0) {
       setHasError(false);
       setColumnMatch(true);
@@ -131,11 +128,16 @@ function SurveyLocationUpload() {
         })
       );
     }
+  }, [dispatch, surveyLocations]);
+
+  useEffect(() => {
+    fetchSurveyLocations();
+    fetchSurveyLocationGeoLevels();
 
     return () => {
       dispatch(resetSurveyLocations());
     };
-  }, [dispatch]);
+  }, [dispatch, survey_uid]);
 
   const handleFileUpload = (
     file: File,

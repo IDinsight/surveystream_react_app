@@ -41,7 +41,7 @@ const NavItems = () => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
+            href="https://docs.surveystream.idinsight.io"
           >
             Documentation
           </a>
@@ -53,7 +53,7 @@ const NavItems = () => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform"
           >
             Contact Us
           </a>

@@ -69,7 +69,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     assignment_process: null,
     language_location_mapping: null,
     reassignment_required: null,
-    supervisor_assignment_criteria: [],
+    target_mapping_criteria: [],
+    surveyor_mapping_criteria: [],
     supervisor_surveyor_relation: null,
     supervisor_hierarchy_exists: null,
     survey_uid: moduleQuestionnaire?.survey_uid
@@ -90,8 +91,16 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     setFieldsDataWithStates(updatedFormData);
   };
 
-  // Supervisors checkbox options
-  const supervisorsCriteriaOptions = [
+  // Supervisors to surveyors checkbox options
+  const surveyorsCriteriaOptions = [
+    { label: "Location", value: "Location" },
+    { label: "Gender", value: "Gender" },
+    { label: "Language", value: "Language" },
+    { label: "Manual mapping", value: "Manual" },
+  ];
+
+  // Supervisors to targets checkbox options
+  const targetsCriteriaOptions = [
     { label: "Location", value: "Location" },
     { label: "Gender", value: "Gender" },
     { label: "Language", value: "Language" },
@@ -154,22 +163,28 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   ];
 
   useEffect(() => {
-    const supervisorsSelected = mqFormData["supervisor_assignment_criteria"];
+    const surveyormappingSelected = mqFormData["surveyor_mapping_criteria"];
+    const targetmappingSelected = mqFormData["target_mapping_criteria"];
     const enumeratorsSelected = mqFormData["target_assignment_criteria"];
 
-    // Condition 1: If Location and Language is selected
+    // Condition 1: If Location and Language is selected in surveyor mapping
     const result1 = ["Location", "Language"].every((val) =>
-      supervisorsSelected.includes(val)
+      surveyormappingSelected.includes(val)
     );
 
-    // Condition 2: ("Location of target" or "Location of enumerators") and language
+    // Condition 2: ("Location of target" or "Location of enumerators") and language is selected in target assignment criteria
     const sub_result2 = ["Location of target", "Location of surveyors"].some(
       (val) => enumeratorsSelected.includes(val)
     );
     const result2 = sub_result2 && enumeratorsSelected.includes("Language");
 
+    // Condition 3: If Location and Language is selected in target mapping
+    const result3 = ["Location", "Language"].every((val) =>
+      targetmappingSelected.includes(val)
+    );
+
     // Now, setting the result
-    const result = result1 || result2;
+    const result = result1 || result2 || result3;
 
     /*
       If user does not select location and language option
@@ -193,12 +208,23 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
           <>
             <Title style={{ marginTop: "18px" }}>Supervisors</Title>
             <Title style={{ marginTop: "23px" }}>
-              What are the criteria which you will use to assign supervisors to
+              What are the criteria which you will use to map supervisors to
               surveyors? Select all that apply
             </Title>
-            <StyledFormItem required name="supervisor_assignment_criteria">
+            <StyledFormItem required name="surveyor_mapping_criteria">
               <CheckboxGroup
-                options={supervisorsCriteriaOptions}
+                options={surveyorsCriteriaOptions}
+                style={{ marginTop: "15px" }}
+              />
+            </StyledFormItem>
+
+            <Title style={{ marginTop: "24px" }}>
+              What are the criteria which you will use to map supervisors to
+              targets? Select all that apply
+            </Title>
+            <StyledFormItem required name="target_mapping_criteria">
+              <CheckboxGroup
+                options={targetsCriteriaOptions}
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
@@ -212,6 +238,17 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
+
+            <Title style={{ marginTop: "24px" }}>
+              What is the mapping of supervisors to surveyors (supervisors :
+              surveyors)?
+            </Title>
+            <StyledFormItem name="supervisor_surveyor_relation">
+              <Radio.Group
+                options={supervisorsEnumeratorsMappingOptions}
+                style={{ marginTop: "15px" }}
+              />
+            </StyledFormItem>
           </>
         );
 
@@ -220,8 +257,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
           <>
             <Title style={{ marginTop: "18px" }}>Surveyors</Title>
             <Title style={{ marginTop: "23px" }}>
-              What is the criteria which you will use to assign surveyors to
-              targets? Select all that apply
+              What is the criteria which you will use to assign targets to
+              surveyors? Select all that apply
             </Title>
             <StyledFormItem name="target_assignment_criteria">
               <CheckboxGroup
@@ -246,16 +283,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <StyledFormItem name="assignment_process">
               <Radio.Group
                 options={enumeratorsTargetAssignmentWayOptions}
-                style={{ marginTop: "15px" }}
-              />
-            </StyledFormItem>
-            <Title style={{ marginTop: "24px" }}>
-              What is the mapping of supervisors to surveyors (supervisors :
-              surveyors)?
-            </Title>
-            <StyledFormItem name="supervisor_surveyor_relation">
-              <Radio.Group
-                options={supervisorsEnumeratorsMappingOptions}
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>

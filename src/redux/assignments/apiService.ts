@@ -122,6 +122,36 @@ export const makeAssignments = async (
   }
 };
 
+export const uploadAssignments = async (formUID: string, fileData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/assignments?form_uid=${formUID}`;
+
+    const res = await axios.post(
+      url,
+      {
+        column_mapping: {
+          target_id: "target_id",
+          enumerator_id: "enumerator_id",
+        },
+        file: fileData,
+        mode: "merge",
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const scheduleAssignmentsEmail = async (formData: any) => {
   try {
     await getCSRFToken();
