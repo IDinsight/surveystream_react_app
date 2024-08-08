@@ -229,7 +229,7 @@ const EmailConfigEditForm = ({
             }}
           >
             Kindly grant Read access for the Google sheet to{" "}
-            <a href="mail:dod-sheets@data-on-demand-225320.iam.gserviceaccount.com">
+            <a href="mailto:dod-sheets@data-on-demand-225320.iam.gserviceaccount.com">
               dod-sheets@data-on-demand-225320.iam.gserviceaccount.com
             </a>{" "}
           </Checkbox>
@@ -334,7 +334,7 @@ const EmailConfigEditForm = ({
                     }}
                   >
                     Please share the Passphrase with{" "}
-                    <a href="mail:surveystream.devs@idinsight.org">
+                    <a href="mailto:surveystream.devs@idinsight.org">
                       surveystream.devs@idinsight.org
                     </a>{" "}
                     via FlowCrypt/Dashlane.
