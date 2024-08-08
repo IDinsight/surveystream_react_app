@@ -30,38 +30,11 @@ const EmailScheduleEditForm = ({
   const [loading, setLoading] = useState(false);
 
   const formatDate = (date: any) => {
-    return dayjs(date).format("YYYY-MM-DD");
-  };
-  const generateDateRange = (start: any, end: any, frequency: any) => {
-    const dates = [];
-    const currentDate = new Date(start);
-    const endDate = new Date(end);
-
-    while (currentDate <= endDate) {
-      dates.push(formatDate(currentDate));
-
-      switch (frequency) {
-        case "daily":
-          currentDate.setDate(currentDate.getDate() + 1);
-          break;
-        case "weekly":
-          currentDate.setDate(currentDate.getDate() + 7);
-          break;
-        case "bi_weekly":
-          currentDate.setDate(currentDate.getDate() + 14);
-          break;
-        case "monthly":
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          break;
-        case "annually":
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
-          break;
-        default:
-          throw new Error(`Unknown frequency: ${frequency}`);
-      }
-    }
-
-    return dates;
+    const d = new Date(date);
+    const month = `${d.getMonth() + 1}`.padStart(2, "0");
+    const day = `${d.getDate()}`.padStart(2, "0");
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
   };
 
   const handleSubmit = async () => {
@@ -69,30 +42,15 @@ const EmailScheduleEditForm = ({
     try {
       form.validateFields();
       const formValues = await form.getFieldsValue();
-      const { emailScheduleName, dateType, dates, emailTime, emailFrequency } =
-        formValues;
-
-      if (!dateType) {
-        message.error("Date type is required");
-        setLoading(false);
-
-        return;
-      }
-
-      if (!emailFrequency && dateType == "multiple") {
-        message.error("Email frequency is required");
-        setLoading(false);
-
-        return;
-      }
+      const { emailScheduleName, dates, emailTime } = formValues;
 
       const schedule = {
-        dateType: dateType,
         dates: dates,
-        emailFrequency: emailFrequency,
       };
 
-      const formattedDates = formatDates(schedule);
+      const formattedDates = schedule?.dates?.map((date: any) =>
+        formatDate(date)
+      );
 
       if (formattedDates.length < 1) {
         message.error("Dates not well formatted, check and try again");
@@ -136,32 +94,12 @@ const EmailScheduleEditForm = ({
     setLoading(false);
   };
 
-  const formatDates = (schedule: any) => {
-    return schedule.dateType == "multiple"
-      ? generateDateRange(
-          schedule.dates[0],
-          schedule.dates[schedule.dates.length - 1],
-          schedule.emailFrequency
-        )
-      : [schedule.dates.format("YYYY-MM-DD")];
-  };
-
   useEffect(() => {
     if (initialValues) {
-      const dateType = initialValues.dates.length > 1 ? "multiple" : "single";
-
       const formValues = {
-        dateType: dateType,
         emailScheduleName: initialValues.email_schedule_name,
-        dates:
-          dateType === "multiple"
-            ? [
-                dayjs(initialValues.dates[0]),
-                dayjs(initialValues.dates[initialValues.dates.length - 1]),
-              ]
-            : dayjs(initialValues.dates),
+        dates: initialValues.dates.map((date: any) => dayjs(date)),
         emailTime: dayjs(initialValues.time, "HH:mm"),
-        emailFrequency: initialValues.emailFrequency,
       };
 
       form.setFieldsValue({ ...formValues });
@@ -177,6 +115,7 @@ const EmailScheduleEditForm = ({
       <Form.Item
         name="emailScheduleName"
         label="Email Schedule Name"
+        tooltip="Select a unique name for the email schedule"
         rules={[
           {
             required: true,
@@ -188,69 +127,34 @@ const EmailScheduleEditForm = ({
       </Form.Item>
 
       <Form.Item
-        name="dateType"
-        label="Date Type"
-        rules={[{ required: true, message: "Please select a date type" }]}
+        style={{ width: "100%", marginRight: "5px" }}
+        name="dates"
+        label="Email Dates"
+        tooltip="Select all dates to send emails according to the schedule, multiple dates can be selected."
+        rules={[{ required: true, message: "Please select a date" }]}
       >
-        <Select placeholder="Select Date Type">
-          <Option value="single">Single Date</Option>
-          <Option value="multiple">Multiple Dates</Option>
-        </Select>
+        <DatePicker
+          multiple={true}
+          placeholder="Select Dates"
+          format="YYYY-MM-DD"
+          minDate={dayjs()}
+          maxTagCount={15}
+        />
       </Form.Item>
-
-      <Form.Item shouldUpdate>
-        {({ getFieldValue }) => {
-          const dateType = getFieldValue("dateType");
-          return dateType === "multiple" ? (
-            <Form.Item
-              name="dates"
-              label="Dates"
-              rules={[{ required: true, message: "Please select dates" }]}
-            >
-              <RangePicker
-                placeholder={["Start Date", "End Date"]}
-                format="YYYY-MM-DD"
-              />
-            </Form.Item>
-          ) : (
-            <Form.Item
-              name="dates"
-              label="Date"
-              rules={[{ required: true, message: "Please select a date" }]}
-            >
-              <DatePicker placeholder="Select Date" format="YYYY-MM-DD" />
-            </Form.Item>
-          );
-        }}
-      </Form.Item>
-
-      {form.getFieldValue("dateType") === "multiple" && (
-        <Form.Item
-          name="emailFrequency"
-          label="Email Frequency"
-          rules={[
-            {
-              required: true,
-              message: "Please select the email frequency",
-            },
-          ]}
-        >
-          <Select placeholder="Select Email Frequency">
-            <Option value="daily">Daily</Option>
-            <Option value="weekly">Weekly</Option>
-            <Option value="bi_weekly">Bi-Weekly</Option>
-            <Option value="monthly">Monthly</Option>
-            <Option value="annually">Annually</Option>
-          </Select>
-        </Form.Item>
-      )}
 
       <Form.Item
         name="emailTime"
         label="Email Time"
         rules={[{ required: true, message: "Please select a time" }]}
+        tooltip="Time the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
       >
-        <TimePicker placeholder="Select Time" format="HH:mm" />
+        <TimePicker
+          placeholder="Select Time"
+          format="HH:mm"
+          minuteStep={30}
+          showNow={false}
+          needConfirm={false}
+        />
       </Form.Item>
 
       <div style={{ display: "flex", marginTop: "40px" }}>
