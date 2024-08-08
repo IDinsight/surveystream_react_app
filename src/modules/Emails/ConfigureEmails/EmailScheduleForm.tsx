@@ -147,7 +147,7 @@ const EmailScheduleForm = ({
                       placeholder="Select Dates"
                       format="YYYY-MM-DD"
                       minDate={dayjs()}
-                      maxTagCount={19}
+                      maxTagCount={15}
                     />
                   </Form.Item>
                 </div>
@@ -180,13 +180,12 @@ const EmailScheduleForm = ({
                 block
                 icon={<PlusOutlined />}
               >
-                Add More
+                Add another schedule
               </Button>
             </Form.Item>
           </>
         )}
       </Form.List>
-
       <div style={{ display: "flex", marginTop: "40px" }}>
         <Button
           style={{

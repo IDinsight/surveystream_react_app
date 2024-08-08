@@ -85,7 +85,9 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                 icon={<EditOutlined />}
                 disabled={!record?.email_config_uid}
                 onClick={() => handleEditConfig(record)}
-              ></Button>
+              >
+                Edit Config
+              </Button>
             </Tooltip>
 
             <Tooltip title="Delete">
@@ -100,7 +102,9 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   type="link"
                   icon={<DeleteOutlined />}
                   danger
-                ></Button>
+                >
+                  Delete Config
+                </Button>
               </Popconfirm>
             </Tooltip>
           </span>
@@ -201,7 +205,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         onClick={() => handleEditSchedule(schedule)}
                         style={{ marginBottom: 8 }}
                       >
-                        Edit
+                        Edit Schedule
                       </Button>
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -212,7 +216,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         cancelText="No"
                       >
                         <Button type="link" icon={<DeleteOutlined />} danger>
-                          Delete
+                          Delete Schedule
                         </Button>
                       </Popconfirm>
                     </Tooltip>

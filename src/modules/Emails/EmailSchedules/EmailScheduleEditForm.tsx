@@ -30,17 +30,11 @@ const EmailScheduleEditForm = ({
   const [loading, setLoading] = useState(false);
 
   const formatDate = (date: any) => {
-    return dayjs(date).format("YYYY-MM-DD");
-  };
-  const generateDateRange = (start: any, end: any) => {
-    const dates = [];
-    const currentDate = new Date(start);
-    const endDate = new Date(end);
-
-    while (currentDate <= endDate) {
-      dates.push(formatDate(currentDate));
-    }
-    return dates;
+    const d = new Date(date);
+    const month = `${d.getMonth() + 1}`.padStart(2, "0");
+    const day = `${d.getDate()}`.padStart(2, "0");
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
   };
 
   const handleSubmit = async () => {
@@ -48,21 +42,15 @@ const EmailScheduleEditForm = ({
     try {
       form.validateFields();
       const formValues = await form.getFieldsValue();
-      const { emailScheduleName, dateType, dates, emailTime } = formValues;
-
-      if (!dateType) {
-        message.error("Date type is required");
-        setLoading(false);
-
-        return;
-      }
+      const { emailScheduleName, dates, emailTime } = formValues;
 
       const schedule = {
-        dateType: dateType,
         dates: dates,
       };
 
-      const formattedDates = formatDates(schedule);
+      const formattedDates = schedule?.dates?.map((date: any) =>
+        formatDate(date)
+      );
 
       if (formattedDates.length < 1) {
         message.error("Dates not well formatted, check and try again");
@@ -106,29 +94,11 @@ const EmailScheduleEditForm = ({
     setLoading(false);
   };
 
-  const formatDates = (schedule: any) => {
-    return schedule.dateType == "multiple"
-      ? generateDateRange(
-          schedule.dates[0],
-          schedule.dates[schedule.dates.length - 1]
-        )
-      : [schedule.dates.format("YYYY-MM-DD")];
-  };
-
   useEffect(() => {
     if (initialValues) {
-      const dateType = initialValues.dates.length > 1 ? "multiple" : "single";
-
       const formValues = {
-        dateType: dateType,
         emailScheduleName: initialValues.email_schedule_name,
-        dates:
-          dateType === "multiple"
-            ? [
-                dayjs(initialValues.dates[0]),
-                dayjs(initialValues.dates[initialValues.dates.length - 1]),
-              ]
-            : dayjs(initialValues.dates),
+        dates: initialValues.dates.map((date: any) => dayjs(date)),
         emailTime: dayjs(initialValues.time, "HH:mm"),
       };
 
@@ -168,7 +138,7 @@ const EmailScheduleEditForm = ({
           placeholder="Select Dates"
           format="YYYY-MM-DD"
           minDate={dayjs()}
-          maxTagCount="responsive"
+          maxTagCount={15}
         />
       </Form.Item>
 

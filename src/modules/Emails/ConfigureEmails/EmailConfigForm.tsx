@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form, Input, Button, Select, message, Radio, Tooltip } from "antd";
+import { Form, Input, Button, Select, message, Radio, Checkbox } from "antd";
 import { RootState } from "../../../redux/store";
 import {
   createEmailConfig,
@@ -227,7 +227,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
       <Form.Item
         name="config_name"
         label="Configuration Name"
-        tooltip="Configuration name is the name of the email configuration ex- Assignments,Finance. This should be unique across all configurations for a form"
+        tooltip="This field should be unique. It will be used to identify the type of email configuration. Examples are finance emails, assignments, morning call slots etc"
         rules={[
           {
             required: true,
@@ -261,6 +261,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
       <Form.Item
         name="report_users"
         label="Select the name(s) of the team member(s) to be notified on successfully sending emails. The team members will be notified via an email. "
+        tooltip="If you do not see the user you want to notify, kindly add them to the survey users list"
         rules={[
           {
             required: true,
@@ -325,7 +326,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           <Form.Item
             name="email_source_gsheet_link"
             label="Link to Google Sheet"
-            tooltip="Provide the link to the Google Sheet containing the data to be sent in the email"
+            tooltip="Provide the link to the Google Sheet that has the data that needs to be sent in the emails."
             rules={[
               {
                 required: true,
@@ -335,7 +336,17 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           >
             <Input placeholder="Enter Google Sheet link" />
           </Form.Item>
-
+          <Checkbox
+            style={{
+              fontFamily: "Lato, sans-serif",
+              marginBottom: "24px",
+            }}
+          >
+            Kindly grant Read access for the Google sheet to{" "}
+            <a href="mail:dod-sheets@data-on-demand-225320.iam.gserviceaccount.com">
+              dod-sheets@data-on-demand-225320.iam.gserviceaccount.com
+            </a>{" "}
+          </Checkbox>
           <Form.Item
             name="email_source_gsheet_tab"
             label="Google Sheet Tab"
@@ -353,7 +364,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           <Form.Item
             name="email_source_gsheet_header_row"
             label="Header Row"
-            tooltip="Specify the row number containing the headers/column names in the Google Sheet"
+            tooltip="The header row should be a single row and contain column names. The header row location can be changed, but please ensure that you also update it in SurveyStream configs. The columns order can also be changed, it will be automatically picked up."
             rules={[
               {
                 required: true,
@@ -363,7 +374,6 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           >
             <Input placeholder="Enter header row number" type="number" />
           </Form.Item>
-
           <Form.Item>
             <Button
               type="primary"
@@ -377,24 +387,34 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           </Form.Item>
         </>
       )}
-
       <Form.Item
         name="pdf_attachment"
-        label="Do you want to attach a PDF to the email?"
+        label="Do you want to send the content of the emails as a PDF attachment?"
         tooltip="Select Yes if you want to attach a PDF of tables in the email"
+        rules={[
+          {
+            required: true,
+            message: "Please specify the PDF attachment preference",
+          },
+        ]}
       >
         <Radio.Group onChange={handlePdfAttachmentChange}>
           <Radio value="true">Yes</Radio>
           <Radio value="false">No</Radio>
         </Radio.Group>
       </Form.Item>
-
       {pdfAttachment === "true" && (
         <>
           <Form.Item
             name="pdf_encryption"
             label="Do you want to encrypt the PDF attachment in the email?"
             tooltip="Select Yes if you want to encrypt and password protect the PDF attachment in the email"
+            rules={[
+              {
+                required: true,
+                message: "Please Select the PDF encryption preference",
+              },
+            ]}
           >
             <Radio.Group onChange={handlePdfEncryptionChange}>
               <Radio value="true">Yes</Radio>
@@ -406,19 +426,40 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
             <>
               <Form.Item
                 name="pdf_encryption_password_type"
-                label="Enter the password type for the PDF"
-                tooltip="Pattern passowrd is unique for each enumerator- the pattern of password is enum_id@enum_name. Password is a common password for all enumerators which you can share with SurveyStream team via Flowcrypt"
+                label="Select the password type for the encrypted PDF attachment"
+                tooltip="The password can be of 2 types: it can follow a fixed pattern (i.e enum_id@enum_name) or you can set a passphrase. The passphrase will be common across all enumerators."
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select the PDF encryption password type",
+                  },
+                ]}
               >
                 <Radio.Group onChange={handlePdfPasswordChange}>
                   <Radio value="Pattern">Pattern</Radio>
-                  <Radio value="Password">Password</Radio>
+                  <Radio value="Password">Passphrase</Radio>
                 </Radio.Group>
               </Form.Item>
+              {pdfPassword === "Password" && (
+                <>
+                  <Checkbox
+                    style={{
+                      fontFamily: "Lato, sans-serif",
+                      marginBottom: "24px",
+                    }}
+                  >
+                    Please share the Passphrase with{" "}
+                    <a href="mail:surveystream.devs@idinsight.org">
+                      surveystream.devs@idinsight.org
+                    </a>{" "}
+                    via FlowCrypt/Dashlane.
+                  </Checkbox>
+                </>
+              )}
             </>
           )}
         </>
       )}
-
       <Button
         type="primary"
         style={{
