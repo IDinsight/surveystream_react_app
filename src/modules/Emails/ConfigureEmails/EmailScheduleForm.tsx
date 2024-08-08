@@ -16,13 +16,14 @@ import {
 } from "../../../redux/emails/emailsActions";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import dayjs from "dayjs";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const EmailScheduleForm = ({
   handleBack,
   handleContinue,
-  configTypes,
+  configNames,
   emailConfigUID,
 }: any) => {
   const [form] = Form.useForm();
@@ -37,37 +38,6 @@ const EmailScheduleForm = ({
     const day = `${d.getDate()}`.padStart(2, "0");
     const year = d.getFullYear();
     return `${year}-${month}-${day}`;
-  };
-
-  const generateDateRange = (start: any, end: any, frequency: any) => {
-    const dates = [];
-    const currentDate = new Date(start);
-    const endDate = new Date(end);
-
-    while (currentDate <= endDate) {
-      dates.push(formatDate(currentDate));
-
-      switch (frequency) {
-        case "daily":
-          currentDate.setDate(currentDate.getDate() + 1);
-          break;
-        case "weekly":
-          currentDate.setDate(currentDate.getDate() + 7);
-          break;
-        case "bi_weekly":
-          currentDate.setDate(currentDate.getDate() + 14);
-          break;
-        case "monthly":
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          break;
-        case "annually":
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
-          break;
-        default:
-          throw new Error(`Unknown frequency: ${frequency}`);
-      }
-    }
-    return dates;
   };
 
   const fetchEmailSchedules = async () => {
@@ -86,12 +56,12 @@ const EmailScheduleForm = ({
       for (let i = 0; i < schedules.length; i++) {
         const schedule = schedules[i];
 
-        const formattedDates = formatDates(schedule);
+        const dates = schedule?.dates?.map((date: any) => formatDate(date));
         const formattedTime = schedule?.emailTime?.format("HH:mm");
 
         const emailScheduleData = {
           email_config_uid: emailConfigUID,
-          dates: formattedDates,
+          dates: dates,
           time: formattedTime,
           email_schedule_name: schedule?.emailScheduleName,
         };
@@ -118,17 +88,6 @@ const EmailScheduleForm = ({
       message.error("Failed to update email schedules");
     }
     setLoading(false);
-  };
-
-  // Helper function to format dates
-  const formatDates = (schedule: any) => {
-    return schedule.dateType === "multiple"
-      ? generateDateRange(
-          schedule.dates[0],
-          schedule.dates[1],
-          schedule.emailFrequency
-        )
-      : [schedule.dates.format("YYYY-MM-DD")];
   };
 
   useEffect(() => {
@@ -158,6 +117,7 @@ const EmailScheduleForm = ({
                   {...restField}
                   name={[name, "emailScheduleName"]}
                   label="Email Schedule Name"
+                  tooltip="Select a unique name for the email schedule"
                   rules={[
                     {
                       required: true,
@@ -169,116 +129,46 @@ const EmailScheduleForm = ({
                 </Form.Item>
                 <div style={{ display: "flex" }}>
                   <Form.Item
-                    style={{ width: "40%", marginRight: "5px" }}
                     {...restField}
-                    name={[name, "dateType"]}
+                    style={{
+                      width: "100%",
+                      marginRight: "5px",
+                      maxHeight: "150px",
+                    }}
+                    name={[name, "dates"]}
+                    label="Email Dates"
+                    tooltip="Select all dates to send emails according to the schedule, multiple dates can be selected."
                     rules={[
-                      { required: true, message: "Please select a date type" },
+                      { required: true, message: "Please select a date" },
                     ]}
                   >
-                    <Select placeholder="Select Date Type">
-                      <Select.Option value="single">Single Date</Select.Option>
-                      <Select.Option value="multiple">
-                        Multiple Dates
-                      </Select.Option>
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    style={{ width: "60%", marginRight: "5px" }}
-                    shouldUpdate={(prevValues, currentValues) =>
-                      prevValues.schedules !== currentValues.schedules
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      const dateType = getFieldValue([
-                        "schedules",
-                        name,
-                        "dateType",
-                      ]);
-                      return dateType === "multiple" ? (
-                        <Form.Item
-                          {...restField}
-                          name={[name, "dates"]}
-                          rules={[
-                            { required: true, message: "Please select dates" },
-                          ]}
-                        >
-                          <RangePicker
-                            placeholder={["Start Date", "End Date"]}
-                            format="YYYY-MM-DD"
-                          />
-                        </Form.Item>
-                      ) : (
-                        <Form.Item
-                          {...restField}
-                          name={[name, "dates"]}
-                          rules={[
-                            { required: true, message: "Please select a date" },
-                          ]}
-                        >
-                          <DatePicker
-                            placeholder="Select Date"
-                            format="YYYY-MM-DD"
-                          />
-                        </Form.Item>
-                      );
-                    }}
+                    <DatePicker
+                      multiple={true}
+                      placeholder="Select Dates"
+                      format="YYYY-MM-DD"
+                      minDate={dayjs()}
+                      maxTagCount={15}
+                    />
                   </Form.Item>
                 </div>
                 <div style={{ display: "flex" }}>
                   <Form.Item
-                    style={{ width: "40%", marginRight: "5px" }}
+                    style={{ width: "20%", marginRight: "auto" }}
                     {...restField}
                     name={[name, "emailTime"]}
                     label="Email Time"
+                    tooltip="Time the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
                     rules={[
                       { required: true, message: "Please select a time" },
                     ]}
                   >
-                    <TimePicker placeholder="Select Time" format="HH:mm" />
-                  </Form.Item>
-
-                  <Form.Item
-                    noStyle
-                    shouldUpdate={(prevValues, currentValues) =>
-                      prevValues.schedules !== currentValues.schedules
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      const dateType = getFieldValue([
-                        "schedules",
-                        name,
-                        "dateType",
-                      ]);
-                      return dateType === "multiple" ? (
-                        <Form.Item
-                          style={{ width: "40%", marginRight: "5px" }}
-                          {...restField}
-                          name={[name, "emailFrequency"]}
-                          label="Email Frequency"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please select the email frequency",
-                            },
-                          ]}
-                        >
-                          <Select placeholder="Select Email Frequency">
-                            <Select.Option value="daily">Daily</Select.Option>
-                            <Select.Option value="weekly">Weekly</Select.Option>
-                            <Select.Option value="bi_weekly">
-                              Bi-Weekly
-                            </Select.Option>
-                            <Select.Option value="monthly">
-                              Monthly
-                            </Select.Option>
-                            <Select.Option value="annually">
-                              Annually
-                            </Select.Option>
-                          </Select>
-                        </Form.Item>
-                      ) : null;
-                    }}
+                    <TimePicker
+                      placeholder="Select Time"
+                      format="HH:mm"
+                      minuteStep={30}
+                      showNow={false}
+                      needConfirm={false}
+                    />
                   </Form.Item>
                 </div>
               </div>
@@ -290,13 +180,12 @@ const EmailScheduleForm = ({
                 block
                 icon={<PlusOutlined />}
               >
-                Add More
+                Add another schedule
               </Button>
             </Form.Item>
           </>
         )}
       </Form.List>
-
       <div style={{ display: "flex", marginTop: "40px" }}>
         <Button
           style={{

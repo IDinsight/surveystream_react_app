@@ -65,10 +65,10 @@ function ManualTriggers({
   };
   const manualTriggerColumns = [
     {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-      sorter: (a: any, b: any) => a.config_type.localeCompare(b.config_type),
+      title: "Config Name",
+      dataIndex: "config_name",
+      key: "config_name",
+      sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
     },
     {
       title: "Manual Triggers",
@@ -156,7 +156,7 @@ function ManualTriggers({
                   <div
                     style={{
                       marginTop: "10px",
-                      float: "right",
+                      marginLeft: "auto",
                     }}
                   >
                     <Tooltip title="Edit">
@@ -206,7 +206,7 @@ function ManualTriggers({
             showQuickJumper: true,
             onShowSizeChange: (_, size) => setPaginationPageSize(size),
           }}
-          rowKey={(record) => record.config_type}
+          rowKey={(record) => record.config_name}
         />
       ) : (
         <div

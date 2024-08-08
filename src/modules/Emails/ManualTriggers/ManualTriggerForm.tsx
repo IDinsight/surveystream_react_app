@@ -145,7 +145,7 @@ const ManualEmailTriggerForm = ({
         <Select
           placeholder="Select email configuration"
           options={emailConfigData.map((config: any) => ({
-            label: config.config_type,
+            label: config.config_name,
             value: config.email_config_uid,
           }))}
         />

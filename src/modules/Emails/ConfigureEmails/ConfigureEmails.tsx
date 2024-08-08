@@ -36,7 +36,7 @@ function ConfigureEmails() {
   const [manualTriggerForm] = useForm();
   const [emailMode, setEmailMode] = useState<string | null>(null);
   const [stepLoading, setStepLoading] = useState<boolean>(false);
-  const [configTypes, setConfigTypes] = useState([]);
+  const [configNames, setconfigNames] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [configUid, setConfigUid] = useState<string>("");
@@ -101,7 +101,7 @@ function ConfigureEmails() {
       const form_uid = sctoForms[0].form_uid;
       const configResponse = await dispatch(getEmailConfigs({ form_uid }));
       if (configResponse.payload?.success) {
-        setConfigTypes(configResponse.payload.data.data);
+        setconfigNames(configResponse.payload.data.data);
       }
     } else {
       message.error(
@@ -184,7 +184,7 @@ function ConfigureEmails() {
           {stepIndex === 0 ? (
             <EmailConfigForm
               handleContinue={handleContinue}
-              configTypes={configTypes}
+              configNames={configNames}
               sctoForms={sctoForms}
             ></EmailConfigForm>
           ) : null}
@@ -192,7 +192,7 @@ function ConfigureEmails() {
             <EmailScheduleForm
               handleBack={handleBack}
               emailConfigUID={configUid}
-              configTypes={configTypes}
+              configNames={configNames}
               handleContinue={handleContinue}
             ></EmailScheduleForm>
           ) : null}
@@ -200,7 +200,7 @@ function ConfigureEmails() {
             <EmailTemplateForm
               handleBack={handleBack}
               emailConfigUID={configUid}
-              configTypes={configTypes}
+              configNames={configNames}
               handleContinue={handleContinue}
             ></EmailTemplateForm>
           ) : null}

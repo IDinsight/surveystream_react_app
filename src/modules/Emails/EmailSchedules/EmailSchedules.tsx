@@ -58,10 +58,58 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
 
   const scheduleColumns = [
     {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-      sorter: (a: any, b: any) => a.config_type.localeCompare(b.config_type),
+      title: "Config Name",
+      dataIndex: "config_name",
+      key: "config_name",
+      sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
+      render: (text: any, record: any) => (
+        <div
+          style={{
+            position: "relative",
+            overflowWrap: "break-word",
+            textAlign: "center",
+            top: "5px",
+          }}
+        >
+          {record?.config_name}
+          <br />
+          <span
+            style={{
+              position: "relative",
+              top: "5px",
+            }}
+          >
+            <Tooltip title="Edit Config">
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                disabled={!record?.email_config_uid}
+                onClick={() => handleEditConfig(record)}
+              >
+                Edit Config
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete this config type?"
+                onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  disabled={!record?.email_config_uid}
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  danger
+                >
+                  Delete Config
+                </Button>
+              </Popconfirm>
+            </Tooltip>
+          </span>
+        </div>
+      ),
     },
     {
       title: "Email Source",
@@ -69,7 +117,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       key: "email_source",
       sorter: (a: any, b: any) => a.email_source.localeCompare(b.email_source),
     },
-
     {
       title: "Email Schedules",
       key: "schedules",
@@ -158,7 +205,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         onClick={() => handleEditSchedule(schedule)}
                         style={{ marginBottom: 8 }}
                       >
-                        Edit
+                        Edit Schedule
                       </Button>
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -169,7 +216,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         cancelText="No"
                       >
                         <Button type="link" icon={<DeleteOutlined />} danger>
-                          Delete
+                          Delete Schedule
                         </Button>
                       </Popconfirm>
                     </Tooltip>
@@ -181,43 +228,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
             <p>No schedules available</p>
           )}
         </div>
-      ),
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      key: "actions",
-      render: (text: any, record: any) => (
-        <span>
-          <Tooltip title="Edit Config">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              disabled={!record?.email_config_uid}
-              onClick={() => handleEditConfig(record)}
-            >
-              Edit Config
-            </Button>
-          </Tooltip>
-
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete this config type?"
-              onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                disabled={!record?.email_config_uid}
-                type="link"
-                icon={<DeleteOutlined />}
-                danger
-              >
-                Delete Config
-              </Button>
-            </Popconfirm>
-          </Tooltip>
-        </span>
       ),
     },
   ];
