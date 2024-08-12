@@ -45,6 +45,7 @@ import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types"
 import { GlobalStyle } from "../../../shared/Global.styled";
 import HandleBackButton from "../../../components/HandleBackButton";
 import Container from "../../../components/Layout/Container";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -298,11 +299,38 @@ function SurveyCTOQuestions() {
     }
   };
 
+  const handleFormUID = () => {
+    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
+      try {
+        const sctoForm = dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        ).then((res) => {
+          if (res.payload[0]?.form_uid) {
+            navigate(
+              `/survey-information/survey-cto-questions/${survey_uid}/${res.payload[0]?.form_uid}`
+            );
+          } else {
+            message.error("Kindly configure SCTO Form to proceed");
+            navigate(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            );
+          }
+        });
+      } catch (error) {
+        console.log("Error fetching sctoForm:", error);
+      }
+    }
+  };
+
   useEffect(() => {
-    loadFormQuestions();
-    fetchSurveyLocationGeoLevels();
-    loadFormMappings();
-  }, []);
+    handleFormUID();
+
+    if (form_uid) {
+      loadFormQuestions();
+      fetchSurveyLocationGeoLevels();
+      loadFormMappings();
+    }
+  }, [navigate]);
 
   return (
     <>
