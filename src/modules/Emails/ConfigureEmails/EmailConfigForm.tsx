@@ -38,7 +38,6 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   const [gsheetColumnHeader, setGsheetColumnHeader] = useState<string[]>([]);
   const [loadingGsheet, setGsheet] = useState(false);
 
-
   const handleSourceChange = (e: any) => {
     setSourceType(e.target.value);
   };
