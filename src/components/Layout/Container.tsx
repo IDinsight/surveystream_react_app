@@ -11,9 +11,10 @@ import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 
 interface IContainer {
   children?: ReactNode;
+  surveyPage?: boolean;
 }
 
-const Container: React.FC<IContainer> = ({ children }) => {
+const Container: React.FC<IContainer> = ({ children, surveyPage }) => {
   const dispatch = useAppDispatch();
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
@@ -44,8 +45,9 @@ const Container: React.FC<IContainer> = ({ children }) => {
   return (
     <>
       <Wrapper>
-        <HandleBackButton />
+        <HandleBackButton surveyPage={surveyPage} />
         <Title>{activeSurvey?.survey_name}</Title>
+        {children}
       </Wrapper>
     </>
   );

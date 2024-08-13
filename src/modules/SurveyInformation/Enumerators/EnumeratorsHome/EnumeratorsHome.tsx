@@ -392,7 +392,7 @@ function EnumeratorsHome() {
     <>
       <GlobalStyle />
       <Header />
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Enumerators</Title>
         {screenMode == "manage" ? (

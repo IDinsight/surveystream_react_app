@@ -1,11 +1,4 @@
-import {
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-  useParams,
-  Router,
-} from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import Login from "../modules/Auth/Login";
 import LandingPage from "../modules/LandingPage";
@@ -34,6 +27,7 @@ import ManageUsers from "../modules/Users/ManageUsers";
 import EditUser from "../modules/Users/EditUser";
 import Assignments from "../modules/Assignments/Assignments";
 import CreateAssignments from "../modules/Assignments/AssignmentsTab/CreateAssignments/CreateAssignments";
+import UploadAssignments from "../modules/Assignments/AssignmentsTab/UploadAssignments/UploadAssignments";
 import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
 import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
 import { useAppSelector } from "../redux/hooks";
@@ -47,6 +41,7 @@ import DQFormManage from "../modules/DQForm/DQFormManage";
 import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
+import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -234,7 +229,16 @@ const AppRoutes = () => {
           element={<TargetsMap />}
         />
       </Route>
-
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Assignments" />
+        }
+      >
+        <Route
+          path="/module-configuration/table-config/:survey_uid?/:form_uid?"
+          element={<TableConfig />}
+        />
+      </Route>
       <Route
         element={
           <ProtectedPermissionRoute permission_name="READ Assignments" />
@@ -253,6 +257,16 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/assignments/:survey_uid?/:form_uid?/create"
           element={<CreateAssignments />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="WRITE Assignments Upload" />
+        }
+      >
+        <Route
+          path="/module-configuration/assignments/:survey_uid?/:form_uid?/upload"
+          element={<UploadAssignments />}
         />
       </Route>
       <Route

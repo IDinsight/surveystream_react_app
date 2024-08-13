@@ -191,7 +191,7 @@ function Emails() {
     <>
       <GlobalStyle />
       <Header />
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Emails</Title>
         <div style={{ marginLeft: "auto" }}>

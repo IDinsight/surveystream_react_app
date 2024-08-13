@@ -338,7 +338,7 @@ function TargetsHome() {
     <>
       <GlobalStyle />
       <Header />
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Targets</Title>
 

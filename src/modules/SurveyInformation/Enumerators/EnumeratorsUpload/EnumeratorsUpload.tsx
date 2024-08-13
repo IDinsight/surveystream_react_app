@@ -144,7 +144,7 @@ function EnumeratorsUpload() {
       <GlobalStyle />
       <Header />
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>

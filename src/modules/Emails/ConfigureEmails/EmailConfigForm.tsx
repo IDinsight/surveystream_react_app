@@ -38,6 +38,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   const [gsheetColumnHeader, setGsheetColumnHeader] = useState<string[]>([]);
   const [loadingGsheet, setGsheet] = useState(false);
 
+
   const handleSourceChange = (e: any) => {
     setSourceType(e.target.value);
   };
@@ -50,7 +51,6 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   const handlePdfPasswordChange = (e: any) => {
     setPdfPassword(e.target.value);
   };
-
   const handleGsheetColumnHeaderChange = (e: Array<string>) => {
     setGsheetColumnHeader(e);
   };
