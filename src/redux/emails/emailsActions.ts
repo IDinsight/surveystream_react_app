@@ -584,6 +584,29 @@ export const getEmailTemplates = createAsyncThunk(
   }
 );
 
+export const getEmailGsheet = createAsyncThunk(
+  "emails/gsheet",
+  async (emailGsheetData: any, { dispatch, rejectWithValue }) => {
+    try {
+      const response: any = await api.getEmailGsheetHeaders(emailGsheetData);
+      if (response.status === 200) {
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to fetch email gsheet.",
+        success: false,
+      };
+      return error;
+    } catch (error) {
+      const errorMessage = "Failed to fetch email gsheet: " || error;
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const emailActions = {
   getEmailConfigs,
   getEmailSchedule,
@@ -601,4 +624,5 @@ export const emailActions = {
   getManualEmailTriggers,
   getEmailTemplates,
   createEmailTemplate,
+  getEmailGsheet,
 };

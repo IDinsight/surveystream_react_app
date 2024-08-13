@@ -2,7 +2,7 @@ import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
+import { Tooltip, Button, Popconfirm, Drawer, message, DatePicker } from "antd";
 import {
   deleteEmailConfig,
   deleteEmailSchedule,
@@ -71,43 +71,45 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
             top: "5px",
           }}
         >
-          {record?.config_name}
-          <br />
-          <span
-            style={{
-              position: "relative",
-              top: "5px",
-            }}
-          >
-            <Tooltip title="Edit Config">
-              <Button
-                type="link"
-                icon={<EditOutlined />}
-                disabled={!record?.email_config_uid}
-                onClick={() => handleEditConfig(record)}
-              >
-                Edit Config
-              </Button>
-            </Tooltip>
-
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete this config type?"
-                onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
-                okText="Yes"
-                cancelText="No"
-              >
+          <p>
+            {record?.config_name}
+            <br />
+            <span
+              style={{
+                position: "relative",
+                top: "5px",
+              }}
+            >
+              <Tooltip title="Edit Config">
                 <Button
-                  disabled={!record?.email_config_uid}
                   type="link"
-                  icon={<DeleteOutlined />}
-                  danger
+                  icon={<EditOutlined />}
+                  disabled={!record?.email_config_uid}
+                  onClick={() => handleEditConfig(record)}
                 >
-                  Delete Config
+                  Edit Config
                 </Button>
-              </Popconfirm>
-            </Tooltip>
-          </span>
+              </Tooltip>
+
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this config type?"
+                  onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    disabled={!record?.email_config_uid}
+                    type="link"
+                    icon={<DeleteOutlined />}
+                    danger
+                  >
+                    Delete Config
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            </span>
+          </p>
         </div>
       ),
     },
@@ -152,52 +154,11 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   }}
                   key={index}
                 >
-                  <div style={{ marginRight: "10px", width: "50%" }}>
+                  <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
                     <p>
                       Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
                     </p>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>
-                        Dates
-                        <ul>
-                          {formattedDates
-                            .slice(0, Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>&nbsp;</p>
-                      <p>
-                        <ul>
-                          {formattedDates
-                            .slice(Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      float: "right",
-                    }}
-                  >
                     <Tooltip title="Edit">
                       <Button
                         type="link"
@@ -220,6 +181,32 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         </Button>
                       </Popconfirm>
                     </Tooltip>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      width: "100%",
+                    }}
+                  >
+                    <p>
+                      Dates:
+                      <br />
+                      <DatePicker
+                        multiple={true}
+                        placeholder="Select Dates"
+                        format="YYYY-MM-DD"
+                        minDate={dayjs()}
+                        maxTagCount={10}
+                        value={dates.map((date: string) => dayjs(date))}
+                        style={{
+                          width: "100%",
+                          maxHeight: "85px",
+                        }}
+                        allowClear={false}
+                        inputReadOnly={true}
+                      />
+                    </p>
                   </div>
                 </div>
               );

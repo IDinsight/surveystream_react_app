@@ -4,6 +4,7 @@ import { RootState } from "../../../redux/store";
 import {
   createEmailConfig,
   updateEmailConfig,
+  getEmailGsheet,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,6 +35,8 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   const [pdfAttachment, setPdfAttachment] = useState("");
   const [pdfEncryption, setPdfEncryption] = useState("");
   const [pdfPassword, setPdfPassword] = useState("");
+  const [gsheetColumnHeader, setGsheetColumnHeader] = useState<string[]>([]);
+  const [loadingGsheet, setGsheet] = useState(false);
 
   const handleSourceChange = (e: any) => {
     setSourceType(e.target.value);
@@ -46,6 +49,10 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   };
   const handlePdfPasswordChange = (e: any) => {
     setPdfPassword(e.target.value);
+  };
+
+  const handleGsheetColumnHeaderChange = (e: Array<string>) => {
+    setGsheetColumnHeader(e);
   };
 
   const fetchSurveyUsers = async () => {
@@ -99,6 +106,40 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
     }
   };
 
+  const handleGsheetsLoad = async () => {
+    setGsheet(true);
+    try {
+      const sctoFormUID = form.getFieldValue("scto_form_uid");
+      const gsheetLink = form.getFieldValue("email_source_gsheet_link");
+      const gsheetTab = form.getFieldValue("email_source_gsheet_tab");
+      const gsheetHeaderRow = form.getFieldValue(
+        "email_source_gsheet_header_row"
+      );
+
+      const emailGsheetData = {
+        form_uid: sctoFormUID,
+        email_source_gsheet_link: gsheetLink,
+        email_source_gsheet_tab: gsheetTab,
+        email_source_gsheet_header_row: gsheetHeaderRow,
+      };
+
+      const response = await dispatch(getEmailGsheet(emailGsheetData));
+
+      handleGsheetColumnHeaderChange(response.payload.data.data);
+
+      if (response.payload.success) {
+        message.success(response.payload.data.message);
+      } else {
+        message.error(
+          "Failed to load Google Sheet: " || response.payload.error.message
+        );
+      }
+    } catch (error) {
+      message.error("Failed to load Google Sheet: " || error);
+    }
+    setGsheet(false);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -124,7 +165,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           form_uid: sctoFormUID,
           config_name: configName,
           email_source_tablename: null,
-          email_source_columns: [],
+          email_source_columns: gsheetColumnHeader,
           report_users: notificationUsers,
           cc_users: ccUsers,
           ...formValues,
@@ -376,13 +417,14 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           </Form.Item>
           <Form.Item>
             <Button
-              type="primary"
+              type="default"
               htmlType="button"
               onClick={() => {
-                /* Add load functionality here */
+                handleGsheetsLoad();
               }}
+              loading={loadingGsheet}
             >
-              Load
+              Load Google sheet headers
             </Button>
           </Form.Item>
         </>
