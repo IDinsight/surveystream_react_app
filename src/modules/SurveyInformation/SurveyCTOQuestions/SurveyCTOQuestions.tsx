@@ -144,9 +144,10 @@ function SurveyCTOQuestions() {
         );
 
         if (refreshRes.payload?.message) {
-          message.error(
-            "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
-          );
+          setHasError(true);
+          setSurveyCTOErrorMessages([
+            'Could not find SCTO form questions, please click the "Load questions from SCTO" button to retry.',
+          ]);
         }
       }
     } else {
