@@ -5,7 +5,7 @@ import {
   HeaderContainer,
 } from "../../../shared/Nav.styled";
 
-import { Form, Select, message } from "antd";
+import { Form, Select, message, Alert } from "antd";
 import {
   FooterWrapper,
   ContinueButton,
@@ -15,6 +15,7 @@ import {
   QuestionsForm,
   QuestionsFormTitle,
   SCTOQuestionsButton,
+  SCTOLoadErrorArea,
 } from "./SurveyCTOQuestions.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
@@ -55,6 +56,10 @@ function SurveyCTOQuestions() {
     form_uid: "",
   };
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
+    string[]
+  >([]);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -92,23 +97,40 @@ function SurveyCTOQuestions() {
 
   const loadFormQuestions = async (refresh = false) => {
     setLoading(true);
+    setHasError(false);
+    setSurveyCTOErrorMessages([]);
+    const errorMessages: string[] = [];
     if (form_uid != undefined) {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: form_uid, refresh: refresh })
       );
 
       if (questionsRes.payload?.error) {
-        let errorMsg = "";
         if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
-          errorMsg =
-            "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
+          errorMessages.push(
+            "The resource is not found. Either the SCTO server name is wrong, or access is not given."
+          );
         } else if (questionsRes.payload?.error.includes("Client Error")) {
-          errorMsg = "Either Main Form ID is wrong or access is not given.";
+          errorMessages.push(
+            "Either Main Form ID is wrong or access is not given"
+          );
         } else {
-          errorMsg = questionsRes.payload?.error;
+          errorMessages.push(questionsRes.payload?.error);
         }
-
-        message.error(errorMsg);
+        setHasError(true);
+      } else if (questionsRes.payload?.errors) {
+        setHasError(true);
+        // Check if the error message is an array
+        if (Array.isArray(questionsRes.payload?.errors)) {
+          questionsRes.payload?.errors.forEach(
+            (error: string, index: number) => {
+              errorMessages.push(error);
+            }
+          );
+        } else {
+          errorMessages.push("An unknown error occurred");
+        }
+        setSurveyCTOErrorMessages(errorMessages);
       }
 
       //dispatch twice if refresh
@@ -118,9 +140,10 @@ function SurveyCTOQuestions() {
         );
 
         if (refreshRes.payload?.message) {
-          message.error(
-            "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
-          );
+          setHasError(true);
+          setSurveyCTOErrorMessages([
+            'Could not find SCTO form questions, please click the "Load questions from SCTO" button to retry.',
+          ]);
         }
       }
     } else {
@@ -200,6 +223,212 @@ function SurveyCTOQuestions() {
       message.error("Please fill in all required fields.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const renderQuestionsSelectArea = () => {
+    if (isLoading) {
+      return <FullScreenLoader />;
+    }
+    if (!isLoading && hasError) {
+      return (
+        <SCTOLoadErrorArea>
+          <br />
+          The SurveyCTO form definition could not be loaded due to the following
+          errors:
+          <br />
+          <br />
+          {surveyCTOErrorMessages.map((error, index) => {
+            const key = "uniqueKey" + index + Date.now();
+            return (
+              <div key={key}>
+                <Alert message={error} type="error" />
+                <br />
+              </div>
+            );
+          })}
+        </SCTOLoadErrorArea>
+      );
+    }
+
+    // </>
+    if (!hasError && !isLoading) {
+      return (
+        <QuestionsForm form={form} onFieldsChange={handleFormChange}>
+          <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
+
+          <StyledFormItem
+            initialValue={surveyCTOQuestionsForm?.survey_status}
+            rules={[
+              {
+                required: false,
+                message: "Please enter survey status",
+              },
+              {
+                validator: (_: any, value: string | undefined) => {
+                  const valueOccurrences = Object.values(
+                    surveyCTOQuestionsForm
+                  ).filter(
+                    (v) =>
+                      v === value &&
+                      value !== undefined &&
+                      value !== null &&
+                      value !== ""
+                  ).length;
+
+                  if (valueOccurrences > 1) {
+                    return Promise.reject("Duplicate value!");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 8 }}
+            name="survey_status"
+            label={
+              <span>
+                Survey status&nbsp;
+                <StyledTooltip title="Select the variable that is used to track the overall status of the survey. It will be used for tracking productivity, data quality and assignments.">
+                  <QuestionCircleOutlined />
+                </StyledTooltip>
+              </span>
+            }
+            style={{ display: "block" }}
+          >
+            {renderQuestionsSelect()}
+          </StyledFormItem>
+
+          <StyledFormItem
+            initialValue={surveyCTOQuestionsForm?.revisit_section}
+            rules={[
+              {
+                required: false,
+                message: "Please enter revisit section",
+              },
+              {
+                validator: (_: any, value: string | undefined) => {
+                  const valueOccurrences = Object.values(
+                    surveyCTOQuestionsForm
+                  ).filter(
+                    (v) =>
+                      v === value &&
+                      value !== undefined &&
+                      value !== null &&
+                      value !== ""
+                  ).length;
+
+                  if (valueOccurrences > 1) {
+                    return Promise.reject("Duplicate value!");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 8 }}
+            name="revisit_section"
+            label={
+              <span>
+                Revisit Section&nbsp;
+                <StyledTooltip title="It is a comma separated list of modules which are not completed and flagged for revisit for a survey that is not completed.">
+                  <QuestionCircleOutlined />
+                </StyledTooltip>
+              </span>
+            }
+            style={{ display: "block" }}
+          >
+            {renderQuestionsSelect()}
+          </StyledFormItem>
+
+          <StyledFormItem
+            initialValue={surveyCTOQuestionsForm?.target_id}
+            required
+            rules={[
+              {
+                required: true,
+                message: "Please enter target ID",
+              },
+              {
+                validator: (_: any, value: string | undefined) => {
+                  const valueOccurrences = Object.values(
+                    surveyCTOQuestionsForm
+                  ).filter(
+                    (v) =>
+                      v === value &&
+                      value !== undefined &&
+                      value !== null &&
+                      value !== ""
+                  ).length;
+
+                  if (valueOccurrences > 1) {
+                    return Promise.reject("Duplicate value!");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 8 }}
+            name="target_id"
+            label={
+              <span>
+                Target ID&nbsp;
+                <StyledTooltip title="Select the variable that is used to track the Target ID. It will be used for tracking productivity, data quality and assignments.">
+                  <QuestionCircleOutlined />
+                </StyledTooltip>
+              </span>
+            }
+            style={{ display: "block" }}
+          >
+            {renderQuestionsSelect()}
+          </StyledFormItem>
+
+          <StyledFormItem
+            initialValue={surveyCTOQuestionsForm?.enumerator_id}
+            required
+            rules={[
+              {
+                required: true,
+                message: "Please enter surveyor ID",
+              },
+              {
+                validator: (_: any, value: string | undefined) => {
+                  const valueOccurrences = Object.values(
+                    surveyCTOQuestionsForm
+                  ).filter(
+                    (v) =>
+                      v === value &&
+                      value !== undefined &&
+                      value !== null &&
+                      value !== ""
+                  ).length;
+
+                  if (valueOccurrences > 1) {
+                    return Promise.reject("Duplicate value!");
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 8 }}
+            name="enumerator_id"
+            label={
+              <span>
+                Surveyor ID&nbsp;
+                <StyledTooltip title="Select the variable that is used to track the Surveyor ID. It will be used for tracking productivity, data quality and assignments.">
+                  <QuestionCircleOutlined />
+                </StyledTooltip>
+              </span>
+            }
+            style={{ display: "block" }}
+          >
+            {renderQuestionsSelect()}
+          </StyledFormItem>
+          {renderLocationsSelect()}
+        </QuestionsForm>
+      );
     }
   };
 
@@ -360,7 +589,7 @@ function SurveyCTOQuestions() {
         <MainWrapper>
           <DescriptionWrap>
             <DescriptionText>
-              This step has 2 pre-requisites:
+              This step has 3 pre-requisites:
               <ol>
                 <li>
                   Data Manager access to the SCTO server has been provided to
@@ -378,185 +607,7 @@ function SurveyCTOQuestions() {
               </ol>
             </DescriptionText>
           </DescriptionWrap>
-
-          {isLoading ? (
-            <FullScreenLoader />
-          ) : (
-            <QuestionsForm form={form} onFieldsChange={handleFormChange}>
-              <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.survey_status}
-                rules={[
-                  {
-                    required: false,
-                    message: "Please enter survey status",
-                  },
-                  {
-                    validator: (_: any, value: string | undefined) => {
-                      const valueOccurrences = Object.values(
-                        surveyCTOQuestionsForm
-                      ).filter(
-                        (v) =>
-                          v === value &&
-                          value !== undefined &&
-                          value !== null &&
-                          value !== ""
-                      ).length;
-
-                      if (valueOccurrences > 1) {
-                        return Promise.reject("Duplicate value!");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="survey_status"
-                label={
-                  <span>
-                    Survey status&nbsp;
-                    <StyledTooltip title="Select the variable that is used to track the overall status of the survey. It will be used for tracking productivity, data quality and assignments.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.revisit_section}
-                rules={[
-                  {
-                    required: false,
-                    message: "Please enter revisit section",
-                  },
-                  {
-                    validator: (_: any, value: string | undefined) => {
-                      const valueOccurrences = Object.values(
-                        surveyCTOQuestionsForm
-                      ).filter(
-                        (v) =>
-                          v === value &&
-                          value !== undefined &&
-                          value !== null &&
-                          value !== ""
-                      ).length;
-
-                      if (valueOccurrences > 1) {
-                        return Promise.reject("Duplicate value!");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="revisit_section"
-                label={
-                  <span>
-                    Revisit Section&nbsp;
-                    <StyledTooltip title="It is a comma separated list of modules which are not completed and flagged for revisit for a survey that is not completed.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.target_id}
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter target ID",
-                  },
-                  {
-                    validator: (_: any, value: string | undefined) => {
-                      const valueOccurrences = Object.values(
-                        surveyCTOQuestionsForm
-                      ).filter(
-                        (v) =>
-                          v === value &&
-                          value !== undefined &&
-                          value !== null &&
-                          value !== ""
-                      ).length;
-
-                      if (valueOccurrences > 1) {
-                        return Promise.reject("Duplicate value!");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="target_id"
-                label={
-                  <span>
-                    Target ID&nbsp;
-                    <StyledTooltip title="Select the variable that is used to track the Target ID. It will be used for tracking productivity, data quality and assignments.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-
-              <StyledFormItem
-                initialValue={surveyCTOQuestionsForm?.enumerator_id}
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter surveyor ID",
-                  },
-                  {
-                    validator: (_: any, value: string | undefined) => {
-                      const valueOccurrences = Object.values(
-                        surveyCTOQuestionsForm
-                      ).filter(
-                        (v) =>
-                          v === value &&
-                          value !== undefined &&
-                          value !== null &&
-                          value !== ""
-                      ).length;
-
-                      if (valueOccurrences > 1) {
-                        return Promise.reject("Duplicate value!");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 8 }}
-                name="enumerator_id"
-                label={
-                  <span>
-                    Surveyor ID&nbsp;
-                    <StyledTooltip title="Select the variable that is used to track the Surveyor ID. It will be used for tracking productivity, data quality and assignments.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                {renderQuestionsSelect()}
-              </StyledFormItem>
-              {renderLocationsSelect()}
-            </QuestionsForm>
-          )}
+          {renderQuestionsSelectArea()}
         </MainWrapper>
       </div>
       <FooterWrapper>
