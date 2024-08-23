@@ -91,6 +91,9 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         ? basicInfo?.config_status
         : "In Progress - Configuration",
       state: basicInfo?.state ? basicInfo?.state : "Draft",
+      prime_geo_level_uid: basicInfo?.prime_geo_level_uid
+        ? basicInfo?.prime_geo_level_uid
+        : null,
       created_by_user_uid: userUId,
     };
   };
