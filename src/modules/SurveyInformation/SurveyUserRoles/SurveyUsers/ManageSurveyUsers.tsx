@@ -65,7 +65,7 @@ function ManageSurveyUsers() {
         (user: any, index: { toString: () => any }) => ({
           ...user,
           key: index.toString(),
-          active: user?.status == "Active" ? true : false,
+          active: user?.status === "Active" ? true : false,
         })
       );
       setUserTableDataSource(usersWithKeys);
