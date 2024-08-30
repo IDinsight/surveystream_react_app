@@ -65,7 +65,16 @@ function AdminFormCard({ data, editable, surveyUID }: AdminFormCardProps) {
             <FormItemLabel>Admin form type:</FormItemLabel>
           </Col>
           <Col span={8}>
-            <Input disabled value={data.admin_form_type} />
+            <Input
+              disabled
+              value={
+                data.admin_form_type === "bikelog"
+                  ? "Bikelog"
+                  : data.admin_form_type === "account_details"
+                  ? "Account details"
+                  : data.admin_form_type
+              }
+            />
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
