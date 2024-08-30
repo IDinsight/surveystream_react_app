@@ -186,7 +186,7 @@ function AdminFormManage() {
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Bikelog / Account details"
+                  placeholder="Bikelog / Account details / Other"
                   value={formFieldsData?.admin_form_type}
                   disabled={!canUserWrite}
                   onSelect={(val: any) => {
@@ -200,6 +200,7 @@ function AdminFormManage() {
                   <Select.Option value="account_details">
                     Account details
                   </Select.Option>
+                  <Select.Option value="other">Other</Select.Option>
                 </Select>
               </Col>
             </Row>

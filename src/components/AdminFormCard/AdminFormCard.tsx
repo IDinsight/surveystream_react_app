@@ -73,6 +73,8 @@ function AdminFormCard({ data, editable, surveyUID }: AdminFormCardProps) {
                   ? "Bikelog"
                   : data.admin_form_type === "account_details"
                   ? "Account details"
+                  : data.admin_form_type === "other"
+                  ? "Other"
                   : data.admin_form_type
               }
             />
