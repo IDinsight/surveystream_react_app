@@ -39,6 +39,7 @@ function AdminFormCard({ data, editable, surveyUID }: AdminFormCardProps) {
       content: "Are you sure you want to delete this admin form?",
       okText: "Delete",
       cancelText: "Cancel",
+      okButtonProps: { style: { backgroundColor: "#2f54eb" } },
     });
     if (deleteResp) {
       dispatch(deleteAdminForm({ formUID: adminFormUID })).then(
