@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 export const SchedulesTable = styled(Table)`
   margin-bottom: 68px;
+  table-layout: auto;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
@@ -14,6 +15,12 @@ export const SchedulesTable = styled(Table)`
   }
   & td {
     font-family: "Lato", sans-serif;
+  }
+  & td:last-child {
+    width: 80%;
+  }
+  & td:first-child {
+    width: 10%;
   }
   .custom-card {
     padding: 8px;
