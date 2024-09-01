@@ -7,9 +7,6 @@ import { ManualTriggersTable } from "./ManualTriggers.styled";
 import ManualEmailTriggerForm from "./ManualTriggerForm";
 import { useAppDispatch } from "../../../redux/hooks";
 import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
-import { useNavigate, useParams } from "react-router";
-import dayjs, { Dayjs } from "dayjs";
-import { title } from "process";
 
 function ManualTriggers({
   data,
@@ -31,10 +28,10 @@ function ManualTriggers({
     setIsEditManualDrawerVisible(false);
   };
 
-  const [showModal, setShowModal] = useState(undefined);
-  const handleClose = () => setShowModal(undefined);
+  const [showModal, setShowModal] = useState<boolean | number>(false);
+  const handleClose = () => setShowModal(false);
   const handleShow = (id: any) => setShowModal(id);
-  const handleOk = () => setShowModal(undefined);
+  const handleOk = () => setShowModal(false);
 
   const formatDate = (date: any) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -120,9 +117,10 @@ function ManualTriggers({
             title="Recipients"
             style={{
               fontFamily: "Lato",
+              overflowY: "scroll",
+              maxHeight: "300px",
             }}
-            bodyStyle={{ overflowY: "scroll", maxHeight: "200px" }}
-            visible={showModal === record.manual_email_trigger_uid}
+            open={showModal === !!record.manual_email_trigger_uid}
             onOk={handleOk}
             onCancel={handleClose}
             width={500}
@@ -170,21 +168,18 @@ function ManualTriggers({
   return (
     <>
       {data.length > 0 ? (
-        (console.log("data : ", data),
-        (
-          <ManualTriggersTable
-            dataSource={data}
-            columns={manualTriggerColumns}
-            pagination={{
-              pageSize: paginationPageSize,
-              pageSizeOptions: [10, 25, 50, 100],
-              showSizeChanger: true,
-              showQuickJumper: true,
-              onShowSizeChange: (_, size) => setPaginationPageSize(size),
-            }}
-            rowKey={(record) => record.manual_email_trigger_uid}
-          />
-        ))
+        <ManualTriggersTable
+          dataSource={data}
+          columns={manualTriggerColumns}
+          pagination={{
+            pageSize: paginationPageSize,
+            pageSizeOptions: [10, 25, 50, 100],
+            showSizeChanger: true,
+            showQuickJumper: true,
+            onShowSizeChange: (_, size) => setPaginationPageSize(size),
+          }}
+          rowKey={(record) => record.manual_email_trigger_uid}
+        />
       ) : (
         <div
           style={{

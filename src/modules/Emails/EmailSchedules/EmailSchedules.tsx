@@ -72,8 +72,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
           }}
         >
           <p>
-            {record?.config_name}
-            <br />
+            <span style={{ marginBottom: 10 }}>{record?.config_name}</span>
             <span
               style={{
                 position: "relative",

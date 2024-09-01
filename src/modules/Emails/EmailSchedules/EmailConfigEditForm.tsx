@@ -82,7 +82,6 @@ const EmailConfigEditForm = ({
 
   const handleGsheetsLoad = async () => {
     setGsheet(true);
-    console.log("Loading Google Sheet Headers");
     try {
       const sctoFormUID = form.getFieldValue("scto_form_uid");
       const gsheetLink = form.getFieldValue("email_source_gsheet_link");
@@ -91,19 +90,18 @@ const EmailConfigEditForm = ({
         "email_source_gsheet_header_row"
       );
 
-      const emailGsheetData = {
+      const emailGsheetPayload = {
         form_uid: sctoFormUID,
         email_source_gsheet_link: gsheetLink,
         email_source_gsheet_tab: gsheetTab,
         email_source_gsheet_header_row: gsheetHeaderRow,
       };
 
-      const response = await dispatch(getEmailGsheet(emailGsheetData));
-
-      handleGsheetColumnHeaderChange(response.payload.data.data);
+      const response = await dispatch(getEmailGsheet(emailGsheetPayload));
 
       if (response.payload.success) {
         message.success(response.payload.data.message);
+        handleGsheetColumnHeaderChange(response.payload.data.data);
       } else {
         message.error(
           "Failed to load Google Sheet: " || response.payload.error.message

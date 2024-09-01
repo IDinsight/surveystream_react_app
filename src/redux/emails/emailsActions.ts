@@ -585,7 +585,7 @@ export const getEmailTemplates = createAsyncThunk(
 );
 
 export const getEmailGsheet = createAsyncThunk(
-  "emails/gsheet",
+  "emails/getEmailGsheet",
   async (emailGsheetData: any, { dispatch, rejectWithValue }) => {
     try {
       const response: any = await api.getEmailGsheetHeaders(emailGsheetData);

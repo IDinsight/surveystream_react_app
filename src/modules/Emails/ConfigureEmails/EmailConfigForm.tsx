@@ -115,18 +115,17 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
         "email_source_gsheet_header_row"
       );
 
-      const emailGsheetData = {
+      const emailGsheetPayload = {
         form_uid: sctoFormUID,
         email_source_gsheet_link: gsheetLink,
         email_source_gsheet_tab: gsheetTab,
         email_source_gsheet_header_row: gsheetHeaderRow,
       };
 
-      const response = await dispatch(getEmailGsheet(emailGsheetData));
-
-      handleGsheetColumnHeaderChange(response.payload.data.data);
+      const response = await dispatch(getEmailGsheet(emailGsheetPayload));
 
       if (response.payload.success) {
+        handleGsheetColumnHeaderChange(response.payload.data.data);
         message.success(response.payload.data.message);
       } else {
         message.error(
