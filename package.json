@@ -36,6 +36,7 @@
     "react-ga4": "^1.4.1",
     "react-papaparse": "^4.1.0",
     "react-password-strength-bar": "^0.4.1",
+    "react-quill": "^2.0.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",

@@ -56,6 +56,25 @@ export const fetchEnumerators = async (
   }
 };
 
+export const fetchEnumeratorLanguages = async (formUID: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/enumerators/languages?form_uid=${formUID}`;
+
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getEnumerator = async (enumeratorUID: string) => {
   try {
     await getCSRFToken();
