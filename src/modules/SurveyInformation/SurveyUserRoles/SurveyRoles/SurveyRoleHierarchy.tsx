@@ -222,8 +222,6 @@ function SurveyRoleHierarchy() {
           })
         );
 
-        console.log("rolesRes", rolesRes);
-
         if (rolesRes.payload.status === false) {
           message.error(rolesRes.payload.message);
           return;
@@ -312,12 +310,6 @@ function SurveyRoleHierarchy() {
           </SurveyRoleHierarchyFormWrapper>
         </div>
       )}
-
-      {/* <FooterWrapper>
-        <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper> */}
     </>
   );
 }
