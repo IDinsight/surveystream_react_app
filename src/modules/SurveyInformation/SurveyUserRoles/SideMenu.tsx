@@ -18,6 +18,9 @@ function SideMenu() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const { role_uid } = useParams<{ role_uid?: string }>() ?? {
+    role_uid: "",
+  };
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
@@ -31,7 +34,12 @@ function SideMenu() {
           className={`${
             isActive(`/survey-information/survey-roles/roles/${survey_uid}`) ||
             isActive(`/survey-information/survey-roles/add/${survey_uid}`) ||
-            isActive(`/survey-information/survey-roles/edit/${survey_uid}`) ||
+            isActive(
+              `/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+            ) ||
             isActive(`/survey-information/survey-roles/hierarchy/${survey_uid}`)
           }`}
           to={`/survey-information/survey-roles/roles/${survey_uid}`}
