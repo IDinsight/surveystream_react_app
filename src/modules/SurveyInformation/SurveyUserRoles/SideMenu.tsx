@@ -1,5 +1,5 @@
 import { useLocation, useParams } from "react-router-dom";
-import { ContactsOutlined, ShareAltOutlined } from "@ant-design/icons";
+import { TeamOutlined, ApartmentOutlined } from "@ant-design/icons";
 
 import { Menu, MenuProps } from "antd";
 
@@ -29,15 +29,19 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/survey-roles/${survey_uid}`) ||
             isActive(`/survey-information/survey-roles/roles/${survey_uid}`) ||
-            isActive(`/survey-information/survey-roles/add/${survey_uid}`) ||
-            isActive(`/survey-information/survey-roles/edit/${survey_uid}`)
+            isActive(
+              `/survey-information/survey-roles/roles/add/${survey_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-roles/roles/edit/${survey_uid}`
+            ) ||
+            isActive(`/survey-information/survey-roles/hierarchy/${survey_uid}`)
           }`}
           to={`/survey-information/survey-roles/roles/${survey_uid}`}
         >
           <IconWrapper>
-            <ContactsOutlined />
+            <ApartmentOutlined />
           </IconWrapper>
           Roles
         </MenuItem>
@@ -55,7 +59,7 @@ function SideMenu() {
           to={`/survey-information/survey-users/users/${survey_uid}`}
         >
           <IconWrapper>
-            <ShareAltOutlined />
+            <TeamOutlined />
           </IconWrapper>
           Users
         </MenuItem>
@@ -72,7 +76,8 @@ function SideMenu() {
 
   const getPossibleKey = () => {
     const path = location.pathname;
-    if (path.includes("survey-roles/")) return "surveyRoles";
+    if (path.includes("survey-roles/hierarchy/")) return "surveyRolesHierarchy";
+    if (path.includes("survey-roles/roles/")) return "surveyRoles";
     if (path.includes("survey-users/")) return "surveyUsers";
 
     return "";

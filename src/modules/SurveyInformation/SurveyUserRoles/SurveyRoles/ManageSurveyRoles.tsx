@@ -13,12 +13,17 @@ import {
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, RolesTable } from "../SurveyUserRoles.styled";
-import { ExclamationCircleFilled, FileAddOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleFilled,
+  ExclamationCircleOutlined,
+  FileAddOutlined,
+} from "@ant-design/icons";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import {
   FooterWrapper,
@@ -79,7 +84,9 @@ function ManageSurveyRoles() {
       const originalRolesData: OriginalRolesData = res.payload;
 
       const findItemByRoleUid = (roleUid: number): string | null => {
-        if (Array.isArray(originalRolesData)) {
+        if (roleUid === null) {
+          return "No Reporting Role";
+        } else if (Array.isArray(originalRolesData)) {
           const foundItem = originalRolesData.find(
             (item: { role_uid: number }) => item.role_uid === roleUid
           );
@@ -152,6 +159,10 @@ function ManageSurveyRoles() {
     navigate(`/survey-information/survey-roles/add/${survey_uid}`);
   };
 
+  const handleEditRoleHierarchy = () => {
+    navigate(`/survey-information/survey-roles/hierarchy/${survey_uid}`);
+  };
+
   const handleDelete = (role_uid: any): void => {
     setDeleteRoleId(role_uid);
     setIsOpenDeleteModel(true);
@@ -175,6 +186,7 @@ function ManageSurveyRoles() {
     const rolesRes = await dispatch(
       postSupervisorRoles({
         supervisorRolesData: filteredRoles,
+        validate_hierarchy: false,
         surveyUid: survey_uid ?? "",
       })
     );
@@ -264,6 +276,36 @@ function ManageSurveyRoles() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Roles</Title>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+        <div style={{ float: "right", marginTop: "0px" }}>
+          <Button
+            type="primary"
+            icon={<FileAddOutlined />}
+            style={{
+              marginLeft: "50px",
+              backgroundColor: "#2F54EB",
+            }}
+            onClick={() => handleAddNewRole()}
+          >
+            Add new role{" "}
+          </Button>
+          <Button
+            type="primary"
+            icon={<FileAddOutlined />}
+            style={{
+              marginLeft: "25px",
+              backgroundColor: "#2F54EB",
+            }}
+            onClick={() => handleEditRoleHierarchy()}
+          >
+            Edit role hierarchy{" "}
+          </Button>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -271,23 +313,10 @@ function ManageSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
                 Manage the roles related to your survey here
               </DescriptionText>
-              <div style={{ float: "right", marginTop: "-60px" }}>
-                <Button
-                  type="primary"
-                  icon={<FileAddOutlined />}
-                  style={{
-                    marginLeft: "25px",
-                    backgroundColor: "#2F54EB",
-                  }}
-                  onClick={() => handleAddNewRole()}
-                >
-                  Add new role{" "}
-                </Button>
-              </div>
+
               <div style={{ display: "flex" }}></div>
               <RolesTable
                 columns={rolesTableColumn}
@@ -305,8 +334,8 @@ function ManageSurveyRoles() {
             <Modal
               open={isOpenDeleteModel}
               title={
-                <div style={{ display: "flex" }}>
-                  <ExclamationCircleFilled
+                <div style={{ display: "flex", marginTop: "-15px" }}>
+                  <ExclamationCircleOutlined
                     style={{ color: "orange", fontSize: 20 }}
                   />
                   <p style={{ marginLeft: "10px" }}>Delete the role</p>
@@ -316,22 +345,17 @@ function ManageSurveyRoles() {
               onOk={() => handleDeleteRole()}
               onCancel={() => setIsOpenDeleteModel(false)}
             >
-              <p>Are you sure you want to delete this role?</p>
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: "-15px",
+                  marginLeft: "30px",
+                }}
+              >
+                <p>Are you sure you want to delete this role?</p>
+              </div>
             </Modal>
           </div>
-
-          <FooterWrapper>
-            <SaveButton disabled>Save</SaveButton>
-            <ContinueButton
-              onClick={() => {
-                navigate(
-                  `/survey-information/survey-users/users/${survey_uid}`
-                );
-              }}
-            >
-              Finalize roles
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>

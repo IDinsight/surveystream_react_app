@@ -44,6 +44,7 @@ export const fetchAllPermissions = async () => {
 
 export const postSupervisorRoles = async (
   formData: SupervisorRole[],
+  validate_hierarchy: boolean,
   survey_uid: string
 ) => {
   try {
@@ -53,7 +54,7 @@ export const postSupervisorRoles = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
-      { roles: formData },
+      { roles: formData, validate_hierarchy: validate_hierarchy },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
