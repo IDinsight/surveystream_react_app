@@ -64,6 +64,11 @@ function UsersManage() {
       key: "last_name",
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+    },
+    {
       title: "Roles",
       key: "user_roles",
       dataIndex: "user_roles",

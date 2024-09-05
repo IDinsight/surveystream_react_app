@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Radio, message } from "antd";
+import { Button, Form, Input, Radio, message, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -176,6 +176,28 @@ function EditUser() {
                       }
                       placeholder="Enter last name"
                     />
+                  </Form.Item>
+                  <Form.Item
+                    name="gender"
+                    label="Gender"
+                    initialValue={userDetails.gender}
+                    hasFeedback
+                  >
+                    <Select
+                      style={{ width: "100%" }}
+                      allowClear={true}
+                      placeholder="Male/ Female"
+                      value={userDetails?.gender}
+                      onChange={(val: any) => {
+                        setUserDetails((prev: any) => ({
+                          ...prev,
+                          gender: val,
+                        }));
+                      }}
+                    >
+                      <Select.Option value="Male">Male</Select.Option>
+                      <Select.Option value="Female">Female</Select.Option>
+                    </Select>
                   </Form.Item>
 
                   {isExistingUser &&
