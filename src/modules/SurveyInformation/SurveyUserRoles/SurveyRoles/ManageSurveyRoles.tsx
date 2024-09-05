@@ -163,7 +163,18 @@ function ManageSurveyRoles() {
     navigate(`/survey-information/survey-roles/hierarchy/${survey_uid}`);
   };
 
-  const handleDelete = (role_uid: any): void => {
+  const handleDelete = (role_uid: any, role_name: string): void => {
+    // check if the role is reporting role for any other role
+    const child_role = supervisorRoles.find(
+      (role) => role.reporting_role_uid == role_uid
+    )?.role_name;
+
+    if (child_role) {
+      message.error(
+        `Cannot delete "${role_name}" as it is the reporting role for "${child_role}". Kindly update the reporting role for "${child_role}" before deleting this role.`
+      );
+      return;
+    }
     setDeleteRoleId(role_uid);
     setIsOpenDeleteModel(true);
   };
@@ -248,7 +259,7 @@ function ManageSurveyRoles() {
             disabled={!record?.role_uid}
             danger
             type="text"
-            onClick={() => handleDelete(record?.role_uid)}
+            onClick={() => handleDelete(record?.role_uid, record?.role)}
             style={{ marginLeft: 8 }}
           >
             Delete
@@ -338,7 +349,7 @@ function ManageSurveyRoles() {
                   <ExclamationCircleOutlined
                     style={{ color: "orange", fontSize: 20 }}
                   />
-                  <p style={{ marginLeft: "10px" }}>Delete the role</p>
+                  <p style={{ marginLeft: "10px" }}>Deletion Confirmation</p>
                 </div>
               }
               okText="Yes, delete role"
@@ -352,7 +363,15 @@ function ManageSurveyRoles() {
                   marginLeft: "30px",
                 }}
               >
-                <p>Are you sure you want to delete this role?</p>
+                <p>
+                  Are you sure you want to delete the role:{" "}
+                  {
+                    supervisorRoles.find(
+                      (role) => role.role_uid == deleteRoleId?.toString()
+                    )?.role_name
+                  }
+                  ?
+                </p>
               </div>
             </Modal>
           </div>
