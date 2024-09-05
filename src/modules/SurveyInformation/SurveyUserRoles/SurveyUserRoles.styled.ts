@@ -102,3 +102,15 @@ export const CustomBtn = styled(Button)`
     color: white !important;
   }
 `;
+
+export const CustomLinkBtn = styled(Button)`
+  color: #2f54eb;
+
+  &:hover {
+    color: #597ef7 !important;
+  }
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+`;

@@ -12,7 +12,11 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper, RolesTable } from "../SurveyUserRoles.styled";
+import {
+  BodyWrapper,
+  RolesTable,
+  CustomLinkBtn,
+} from "../SurveyUserRoles.styled";
 import {
   ExclamationCircleFilled,
   ExclamationCircleOutlined,
@@ -240,20 +244,20 @@ function ManageSurveyRoles() {
       key: "actions",
       render: (text: any, record: any) => (
         <span>
-          <Button
+          <CustomLinkBtn
             disabled={!record?.role_uid}
             type="link"
             onClick={() => handleEdit(record?.role_uid)}
           >
             Edit
-          </Button>
-          <Button
+          </CustomLinkBtn>
+          <CustomLinkBtn
             disabled={!record?.role_uid}
             type="link"
             onClick={() => handleDuplicate(record?.role_uid)}
           >
             Duplicate
-          </Button>
+          </CustomLinkBtn>
 
           <Button
             disabled={!record?.role_uid}
