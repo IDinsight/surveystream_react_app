@@ -25,7 +25,6 @@ import {
   updateSCTOFormMapping,
 } from "../../redux/adminForm/adminFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { is } from "cypress/types/bluebird";
 
 function AdminFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -84,7 +83,7 @@ function AdminFormSCTOQuestion() {
     setHasError(false);
     setSurveyCTOErrorMessages([]);
     const errorMessages: string[] = [];
-    if (admin_form_uid != undefined) {
+    if (admin_form_uid !== undefined) {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: admin_form_uid, refresh: refresh })
       );
@@ -282,13 +281,18 @@ function AdminFormSCTOQuestion() {
     if (!isLoading && hasError) {
       return (
         <SCTOLoadErrorArea>
-          <br />
-          The SurveyCTO form definition could not be loaded due to the following
-          errors:
-          <br />
-          <br />
+          <span
+            style={{
+              marginTop: "10px",
+              marginBottom: "20px",
+              display: "inline-block",
+            }}
+          >
+            The SurveyCTO form definition could not be loaded due to the
+            following errors:
+          </span>
           {surveyCTOErrorMessages.map((error, index) => {
-            const key = "uniqueKey" + index + Date.now();
+            const key = "uniqueKey" + index;
             return (
               <div key={key}>
                 <Alert message={error} type="error" />
@@ -300,7 +304,6 @@ function AdminFormSCTOQuestion() {
       );
     }
 
-    // </>
     if (!hasError && !isLoading) {
       return (
         <div>

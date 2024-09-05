@@ -20,6 +20,8 @@ import {
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
 
+const { Option } = Select;
+
 function MediaAuditsManage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -217,14 +219,14 @@ function MediaAuditsManage() {
                   }}
                 >
                   {surveyCTOForm?.scto_form_id && (
-                    <Select.Option value={surveyCTOForm?.form_uid}>
+                    <Option value={surveyCTOForm?.form_uid}>
                       {surveyCTOForm?.scto_form_id}
-                    </Select.Option>
+                    </Option>
                   )}
                   {adminForms.map((form: any) => (
-                    <Select.Option key={form.form_uid} value={form.form_uid}>
+                    <Option key={form.form_uid} value={form.form_uid}>
                       {form.scto_form_id}
-                    </Select.Option>
+                    </Option>
                   ))}
                 </Select>
               </Col>

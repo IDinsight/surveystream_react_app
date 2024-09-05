@@ -17,6 +17,8 @@ import {
 } from "../../redux/adminForm/adminFormActions";
 import { userHasPermission } from "../../utils/helper";
 
+const { Option } = Select;
+
 function AdminFormManage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -152,7 +154,7 @@ function AdminFormManage() {
         server_access_allowed: surveyCTOForm?.server_access_allowed,
       }));
     }
-  }, [survey_uid]);
+  }, [surveyCTOForm]);
 
   const isLoading = isSurveyCTOFormLoading || isAdminFormLoading;
 
@@ -196,11 +198,9 @@ function AdminFormManage() {
                     }));
                   }}
                 >
-                  <Select.Option value="bikelog">Bikelog</Select.Option>
-                  <Select.Option value="account_details">
-                    Account details
-                  </Select.Option>
-                  <Select.Option value="other">Other</Select.Option>
+                  <Option value="bikelog">Bikelog</Option>
+                  <Option value="account_details">Account details</Option>
+                  <Option value="other">Other</Option>
                 </Select>
               </Col>
             </Row>
