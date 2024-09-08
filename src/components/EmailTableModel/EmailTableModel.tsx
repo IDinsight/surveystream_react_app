@@ -358,7 +358,7 @@ function EmailTableModel({
       {loading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ height: "550px", overflowY: "auto" }}>
+        <div style={{ height: "350px", overflowY: "auto" }}>
           <div style={{ marginBottom: 16 }}>
             <p>Select tables to insert them in the email table</p>
             <Row>
