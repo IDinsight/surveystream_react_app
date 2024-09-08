@@ -237,6 +237,8 @@ function DQFormSCTOQuestion() {
         }
       );
       setQuestionList(questionsArr);
+    } else {
+      setQuestionList([]);
     }
   }, [surveyCTOQuestions]);
 

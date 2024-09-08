@@ -42,6 +42,9 @@ import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
+import AdminFormHome from "../modules/AdminForm";
+import AdminFormManage from "../modules/AdminForm/AdminFormManage";
+import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -325,6 +328,24 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/dq-forms/:survey_uid/scto-questions/:dq_form_uid"
           element={<DQFormSCTOQuestion />}
+        />
+      </Route>
+      <Route
+        element={
+          <ProtectedPermissionRoute permission_name="READ Admin Forms" />
+        }
+      >
+        <Route
+          path="/module-configuration/admin-forms/:survey_uid?"
+          element={<AdminFormHome />}
+        />
+        <Route
+          path="/module-configuration/admin-forms/:survey_uid/manage"
+          element={<AdminFormManage />}
+        />
+        <Route
+          path="/module-configuration/admin-forms/:survey_uid/scto-questions/:admin_form_uid"
+          element={<AdminFormSCTOQuestion />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

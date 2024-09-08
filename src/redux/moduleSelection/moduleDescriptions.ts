@@ -63,4 +63,12 @@ export const moduleDescriptions: Module[] = [
       "<ul><li>Assign audio recordings or photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
     icon: FileSearchOutlined,
   },
+  {
+    module_id: 18,
+    title: "Admin forms",
+    link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
+    description:
+      "<ul><li>Add details of enumerator forms like bikelog form or account details form</li><li>Select added forms in Media (Photo/Audio) Audits</li></ul>",
+    icon: FileSearchOutlined,
+  },
 ];
