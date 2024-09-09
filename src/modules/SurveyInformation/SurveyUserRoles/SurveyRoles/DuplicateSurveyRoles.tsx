@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Radio, Row, Select, message } from "antd";
+import { Button, Col, Form, Input, Row, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionText,
@@ -13,21 +13,14 @@ import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../../redux/userRoles/userRolesActions";
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
@@ -66,7 +59,7 @@ function DuplicateSurveyRoles() {
   const rolePermissions = useAppSelector(
     (state: RootState) => state.userRoles.rolePermissions
   );
-  const isLoading = useAppSelector(
+  const isuserRolesLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
   const [rolesEditData, setRolesEditData] = useState<any>([]);
@@ -84,6 +77,7 @@ function DuplicateSurveyRoles() {
   };
 
   const fetchSupervisorRoles = async () => {
+    setLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
@@ -121,7 +115,9 @@ function DuplicateSurveyRoles() {
           duplicate: false,
         })
       );
+      setLoading(false);
     } else {
+      setLoading(false);
       message.error("Could not fetch roles, kindly reload to try again");
     }
   };
@@ -208,6 +204,8 @@ function DuplicateSurveyRoles() {
     fetchSupervisorRoles();
     fetchAllPermissions();
   }, [dispatch]);
+
+  const isLoading = loading || isuserRolesLoading;
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Radio, Row, Select, message } from "antd";
+import { Button, Col, Form, Input, Row, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionText,
@@ -12,21 +12,14 @@ import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../../redux/userRoles/userRolesActions";
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
@@ -53,19 +46,11 @@ function AddSurveyRoles() {
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
   );
-  const isLoading = useAppSelector(
+  const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
 
-  const rolePermissions = useAppSelector(
-    (state: RootState) => state.userRoles.rolePermissions
-  );
-
   const [loading, setLoading] = useState(false);
-
-  const [rolesTableData, setRolesTableData] = useState<any>([]);
-
-  const [hasReportingRole, setHasReportingRole] = useState(false);
 
   const [allPermissions, setAllPermissions] = useState<any>([]);
 
@@ -78,13 +63,10 @@ function AddSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-  const handleRadioChange = (value: boolean) => {
-    setHasReportingRole(value);
-  };
 
   const fetchSupervisorRoles = async () => {
+    setLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
 
@@ -104,11 +86,8 @@ function AddSurveyRoles() {
           role_uid: role.role_uid,
         });
       });
-
-      setRolesTableData(transformedData);
-    } else {
-      setRolesTableData([]);
     }
+    setLoading(false);
   };
 
   const fetchAllPermissions = async () => {
@@ -193,6 +172,8 @@ function AddSurveyRoles() {
     fetchSupervisorRoles();
     fetchAllPermissions();
   }, [dispatch]);
+
+  const isLoading = isuserManagementLoading || loading;
 
   return (
     <>

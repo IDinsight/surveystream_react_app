@@ -16,17 +16,10 @@ import { Key, useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";

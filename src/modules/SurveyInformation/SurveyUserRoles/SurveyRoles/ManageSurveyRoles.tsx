@@ -1,9 +1,6 @@
 import { Button, Modal, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  DescriptionText,
-  DescriptionTitle,
-} from "../../SurveyInformation.styled";
+import { DescriptionText } from "../../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import {
@@ -17,23 +14,12 @@ import {
   RolesTable,
   CustomLinkBtn,
 } from "../SurveyUserRoles.styled";
+import { ExclamationCircleOutlined, FileAddOutlined } from "@ant-design/icons";
 import {
-  ExclamationCircleFilled,
-  ExclamationCircleOutlined,
-  FileAddOutlined,
-} from "@ant-design/icons";
-import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
@@ -62,7 +48,7 @@ function ManageSurveyRoles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const isLoading = useAppSelector(
+  const isuserRolesLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
   const supervisorRoles = useAppSelector(
@@ -76,6 +62,8 @@ function ManageSurveyRoles() {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
 
   const [deleteRoleId, setDeleteRoleId] = useState<number>();
+
+  const [loading, setLoading] = useState(false);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -184,6 +172,7 @@ function ManageSurveyRoles() {
   };
 
   const handleDeleteRole = async () => {
+    setLoading(true);
     //to delete roles update roles for the survey without the deleted role
     //this is to ensure hierarchy validations on the backend
     const userRoles = supervisorRoles;
@@ -214,8 +203,9 @@ function ManageSurveyRoles() {
       message.success("Roles deleted successfully");
     }
 
-    setDeleteRoleId(undefined);
     setIsOpenDeleteModel(false);
+    setDeleteRoleId(undefined);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -272,6 +262,8 @@ function ManageSurveyRoles() {
       ),
     },
   ];
+
+  const isLoading = isuserRolesLoading || loading;
 
   return (
     <>
