@@ -79,7 +79,7 @@ function DuplicateSurveyRoles() {
     (state: RootState) => state.surveys.activeSurvey
   );
   const fetchAllPermissions = async () => {
-    const res = await dispatch(getAllPermissions());
+    const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
   };
 

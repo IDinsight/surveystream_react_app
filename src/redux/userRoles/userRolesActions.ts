@@ -89,10 +89,10 @@ export const getSupervisorRoles = createAsyncThunk(
 
 export const getAllPermissions = createAsyncThunk(
   "userRoles/getAllPermissions",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getAllPermissionsRequest());
-      const res: any = await api.fetchAllPermissions();
+      const res: any = await api.fetchAllPermissions(params.survey_uid);
 
       if (res.status === 200) {
         dispatch(getAllPermissionsSuccess(res.data));

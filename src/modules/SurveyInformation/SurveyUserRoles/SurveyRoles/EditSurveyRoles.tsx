@@ -80,7 +80,7 @@ function EditSurveyRoles() {
   );
 
   const fetchAllPermissions = async () => {
-    const res = await dispatch(getAllPermissions());
+    const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
   };
 

@@ -23,11 +23,11 @@ export const fetchSupervisorRoles = async (survey_uid?: string) => {
   }
 };
 
-export const fetchAllPermissions = async () => {
+export const fetchAllPermissions = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/permissions`;
+    const url = `${API_BASE_URL}/permissions?survey_uid=${survey_uid}`;
 
     const res = await axios.get(url, {
       headers: {
