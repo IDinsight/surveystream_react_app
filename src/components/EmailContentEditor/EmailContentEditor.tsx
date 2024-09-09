@@ -5,9 +5,14 @@ import "react-quill/dist/quill.snow.css";
 interface EmailContentEditorProps {
   quillRef: any;
   form: any;
+  setCursorPosition: any;
 }
 
-function EmailContentEditor({ quillRef, form }: EmailContentEditorProps) {
+function EmailContentEditor({
+  quillRef,
+  form,
+  setCursorPosition,
+}: EmailContentEditorProps) {
   const [value, setValue] = useState("");
 
   const modules = {
@@ -17,6 +22,12 @@ function EmailContentEditor({ quillRef, form }: EmailContentEditorProps) {
       [{ list: "ordered" }, { list: "bullet" }],
       ["link"],
     ],
+  };
+
+  const handleSelectionChange = (range: any) => {
+    if (range) {
+      setCursorPosition(range.index);
+    }
   };
 
   useEffect(() => {
@@ -37,6 +48,7 @@ function EmailContentEditor({ quillRef, form }: EmailContentEditorProps) {
         value={value}
         onChange={(val) => setValue(val)}
         modules={modules}
+        onChangeSelection={handleSelectionChange}
       />
     </>
   );

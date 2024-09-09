@@ -27,7 +27,7 @@ function ConfigureEmails() {
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   // State variables for component
-  const [stepIndex, setStepIndex] = useState<number>(0);
+  const [stepIndex, setStepIndex] = useState<number>(2);
 
   const [stepLoading, setStepLoading] = useState<boolean>(false);
   const [configNames, setconfigNames] = useState([]);

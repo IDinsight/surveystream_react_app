@@ -9,7 +9,6 @@ import EmailTableModel from "../../../components/EmailTableModel";
 import { useParams } from "react-router-dom";
 import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
-import { tab } from "@testing-library/user-event/dist/tab";
 const { Option } = Select;
 
 interface EmailTemplateFormProps {
@@ -33,13 +32,23 @@ const EmailTemplateForm = ({
 
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
+
   const quillRef = useRef<ReactQuill>(null);
+  const [cursorPosition, setCursorPosition] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(false);
-  const [emailConfigs, setEmailConfigs] = useState([]);
 
   const [availableLanguages, setAvailableLanguages] = useState([]);
   const [availableVariables, setAvailableVariables] = useState([]);
+  const [insertedVariables, setInsertedVariables] = useState<
+    {
+      variable_name: string;
+      variable_expression: string;
+      source_table: string;
+    }[]
+  >([]);
+  const [emailSourceTable, setEmailSourceTable] = useState("");
+
   const [tableList, setTableList] = useState([]);
 
   const [selectedVariable, setSelectedVariable] = useState<any>({
@@ -64,7 +73,7 @@ const EmailTemplateForm = ({
           language: template.language,
           subject: template.subject,
           content: template.content,
-          variable_list: [],
+          variable_list: insertedVariables,
           table_list: tableList,
         };
 
@@ -94,9 +103,12 @@ const EmailTemplateForm = ({
     if (quill) {
       const editor = quill.getEditor();
       if (editor) {
-        const selection = editor.getSelection();
-        const index = selection ? selection.index : 0;
+        const index =
+          cursorPosition !== null ? cursorPosition : editor.getLength();
         editor.insertText(index, text);
+        editor.setSelection({ index: index + text.length, length: 0 });
+
+        editor.focus();
       }
     }
   };
@@ -109,6 +121,14 @@ const EmailTemplateForm = ({
         text = `{{${aggregation}(${variable})}}`;
       }
       insertText(text);
+      setInsertedVariables((prev: any) => [
+        ...prev,
+        {
+          variable_name: variable,
+          variable_expression: text,
+          source_table: emailSourceTable,
+        },
+      ]);
     }
   };
 
@@ -150,10 +170,11 @@ const EmailTemplateForm = ({
   useEffect(() => {
     if (config?.length > 0) {
       const filteredConfigs = config?.filter(
-        (config: any) => config.email_config_uid === emailConfigUID
+        (config: any) => config.email_config_uid === 132
       );
       if (filteredConfigs.length > 0) {
         setAvailableVariables(filteredConfigs[0].email_source_columns);
+        setEmailSourceTable(filteredConfigs[0].email_source_tablename);
       }
     }
   }, [config]);
@@ -211,7 +232,11 @@ const EmailTemplateForm = ({
                     getValueProps={(value) => ({ value })}
                     getValueFromEvent={(content) => content}
                   >
-                    <EmailContentEditor quillRef={quillRef} form={form} />
+                    <EmailContentEditor
+                      quillRef={quillRef}
+                      form={form}
+                      setCursorPosition={setCursorPosition}
+                    />
                   </Form.Item>
                   <EmailTableCard
                     tableList={tableList}

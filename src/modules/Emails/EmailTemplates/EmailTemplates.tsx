@@ -2,10 +2,11 @@ import { useState } from "react";
 
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { EmailTemplatesTable } from "./EmailTemplates.styled";
-import { Button, message, Popconfirm, Tooltip } from "antd";
+import { Button, Drawer, message, Popconfirm, Tooltip } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../../../redux/hooks";
 import { deleteEmailTemplate } from "../../../redux/emails/emailsActions";
+import EmailTemplateEditing from "./EmailTemplateEditing";
 
 interface EmailTemplatesProps {
   data: any;
@@ -15,6 +16,35 @@ interface EmailTemplatesProps {
 const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
   const dispatch = useAppDispatch();
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [editTemplateValues, setEditTemplateValues] = useState();
+
+  const handleEditTemplate = (template: any) => {
+    setEditTemplateValues(template);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDeleteTemplate = async (template: any) => {
+    try {
+      const result = await dispatch(
+        deleteEmailTemplate({
+          email_template_uid: template.email_template_uid,
+          email_config_uid: template.email_config_uid,
+        })
+      );
+
+      if (result.payload?.data?.success) {
+        message.success("Email template deleted successfully");
+        fetchEmailTemplates();
+      } else {
+        message.error("Failed to delete email template, try again.");
+      }
+    } catch (error) {
+      message.error(
+        "An error occurred while deleting email template, try again."
+      );
+    }
+  };
 
   const templateColumns = [
     {
@@ -64,14 +94,14 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
                   <div
                     style={{
                       marginTop: "10px",
-                      float: "right",
+                      marginLeft: "auto",
                     }}
                   >
                     <Tooltip title="Edit">
                       <Button
                         type="link"
                         icon={<EditOutlined />}
-                        // onClick={() => handleEditTemplate(template)}
+                        onClick={() => handleEditTemplate(template)}
                         style={{ marginBottom: 8 }}
                       >
                         Edit
@@ -96,32 +126,19 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
           ) : (
             <p>No templates available</p>
           )}
+          <Drawer
+            title={"Edit Email Template"}
+            width={700}
+            open={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            style={{ paddingBottom: 80, fontFamily: "Lato" }}
+          >
+            <EmailTemplateEditing data={editTemplateValues} />
+          </Drawer>
         </div>
       ),
     },
   ];
-
-  const handleDeleteTemplate = async (template: any) => {
-    try {
-      const result = await dispatch(
-        deleteEmailTemplate({
-          email_template_uid: template.email_template_uid,
-          email_config_uid: template.email_config_uid,
-        })
-      );
-
-      if (result.payload?.data?.success) {
-        message.success("Email template deleted successfully");
-        fetchEmailTemplates();
-      } else {
-        message.error("Failed to delete email template, try again.");
-      }
-    } catch (error) {
-      message.error(
-        "An error occurred while deleting email template, try again."
-      );
-    }
-  };
 
   return (
     <>

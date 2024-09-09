@@ -90,7 +90,6 @@ function EmailTableModel({
             column: null,
             type: null,
             value: null,
-            condition: null,
           },
         ],
       },
@@ -109,7 +108,7 @@ function EmailTableModel({
               ...group,
               filter_group: [
                 ...group.filter_group,
-                { column: null, type: null, value: null, condition: "OR" },
+                { column: null, type: null, value: null },
               ],
             }
           : group
@@ -237,7 +236,6 @@ function EmailTableModel({
         filter_variable: filter.column,
         filter_operator: filter.type,
         filter_value: filter.value,
-        filter_concatenator: filter.condition || undefined,
       })),
     }));
 
@@ -327,7 +325,6 @@ function EmailTableModel({
           column: filter.filter_variable,
           type: filter.filter_operator,
           value: filter.filter_value,
-          condition: filter.filter_concatenator,
         })),
       }));
       setFilterList(filterList);
@@ -421,134 +418,144 @@ function EmailTableModel({
               <div>
                 <p>Apply filter</p>
                 {filterList.map((item, groupIndex) => (
-                  <div
-                    key={groupIndex}
-                    style={{
-                      border: "1px solid #D3D3D3",
-                      padding: 8,
-                      marginBottom: 16,
-                    }}
-                  >
-                    {item.filter_group.map(
-                      (filter: any, filterIndex: number) => (
-                        <div key={filterIndex}>
-                          {filter.condition ? (
-                            <Row
-                              gutter={16}
-                              style={{
-                                marginTop: "10px",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              <Col span={4}>
+                  <>
+                    {groupIndex !== 0 && groupIndex !== filterList.length ? (
+                      <Row
+                        gutter={16}
+                        justify="center"
+                        style={{
+                          marginTop: "10px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <Col span={2}>
+                          <Select style={{ width: "100%" }} value="OR" disabled>
+                            <Option value="OR">OR</Option>
+                          </Select>
+                        </Col>
+                      </Row>
+                    ) : null}
+                    <div
+                      key={groupIndex}
+                      style={{
+                        border: "1px solid #D3D3D3",
+                        padding: 8,
+                        marginBottom: 16,
+                      }}
+                    >
+                      {item.filter_group.map(
+                        (filter: any, filterIndex: number) => (
+                          <div key={filterIndex}>
+                            {filterIndex !== 0 &&
+                            filterIndex !== item.filter_group.length ? (
+                              <Row
+                                gutter={16}
+                                style={{
+                                  marginTop: "10px",
+                                  marginBottom: "10px",
+                                }}
+                              >
+                                <Col span={3}>
+                                  <Select
+                                    style={{ width: "100%" }}
+                                    value="AND"
+                                    disabled
+                                  >
+                                    <Option value="AND">AND</Option>
+                                  </Select>
+                                </Col>
+                              </Row>
+                            ) : null}
+                            <Row gutter={16} style={{ marginBottom: 6 }}>
+                              <Col span={6}>
                                 <Select
-                                  placeholder="Choose condition"
+                                  placeholder="Choose column"
                                   style={{ width: "100%" }}
-                                  value={filter.condition}
+                                  value={filter.column}
                                   onChange={(val) =>
                                     handleFilterFieldChange(
                                       groupIndex,
                                       filterIndex,
-                                      "condition",
+                                      "column",
                                       val
                                     )
                                   }
                                 >
-                                  <Option value="AND">AND</Option>
-                                  <Option value="OR">OR</Option>
+                                  {availableColumns.map((col) => (
+                                    <Option
+                                      key={col.column_name}
+                                      value={col.column_name}
+                                    >
+                                      {col.column_name}
+                                    </Option>
+                                  ))}
                                 </Select>
                               </Col>
+                              <Col span={6}>
+                                <Select
+                                  placeholder="Filter type"
+                                  style={{ width: "100%" }}
+                                  value={filter.type}
+                                  onChange={(val) =>
+                                    handleFilterFieldChange(
+                                      groupIndex,
+                                      filterIndex,
+                                      "type",
+                                      val
+                                    )
+                                  }
+                                >
+                                  {validateOperator.map((op) => (
+                                    <Option key={op} value={op}>
+                                      {op}
+                                    </Option>
+                                  ))}
+                                </Select>
+                              </Col>
+                              <Col span={6}>
+                                <Input
+                                  placeholder="Filter value"
+                                  style={{ width: "100%" }}
+                                  value={filter.value}
+                                  onChange={(e) =>
+                                    handleFilterFieldChange(
+                                      groupIndex,
+                                      filterIndex,
+                                      "value",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </Col>
+                              <Button
+                                danger
+                                onClick={() =>
+                                  handleRemoveFilter(groupIndex, filterIndex)
+                                }
+                              >
+                                <DeleteFilled />
+                              </Button>
                             </Row>
-                          ) : null}
-                          <Row gutter={16} style={{ marginBottom: 6 }}>
-                            <Col span={6}>
-                              <Select
-                                placeholder="Choose column"
-                                style={{ width: "100%" }}
-                                value={filter.column}
-                                onChange={(val) =>
-                                  handleFilterFieldChange(
-                                    groupIndex,
-                                    filterIndex,
-                                    "column",
-                                    val
-                                  )
-                                }
-                              >
-                                {availableColumns.map((col) => (
-                                  <Option
-                                    key={col.column_name}
-                                    value={col.column_name}
-                                  >
-                                    {col.column_name}
-                                  </Option>
-                                ))}
-                              </Select>
-                            </Col>
-                            <Col span={6}>
-                              <Select
-                                placeholder="Filter type"
-                                style={{ width: "100%" }}
-                                value={filter.type}
-                                onChange={(val) =>
-                                  handleFilterFieldChange(
-                                    groupIndex,
-                                    filterIndex,
-                                    "type",
-                                    val
-                                  )
-                                }
-                              >
-                                {validateOperator.map((op) => (
-                                  <Option key={op} value={op}>
-                                    {op}
-                                  </Option>
-                                ))}
-                              </Select>
-                            </Col>
-                            <Col span={6}>
-                              <Input
-                                placeholder="Filter value"
-                                style={{ width: "100%" }}
-                                value={filter.value}
-                                onChange={(e) =>
-                                  handleFilterFieldChange(
-                                    groupIndex,
-                                    filterIndex,
-                                    "value",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </Col>
-                            <Button
-                              danger
-                              onClick={() =>
-                                handleRemoveFilter(groupIndex, filterIndex)
-                              }
-                            >
-                              <DeleteFilled />
-                            </Button>
-                          </Row>
-                        </div>
-                      )
-                    )}
-                    <Button
-                      type="link"
-                      icon={<PlusSquareFilled />}
-                      onClick={() => handleAddCondition(groupIndex)}
-                    >
-                      Add another condition
-                    </Button>
-                    <Button
-                      type="link"
-                      icon={<PlusSquareFilled />}
-                      onClick={() => handleRemoveFilterGroup(groupIndex)}
-                      danger
-                    >
-                      Delete the group
-                    </Button>
-                  </div>
+                          </div>
+                        )
+                      )}
+                      <Button
+                        type="link"
+                        icon={<PlusSquareFilled />}
+                        onClick={() => handleAddCondition(groupIndex)}
+                      >
+                        Add another condition
+                      </Button>
+                      <Button
+                        type="link"
+                        icon={<PlusSquareFilled />}
+                        onClick={() => handleRemoveFilterGroup(groupIndex)}
+                        danger
+                      >
+                        Delete the group
+                      </Button>
+                    </div>
+                  </>
                 ))}
                 <Button
                   type="dashed"
