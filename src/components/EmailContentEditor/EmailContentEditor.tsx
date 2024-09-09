@@ -18,7 +18,7 @@ function EmailContentEditor({
   const modules = {
     toolbar: [
       [{ header: [2, 3, false] }],
-      ["bold", "italic", "underline", "strike"],
+      ["bold", "italic", "underline"],
       [{ list: "ordered" }, { list: "bullet" }],
       ["link"],
     ],

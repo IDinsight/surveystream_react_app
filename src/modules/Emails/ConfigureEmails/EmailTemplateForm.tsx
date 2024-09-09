@@ -170,7 +170,7 @@ const EmailTemplateForm = ({
   useEffect(() => {
     if (config?.length > 0) {
       const filteredConfigs = config?.filter(
-        (config: any) => config.email_config_uid === 132
+        (config: any) => config.email_config_uid === emailConfigUID
       );
       if (filteredConfigs.length > 0) {
         setAvailableVariables(filteredConfigs[0].email_source_columns);
