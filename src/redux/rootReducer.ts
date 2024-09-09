@@ -18,6 +18,7 @@ import targetStatusMappingReducer from "./targetStatusMapping/targetStatusMappin
 import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
 import dqFormsReducer from "./dqForm/dqFormSlice";
 import tableConfigSlice from "./tableConfig/tableConfigSlice";
+import adminFormsReducer from "./adminForm/adminFormSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   mediaAudits: mediaAuditsReducer,
   dqForms: dqFormsReducer,
   tableConfig: tableConfigSlice,
+  adminForms: adminFormsReducer,
 });
 
 export default rootReducer;

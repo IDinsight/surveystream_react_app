@@ -415,6 +415,31 @@ export const getEmailTemplates = async (email_config_uid: any) => {
   }
 };
 
+// Get Google sheet headers
+
+export const getEmailGsheetHeaders = async (emailGsheetData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/gsheet`,
+      emailGsheetData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   createEmailConfig,
   getEmailConfigs,
@@ -434,4 +459,5 @@ export const api = {
   deleteManualEmailTrigger,
   createEmailTemplate,
   getEmailTemplates,
+  getEmailGsheetHeaders,
 };

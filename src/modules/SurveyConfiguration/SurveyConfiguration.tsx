@@ -40,6 +40,7 @@ import {
   MailOutlined,
   SoundOutlined,
   PictureOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -96,6 +97,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Emails: "emails",
     "Media (Audio/Photo) audits": "media-audits",
     "Track data quality": "dq-forms",
+    "Admin forms": "admin-forms",
   },
 };
 
@@ -200,6 +202,8 @@ const SurveyConfiguration: React.FC = () => {
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
       case "Media (Audio/Photo) audits":
         return <AudioOutlined style={{ color: "#08979C", ...iconProps }} />;
+      case "Admin forms":
+        return <FormOutlined style={{ color: "#8308cf", ...iconProps }} />;
       default:
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
     }

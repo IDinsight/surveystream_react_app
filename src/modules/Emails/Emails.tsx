@@ -109,7 +109,24 @@ function Emails() {
         const triggersTableData = emailConfigs.filter(
           (emailConfig: any) => emailConfig.manual_triggers.length > 0
         );
-        setManualTriggersData(triggersTableData);
+        const triggersTableDataFlat = triggersTableData.flatMap(
+          (triggersTable: any) => {
+            return triggersTable.manual_triggers.map(
+              (trigger: any, index: number) => {
+                return {
+                  key: trigger.manual_email_trigger_uid,
+                  config_name: triggersTable.config_name,
+                  manual_email_trigger_uid: trigger.manual_email_trigger_uid,
+                  date: trigger.date,
+                  time: trigger.time,
+                  status: trigger.status,
+                  recipients: trigger.recipients,
+                };
+              }
+            );
+          }
+        );
+        setManualTriggersData(triggersTableDataFlat);
       } else {
         message.error("Could not fetch email configurations for this survey");
       }
