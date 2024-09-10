@@ -12,12 +12,15 @@ import { RootState } from "../../redux/store";
 import { Button, Col, Row, Select, Spin, Tooltip, message } from "antd";
 import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
 import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { getAdminForms } from "../../redux/adminForm/adminFormActions";
 import {
   createMediaAuditConfig,
   getMediaAuditConfig,
   updateMediaAuditConfig,
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
+
+const { Option } = Select;
 
 function MediaAuditsManage() {
   const navigate = useNavigate();
@@ -45,6 +48,10 @@ function MediaAuditsManage() {
     (state: RootState) => state.surveyCTOInformation
   );
 
+  const { loading: isAdminFormLoading, adminForms } = useAppSelector(
+    (state: RootState) => state.adminForms
+  );
+
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
   const [formFieldsData, setFormFieldsData] = useState<any>({
@@ -68,7 +75,7 @@ function MediaAuditsManage() {
           errorMsg =
             "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
         } else if (questionsRes.payload?.error.includes("Client Error")) {
-          errorMsg = "Either Main Form ID is wrong or access is not given.";
+          errorMsg = "Either Form ID is wrong or access is not given.";
         } else {
           errorMsg = questionsRes.payload?.error;
         }
@@ -141,6 +148,12 @@ function MediaAuditsManage() {
   }, [dispatch, survey_uid]);
 
   useEffect(() => {
+    if (survey_uid) {
+      dispatch(getAdminForms({ survey_uid }));
+    }
+  }, [dispatch, survey_uid]);
+
+  useEffect(() => {
     if (mediaConfigUID) {
       dispatch(getMediaAuditConfig({ mediaConfigUID: mediaConfigUID })).then(
         (res) => {
@@ -185,7 +198,11 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select main SCTO form:
+                  <span style={{ color: "red" }}>*</span> Select form ID{" "}
+                  <Tooltip title="Dropdown contains main forms and admin forms added for the survey">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={8}>
@@ -202,10 +219,15 @@ function MediaAuditsManage() {
                   }}
                 >
                   {surveyCTOForm?.scto_form_id && (
-                    <Select.Option value={surveyCTOForm?.form_uid}>
+                    <Option value={surveyCTOForm?.form_uid}>
                       {surveyCTOForm?.scto_form_id}
-                    </Select.Option>
+                    </Option>
                   )}
+                  {adminForms.map((form: any) => (
+                    <Option key={form.form_uid} value={form.form_uid}>
+                      {form.scto_form_id}
+                    </Option>
+                  ))}
                 </Select>
               </Col>
             </Row>
