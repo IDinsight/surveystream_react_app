@@ -188,7 +188,7 @@ function AddSurveyUsers() {
         );
         if (updateRes.payload?.user_data) {
           if (newRole && userDetails?.supervisor) {
-            updateUserHierarchy(
+            await updateUserHierarchy(
               userDetails?.user_uid,
               survey_uid,
               newRole,

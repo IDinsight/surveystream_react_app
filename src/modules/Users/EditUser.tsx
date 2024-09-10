@@ -72,11 +72,11 @@ function EditUser() {
       return {
         ...prev,
         ...editUser,
-        user_role_names: userRolesData[0]?.user_role_names,
-        user_survey_names: userRolesData[0]?.user_survey_names,
+        user_survey_role_names: userRolesData[0]?.user_survey_role_names,
       };
     });
   }, [dispatch]);
+
   return (
     <>
       <GlobalStyle />
@@ -201,16 +201,16 @@ function EditUser() {
                   </Form.Item>
 
                   {isExistingUser &&
-                    userDetails?.user_role_names &&
-                    userDetails?.user_role_names[0] != null && (
+                    userDetails?.user_survey_role_names &&
+                    userDetails?.user_survey_role_names[0] != null && (
                       <>
                         <DescriptionText>Existing Roles</DescriptionText>
-                        {userDetails.user_role_names?.map(
+                        {userDetails.user_survey_role_names?.map(
                           (role: any, i: any) => (
                             <>
                               <Form.Item
                                 label="Project name"
-                                initialValue={userDetails.user_survey_names[i]}
+                                initialValue={role["survey_name"]}
                                 hasFeedback
                                 rules={[
                                   {
@@ -219,14 +219,14 @@ function EditUser() {
                                 ]}
                               >
                                 <Input
-                                  value={userDetails.user_survey_names[i]}
+                                  value={role["survey_name"]}
                                   required
                                   disabled={isExistingUser}
                                 />
                               </Form.Item>
                               <Form.Item
                                 label="Role"
-                                initialValue={role}
+                                initialValue={role["role_name"]}
                                 hasFeedback
                                 rules={[
                                   {
@@ -235,7 +235,7 @@ function EditUser() {
                                 ]}
                               >
                                 <Input
-                                  value={role}
+                                  value={role["role_name"]}
                                   required
                                   disabled={isExistingUser}
                                 />

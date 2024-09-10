@@ -176,6 +176,14 @@ function EditSurveyUsers() {
 
       if (role?.has_reporting_role) {
         setHasReportingRole(true);
+
+        let _filteredUserList = userList.filter(
+          (user: any) => user.user_uid !== editUser?.user_uid
+        );
+        _filteredUserList = _filteredUserList.filter((user: any) =>
+          user?.roles?.includes(role?.reporting_role_uid)
+        );
+        setFilteredUserList(_filteredUserList);
       } else {
         setHasReportingRole(false);
       }
@@ -202,28 +210,17 @@ function EditSurveyUsers() {
     }
   };
   useEffect(() => {
-    const fetchData = async () => {
-      if (!editUser) {
-        message.error("Kindly select a user to edit");
-        navigate(`/survey-information/survey-users/users/${survey_uid}`);
-        return;
-      } else {
-        // Remove the editUser from the userList
-        const _filteredUserList = userList.filter(
-          (user: any) => user.user_uid !== editUser?.user_uid
-        );
+    if (!editUser) {
+      message.error("Kindly select a user to edit");
+      navigate(`/survey-information/survey-users/users/${survey_uid}`);
+      return;
+    }
+    // Fetch user hierarchy and supervisor roles
+    fetchUserHierarchy();
+    fetchSupervisorRoles();
 
-        // Fetch user hierarchy and supervisor roles
-        await fetchUserHierarchy();
-        await fetchSupervisorRoles();
-
-        // Update state with filtered user list and editUser details
-        setFilteredUserList(_filteredUserList);
-        setUserDetails({ ...editUser });
-      }
-    };
-
-    fetchData();
+    // Update state with filtered user list and editUser details
+    setUserDetails({ ...editUser });
   }, []);
 
   return (
@@ -319,14 +316,9 @@ function EditSurveyUsers() {
                     name="roles"
                     label="Role"
                     initialValue={
-                      userDetails?.roles &&
-                      rolesTableData.some((r: any) =>
-                        userDetails?.roles?.includes(r.role_uid)
-                      )
-                        ? rolesTableData.filter((role: any) =>
-                            userDetails.roles.includes(role.role_uid)
-                          )[0]?.role
-                        : userDetails.user_admin_surveys.includes(survey_uid)
+                      userDetails?.user_survey_role_names?.length > 0
+                        ? userDetails?.user_survey_role_names[0]["role_name"]
+                        : userDetails?.user_admin_survey_names?.length > 0
                         ? "Survey Admin"
                         : undefined
                     }
@@ -420,6 +412,12 @@ function EditSurveyUsers() {
                       <Select
                         showSearch={true}
                         allowClear={true}
+                        onChange={(value) => {
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            supervisor: value,
+                          }));
+                        }}
                         placeholder="Select supervisor"
                       >
                         {filteredUserList?.map((user: any, i: any) => (

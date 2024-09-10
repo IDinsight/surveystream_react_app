@@ -29,10 +29,15 @@ import {
   getAllUsers,
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { render } from "@testing-library/react";
+import { each } from "cypress/types/bluebird";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -53,9 +58,19 @@ function ManageSurveyUsers() {
     (state: RootState) => state.userManagement.loading
   );
   const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
+  );
+
+  const moduleQuestionnaire = useAppSelector(
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
+  );
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
   const fetchAllUsers = async () => {
@@ -66,10 +81,102 @@ function ManageSurveyUsers() {
           ...user,
           key: index.toString(),
           active: user?.status === "Active" ? true : false,
+          supervisor: findUserName(user.supervisor_uid, usersRes.payload),
         })
       );
+
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
+    }
+  };
+
+  const findUserName = (user_uid: string, all_users: any) => {
+    const user = all_users?.find((u: any) => u.user_uid === user_uid);
+    if (user) {
+      return user?.first_name + " " + user?.last_name;
+    }
+    return "";
+  };
+
+  const fetchSurveyBasicInformation = async () => {
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        console.log(
+          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+      }
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+  };
+
+  const findPrimeGeoLevel = (locationData: any) => {
+    let primeGeoLevel = null;
+    for (const item of locationData) {
+      if (item.geo_level_uid === surveyPrimeGeoLocation) {
+        primeGeoLevel = item;
+      }
+    }
+
+    return primeGeoLevel;
+  };
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+
+      if (moduleQQuestionnaireRes?.payload) {
+        let location_required = false;
+        if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
+          if (
+            moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria.includes(
+              "Location"
+            )
+          ) {
+            location_required = true;
+          }
+        }
+        if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
+          if (
+            moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
+              "Location"
+            )
+          ) {
+            location_required = true;
+          }
+        }
+
+        if (location_required) {
+          // use lowest geo level for target mapping location
+          const locationRes = await dispatch(
+            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+          );
+
+          const locationData = locationRes?.payload;
+
+          const primeGeoLevel = findPrimeGeoLevel(locationData);
+
+          if (primeGeoLevel?.geo_level_name) {
+            setLocationDetailsField([
+              {
+                title: `${primeGeoLevel.geo_level_name} ID`,
+                key: `location_id_column`,
+              },
+            ]);
+          }
+        }
+      }
     }
   };
 
@@ -145,26 +252,37 @@ function ManageSurveyUsers() {
       key: "email",
     },
     {
-      title: "First Name",
-      dataIndex: "first_name",
-      key: "first_name",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "last_name",
-      key: "last_name",
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: any, record: any) => {
+        return `${record.first_name} ${record.last_name}`;
+      },
     },
     {
       title: "Roles",
-      key: "user_role_names",
-      dataIndex: "user_role_names",
+      key: "user_survey_role_names",
+      dataIndex: "user_survey_role_names",
       render: (text: any, record: any) => {
-        if (record.user_admin_surveys && record.user_admin_surveys.length > 0) {
+        if (
+          record.user_admin_survey_names &&
+          record.user_admin_survey_names.length > 0
+        ) {
           return <>{`Survey Admin`}</>;
+        } else if (
+          record.user_survey_role_names &&
+          record.user_survey_role_names.length > 0
+        ) {
+          return <>{record.user_survey_role_names[0]["role_name"]}</>;
         } else {
-          return <>{record.user_role_names}</>;
+          return <>{``}</>;
         }
       },
+    },
+    {
+      title: "Supervisor Name",
+      key: "supervisor",
+      dataIndex: "supervisor",
     },
     {
       title: "Status",
@@ -177,7 +295,9 @@ function ManageSurveyUsers() {
     {
       key: "1",
       label: (
-        <Link to="/survey-information/survey-users/add/">Add manually</Link>
+        <Link to={`/survey-information/survey-users/add/${survey_uid}`}>
+          Add manually
+        </Link>
       ),
     },
     {
@@ -208,6 +328,7 @@ function ManageSurveyUsers() {
 
     navigate(`/survey-information/survey-users/edit/${survey_uid}`);
   };
+
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
@@ -226,6 +347,8 @@ function ManageSurveyUsers() {
   useEffect(() => {
     fetchAllUsers();
     fetchSupervisorRoles();
+    fetchSurveyBasicInformation();
+    fetchSurveyModuleQuestionnaire();
   }, []);
 
   return (
