@@ -367,7 +367,7 @@ const EmailTemplateForm = ({
       <EmailTableModel
         open={insertTableModelOpen}
         setOpen={setInsertTableModelOpen}
-        surveyUID={survey_uid ?? ""}
+        configUID={emailConfigUID}
         tableList={tableList}
         setTableList={setTableList}
         editingIndex={editingIndex}

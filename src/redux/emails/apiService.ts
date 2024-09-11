@@ -487,13 +487,13 @@ export const deleteEmailTemplate = async (
   }
 };
 
-export const getTableCatalog = async (survey_uid: string) => {
+export const getTableCatalog = async (email_config_uid: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/tablecatalog?survey_uid=${survey_uid}`,
+      `${API_BASE_URL}/emails/tablecatalog?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,

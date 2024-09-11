@@ -23,7 +23,7 @@ const { Option } = Select;
 interface EmailTableModelProps {
   open: boolean;
   setOpen: any;
-  surveyUID: string;
+  configUID: string;
   tableList: any[];
   setTableList: any;
   editingIndex: null | number;
@@ -34,7 +34,7 @@ interface EmailTableModelProps {
 function EmailTableModel({
   open,
   setOpen,
-  surveyUID,
+  configUID,
   tableList,
   setTableList,
   editingIndex,
@@ -274,9 +274,9 @@ function EmailTableModel({
 
   // Getting the table catalog
   useEffect(() => {
-    if (surveyUID) {
+    if (configUID) {
       setLoading(true);
-      getTableCatalog(surveyUID)
+      getTableCatalog(configUID)
         .then((res: any) => {
           setLoading(false);
           if (res.status === 200 && res.data.success) {
@@ -289,9 +289,9 @@ function EmailTableModel({
           message.error("Error fetching table catalog");
         });
     } else {
-      message.error("Survey UID not found");
+      message.error("Config UID not found");
     }
-  }, [surveyUID]);
+  }, [configUID]);
 
   useEffect(() => {
     if (selectedTable && tableCatelog.length > 0) {
