@@ -32,11 +32,11 @@ const EmailConfigEditForm = ({
   const [sourceType, setSourceType] = useState(
     initialValues.email_source || ""
   );
-  const [pdfAttachment, setPdfAttachment] = useState(
-    initialValues.pdf_attachment || ""
+  const [pdfAttachment, setPdfAttachment] = useState<boolean>(
+    initialValues.pdf_attachment
   );
-  const [pdfEncryption, setPdfEncryption] = useState(
-    initialValues.pdf_encryption || ""
+  const [pdfEncryption, setPdfEncryption] = useState<boolean>(
+    initialValues.pdf_encryption
   );
   const [pdfPassword, setPdfPassword] = useState(
     initialValues.pdfPassword || ""
@@ -327,11 +327,11 @@ const EmailConfigEditForm = ({
         ]}
       >
         <Radio.Group onChange={handlePdfAttachmentChange}>
-          <Radio value="true">Yes</Radio>
-          <Radio value="false">No</Radio>
+          <Radio value={true}>Yes</Radio>
+          <Radio value={false}>No</Radio>
         </Radio.Group>
       </Form.Item>
-      {pdfAttachment === "true" && (
+      {pdfAttachment && (
         <>
           <Form.Item
             name="pdf_encryption"
@@ -345,11 +345,11 @@ const EmailConfigEditForm = ({
             ]}
           >
             <Radio.Group onChange={handlePdfEncryptionChange}>
-              <Radio value="true">Yes</Radio>
-              <Radio value="false">No</Radio>
+              <Radio value={true}>Yes</Radio>
+              <Radio value={false}>No</Radio>
             </Radio.Group>
           </Form.Item>
-          {pdfEncryption === "true" && (
+          {pdfEncryption && (
             <>
               <Form.Item
                 name="pdf_encryption_password_type"
