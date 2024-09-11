@@ -104,10 +104,6 @@ function ManageSurveyUsers() {
     );
     if (surveyBasicInformationRes?.payload) {
       if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
-        console.log(
-          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
-          surveyBasicInformationRes.payload?.prime_geo_level_uid
-        );
         setSurveyPrimeGeoLocation(
           surveyBasicInformationRes.payload?.prime_geo_level_uid
         );

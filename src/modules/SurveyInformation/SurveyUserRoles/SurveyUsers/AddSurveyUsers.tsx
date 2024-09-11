@@ -3,13 +3,20 @@ import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import {
+  getSurveyLocationGeoLevels,
+  getSurveyLocationsLong,
+} from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import {
   postAddUser,
   postCheckUser,
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
 import { DescriptionText } from "../../SurveyInformation.styled";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
+import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
 import Header from "../../../../components/Header";
 import {
   BackArrow,
@@ -27,6 +34,8 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { set } from "lodash";
+import { use } from "chai";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -42,7 +51,9 @@ function AddSurveyUsers() {
   const [verificationForm] = Form.useForm();
   const [updateUserForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
+  const [filteredUserList, setFilteredUserList] = useState<any>(
+    userList ? [...userList] : []
+  );
 
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
@@ -51,7 +62,12 @@ function AddSurveyUsers() {
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
   const [isRoleRequired, setIsRoleRequired] = useState(true);
-
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [mappingCriteriaFields, setMappingCriteriaFields] = useState<any>([]);
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
+  const [lowestRole, setLowestRole] = useState<string>("");
+  const [isLowestRole, setisLowestRole] = useState<boolean>(false);
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<any>({
     email: null,
@@ -98,7 +114,9 @@ function AddSurveyUsers() {
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
-    const checkResponse = await dispatch(postCheckUser(email));
+    const checkResponse = await dispatch(
+      postCheckUser({ email, survey_uid: survey_uid ?? "" })
+    );
 
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
@@ -122,7 +140,7 @@ function AddSurveyUsers() {
       }
 
       const role = rolesTableData.find((r: any) =>
-        checkResponse?.payload?.data?.user?.roles?.includes(r.role_uid)
+        checkResponse?.payload?.data?.user?.roles?.includes(r?.role_uid)
       );
       setNewRole(role?.role_uid);
 
@@ -130,6 +148,12 @@ function AddSurveyUsers() {
         setHasReportingRole(true);
       } else {
         setHasReportingRole(false);
+      }
+
+      if (role?.role_uid === lowestRole) {
+        setisLowestRole(true);
+      } else {
+        setisLowestRole(false);
       }
 
       setIsExistingUser(true);
@@ -235,6 +259,102 @@ function AddSurveyUsers() {
     setLoading(false);
   };
 
+  const fetchSurveyBasicInformation = async () => {
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+      }
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+  };
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      let mapping_criteria_fields: any[] = [];
+      if (moduleQQuestionnaireRes?.payload) {
+        if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.target_mapping_criteria || []),
+          ];
+        }
+        if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...mapping_criteria_fields,
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.surveyor_mapping_criteria || []),
+          ];
+        }
+        // remove duplicates
+        mapping_criteria_fields = mapping_criteria_fields.filter(
+          (value, index, array) => array.indexOf(value) === index
+        );
+        setMappingCriteriaFields(mapping_criteria_fields);
+      }
+    }
+  };
+
+  const findPrimeGeoLevel = (locationData: any) => {
+    let primeGeoLevel = null;
+    for (const item of locationData) {
+      if (item.geo_level_uid === surveyPrimeGeoLocation) {
+        primeGeoLevel = item;
+      }
+    }
+
+    return primeGeoLevel;
+  };
+
+  const fetchLocationDetails = async () => {
+    if (survey_uid) {
+      // Get location levels
+      const locationlevelsRes = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+
+      if (locationlevelsRes?.payload) {
+        const primeGeoLevel = findPrimeGeoLevel(locationlevelsRes?.payload);
+        if (primeGeoLevel) {
+          const locationRes = await dispatch(
+            getSurveyLocationsLong({
+              survey_uid: survey_uid,
+              geo_level_uid: primeGeoLevel?.geo_level_uid,
+            })
+          );
+          if (locationRes?.payload.length > 0) {
+            console.log("I am here");
+            // filter out the prime geo level locations columns
+            const primeGeoLevelLocations: any[] = locationRes?.payload.map(
+              (location: any) => ({
+                location_uid: location.location_uid,
+                location_id: location.location_id,
+                location_name: location.location_name,
+              })
+            );
+            setLocationDetailsField([
+              {
+                title: `${primeGeoLevel.geo_level_name} ID`,
+                key: `location_id_column`,
+                values: primeGeoLevelLocations,
+              },
+            ]);
+          }
+        }
+      }
+    }
+  };
+
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
@@ -249,6 +369,15 @@ function AddSurveyUsers() {
       }));
 
       setRolesTableData(transformedData);
+
+      // lowest role is the role which is not a reporting role for any other role
+      const lowestRole = transformedData.find(
+        (role) =>
+          !transformedData.some(
+            (r) => r.reporting_role_uid === role.role_uid
+          ) && role.role !== "Super Admin"
+      );
+      setLowestRole(lowestRole?.role_uid);
     } else {
       console.log("missing roles");
     }
@@ -256,7 +385,18 @@ function AddSurveyUsers() {
 
   useEffect(() => {
     fetchSupervisorRoles();
-  }, [dispatch]);
+    fetchSurveyBasicInformation();
+    fetchSurveyModuleQuestionnaire();
+  }, []);
+
+  useEffect(() => {
+    if (
+      mappingCriteriaFields.includes("Location") &&
+      surveyPrimeGeoLocation !== "no_location"
+    ) {
+      fetchLocationDetails();
+    }
+  }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
 
   return (
     <>
@@ -352,13 +492,11 @@ function AddSurveyUsers() {
                     >
                       <Input disabled />
                     </Form.Item>
-
                     {isExistingUser && (
                       <DescriptionText>
                         User already exists in the system
                       </DescriptionText>
                     )}
-
                     <Form.Item
                       name="first_name"
                       label="First name"
@@ -403,7 +541,6 @@ function AddSurveyUsers() {
                         placeholder="Enter last name"
                       />
                     </Form.Item>
-
                     <Form.Item
                       name="roles"
                       label="Role"
@@ -453,7 +590,7 @@ function AddSurveyUsers() {
                             if (role?.has_reporting_role) {
                               setHasReportingRole(true);
 
-                              const _filteredUserList = userList.filter(
+                              const _filteredUserList = userList?.filter(
                                 (user: any) => {
                                   return user?.roles?.includes(
                                     role?.reporting_role_uid
@@ -464,6 +601,19 @@ function AddSurveyUsers() {
                               setFilteredUserList(_filteredUserList);
                             } else {
                               setHasReportingRole(false);
+                            }
+                            if (role?.role_uid === lowestRole) {
+                              setisLowestRole(true);
+                            } else {
+                              setisLowestRole(false);
+
+                              // also remove location details
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                location_uids: [],
+                                location_ids: [],
+                                location_names: [],
+                              }));
                             }
 
                             setUserDetails((prev: any) => {
@@ -495,7 +645,6 @@ function AddSurveyUsers() {
                         ))}
                       </Select>
                     </Form.Item>
-
                     {hasReportingRole && (
                       <Form.Item
                         name="supervisor"
@@ -523,6 +672,80 @@ function AddSurveyUsers() {
                         </Select>
                       </Form.Item>
                     )}
+                    {mappingCriteriaFields.includes("Gender") &&
+                      isLowestRole && (
+                        <Form.Item
+                          name="gender"
+                          label={
+                            <span>
+                              Gender&nbsp;
+                              <StyledTooltip title="Gender can't be updated at a survey level. Kindly contact SurveyStream team if gender needs to be updated.">
+                                <QuestionCircleOutlined />
+                              </StyledTooltip>
+                            </span>
+                          }
+                          initialValue={userDetails?.gender}
+                          hasFeedback
+                        >
+                          <Select
+                            style={{ width: "100%" }}
+                            allowClear={true}
+                            disabled={true}
+                            value={userDetails?.gender}
+                            onSelect={(val: any) => {
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                gender: val,
+                              }));
+                            }}
+                          >
+                            <Select.Option value="Male">Male</Select.Option>
+                            <Select.Option value="Female">Female</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      )}
+                    {mappingCriteriaFields.includes("Location") &&
+                      isLowestRole &&
+                      locationDetailsField.length > 0 && (
+                        <Form.Item
+                          name="location_id"
+                          label={`${locationDetailsField[0].title}`}
+                          initialValue={userDetails?.location_uids}
+                          rules={[
+                            {
+                              required: true,
+                              message: `Please enter the ${locationDetailsField[0].title}`,
+                            },
+                          ]}
+                          hasFeedback
+                        >
+                          <Select
+                            showSearch={true}
+                            optionFilterProp="children"
+                            allowClear={true}
+                            placeholder="Select locations (format: id - name)"
+                            mode="multiple"
+                            onChange={(value) => {
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                location_uids: value,
+                              }));
+                            }}
+                          >
+                            {locationDetailsField[0].values?.map(
+                              (location: any, i: any) => (
+                                <Select.Option
+                                  key={i}
+                                  value={location?.location_uid}
+                                >
+                                  {location?.location_id} -{" "}
+                                  {location?.location_name}
+                                </Select.Option>
+                              )
+                            )}
+                          </Select>
+                        </Form.Item>
+                      )}
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
                         loading={loading}

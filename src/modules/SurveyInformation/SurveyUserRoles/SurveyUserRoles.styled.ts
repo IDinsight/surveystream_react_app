@@ -1,4 +1,4 @@
-import { Input, Table } from "antd";
+import { Input, Table, Tooltip } from "antd";
 import styled, { css } from "styled-components";
 
 export const BodyWrapper = styled.div`
@@ -65,5 +65,12 @@ export const SearchBox = styled(Input.Search)`
   & button {
     background-color: #2f54eb;
     font-family: "Lato", sans-serif;
+  }
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  & .ant-tooltip-inner {
+    background-color: #061178;
+    color: white;
   }
 `;
