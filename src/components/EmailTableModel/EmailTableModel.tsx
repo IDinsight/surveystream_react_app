@@ -14,6 +14,7 @@ import {
   Modal,
   Row,
   Select,
+  Tag,
   Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
@@ -461,9 +462,7 @@ function EmailTableModel({
                         }}
                       >
                         <Col span={2}>
-                          <Select style={{ width: "100%" }} value="OR" disabled>
-                            <Option value="OR">OR</Option>
-                          </Select>
+                          <Tag color="#108ee9">OR</Tag>
                         </Col>
                       </Row>
                     ) : null}
@@ -482,19 +481,14 @@ function EmailTableModel({
                             filterIndex !== item.filter_group.length ? (
                               <Row
                                 gutter={16}
+                                justify="center"
                                 style={{
                                   marginTop: "10px",
                                   marginBottom: "10px",
                                 }}
                               >
-                                <Col span={3}>
-                                  <Select
-                                    style={{ width: "100%" }}
-                                    value="AND"
-                                    disabled
-                                  >
-                                    <Option value="AND">AND</Option>
-                                  </Select>
+                                <Col span={2}>
+                                  <Tag color="#87d068">AND</Tag>
                                 </Col>
                               </Row>
                             ) : null}

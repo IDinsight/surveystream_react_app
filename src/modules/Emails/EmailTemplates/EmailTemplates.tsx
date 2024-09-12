@@ -136,6 +136,7 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
             <EmailTemplateEditing
               emailTemplateConfig={editTemplateValues}
               setIsDrawerOpen={setIsDrawerOpen}
+              fetchEmailTemplates={fetchEmailTemplates}
             />
           </Drawer>
         </div>
