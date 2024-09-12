@@ -560,6 +560,33 @@ export const createEmailTemplate = createAsyncThunk(
   }
 );
 
+export const createEmailTemplates = createAsyncThunk(
+  "emails/createEmailTemplates",
+  async (emailTemplatesData: any, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(createEmailTemplateRequest());
+      const response: any = await api.createEmailTemplates(emailTemplatesData);
+      if (response.status === 201) {
+        dispatch(createEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to create email template.",
+        success: false,
+      };
+      dispatch(createEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to create email template.";
+      dispatch(createEmailTemplateFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const getEmailTemplates = createAsyncThunk(
   "emails/getEmailTemplates",
   async (

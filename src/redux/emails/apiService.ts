@@ -392,6 +392,30 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
   }
 };
 
+// Email Template Endpoints
+export const createEmailTemplates = async (emailTemplateData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/templates`,
+      emailTemplateData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getEmailTemplates = async (email_config_uid: any) => {
   try {
     await getCSRFToken();
@@ -487,13 +511,13 @@ export const deleteEmailTemplate = async (
   }
 };
 
-export const getTableCatalog = async (survey_uid: string) => {
+export const getTableCatalog = async (email_config_uid: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/tablecatalog?survey_uid=${survey_uid}`,
+      `${API_BASE_URL}/emails/tablecatalog?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
