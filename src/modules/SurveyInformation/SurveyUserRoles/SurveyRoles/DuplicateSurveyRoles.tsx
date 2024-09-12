@@ -227,9 +227,6 @@ function DuplicateSurveyRoles() {
       </NavWrapper>
       <HeaderContainer>
         <Title>Survey Roles</Title>
-        <div
-          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
-        ></div>
       </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
