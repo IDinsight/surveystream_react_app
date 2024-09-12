@@ -125,13 +125,22 @@ function EmailTemplateEditing({
           email_template_uid,
           emailTemplatePayload,
         })
-      ).then((resp: any) => {
-        console.log(resp);
-        if (resp?.payload?.data?.success) {
-          message.success("Email template saved successfully");
-          setIsDrawerOpen(false);
-        }
-      });
+      )
+        .then((resp: any) => {
+          console.log(resp);
+          if (resp?.payload?.data?.success) {
+            message.success("Email template saved successfully");
+            setIsDrawerOpen(false);
+          } else {
+            message.error("Failed to save email template");
+          }
+
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
+          message.error("Failed to save email template");
+        });
 
       setLoading(false);
     } catch (error) {
