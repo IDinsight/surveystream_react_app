@@ -146,6 +146,14 @@ function AddSurveyUsers() {
 
       if (role?.has_reporting_role) {
         setHasReportingRole(true);
+
+        const _filteredUserList = userList?.filter((user: any) => {
+          return (
+            user?.roles?.includes(role?.reporting_role_uid) &&
+            user?.user_uid !== checkResponse.payload.data.user.user_uid
+          );
+        });
+        setFilteredUserList(_filteredUserList);
       } else {
         setHasReportingRole(false);
       }
@@ -517,6 +525,7 @@ function AddSurveyUsers() {
                           }))
                         }
                         placeholder="Enter first name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
                     <Form.Item
@@ -539,6 +548,7 @@ function AddSurveyUsers() {
                           }))
                         }
                         placeholder="Enter last name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
                     <Form.Item
@@ -592,12 +602,14 @@ function AddSurveyUsers() {
 
                               const _filteredUserList = userList?.filter(
                                 (user: any) => {
-                                  return user?.roles?.includes(
-                                    role?.reporting_role_uid
+                                  return (
+                                    user?.roles?.includes(
+                                      role?.reporting_role_uid
+                                    ) &&
+                                    user?.user_uid !== userDetails?.user_uid
                                   );
                                 }
                               );
-
                               setFilteredUserList(_filteredUserList);
                             } else {
                               setHasReportingRole(false);
@@ -672,6 +684,16 @@ function AddSurveyUsers() {
                         </Select>
                       </Form.Item>
                     )}
+
+                    {isLowestRole && mappingCriteriaFields.length > 0 && (
+                      <DescriptionText>
+                        The user is assigned the smallest field supervisor role.
+                        The following fields will be used for mapping
+                        supervisors to surveyors or targets as per the mapping
+                        criteria selected under module questionnaire.
+                      </DescriptionText>
+                    )}
+
                     {mappingCriteriaFields.includes("Gender") &&
                       isLowestRole && (
                         <Form.Item
@@ -679,18 +701,30 @@ function AddSurveyUsers() {
                           label={
                             <span>
                               Gender&nbsp;
-                              <StyledTooltip title="Gender can't be updated at a survey level. Kindly contact SurveyStream team if gender needs to be updated.">
-                                <QuestionCircleOutlined />
-                              </StyledTooltip>
+                              {isExistingUser ? (
+                                <StyledTooltip title="Gender can't be updated at a survey level. Kindly contact SurveyStream team if gender needs to be updated.">
+                                  <QuestionCircleOutlined />
+                                </StyledTooltip>
+                              ) : (
+                                ""
+                              )}
                             </span>
                           }
+                          rules={[
+                            isExistingUser
+                              ? {}
+                              : {
+                                  required: true,
+                                  message: `Please enter the Gender`,
+                                },
+                          ]}
                           initialValue={userDetails?.gender}
                           hasFeedback
                         >
                           <Select
                             style={{ width: "100%" }}
                             allowClear={true}
-                            disabled={true}
+                            disabled={isExistingUser}
                             value={userDetails?.gender}
                             onSelect={(val: any) => {
                               setUserDetails((prev: any) => ({
@@ -709,7 +743,14 @@ function AddSurveyUsers() {
                       locationDetailsField.length > 0 && (
                         <Form.Item
                           name="location_id"
-                          label={`${locationDetailsField[0].title}`}
+                          label={
+                            <span>
+                              {locationDetailsField[0].title}&nbsp;
+                              <StyledTooltip title="Prime geo locations associated with the given user.">
+                                <QuestionCircleOutlined />
+                              </StyledTooltip>
+                            </span>
+                          }
                           initialValue={userDetails?.location_uids}
                           rules={[
                             {
