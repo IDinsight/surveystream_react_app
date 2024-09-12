@@ -294,9 +294,10 @@ function EditSurveyUsers() {
               ?.surveyor_mapping_criteria || []),
           ];
         }
-        // remove duplicates
+        // remove duplicates and "Manual" from the list
         mapping_criteria_fields = mapping_criteria_fields.filter(
-          (value, index, array) => array.indexOf(value) === index
+          (value, index, array) =>
+            array.indexOf(value) === index && array[index] !== "Manual"
         );
         setMappingCriteriaFields(mapping_criteria_fields);
       }
@@ -695,6 +696,40 @@ function EditSurveyUsers() {
                             )
                           )}
                         </Select>
+                      </Form.Item>
+                    )}
+                  {mappingCriteriaFields.includes("Language") &&
+                    isLowestRole && (
+                      <Form.Item
+                        name="language"
+                        label={
+                          <span>
+                            Languages&nbsp;
+                            <StyledTooltip title="Languages associated with the given user. Kindly enter the values in a comma separated format like Hindi, Swahili, Odia">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        initialValue={userDetails?.languages}
+                        rules={[
+                          {
+                            required: true,
+                            message: `Please enter the languages`,
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              languages: e.target.value
+                                .split(",")
+                                .map((l) => l.trim()),
+                            }))
+                          }
+                          placeholder="Example: Hindi, Swahili, Odia"
+                        />
                       </Form.Item>
                     )}
                   <Form.Item style={{ marginTop: 20 }}>

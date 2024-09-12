@@ -31,7 +31,10 @@ import {
 } from "../../../../redux/userManagement/userManagementActions";
 import { deleteUserHierarchy } from "../../../../redux/userRoles/userRolesActions";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
-import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import {
+  getSurveyLocationGeoLevels,
+  getSurveyLocationsLong,
+} from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
@@ -39,6 +42,7 @@ import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { render } from "@testing-library/react";
 import { each } from "cypress/types/bluebird";
+import { title } from "process";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -55,13 +59,24 @@ function ManageSurveyUsers() {
   const [filteredUserTableData, setFilteredUserTableData] =
     useState(userTableDataSource);
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
-  const isLoading = useAppSelector(
+  const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
   const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [mappingCriteriaFields, setMappingCriteriaFields] = useState<any>([]);
   const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
   const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
     useState<any>("no_location");
+
+  const [isUsersLoading, setisUsersLoading] = useState<boolean>(false);
+  const [isBasicInformationLoading, setisBasicInformationLoading] =
+    useState<boolean>(false);
+  const [isSupervisorRolesLoading, setisSupervisorRolesLoading] =
+    useState<boolean>(false);
+  const [isLocationDetailsLoading, setisLocationDetailsLoading] =
+    useState<boolean>(false);
+  const [isModuleQuestionnaireLoading, setisModuleQuestionnaireLoading] =
+    useState<boolean>(false);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
@@ -75,6 +90,7 @@ function ManageSurveyUsers() {
   );
 
   const fetchAllUsers = async () => {
+    setisUsersLoading(true);
     const usersRes = await dispatch(getAllUsers({ survey_uid }));
     if (usersRes?.payload?.length !== 0) {
       const usersWithKeys = usersRes?.payload?.map(
@@ -89,6 +105,7 @@ function ManageSurveyUsers() {
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
     }
+    setisUsersLoading(false);
   };
 
   const findUserName = (user_uid: string, all_users: any) => {
@@ -100,6 +117,7 @@ function ManageSurveyUsers() {
   };
 
   const fetchSurveyBasicInformation = async () => {
+    setisBasicInformationLoading(true);
     const surveyBasicInformationRes = await dispatch(
       getSurveyBasicInformation({ survey_uid: survey_uid })
     );
@@ -114,6 +132,7 @@ function ManageSurveyUsers() {
         "Could not load survey basic information, kindly reload to try again"
       );
     }
+    setisBasicInformationLoading(false);
   };
 
   const findPrimeGeoLevel = (locationData: any) => {
@@ -128,53 +147,76 @@ function ManageSurveyUsers() {
   };
 
   const fetchSurveyModuleQuestionnaire = async () => {
+    setisModuleQuestionnaireLoading(true);
     if (survey_uid) {
       const moduleQQuestionnaireRes = await dispatch(
         getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
       );
-
+      let mapping_criteria_fields: any[] = [];
       if (moduleQQuestionnaireRes?.payload) {
-        let location_required = false;
         if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
-          if (
-            moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria.includes(
-              "Location"
-            )
-          ) {
-            location_required = true;
-          }
+          mapping_criteria_fields = [
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.target_mapping_criteria || []),
+          ];
         }
         if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
-          if (
-            moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
-              "Location"
-            )
-          ) {
-            location_required = true;
-          }
+          mapping_criteria_fields = [
+            ...mapping_criteria_fields,
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.surveyor_mapping_criteria || []),
+          ];
         }
+        // remove duplicates and "Manual" from the list
+        mapping_criteria_fields = mapping_criteria_fields.filter(
+          (value, index, array) =>
+            array.indexOf(value) === index && array[index] !== "Manual"
+        );
+        setMappingCriteriaFields(mapping_criteria_fields);
+      }
+    }
+    setisModuleQuestionnaireLoading(false);
+  };
 
-        if (location_required) {
-          // use lowest geo level for target mapping location
+  const fetchLocationDetails = async () => {
+    setisLocationDetailsLoading(true);
+    if (survey_uid) {
+      // Get location levels
+      const locationlevelsRes = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+
+      if (locationlevelsRes?.payload) {
+        const primeGeoLevel = findPrimeGeoLevel(locationlevelsRes?.payload);
+        if (primeGeoLevel) {
           const locationRes = await dispatch(
-            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+            getSurveyLocationsLong({
+              survey_uid: survey_uid,
+              geo_level_uid: primeGeoLevel?.geo_level_uid,
+            })
           );
-
-          const locationData = locationRes?.payload;
-
-          const primeGeoLevel = findPrimeGeoLevel(locationData);
-
-          if (primeGeoLevel?.geo_level_name) {
+          if (locationRes?.payload.length > 0) {
+            console.log("I am here");
+            // filter out the prime geo level locations columns
+            const primeGeoLevelLocations: any[] = locationRes?.payload.map(
+              (location: any) => ({
+                location_uid: location.location_uid,
+                location_id: location.location_id,
+                location_name: location.location_name,
+              })
+            );
             setLocationDetailsField([
               {
                 title: `${primeGeoLevel.geo_level_name} ID`,
                 key: `location_id_column`,
+                values: primeGeoLevelLocations,
               },
             ]);
           }
         }
       }
     }
+    setisLocationDetailsLoading(false);
   };
 
   // Row selection state and handler
@@ -276,51 +318,89 @@ function ManageSurveyUsers() {
     setIsOpenDeleteModel(false);
   };
 
-  const usersTableColumn = [
-    {
-      title: "Email ID",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text: any, record: any) => {
-        return `${record.first_name} ${record.last_name}`;
+  const usersTableColumn = () => {
+    return [
+      {
+        title: "Email ID",
+        dataIndex: "email",
+        key: "email",
       },
-    },
-    {
-      title: "Roles",
-      key: "user_survey_role_names",
-      dataIndex: "user_survey_role_names",
-      render: (text: any, record: any) => {
-        if (
-          record.user_admin_survey_names &&
-          record.user_admin_survey_names.length > 0
-        ) {
-          return <>{`Survey Admin`}</>;
-        } else if (
-          record.user_survey_role_names &&
-          record.user_survey_role_names.length > 0
-        ) {
-          return <>{record.user_survey_role_names[0]["role_name"]}</>;
-        } else {
-          return <>{``}</>;
-        }
+      {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        render: (text: any, record: any) => {
+          return `${record.first_name} ${record.last_name}`;
+        },
       },
-    },
-    {
-      title: "Supervisor Name",
-      key: "supervisor",
-      dataIndex: "supervisor",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
-  ];
+      {
+        title: "Roles",
+        key: "user_survey_role_names",
+        dataIndex: "user_survey_role_names",
+        render: (text: any, record: any) => {
+          if (
+            record.user_admin_survey_names &&
+            record.user_admin_survey_names.length > 0
+          ) {
+            return <>{`Survey Admin`}</>;
+          } else if (
+            record.user_survey_role_names &&
+            record.user_survey_role_names.length > 0
+          ) {
+            return <>{record.user_survey_role_names[0]["role_name"]}</>;
+          } else {
+            return <>{``}</>;
+          }
+        },
+      },
+      {
+        title: "Supervisor Name",
+        key: "supervisor",
+        dataIndex: "supervisor",
+      },
+      ...(mappingCriteriaFields.includes("Gender")
+        ? [
+            {
+              title: "Gender",
+              key: "gender",
+              dataIndex: "gender",
+            },
+          ]
+        : []),
+      ...(mappingCriteriaFields.includes("Location") &&
+      locationDetailsField.length > 0
+        ? [
+            {
+              title: locationDetailsField[0]?.title,
+              key: locationDetailsField[0]?.key,
+              dataIndex: locationDetailsField[0]?.key,
+              render: (text: any, record: any) => {
+                return record.location_names.join(", ") || "";
+              },
+              width: 200,
+            },
+          ]
+        : []),
+      ...(mappingCriteriaFields.includes("Language")
+        ? [
+            {
+              title: "Language",
+              dataIndex: "languages",
+              key: "languages",
+              render: (text: any, record: any) => {
+                return record.languages.join(", ");
+              },
+              width: 150,
+            },
+          ]
+        : []),
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+      },
+    ];
+  };
 
   const addUserOptions: MenuProps["items"] = [
     {
@@ -361,6 +441,7 @@ function ManageSurveyUsers() {
   };
 
   const fetchSupervisorRoles = async () => {
+    setisSupervisorRolesLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
@@ -373,6 +454,7 @@ function ManageSurveyUsers() {
       }));
       setRolesTableData(transformedData);
     }
+    setisSupervisorRolesLoading(false);
   };
 
   useEffect(() => {
@@ -381,6 +463,23 @@ function ManageSurveyUsers() {
     fetchSurveyBasicInformation();
     fetchSurveyModuleQuestionnaire();
   }, []);
+
+  useEffect(() => {
+    if (
+      mappingCriteriaFields.includes("Location") &&
+      surveyPrimeGeoLocation !== "no_location"
+    ) {
+      fetchLocationDetails();
+      usersTableColumn();
+    }
+  }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
+
+  const isLoading =
+    isUsersLoading ||
+    isSupervisorRolesLoading ||
+    isBasicInformationLoading ||
+    isModuleQuestionnaireLoading ||
+    isLocationDetailsLoading;
 
   return (
     <>
@@ -400,7 +499,7 @@ function ManageSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
-      {isLoading ? (
+      {isuserManagementLoading || isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -487,12 +586,13 @@ function ManageSurveyUsers() {
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
                 }}
               >
-                {usersTableColumn.map((column) => (
+                {usersTableColumn().map((column) => (
                   <Column
                     key={column.dataIndex}
                     title={column.title}
                     dataIndex={column.dataIndex}
                     render={column.render}
+                    width={column?.width}
                     sorter={{
                       compare: (a: any, b: any) =>
                         a[column.dataIndex] - b[column.dataIndex],
