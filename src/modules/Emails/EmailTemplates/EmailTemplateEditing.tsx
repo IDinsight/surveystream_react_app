@@ -17,11 +17,13 @@ const { Option } = Select;
 interface EmailTemplateEditingProps {
   emailTemplateConfig: any;
   setIsDrawerOpen: any;
+  fetchEmailTemplates: any;
 }
 
 function EmailTemplateEditing({
   emailTemplateConfig,
   setIsDrawerOpen,
+  fetchEmailTemplates,
 }: EmailTemplateEditingProps) {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
@@ -127,10 +129,10 @@ function EmailTemplateEditing({
         })
       )
         .then((resp: any) => {
-          console.log(resp);
           if (resp?.payload?.data?.success) {
             message.success("Email template saved successfully");
             setIsDrawerOpen(false);
+            fetchEmailTemplates();
           } else {
             message.error("Failed to save email template");
           }
