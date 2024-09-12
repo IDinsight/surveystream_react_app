@@ -133,7 +133,10 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
             onClose={() => setIsDrawerOpen(false)}
             style={{ paddingBottom: 80, fontFamily: "Lato" }}
           >
-            <EmailTemplateEditing data={editTemplateValues} />
+            <EmailTemplateEditing
+              emailTemplateConfig={editTemplateValues}
+              setIsDrawerOpen={setIsDrawerOpen}
+            />
           </Drawer>
         </div>
       ),

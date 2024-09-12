@@ -2,6 +2,7 @@ import {
   DeleteFilled,
   PlusCircleFilled,
   PlusSquareFilled,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
   Modal,
   Row,
   Select,
+  Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
 import { getTableCatalog } from "../../redux/emails/apiService";
@@ -47,6 +49,7 @@ function EmailTableModel({
 
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [selectedColumns, setSelectedColumns] = useState<any>({});
+  const [customTableName, setCustomTableName] = useState<string | null>(null);
 
   const [filterList, setFilterList] = useState<any[]>([]);
   const [sortList, setSortList] = useState<any[]>([]);
@@ -185,7 +188,13 @@ function EmailTableModel({
       return;
     }
 
-    // 2. Check if at least one column is selected
+    // 2. Check if custom table name is valid
+    if (!customTableName || customTableName.trim() === "") {
+      message.error("Custom table name cannot be empty.");
+      return;
+    }
+
+    // 3. Check if at least one column is selected
     const selectedColumnKeys = Object.keys(selectedColumns).filter(
       (key) => selectedColumns[key].selected
     );
@@ -194,7 +203,7 @@ function EmailTableModel({
       return;
     }
 
-    // 3. Check if all selected columns have a display name
+    // 4. Check if all selected columns have a display name
     for (const key of selectedColumnKeys) {
       if (!selectedColumns[key].text) {
         message.error(`Display name for column ${key} cannot be empty.`);
@@ -202,7 +211,7 @@ function EmailTableModel({
       }
     }
 
-    // 4. Check if all filters in filter groups are valid
+    // 5. Check if all filters in filter groups are valid
     for (const group of filterList) {
       for (const filter of group.filter_group) {
         if (!filter.column || !filter.type) {
@@ -212,7 +221,7 @@ function EmailTableModel({
       }
     }
 
-    // 5. Check if all sorting rows are valid
+    // 6. Check if all sorting rows are valid
     for (const sort of sortList) {
       if (!sort.column || !sort.mode) {
         message.error("Each sort must have a column and a sort type.");
@@ -243,7 +252,7 @@ function EmailTableModel({
     if (editingIndex !== null && tableList[editingIndex].variable_name) {
       variable_name = tableList[editingIndex].variable_name;
     } else {
-      variable_name = `Table_${tableList.length + 1}`;
+      variable_name = `${customTableName}`;
       insertText(`{{${variable_name}}}`);
     }
 
@@ -256,15 +265,10 @@ function EmailTableModel({
       filter_list,
     };
 
-    if (editingIndex !== null) {
-      tableList[editingIndex] = result;
-      setTableList([...tableList]);
-    } else {
-      setTableList((prev: any) => [...prev, result]);
-    }
+    setTableList(result);
 
-    // Reset the form on successful submission
     setSelectedTable(null);
+    setCustomTableName(null);
     setSelectedColumns({});
     setFilterList([]);
     setSortList([]);
@@ -305,7 +309,10 @@ function EmailTableModel({
   useEffect(() => {
     if (tableList.length > 0 && editingIndex !== null) {
       const table = tableList[editingIndex];
+
+      console.log(table);
       setSelectedTable(table.table_name);
+      setCustomTableName(table.variable_name);
 
       const column_mapping = table.column_mapping;
       const sort_list = table.sort_list;
@@ -321,11 +328,13 @@ function EmailTableModel({
       setSelectedColumns(selectedColumns);
 
       const filterList = filter_list.map((group: any) => ({
-        filter_group: group.filter_group.map((filter: any) => ({
-          column: filter.filter_variable,
-          type: filter.filter_operator,
-          value: filter.filter_value,
-        })),
+        filter_group: (group?.filter_group ? group.filter_group : group).map(
+          (filter: any) => ({
+            column: filter.filter_variable,
+            type: filter.filter_operator,
+            value: filter.filter_value,
+          })
+        ),
       }));
       setFilterList(filterList);
 
@@ -344,6 +353,7 @@ function EmailTableModel({
       title="Insert table"
       onCancel={() => {
         setSelectedTable(null);
+        setCustomTableName(null);
         setSelectedColumns({});
         setFilterList([]);
         setSortList([]);
@@ -357,12 +367,12 @@ function EmailTableModel({
       ) : (
         <div style={{ height: "350px", overflowY: "auto" }}>
           <div style={{ marginBottom: 16 }}>
-            <p>Select tables to insert them in the email table</p>
             <Row>
-              <Col span={6}>
+              <Col span={12}>
+                <p>Select tables to insert them in the email table:</p>
                 <Select
                   placeholder="Select table"
-                  style={{ width: "100%" }}
+                  style={{ width: "50%" }}
                   value={selectedTable}
                   onChange={(val) => setSelectedTable(val)}
                 >
@@ -373,6 +383,28 @@ function EmailTableModel({
                   ))}
                 </Select>
               </Col>
+              {selectedTable && (
+                <Col span={12}>
+                  <p>
+                    <span style={{ color: "red" }}>* </span>
+                    Custom table name{" "}
+                    <Tooltip
+                      title="This name will be used to refer to the table in the email template"
+                      placement="right"
+                    >
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                    {" :"}
+                  </p>
+                  <Input
+                    style={{ width: "50%" }}
+                    placeholder="Enter custom table name"
+                    value={customTableName || ""}
+                    onChange={(e) => setCustomTableName(e.target.value)}
+                    disabled={editingIndex !== null}
+                  />
+                </Col>
+              )}
             </Row>
           </div>
           {selectedTable && availableColumns.length > 0 ? (

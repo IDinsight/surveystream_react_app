@@ -392,6 +392,30 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
   }
 };
 
+// Email Template Endpoints
+export const createEmailTemplates = async (emailTemplateData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/templates`,
+      emailTemplateData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getEmailTemplates = async (email_config_uid: any) => {
   try {
     await getCSRFToken();

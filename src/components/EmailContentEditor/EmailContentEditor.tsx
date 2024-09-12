@@ -3,17 +3,23 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 interface EmailContentEditorProps {
-  quillRef: any;
   form: any;
+  formIndex: any;
+  quillRef: any;
   setCursorPosition: any;
+  value?: string;
+  standalone?: boolean;
 }
 
 function EmailContentEditor({
-  quillRef,
   form,
+  formIndex,
+  quillRef,
   setCursorPosition,
+  value,
+  standalone = false,
 }: EmailContentEditorProps) {
-  const [value, setValue] = useState("");
+  const [val, setVal] = useState(value || "");
 
   const modules = {
     toolbar: [
@@ -30,13 +36,28 @@ function EmailContentEditor({
     }
   };
 
+  // Setting the field value on content change in editor
   useEffect(() => {
-    form.setFields([
-      {
-        name: ["templates", 0, "content"],
-        value: value,
-      },
-    ]);
+    const pathArr = standalone
+      ? ["content"]
+      : ["templates", formIndex, "content"];
+
+    const currentValue = form.getFieldValue(pathArr);
+    if (currentValue !== val) {
+      form.setFields([
+        {
+          name: pathArr,
+          value: val,
+        },
+      ]);
+    }
+  }, [val, form, formIndex]);
+
+  // Setting the value if passed by pros
+  useEffect(() => {
+    if (value !== undefined && value !== val) {
+      setVal(value);
+    }
   }, [value]);
 
   return (
@@ -45,8 +66,8 @@ function EmailContentEditor({
         ref={quillRef}
         style={{ height: "200px", marginBottom: "30px" }}
         theme="snow"
-        value={value}
-        onChange={(val) => setValue(val)}
+        value={val}
+        onChange={(val) => setVal(val)}
         modules={modules}
         onChangeSelection={handleSelectionChange}
       />
