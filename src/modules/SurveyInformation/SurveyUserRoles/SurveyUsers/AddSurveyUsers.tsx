@@ -245,9 +245,8 @@ function AddSurveyUsers() {
 
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
-
           updateUserHierarchy(
-            addRes.payload?.data?.user_uid,
+            addRes.payload?.data?.user.user_uid,
             survey_uid,
             newRole,
             userDetails?.supervisor
@@ -559,7 +558,9 @@ function AddSurveyUsers() {
                         rolesTableData.some((r: any) =>
                           userDetails?.roles?.includes(r.role_uid)
                         )
-                          ? userDetails.roles
+                          ? rolesTableData.find((r: any) =>
+                              userDetails?.roles?.includes(r.role_uid)
+                            ).role_uid
                           : undefined
                       }
                       rules={

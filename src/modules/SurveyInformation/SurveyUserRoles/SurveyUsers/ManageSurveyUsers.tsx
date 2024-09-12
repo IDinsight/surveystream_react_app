@@ -29,6 +29,7 @@ import {
   getAllUsers,
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
+import { deleteUserHierarchy } from "../../../../redux/userRoles/userRolesActions";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
@@ -196,6 +197,8 @@ function ManageSurveyUsers() {
   const rowSelection = {
     selectedRows,
     onChange: onSelectChange,
+    hideSelectAll: true,
+    type: "radio" as const,
   };
 
   // Handler for Edit Data button
@@ -218,6 +221,11 @@ function ManageSurveyUsers() {
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
 
+    // also reset all survey level details - locations and languages
+    selectedUserData.survey_uid = survey_uid;
+    selectedUserData.location_uids = [];
+    selectedUserData.languages = [];
+
     if (rolesToRemove.length < 1) {
       //handle survey admin removal
       selectedUserData.is_survey_admin = false;
@@ -225,12 +233,39 @@ function ManageSurveyUsers() {
         ? parseInt(survey_uid, 10)
         : null;
     }
+
     const updateRes = await dispatch(
       putUpdateUser({
         userUId: selectedUserData.user_uid,
         userData: selectedUserData,
       })
     );
+
+    // Remove user from user hierarchy as well
+    const deleteHierarchyRes = await dispatch(
+      deleteUserHierarchy({
+        survey_uid: survey_uid || "",
+        user_uid: selectedUserData.user_uid,
+      })
+    );
+
+    // for all reportees, remove the supervisor_uid
+    const reporties = userTableDataSource.filter(
+      (user: any) => user.supervisor_uid === selectedUserData.user_uid
+    );
+
+    if (reporties.length > 0) {
+      for (const reportee of reporties) {
+        reportee.supervisor_uid = null;
+        await dispatch(
+          deleteUserHierarchy({
+            survey_uid: survey_uid || "",
+            user_uid: reportee.user_uid,
+          })
+        );
+      }
+    }
+
     if (updateRes.payload?.user_data) {
       message.success("User removed from project successfully");
       setHasSelected(false);
