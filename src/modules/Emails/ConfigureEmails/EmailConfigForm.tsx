@@ -78,6 +78,7 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
 
     emailconfigNames.forEach((type: any) => {
       if (type.config_name === value) {
+        setConfigUid(type.email_config_uid);
         setSourceType(type.email_source);
         handleGsheetColumnHeaderChange(type.email_source_columns);
         setPdfAttachment(type.pdf_attachment);

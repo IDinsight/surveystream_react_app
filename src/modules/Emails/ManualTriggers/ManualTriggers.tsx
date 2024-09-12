@@ -120,7 +120,7 @@ function ManualTriggers({
               overflowY: "scroll",
               maxHeight: "300px",
             }}
-            open={showModal === !!record.manual_email_trigger_uid}
+            open={showModal === record.manual_email_trigger_uid}
             onOk={handleOk}
             onCancel={handleClose}
             width={500}

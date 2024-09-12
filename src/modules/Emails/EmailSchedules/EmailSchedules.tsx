@@ -188,7 +188,12 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                       width: "100%",
                     }}
                   >
-                    <p>
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "85px",
+                      }}
+                    >
                       Dates:
                       <br />
                       <DatePicker
@@ -198,14 +203,10 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         minDate={dayjs()}
                         maxTagCount={10}
                         value={dates.map((date: string) => dayjs(date))}
-                        style={{
-                          width: "100%",
-                          maxHeight: "85px",
-                        }}
                         allowClear={false}
                         inputReadOnly={true}
                       />
-                    </p>
+                    </span>
                   </div>
                 </div>
               );
