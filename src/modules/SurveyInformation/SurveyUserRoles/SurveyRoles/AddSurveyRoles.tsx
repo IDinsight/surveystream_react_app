@@ -135,6 +135,12 @@ function AddSurveyRoles() {
             );
             return;
           }
+          if (formValues.role_name === "Survey Admin") {
+            message.error(
+              "Role name cannot be Survey Admin, kindly change the name to create a new role!"
+            );
+            return;
+          }
 
           otherRoles.push(formValues);
 
