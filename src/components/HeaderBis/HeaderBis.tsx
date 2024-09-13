@@ -60,7 +60,7 @@ const Header = () => {
       <div className="flex items-center">
         <Link to={isSignedIn() ? "/surveys" : "/"}>
           <img
-            className="pr-2"
+            className="pr-2 w-36"
             style={{ margin: "0 1.5rem" }}
             src={Logo}
             alt="SurveyStream Logo"

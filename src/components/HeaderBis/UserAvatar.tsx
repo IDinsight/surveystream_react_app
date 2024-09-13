@@ -23,7 +23,6 @@ function getInitials(name: string) {
 }
 
 function HeaderOneAvatar({ name }: { name: string }) {
-
   return <AvatarWrapper>{getInitials(name)}</AvatarWrapper>;
 }
 

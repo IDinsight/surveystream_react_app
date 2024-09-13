@@ -8,12 +8,12 @@ import {
 function HeaderTwo() {
   return (
     <div className="nav-menu flex">
-      <div className="w-32 bg-geekblue-5">
-        <HomeFilled className="flex items-center !text-[16px]" />
+      <div className="bg-geekblue-5 justify-center w-40">
+        {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
         <span>Home</span>
       </div>
-      <div className="min-w-32">
-        <BookFilled className="flex items-center !text-[16px]" />
+      <div className="min-w-32 justify-center w-40">
+        {/* <BookFilled className="flex items-center !text-[16px]" /> */}
         <span>
           <a
             target="_blank"
@@ -24,8 +24,8 @@ function HeaderTwo() {
           </a>
         </span>
       </div>
-      <div className="min-w-32">
-        <MailOutlined className="flex items-center !text-[16px]" />
+      <div className="min-w-32 justify-center w-40">
+        {/* <MailOutlined className="flex items-center !text-[16px]" /> */}
         <span>
           <a
             target="_blank"
@@ -36,8 +36,8 @@ function HeaderTwo() {
           </a>
         </span>
       </div>
-      <div className="min-w-32">
-        <AppstoreAddOutlined className="flex items-center !text-[16px]" />
+      <div className="min-w-32 justify-center w-40">
+        {/* <AppstoreAddOutlined className="flex items-center !text-[16px]" /> */}
         <span>
           <a
             target="_blank"
