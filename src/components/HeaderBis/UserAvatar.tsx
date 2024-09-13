@@ -23,9 +23,8 @@ function getInitials(name: string) {
 }
 
 function HeaderOneAvatar({ name }: { name: string }) {
-  const initials = getInitials(name);
 
-  return <AvatarWrapper>{initials}</AvatarWrapper>;
+  return <AvatarWrapper>{getInitials(name)}</AvatarWrapper>;
 }
 
 export default HeaderOneAvatar;
