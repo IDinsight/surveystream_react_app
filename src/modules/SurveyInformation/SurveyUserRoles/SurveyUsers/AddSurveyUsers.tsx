@@ -18,12 +18,7 @@ import {
 import { DescriptionText } from "../../SurveyInformation.styled";
 import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
 import Header from "../../../../components/Header";
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import { RootState } from "../../../../redux/store";
 import {
@@ -34,8 +29,6 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
-import { set } from "lodash";
-import { use } from "chai";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -193,7 +186,8 @@ function AddSurveyUsers() {
 
         if (
           initialUserData?.roles &&
-          initialUserData.roles.length >= userDetails.roles.length
+          initialUserData.roles.length >= userDetails.roles.length &&
+          !userDetails.is_survey_admin
         ) {
           setNewRole(initialUserData?.roles[0]);
           userDetails.roles = initialUserData?.roles;
@@ -342,7 +336,6 @@ function AddSurveyUsers() {
             })
           );
           if (locationRes?.payload.length > 0) {
-            console.log("I am here");
             // filter out the prime geo level locations columns
             const primeGeoLevelLocations: any[] = locationRes?.payload.map(
               (location: any) => ({
@@ -589,16 +582,22 @@ function AddSurveyUsers() {
 
                           if (value == null && role?.role === "Survey Admin") {
                             setIsRoleRequired(false);
+                            setHasReportingRole(false);
+                            setisLowestRole(false);
+
                             return setUserDetails((prev: any) => ({
                               ...prev,
                               is_survey_admin: true,
+                              location_uids: [],
+                              location_ids: [],
+                              location_names: [],
+                              languages: [],
                             }));
                           } else {
                             setUserDetails((prev: any) => ({
                               ...prev,
                               is_survey_admin: false,
                             }));
-
                             setNewRole(role?.role_uid);
                             if (role?.has_reporting_role) {
                               setHasReportingRole(true);
@@ -628,6 +627,7 @@ function AddSurveyUsers() {
                                 location_uids: [],
                                 location_ids: [],
                                 location_names: [],
+                                languages: [],
                               }));
                             }
 

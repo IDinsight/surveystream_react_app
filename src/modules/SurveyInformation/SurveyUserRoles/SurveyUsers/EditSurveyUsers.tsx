@@ -9,12 +9,7 @@ import {
 } from "../../SurveyInformation.styled";
 import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
 import Header from "../../../../components/Header";
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import SideMenu from "../SideMenu";
@@ -33,8 +28,6 @@ import {
 } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
-import { use } from "chai";
-import { set } from "lodash";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -130,13 +123,17 @@ function EditSurveyUsers() {
       initialUserData?.roles?.includes(r.role_uid)
     );
 
+    // For non survey admins, if there were survey roles before and
+    // now there are less roles, it means no new role was added
     if (
       initialUserData?.roles &&
-      initialUserData.roles.length >= userDetails.roles.length
+      initialUserData.roles.length >= userDetails.roles.length &&
+      !userDetails.is_survey_admin
     ) {
       setNewRole(initialUserData?.roles[0]);
       userDetails.roles = initialUserData?.roles;
     } else {
+      // Remove the old survey roles from the user details if new roles are added
       if (commonRoles.length > 0) {
         userDetails.roles = userDetails.roles.filter(
           (role: any) => !commonRoles.map((r: any) => r.role_uid).includes(role)
@@ -382,10 +379,6 @@ function EditSurveyUsers() {
     }
   }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
 
-  useEffect(() => {
-    console.log("isLowestRole", isLowestRole);
-  }, [isLowestRole]);
-
   const isLoading =
     isSupervisorRolesLoading ||
     isLocationDetailsLoading ||
@@ -515,9 +508,16 @@ function EditSurveyUsers() {
 
                         if (value == null && role?.role === "Survey Admin") {
                           setIsRoleRequired(false);
+                          setHasReportingRole(false);
+                          setisLowestRole(false);
+
                           return setUserDetails((prev: any) => ({
                             ...prev,
                             is_survey_admin: true,
+                            location_uids: [],
+                            location_ids: [],
+                            location_names: [],
+                            languages: [],
                           }));
                         } else {
                           //this will run incase user does not select survey Admin
@@ -550,6 +550,15 @@ function EditSurveyUsers() {
                             setisLowestRole(true);
                           } else {
                             setisLowestRole(false);
+
+                            // also remove location details
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              location_uids: [],
+                              location_ids: [],
+                              location_names: [],
+                              languages: [],
+                            }));
                           }
 
                           setUserDetails((prev: any) => {

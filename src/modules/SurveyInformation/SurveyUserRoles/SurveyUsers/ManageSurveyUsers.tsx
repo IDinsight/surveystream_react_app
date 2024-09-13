@@ -40,9 +40,6 @@ import { setEditUser } from "../../../../redux/userManagement/userManagementSlic
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
-import { render } from "@testing-library/react";
-import { each } from "cypress/types/bluebird";
-import { title } from "process";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -68,6 +65,7 @@ function ManageSurveyUsers() {
   const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
     useState<any>("no_location");
 
+  const [loading, setLoading] = useState(false);
   const [isUsersLoading, setisUsersLoading] = useState<boolean>(false);
   const [isBasicInformationLoading, setisBasicInformationLoading] =
     useState<boolean>(false);
@@ -196,7 +194,6 @@ function ManageSurveyUsers() {
             })
           );
           if (locationRes?.payload.length > 0) {
-            console.log("I am here");
             // filter out the prime geo level locations columns
             const primeGeoLevelLocations: any[] = locationRes?.payload.map(
               (location: any) => ({
@@ -248,11 +245,26 @@ function ManageSurveyUsers() {
     if (!hasSelected) {
       message.error("No row selected for editing");
       return;
+    } else if (
+      selectedRows[0].user_admin_survey_names &&
+      selectedRows[0].user_admin_survey_names.length > 0
+    ) {
+      // check if there are other survey admins
+      const surveyAdmins = userTableDataSource.filter(
+        (user: any) =>
+          user.user_admin_survey_names &&
+          user.user_admin_survey_names?.length > 0
+      );
+      if (surveyAdmins.length < 2) {
+        message.error("Cannot remove the only survey admin from the survey");
+        return;
+      }
     }
     setIsOpenDeleteModel(true);
   };
 
   const handleDeleteUser = async () => {
+    setLoading(true);
     const selectedUserData = selectedRows[0];
 
     const rolesToRemove = rolesTableData.filter((r: any) =>
@@ -309,13 +321,14 @@ function ManageSurveyUsers() {
     }
 
     if (updateRes.payload?.user_data) {
-      message.success("User removed from project successfully");
+      message.success("User removed from survey successfully");
       setHasSelected(false);
     } else {
-      message.error("Failed to remove user from project, kindly try again");
+      message.error("Failed to remove user from survey, kindly try again");
     }
     fetchAllUsers();
     setIsOpenDeleteModel(false);
+    setLoading(false);
   };
 
   const usersTableColumn = () => {
@@ -479,7 +492,8 @@ function ManageSurveyUsers() {
     isSupervisorRolesLoading ||
     isBasicInformationLoading ||
     isModuleQuestionnaireLoading ||
-    isLocationDetailsLoading;
+    isLocationDetailsLoading ||
+    loading;
 
   return (
     <>
@@ -612,19 +626,25 @@ function ManageSurveyUsers() {
               <Modal
                 open={isOpenDeleteModel}
                 title={
-                  <div style={{ display: "flex" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginTop: "-15px",
+                      marginBottom: "-10px",
+                    }}
+                  >
                     <ExclamationCircleFilled
                       style={{ color: "orange", fontSize: 20 }}
                     />
-                    <p style={{ marginLeft: "10px" }}>Remove the user</p>
+                    <p style={{ marginLeft: "15px" }}>Deletion Confirmation</p>
                   </div>
                 }
                 okText="Yes, remove user"
                 onOk={() => handleDeleteUser()} // Write the logic to delete
                 onCancel={() => setIsOpenDeleteModel(false)}
               >
-                <p>
-                  Are you sure you want to remove this user from this project?
+                <p style={{ marginBottom: "30px" }}>
+                  Are you sure you want to remove this user from the survey?
                 </p>
               </Modal>
             </BodyWrapper>
