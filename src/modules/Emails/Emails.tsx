@@ -181,7 +181,7 @@ function Emails() {
         navigate(`/survey-information/survey-cto-information/${survey_uid}`);
       }
     } catch (error) {
-      console.log("Error fetching sctoForm:", error);
+      message.error("Error fetching sctoForm");
     } finally {
       setLoading(false);
     }
@@ -263,7 +263,7 @@ function Emails() {
               />
             ) : tabId === "templates" ? (
               <EmailTemplates
-                data={templatesData}
+                templatesData={templatesData}
                 fetchEmailTemplates={fetchEmailTemplates}
               />
             ) : (
