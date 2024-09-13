@@ -1,4 +1,4 @@
-import { Col, Form, Input, Radio, Row, Select, message } from "antd";
+import { Button, Col, Form, Input, Row, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionText,
@@ -13,20 +13,14 @@ import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../../redux/userRoles/userRolesActions";
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
+import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import PermissionsTable from "../../../../components/PermissionsTable";
@@ -65,7 +59,7 @@ function DuplicateSurveyRoles() {
   const rolePermissions = useAppSelector(
     (state: RootState) => state.userRoles.rolePermissions
   );
-  const isLoading = useAppSelector(
+  const isuserRolesLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
   const [rolesEditData, setRolesEditData] = useState<any>([]);
@@ -78,11 +72,12 @@ function DuplicateSurveyRoles() {
     (state: RootState) => state.surveys.activeSurvey
   );
   const fetchAllPermissions = async () => {
-    const res = await dispatch(getAllPermissions());
+    const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
   };
 
   const fetchSupervisorRoles = async () => {
+    setLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
@@ -105,24 +100,24 @@ function DuplicateSurveyRoles() {
 
       setLocalPermissions(filteredRole?.permissions);
 
-      if (filteredRole?.reporting_role_uid != null) {
-        setHasReportingRole(true);
-        duplicateRolesForm.setFieldsValue({
-          ...filteredRole,
-          has_reporting_role: true,
-        });
-      } else {
-        setHasReportingRole(false);
-        duplicateRolesForm.setFieldsValue({
-          ...filteredRole,
-          has_reporting_role: false,
-        });
-      }
+      duplicateRolesForm.setFieldsValue({
+        ...filteredRole,
+      });
 
       duplicateRolesForm.setFieldsValue({ role_name: null });
 
       setRolesEditData(filteredRole);
+      dispatch(
+        setRolePermissions({
+          survey_uid: survey_uid ?? null,
+          permissions: filteredRole?.permissions,
+          role_uid: filteredRole?.role_uid ?? null,
+          duplicate: false,
+        })
+      );
+      setLoading(false);
     } else {
+      setLoading(false);
       message.error("Could not fetch roles, kindly reload to try again");
     }
   };
@@ -168,6 +163,7 @@ function DuplicateSurveyRoles() {
           const rolesRes = await dispatch(
             postSupervisorRoles({
               supervisorRolesData: otherRoles, // Pass validated form values
+              validate_hierarchy: false,
               surveyUid: survey_uid,
             })
           );
@@ -176,7 +172,9 @@ function DuplicateSurveyRoles() {
             message.error(rolesRes.payload.message);
             return;
           } else {
-            navigate(`/survey-information/survey-roles/roles/${survey_uid}`);
+            navigate(
+              `/survey-information/survey-roles/hierarchy/${survey_uid}`
+            );
             message.success("Role duplicated successfully");
           }
         })
@@ -207,6 +205,8 @@ function DuplicateSurveyRoles() {
     fetchAllPermissions();
   }, [dispatch]);
 
+  const isLoading = loading || isuserRolesLoading;
+
   return (
     <>
       <GlobalStyle />
@@ -225,6 +225,9 @@ function DuplicateSurveyRoles() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Roles</Title>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -234,7 +237,7 @@ function DuplicateSurveyRoles() {
             <BodyWrapper>
               <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText>
-                <>Duplicate Role</>
+                <>Duplicate selected role</>
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
@@ -257,64 +260,6 @@ function DuplicateSurveyRoles() {
                     >
                       <Input style={{ width: "100%" }} />
                     </StyledFormItem>
-
-                    <StyledFormItem
-                      label="Does this role report to someone?"
-                      labelAlign="right"
-                      labelCol={{ span: 24 }}
-                      style={{ display: "block" }}
-                      rules={[
-                        {
-                          required: false,
-                          message:
-                            "Please select if the role has a reporting role",
-                        },
-                      ]}
-                      hasFeedback
-                      name="has_reporting_role"
-                    >
-                      <Radio.Group
-                        style={{ display: "flex", width: "100px" }}
-                        onChange={(e) => handleRadioChange(e.target.value)}
-                        defaultValue={false}
-                      >
-                        <Radio.Button value={true}>Yes</Radio.Button>
-                        <Radio.Button value={false}>No</Radio.Button>
-                      </Radio.Group>
-                    </StyledFormItem>
-
-                    {hasReportingRole && (
-                      <StyledFormItem
-                        label="Reporting role"
-                        labelAlign="right"
-                        name="reporting_role_uid"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select the reporting role",
-                          },
-                        ]}
-                        hasFeedback
-                      >
-                        <Select
-                          showSearch={true}
-                          allowClear={true}
-                          placeholder="Select reporting role"
-                          style={{ width: "100%" }}
-                        >
-                          {rolesTableData.map(
-                            (
-                              r: { role_uid: any; role: any },
-                              i: Key | null | undefined
-                            ) => (
-                              <Select.Option key={i} value={r.role_uid}>
-                                {r.role}
-                              </Select.Option>
-                            )
-                          )}
-                        </Select>
-                      </StyledFormItem>
-                    )}
                   </Col>
                 </Row>
 
@@ -329,15 +274,26 @@ function DuplicateSurveyRoles() {
                   onPermissionsChange={handlePermissionsChange}
                 />
               </Form>
+              <div>
+                <Button
+                  style={{ marginTop: 0, marginRight: 24 }}
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/survey-roles/roles/${survey_uid}`
+                    )
+                  }
+                >
+                  Cancel
+                </Button>
+                <CustomBtn
+                  style={{ marginTop: 0 }}
+                  onClick={handleDuplicateRole}
+                >
+                  Save
+                </CustomBtn>
+              </div>
             </BodyWrapper>
           </div>
-
-          <FooterWrapper>
-            <SaveButton disabled>Save</SaveButton>
-            <ContinueButton loading={loading} onClick={handleDuplicateRole}>
-              Finalize roles
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>

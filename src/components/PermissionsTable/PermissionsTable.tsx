@@ -81,16 +81,23 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
 
         // Update the specific property in the group based on the type
         if (type === "none" && e.target.checked) {
+          // If none is checked, uncheck view and edit
           updatedGroup[type] = e.target.checked;
           updatedGroup["view"] = false;
           updatedGroup["edit"] = false;
         } else if (type === "edit" && e.target.checked) {
+          // If edit is checked, check view and uncheck none
           updatedGroup["view"] = true;
           updatedGroup[type] = e.target.checked;
           updatedGroup["none"] = false;
         } else if (type !== "none" && e.target.checked) {
+          // If view or edit is checked, uncheck none
           updatedGroup["none"] = false;
           updatedGroup[type] = e.target.checked;
+        } else if (type === "view" && !e.target.checked) {
+          // If view is unchecked, uncheck edit as well
+          updatedGroup[type] = e.target.checked;
+          updatedGroup["edit"] = false;
         } else {
           updatedGroup[type] = e.target.checked;
         }
