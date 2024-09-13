@@ -115,7 +115,7 @@ const ManualEmailTriggerForm = ({
       if (updatedInitialValues?.recipients) {
         updatedInitialValues.recipients = initialValues.recipients.map(
           (id: number) => ({
-            label: surveyEnumerators.find((e: any) => e.enumerator_id == id)
+            label: surveyEnumerators.find((e: any) => e.enumerator_uid == id)
               ?.name,
             value: id,
           })
@@ -181,7 +181,7 @@ const ManualEmailTriggerForm = ({
           placeholder="Select recipients"
           options={surveyEnumerators.map((enumerator: any, index: any) => ({
             label: enumerator.name,
-            value: enumerator.enumerator_id,
+            value: enumerator.enumerator_uid,
             key: index,
           }))}
         />

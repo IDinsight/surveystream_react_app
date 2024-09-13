@@ -129,7 +129,7 @@ function ManualTriggers({
             <ul>
               {record.recipients.map((id: any, idx: any) => (
                 <li key={idx}>
-                  {surveyEnumerators?.find((e: any) => e.enumerator_id == id)
+                  {surveyEnumerators?.find((e: any) => e.enumerator_uid == id)
                     ?.name || ""}
                 </li>
               ))}

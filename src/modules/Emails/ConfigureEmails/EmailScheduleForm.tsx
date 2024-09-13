@@ -17,6 +17,8 @@ import {
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import dayjs from "dayjs";
+import EmailScheduleFilter from "../../../components/EmailScheduleFilter";
+import EmailScheduleFilterCard from "../../../components/EmailScheduleFilterCard";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -29,8 +31,39 @@ const EmailScheduleForm = ({
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
+  const [currentFormIndex, setCurrentFormIndex] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const [insertScheduleFilterOpen, setScheduleFilterOpen] = useState(false);
+
+  const [tableList, setTableList] = useState([]);
+
+  const [selectedVariable, setSelectedVariable] = useState<any>({
+    variable: null,
+    aggregation: null,
+  });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const [formStates, setFormStates] = useState<any>([
+    {
+      tableList: [],
+    },
+  ]);
+  const addFormState = (index: number | null = null) => {
+    const currentData = index !== null ? formStates[index] : null;
+    const newFormState = {
+      tableList: currentData ? [...currentData.tableList] : [],
+    };
+    console.log("newFormState", newFormState);
+    console.log("formStates", formStates);
+    console.log("currentData", currentData);
+    setFormStates([...formStates, newFormState]);
+  };
+  const updateFormState = (index: any, key: any, value: any) => {
+    const newFormStates = [...formStates];
+    newFormStates[index][key] = value;
+    setFormStates(newFormStates);
+  };
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -52,18 +85,30 @@ const EmailScheduleForm = ({
     try {
       const formValues = form.validateFields();
       const { schedules } = form.getFieldsValue();
+      console.log("schedules", schedules);
+      console.log("formValues", formValues);
+      console.log("tableList", tableList);
+      console.log("formStates", formStates);
 
       for (let i = 0; i < schedules.length; i++) {
         const schedule = schedules[i];
-
         const dates = schedule?.dates?.map((date: any) => formatDate(date));
         const formattedTime = schedule?.emailTime?.format("HH:mm");
+        console.log("formStates", formStates[i]);
+        console.log("filter_list", formStates[i].tableList.filter_list);
+
+        const filterList = formStates[i].tableList.map(
+          (table: any) => table.filter_list
+        );
+        const mergedFilterList = [].concat(...filterList);
+        console.log("mergedFilterList", mergedFilterList);
 
         const emailScheduleData = {
           email_config_uid: emailConfigUID,
           dates: dates,
           time: formattedTime,
           email_schedule_name: schedule?.emailScheduleName,
+          filter_list: mergedFilterList,
         };
 
         const res = await dispatch(
@@ -105,11 +150,18 @@ const EmailScheduleForm = ({
       <Form.List name="schedules" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
-            {fields.map(({ key, name, ...restField }) => (
+            {fields.map(({ key, name, ...restField }, formIndex) => (
               <div key={key} style={{ marginBottom: 8 }}>
                 {fields.length > 1 && (
                   <MinusCircleOutlined
-                    onClick={() => remove(name)}
+                    onClick={() => {
+                      remove(name);
+                      setFormStates((prevFormStates: any) =>
+                        prevFormStates.filter(
+                          (_: any, index: number) => index !== formIndex
+                        )
+                      );
+                    }}
                     style={{ float: "right" }}
                   />
                 )}
@@ -170,13 +222,57 @@ const EmailScheduleForm = ({
                       needConfirm={false}
                     />
                   </Form.Item>
+                  <Button
+                    onClick={() => {
+                      setEditingIndex(null);
+                      setScheduleFilterOpen(true);
+                      setCurrentFormIndex(formIndex);
+                    }}
+                  >
+                    Add Filters for Schedule
+                  </Button>
                 </div>
+                <EmailScheduleFilterCard
+                  tableList={formStates[formIndex].tableList}
+                  handleEditTable={(tableIndex: any) => {
+                    setEditingIndex(tableIndex);
+                    setScheduleFilterOpen(true);
+                    setCurrentFormIndex(formIndex);
+                  }}
+                />
+                {currentFormIndex !== null &&
+                  (console.log("currentFormIndex", currentFormIndex),
+                  (
+                    <EmailScheduleFilter
+                      open={insertScheduleFilterOpen}
+                      setOpen={setScheduleFilterOpen}
+                      configUID={emailConfigUID}
+                      tableList={formStates[currentFormIndex].tableList}
+                      setTableList={(value: any) => {
+                        const newFormStates = [...formStates];
+                        if (editingIndex !== null) {
+                          newFormStates[currentFormIndex].tableList[
+                            editingIndex
+                          ] = value;
+                        } else {
+                          newFormStates[currentFormIndex].tableList.push(value);
+                        }
+                        setFormStates(newFormStates);
+                      }}
+                      editingIndex={editingIndex}
+                      setEditingIndex={setEditingIndex}
+                    />
+                  ))}
               </div>
             ))}
+
             <Form.Item>
               <Button
                 type="dashed"
-                onClick={() => add()}
+                onClick={() => {
+                  add();
+                  addFormState();
+                }}
                 block
                 icon={<PlusOutlined />}
               >
