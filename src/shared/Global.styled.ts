@@ -1,6 +1,8 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { Button } from "antd";
 import { geekblue } from "@ant-design/colors";
+import { Button } from "antd";
+import { geekblue } from "@ant-design/colors";
 
 export const GlobalStyle = createGlobalStyle`
   body {
