@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import NavItems from "../../components/NavItems";
 import Footer from "../../components/Footer";
 import {
@@ -232,7 +232,7 @@ function UsersManage() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+      {/* <Header items={NavItems} /> */}
       <HeaderContainer>
         <Title>Users</Title>
 

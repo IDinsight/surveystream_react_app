@@ -1,5 +1,5 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import Header from "../../../../components/Header";
+import Header from "../../../../components/Header.OLD";
 import NavItems from "../../../../components/NavItems";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -195,7 +195,7 @@ function UploadAssignments() {
     <>
       <GlobalStyle />
       <>
-        <Header items={NavItems} />
+        {/* <Header items={NavItems} /> */}
         {isLoading ? (
           <FullScreenLoader />
         ) : (

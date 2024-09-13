@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import NavItems from "../../components/NavItems";
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn } from "./MediaAudits.styled";
 import MediaForm from "../../components/MediaForm";
@@ -48,7 +48,7 @@ function MediaAuditsHome() {
 
   return (
     <>
-      <Header items={NavItems} />
+      {/* <Header items={NavItems} /> */}
       {isMediaAuditsConfigLoading ? (
         <FullScreenLoader />
       ) : (

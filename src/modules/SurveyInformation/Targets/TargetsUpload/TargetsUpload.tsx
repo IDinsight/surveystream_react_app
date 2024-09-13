@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
-import Header from "../../../../components/Header";
+import Header from "../../../../components/Header.OLD";
 import {
   BackArrow,
   BackLink,
@@ -133,7 +133,7 @@ function TargetsUpload() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+      {/* <Header /> */}
       <NavWrapper>
         <HandleBackButton surveyPage={true}></HandleBackButton>
 

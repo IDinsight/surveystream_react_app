@@ -1,7 +1,7 @@
 import { Form, Radio, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
-import Header from "../../../components/Header";
+import Header from "../../../components/Header.OLD";
 import {
   NavWrapper,
   BackLink,
@@ -296,7 +296,7 @@ function SurveyLocationHierarchy() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+      {/* <Header /> */}
       <Container />
       <HeaderContainer>
         <Title>Survey locations hierarchy</Title>

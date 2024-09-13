@@ -1,13 +1,13 @@
 import React from "react";
 import { Button, Result } from "antd";
 import { Link } from "react-router-dom";
-import Header from "../Header";
+import Header from "../Header.OLD";
 import { GlobalStyle } from "../../shared/Global.styled";
 
 const NotFound: React.FC = () => (
   <>
     <GlobalStyle />
-    <Header />
+    {/* <Header /> */}
     <div
       style={{
         display: "flex",

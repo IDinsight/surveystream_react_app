@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
-import Header from "../../../components/Header";
+import Header from "../../../components/Header.OLD";
 import Footer from "../../../components/Footer";
 
 import CustomerSurvey from "./../../../assets/customer-survey.svg";
@@ -89,7 +89,7 @@ const Login = () => {
     <>
       <GlobalStyle />
 
-      <Header />
+      {/* <Header /> */}
       <div className="mb-[80px]">
         <div className="mt-[44px]">
           <p className="font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">

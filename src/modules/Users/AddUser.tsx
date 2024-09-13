@@ -10,7 +10,7 @@ import {
 } from "../../redux/userManagement/userManagementActions";
 import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import NavItems from "../../components/NavItems";
 import { GlobalStyle } from "../../shared/Global.styled";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
@@ -134,7 +134,7 @@ function AddUser() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+      {/* <Header items={NavItems} /> */}
       <HeaderContainer>
         <Title> Add new user</Title>
 

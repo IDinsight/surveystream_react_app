@@ -1,0 +1,68 @@
+.nav-menu-item {
+    position: relative;
+  }
+  
+  .nav-menu-item:hover {
+    background-color: #85a5ff;
+    cursor: pointer;
+  }
+  
+  .nav-menu-item:hover .nav-submenu {
+    display: block;
+  }
+  
+  .nav-menu-item,
+  .nav-menu-item > div:first-child,
+  .nav-menu-item > a {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-menu span[role="img"] {
+    padding-left: 22px;
+    padding-right: 10px;
+  }
+  
+  .nav-menu span,
+  .nav-menu a {
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 28px;
+    color: #ffffff;
+    padding-right: 0 !important;
+    text-decoration: none;
+  }
+  
+  #surveys-past-items a {
+    color: #8c8c8c;
+  }
+  
+  .nav-submenu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 70px;
+    background-color: #061178;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .nav-submenu span,
+  .nav-submenu a {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    color: rgb(250, 250, 250);
+    font-family: "Lato", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+  
+  .nav-dropdown-tooltip {
+    padding-left: 0 !important;
+    padding-right: 10px;
+  }
+  

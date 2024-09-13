@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { RootState } from "../../redux/store";
 
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
@@ -48,7 +48,7 @@ function SurveysHomePage() {
     <>
       <GlobalStyle />
 
-      <Header items={NavItems} />
+      {/* <Header items={NavItems} /> */}
       {isLoading ? (
         <>
           <FullScreenLoader></FullScreenLoader>

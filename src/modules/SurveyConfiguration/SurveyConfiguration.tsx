@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import SideMenu from "./SideMenu";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { RootState } from "../../redux/store";
@@ -374,7 +374,7 @@ const SurveyConfiguration: React.FC = () => {
     <>
       <GlobalStyle />
 
-      <Header />
+      {/* <Header /> */}
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
           <BackArrow />

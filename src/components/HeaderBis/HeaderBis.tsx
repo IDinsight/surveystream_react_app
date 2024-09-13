@@ -15,6 +15,8 @@ import { Link, useLocation } from "react-router-dom";
 
 import Logo from "assets/logo.svg";
 
+import "./NavItems.css";
+
 const Header = () => {
   const dispatch = useAppDispatch();
 

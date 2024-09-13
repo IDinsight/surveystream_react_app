@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import { message } from "antd";
-import Header from "../../components/Header";
+import Header from "../../components/Header.OLD";
 import {
   NavWrapper,
   BackLink,
@@ -336,7 +336,7 @@ function NewSurveyConfig() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
           <BackArrow />
