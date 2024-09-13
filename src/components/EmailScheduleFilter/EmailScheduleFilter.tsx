@@ -276,10 +276,7 @@ function EmailScheduleFilter({
                         }}
                       >
                         <Col span={2}>
-                          <Tag bordered={false} color="geekblue">
-                            {" "}
-                            OR{" "}
-                          </Tag>
+                          <Tag color="#108ee9">OR</Tag>
                         </Col>
                       </Row>
                     ) : null}
@@ -304,10 +301,7 @@ function EmailScheduleFilter({
                                 }}
                               >
                                 <Col span={2}>
-                                  <Tag bordered={false} color="geekblue">
-                                    {" "}
-                                    AND{" "}
-                                  </Tag>
+                                  <Tag color="#87d068">AND</Tag>
                                 </Col>
                               </Row>
                             ) : null}
