@@ -9,11 +9,14 @@ import { deleteEmailTemplate } from "../../../redux/emails/emailsActions";
 import EmailTemplateEditing from "./EmailTemplateEditing";
 
 interface EmailTemplatesProps {
-  data: any;
+  templatesData: any;
   fetchEmailTemplates: () => void;
 }
 
-const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
+const EmailTemplates = ({
+  templatesData,
+  fetchEmailTemplates,
+}: EmailTemplatesProps) => {
   const dispatch = useAppDispatch();
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
@@ -135,6 +138,7 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
           >
             <EmailTemplateEditing
               emailTemplateConfig={editTemplateValues}
+              templatesData={templatesData}
               setIsDrawerOpen={setIsDrawerOpen}
               fetchEmailTemplates={fetchEmailTemplates}
             />
@@ -146,9 +150,9 @@ const EmailTemplates = ({ data, fetchEmailTemplates }: EmailTemplatesProps) => {
 
   return (
     <>
-      {data.length > 0 ? (
+      {templatesData.length > 0 ? (
         <EmailTemplatesTable
-          dataSource={data}
+          dataSource={templatesData}
           columns={templateColumns}
           pagination={{
             pageSize: paginationPageSize,

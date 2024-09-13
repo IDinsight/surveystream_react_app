@@ -16,12 +16,14 @@ const { Option } = Select;
 
 interface EmailTemplateEditingProps {
   emailTemplateConfig: any;
+  templatesData: any;
   setIsDrawerOpen: any;
   fetchEmailTemplates: any;
 }
 
 function EmailTemplateEditing({
   emailTemplateConfig,
+  templatesData,
   setIsDrawerOpen,
   fetchEmailTemplates,
 }: EmailTemplateEditingProps) {
@@ -185,6 +187,15 @@ function EmailTemplateEditing({
         });
     }
   }, [emailTemplateConfig, dispatch]);
+
+  useEffect(() => {
+    if (templatesData) {
+      const d = templatesData.filter(
+        (t: any) => t.email_config_uid === emailTemplateConfig.email_config_uid
+      );
+      setAvailableVariables(d[0].email_source_columns);
+    }
+  }, [templatesData]);
 
   if (loading) {
     return <FullScreenLoader />;
