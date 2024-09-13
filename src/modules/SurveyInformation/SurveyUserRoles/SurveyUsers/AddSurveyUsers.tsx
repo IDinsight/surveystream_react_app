@@ -556,7 +556,7 @@ function AddSurveyUsers() {
                           ? rolesTableData.find((r: any) =>
                               userDetails?.roles?.includes(r.role_uid)
                             ).role_uid
-                          : undefined
+                          : null
                       }
                       rules={
                         isRoleRequired
