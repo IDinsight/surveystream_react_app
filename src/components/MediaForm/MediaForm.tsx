@@ -63,7 +63,7 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
       >
         <Row align="middle" style={{ marginBottom: 6 }}>
           <Col span={6}>
-            <FormItemLabel>Main SCTO form:</FormItemLabel>
+            <FormItemLabel>Form ID:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select

@@ -21,6 +21,7 @@ import {
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
@@ -513,6 +514,70 @@ function ManageSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Users</Title>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+        <div style={{ float: "right", marginTop: "0px" }}>
+          <SearchBox
+            placeholder="Search"
+            enterButton
+            style={{ width: 367 }}
+            onSearch={(val) => {
+              setSearchText(val);
+              filterTableData(val);
+            }}
+            onChange={(e) => {
+              const { value } = e.target;
+              setSearchText(value);
+              filterTableData(value);
+            }}
+          />
+          <Dropdown menu={{ items: addUserOptions }} placement="bottomLeft">
+            {!hasSelected ? (
+              <Button
+                type="primary"
+                icon={<FileAddOutlined />}
+                style={{
+                  marginLeft: "25px",
+                  backgroundColor: "#2F54EB",
+                }}
+                onClick={() =>
+                  navigate(`/survey-information/survey-users/add/${survey_uid}`)
+                }
+              >
+                Add new user
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={handleEditUser}
+                >
+                  Edit user
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<DeleteOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={onDeleteUser}
+                >
+                  Remove User
+                </Button>
+              </>
+            )}
+          </Dropdown>
+        </div>
+      </HeaderContainer>
       {isuserManagementLoading || isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -520,74 +585,9 @@ function ManageSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Users</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
-                Manage your survey users
+                Manage the users added to your survey here
               </DescriptionText>
-              <div style={{ float: "right", marginTop: "-60px" }}>
-                <SearchBox
-                  placeholder="Search"
-                  enterButton
-                  style={{ width: 367 }}
-                  onSearch={(val) => {
-                    setSearchText(val);
-                    filterTableData(val);
-                  }}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setSearchText(value);
-                    filterTableData(value);
-                  }}
-                />
-                <Dropdown
-                  menu={{ items: addUserOptions }}
-                  placement="bottomLeft"
-                >
-                  {!hasSelected ? (
-                    <Button
-                      type="primary"
-                      icon={<FileAddOutlined />}
-                      style={{
-                        marginLeft: "25px",
-                        backgroundColor: "#2F54EB",
-                      }}
-                      onClick={() =>
-                        navigate(
-                          `/survey-information/survey-users/add/${survey_uid}`
-                        )
-                      }
-                    >
-                      Add new user
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        type="primary"
-                        icon={<EditOutlined />}
-                        style={{
-                          marginLeft: "25px",
-                          backgroundColor: "#2F54EB",
-                        }}
-                        onClick={handleEditUser}
-                      >
-                        Edit user
-                      </Button>
-                      <Button
-                        type="primary"
-                        icon={<DeleteOutlined />}
-                        style={{
-                          marginLeft: "25px",
-                          backgroundColor: "#2F54EB",
-                        }}
-                        onClick={onDeleteUser}
-                      >
-                        Remove User
-                      </Button>
-                    </>
-                  )}
-                </Dropdown>
-              </div>
-
               <div style={{ display: "flex" }}></div>
               <UsersTable
                 dataSource={filteredUserTableData}

@@ -2,13 +2,13 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
-import { SupervisorRole } from "./types";
+import { AdminFormPayload } from "./types";
 
-export const fetchSupervisorRoles = async (survey_uid?: string) => {
+export const fetchAllAdminForm = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/roles?survey_uid=${survey_uid}`;
+    const url = `${API_BASE_URL}/forms?survey_uid=${survey_uid}&form_type=admin`;
 
     const res = await axios.get(url, {
       headers: {
@@ -23,11 +23,11 @@ export const fetchSupervisorRoles = async (survey_uid?: string) => {
   }
 };
 
-export const fetchAllPermissions = async (survey_uid?: string) => {
+export const fetchAdminForm = async (form_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/permissions?survey_uid=${survey_uid}`;
+    const url = `${API_BASE_URL}/forms/${form_uid}`;
 
     const res = await axios.get(url, {
       headers: {
@@ -42,19 +42,15 @@ export const fetchAllPermissions = async (survey_uid?: string) => {
   }
 };
 
-export const postSupervisorRoles = async (
-  formData: SupervisorRole[],
-  validate_hierarchy: boolean,
-  survey_uid: string
-) => {
+export const createAdminForm = async (formData: AdminFormPayload) => {
   try {
     await getCSRFToken();
 
     const csrfToken = getCookie("CSRF-TOKEN");
 
-    const res = await axios.put(
-      `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
-      { roles: formData, validate_hierarchy: validate_hierarchy },
+    const res = await axios.post(
+      `${API_BASE_URL}/forms?survey_uid=${formData.survey_uid}`,
+      formData,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -69,16 +65,13 @@ export const postSupervisorRoles = async (
   }
 };
 
-export const fetchUserHierarchy = async (
-  user_uid: string,
-  survey_uid: string
-) => {
+export const updateAdminForm = async (formUID: string, formData: any) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/user-hierarchy?user_uid=${user_uid}&survey_uid=${survey_uid}`;
+    const url = `${API_BASE_URL}/forms/${formUID}`;
 
-    const res = await axios.get(url, {
+    const res = await axios.put(url, formData, {
       headers: {
         "X-CSRF-Token": csrfToken,
         "Content-Type": "application/json",
@@ -91,39 +84,11 @@ export const fetchUserHierarchy = async (
   }
 };
 
-export const updateUserHierarchy = async (formData: any) => {
+export const deleteAdminForm = async (formUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/user-hierarchy`;
-
-    const res = await axios.put(
-      url,
-      { ...formData },
-      {
-        headers: {
-          "X-CSRF-Token": csrfToken,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
-    return res;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const deleteUserHierarchy = async (
-  user_uid: string,
-  survey_uid: string
-) => {
-  try {
-    await getCSRFToken();
-
-    const csrfToken = getCookie("CSRF-TOKEN");
-
-    const url = `${API_BASE_URL}/user-hierarchy?user_uid=${user_uid}&survey_uid=${survey_uid}`;
+    const url = `${API_BASE_URL}/forms/${formUID}`;
 
     const res = await axios.delete(url, {
       headers: {
@@ -133,16 +98,15 @@ export const deleteUserHierarchy = async (
       withCredentials: true,
     });
     return res;
-  } catch (err: any) {
-    return err;
+  } catch (error) {
+    return error;
   }
 };
 
 export const api = {
-  postSupervisorRoles,
-  fetchSupervisorRoles,
-  fetchAllPermissions,
-  fetchUserHierarchy,
-  updateUserHierarchy,
-  deleteUserHierarchy,
+  fetchAllAdminForm,
+  fetchAdminForm,
+  createAdminForm,
+  updateAdminForm,
+  deleteAdminForm,
 };
