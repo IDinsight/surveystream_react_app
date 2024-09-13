@@ -23,11 +23,11 @@ export const fetchSupervisorRoles = async (survey_uid?: string) => {
   }
 };
 
-export const fetchAllPermissions = async () => {
+export const fetchAllPermissions = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/permissions`;
+    const url = `${API_BASE_URL}/permissions?survey_uid=${survey_uid}`;
 
     const res = await axios.get(url, {
       headers: {
@@ -44,6 +44,7 @@ export const fetchAllPermissions = async () => {
 
 export const postSupervisorRoles = async (
   formData: SupervisorRole[],
+  validate_hierarchy: boolean,
   survey_uid: string
 ) => {
   try {
@@ -53,7 +54,7 @@ export const postSupervisorRoles = async (
 
     const res = await axios.put(
       `${API_BASE_URL}/roles?survey_uid=${survey_uid}`,
-      { roles: formData },
+      { roles: formData, validate_hierarchy: validate_hierarchy },
       {
         headers: {
           "X-CSRF-Token": csrfToken,

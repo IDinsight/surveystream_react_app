@@ -1,9 +1,6 @@
 import { Button, Modal, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  DescriptionText,
-  DescriptionTitle,
-} from "../../SurveyInformation.styled";
+import { DescriptionText } from "../../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import {
@@ -12,19 +9,17 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper, RolesTable } from "../SurveyUserRoles.styled";
-import { ExclamationCircleFilled, FileAddOutlined } from "@ant-design/icons";
 import {
-  BackArrow,
-  BackLink,
+  BodyWrapper,
+  RolesTable,
+  CustomLinkBtn,
+} from "../SurveyUserRoles.styled";
+import { ExclamationCircleOutlined, FileAddOutlined } from "@ant-design/icons";
+import {
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import Header from "../../../../components/Header";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
@@ -53,7 +48,7 @@ function ManageSurveyRoles() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const isLoading = useAppSelector(
+  const isuserRolesLoading = useAppSelector(
     (state: RootState) => state.userRoles.loading
   );
   const supervisorRoles = useAppSelector(
@@ -68,6 +63,8 @@ function ManageSurveyRoles() {
 
   const [deleteRoleId, setDeleteRoleId] = useState<number>();
 
+  const [loading, setLoading] = useState(false);
+
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
@@ -79,7 +76,9 @@ function ManageSurveyRoles() {
       const originalRolesData: OriginalRolesData = res.payload;
 
       const findItemByRoleUid = (roleUid: number): string | null => {
-        if (Array.isArray(originalRolesData)) {
+        if (roleUid === null) {
+          return "No Reporting Role";
+        } else if (Array.isArray(originalRolesData)) {
           const foundItem = originalRolesData.find(
             (item: { role_uid: number }) => item.role_uid === roleUid
           );
@@ -152,12 +151,28 @@ function ManageSurveyRoles() {
     navigate(`/survey-information/survey-roles/add/${survey_uid}`);
   };
 
-  const handleDelete = (role_uid: any): void => {
+  const handleEditRoleHierarchy = () => {
+    navigate(`/survey-information/survey-roles/hierarchy/${survey_uid}`);
+  };
+
+  const handleDelete = (role_uid: any, role_name: string): void => {
+    // check if the role is reporting role for any other role
+    const child_role = supervisorRoles.find(
+      (role) => role.reporting_role_uid == role_uid
+    )?.role_name;
+
+    if (child_role) {
+      message.error(
+        `Cannot delete "${role_name}" as it is the reporting role for "${child_role}". Kindly update the reporting role for "${child_role}" before deleting this role.`
+      );
+      return;
+    }
     setDeleteRoleId(role_uid);
     setIsOpenDeleteModel(true);
   };
 
   const handleDeleteRole = async () => {
+    setLoading(true);
     //to delete roles update roles for the survey without the deleted role
     //this is to ensure hierarchy validations on the backend
     const userRoles = supervisorRoles;
@@ -175,6 +190,7 @@ function ManageSurveyRoles() {
     const rolesRes = await dispatch(
       postSupervisorRoles({
         supervisorRolesData: filteredRoles,
+        validate_hierarchy: false,
         surveyUid: survey_uid ?? "",
       })
     );
@@ -187,8 +203,9 @@ function ManageSurveyRoles() {
       message.success("Roles deleted successfully");
     }
 
-    setDeleteRoleId(undefined);
     setIsOpenDeleteModel(false);
+    setDeleteRoleId(undefined);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -217,26 +234,26 @@ function ManageSurveyRoles() {
       key: "actions",
       render: (text: any, record: any) => (
         <span>
-          <Button
+          <CustomLinkBtn
             disabled={!record?.role_uid}
             type="link"
             onClick={() => handleEdit(record?.role_uid)}
           >
             Edit
-          </Button>
-          <Button
+          </CustomLinkBtn>
+          <CustomLinkBtn
             disabled={!record?.role_uid}
             type="link"
             onClick={() => handleDuplicate(record?.role_uid)}
           >
             Duplicate
-          </Button>
+          </CustomLinkBtn>
 
           <Button
             disabled={!record?.role_uid}
             danger
             type="text"
-            onClick={() => handleDelete(record?.role_uid)}
+            onClick={() => handleDelete(record?.role_uid, record?.role)}
             style={{ marginLeft: 8 }}
           >
             Delete
@@ -245,6 +262,8 @@ function ManageSurveyRoles() {
       ),
     },
   ];
+
+  const isLoading = isuserRolesLoading || loading;
 
   return (
     <>
@@ -264,6 +283,36 @@ function ManageSurveyRoles() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Roles</Title>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+        <div style={{ float: "right", marginTop: "0px" }}>
+          <Button
+            type="primary"
+            icon={<FileAddOutlined />}
+            style={{
+              marginLeft: "50px",
+              backgroundColor: "#2F54EB",
+            }}
+            onClick={() => handleAddNewRole()}
+          >
+            Add new role{" "}
+          </Button>
+          <Button
+            type="primary"
+            icon={<FileAddOutlined />}
+            style={{
+              marginLeft: "25px",
+              backgroundColor: "#2F54EB",
+            }}
+            onClick={() => handleEditRoleHierarchy()}
+          >
+            Edit role hierarchy{" "}
+          </Button>
+        </div>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -271,23 +320,10 @@ function ManageSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
                 Manage the roles related to your survey here
               </DescriptionText>
-              <div style={{ float: "right", marginTop: "-60px" }}>
-                <Button
-                  type="primary"
-                  icon={<FileAddOutlined />}
-                  style={{
-                    marginLeft: "25px",
-                    backgroundColor: "#2F54EB",
-                  }}
-                  onClick={() => handleAddNewRole()}
-                >
-                  Add new role{" "}
-                </Button>
-              </div>
+
               <div style={{ display: "flex" }}></div>
               <RolesTable
                 columns={rolesTableColumn}
@@ -305,33 +341,36 @@ function ManageSurveyRoles() {
             <Modal
               open={isOpenDeleteModel}
               title={
-                <div style={{ display: "flex" }}>
-                  <ExclamationCircleFilled
+                <div style={{ display: "flex", marginTop: "-15px" }}>
+                  <ExclamationCircleOutlined
                     style={{ color: "orange", fontSize: 20 }}
                   />
-                  <p style={{ marginLeft: "10px" }}>Delete the role</p>
+                  <p style={{ marginLeft: "10px" }}>Deletion Confirmation</p>
                 </div>
               }
               okText="Yes, delete role"
               onOk={() => handleDeleteRole()}
               onCancel={() => setIsOpenDeleteModel(false)}
             >
-              <p>Are you sure you want to delete this role?</p>
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: "-15px",
+                  marginLeft: "30px",
+                }}
+              >
+                <p>
+                  Are you sure you want to delete the role:{" "}
+                  {
+                    supervisorRoles.find(
+                      (role) => role.role_uid == deleteRoleId?.toString()
+                    )?.role_name
+                  }
+                  ?
+                </p>
+              </div>
             </Modal>
           </div>
-
-          <FooterWrapper>
-            <SaveButton disabled>Save</SaveButton>
-            <ContinueButton
-              onClick={() => {
-                navigate(
-                  `/survey-information/survey-users/users/${survey_uid}`
-                );
-              }}
-            >
-              Finalize roles
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>
