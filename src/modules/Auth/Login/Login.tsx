@@ -1,5 +1,4 @@
-import { Button, Form, Input, ConfigProvider, message } from "antd";
-import { geekblue } from "@ant-design/colors";
+import { Form, Input, message } from "antd";
 
 import React, { useEffect, useState } from "react";
 
@@ -18,7 +17,10 @@ import {
 } from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { getCookie } from "../../../utils/helper";
-import { GlobalStyle } from "../../../shared/Global.styled";
+import {
+  GlobalStyle,
+  PurplePrimaryButton,
+} from "../../../shared/Global.styled";
 
 const Login = () => {
   const [form] = useForm();
@@ -132,33 +134,22 @@ const Login = () => {
               </Form.Item>
               <Form.Item shouldUpdate>
                 {() => (
-                  <ConfigProvider
-                    theme={{
-                      components: {
-                        Button: {
-                          colorPrimary: geekblue[4],
-                          colorPrimaryHover: geekblue[5],
-                        },
-                      },
-                    }}
+                  <PurplePrimaryButton
+                    id="loginForm_submit"
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    className="w-full h-[40px]"
+                    loading={loading}
+                    disabled={
+                      !form.isFieldsTouched(true) ||
+                      !!form
+                        .getFieldsError()
+                        .filter(({ errors }) => errors.length).length
+                    }
                   >
-                    <Button
-                      id="loginForm_submit"
-                      type="primary"
-                      htmlType="submit"
-                      block
-                      className="w-full h-[40px]"
-                      loading={loading}
-                      disabled={
-                        !form.isFieldsTouched(true) ||
-                        !!form
-                          .getFieldsError()
-                          .filter(({ errors }) => errors.length).length
-                      }
-                    >
-                      Login
-                    </Button>
-                  </ConfigProvider>
+                    Login
+                  </PurplePrimaryButton>
                 )}
               </Form.Item>
             </Form>
