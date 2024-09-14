@@ -13,7 +13,7 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { Button, Result } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
-import NavItems from "../../components/NavItems";
+import NavItems from "../../components/NavItems.OLD";
 import { GlobalStyle } from "../../shared/Global.styled";
 import { StyledLink, NewSurveyCard, Text } from "./SurveysHome.styled";
 

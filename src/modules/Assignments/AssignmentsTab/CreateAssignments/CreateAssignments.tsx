@@ -1,6 +1,6 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import Header from "../../../../components/Header.OLD";
-import NavItems from "../../../../components/NavItems";
+import NavItems from "../../../../components/NavItems.OLD";
 import { PushpinOutlined } from "@ant-design/icons";
 import {
   Button,

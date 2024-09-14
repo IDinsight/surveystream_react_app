@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import Header from "../../components/Header.OLD";
-import NavItems from "../../components/NavItems";
+import NavItems from "../../components/NavItems.OLD";
 import Footer from "../../components/Footer";
 import {
   BodyWrapper,
