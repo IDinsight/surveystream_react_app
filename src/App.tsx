@@ -4,13 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 import FullScreenLoader from "./components/Loaders/FullScreenLoader";
 import AppRoutes from "./config/routes";
 
-import HeaderBis from "./components/HeaderBis";
+import Header from "./components/Header";
 
 function App() {
   return (
     <Suspense fallback={<FullScreenLoader />}>
       <BrowserRouter>
-        <HeaderBis />
+        <Header />
         <AppRoutes />
       </BrowserRouter>
     </Suspense>

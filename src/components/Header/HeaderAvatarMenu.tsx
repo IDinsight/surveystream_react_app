@@ -28,7 +28,7 @@ const AvatarWrapper = styled.div`
   font-size: 15px;
 `;
 
-function HeaderOneAvatarMenu({userProfile}: {userProfile?: any}) {
+function HeaderAvatarMenu({ userProfile }: { userProfile?: any }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -48,7 +48,16 @@ function HeaderOneAvatarMenu({userProfile}: {userProfile?: any}) {
     }
     return "";
   };
-  
+
+  const getInitials = () => {
+    const name = getUsernameText();
+    const nameArray = name.split(" ");
+    const initials = nameArray.map((word: string) =>
+      word.charAt(0).toUpperCase()
+    );
+    return initials.join("");
+  };
+
   const items: MenuProps["items"] = [
     {
       label: <Menu.Item key="profile">{getUsernameText()}</Menu.Item>,
@@ -71,10 +80,11 @@ function HeaderOneAvatarMenu({userProfile}: {userProfile?: any}) {
     <ProfileWrapper className="flex items-center ml-auto mr-6">
       <Dropdown menu={{ items }} trigger={["hover", "click"]}>
         <a id="user_profile_avatar">
-          <AvatarWrapper>{getUsernameText()}</AvatarWrapper>;
+          <AvatarWrapper>{getInitials()}</AvatarWrapper>
         </a>
       </Dropdown>
-    </ProfileWrapper>)
+    </ProfileWrapper>
+  );
 }
 
-export default HeaderOneAvatarMenu;
+export default HeaderAvatarMenu;
