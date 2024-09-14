@@ -131,15 +131,15 @@ const Header = () => {
           />
         </Link>
       </div>
-      <div className="nav-menu flex">
+      <div className="nav-menu flex flex-1 justify-end">
         {navItems.map((item: any, index) => {
           if (item.home) {
             return (
               <div
-                className="bg-geekblue-5 justify-center min-w-40"
+                className="bg-geekblue-5 justify-center w-40 px-2 "
                 key={index}
               >
-                <HomeFilled className="flex items-center !text-[16px]" />
+                {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
                 <span>Home</span>
               </div>
             );
@@ -171,7 +171,7 @@ const Header = () => {
           );
         })}
       </div>
-      <HeaderAvatarMenu userProfile={userProfile} />
+      {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}
     </header>
   );
 };
