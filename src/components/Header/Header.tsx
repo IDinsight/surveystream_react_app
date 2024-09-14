@@ -135,8 +135,11 @@ const Header = () => {
         {navItems.map((item: any, index) => {
           if (item.home) {
             return (
-              <div className="bg-geekblue-5 justify-center w-40" key={index}>
-                {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
+              <div
+                className="bg-geekblue-5 justify-center min-w-40"
+                key={index}
+              >
+                <HomeFilled className="flex items-center !text-[16px]" />
                 <span>Home</span>
               </div>
             );
@@ -155,13 +158,13 @@ const Header = () => {
           }
           return (
             <div
-              className={`nav-menu-item justify-center w-40 ${
+              className={`nav-menu-item justify-center w-40 px-2 ${
                 item.isActive ? "bg-geekblue-5" : ""
               }`}
               key={index}
             >
               <Link to={item.url}>
-                {/* <HomeFilled className="flex items-center !text-base !text-gray-2" /> */}
+                {/* <item.icon className="flex items-center !text-base !text-gray-2 mx-1" /> */}
                 <span className="!text-gray-2">{item.label}</span>
               </Link>
             </div>
