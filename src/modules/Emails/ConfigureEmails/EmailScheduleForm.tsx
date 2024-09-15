@@ -54,9 +54,6 @@ const EmailScheduleForm = ({
     const newFormState = {
       tableList: currentData ? [...currentData.tableList] : [],
     };
-    console.log("newFormState", newFormState);
-    console.log("formStates", formStates);
-    console.log("currentData", currentData);
     setFormStates([...formStates, newFormState]);
   };
   const updateFormState = (index: any, key: any, value: any) => {
@@ -85,23 +82,16 @@ const EmailScheduleForm = ({
     try {
       const formValues = form.validateFields();
       const { schedules } = form.getFieldsValue();
-      console.log("schedules", schedules);
-      console.log("formValues", formValues);
-      console.log("tableList", tableList);
-      console.log("formStates", formStates);
 
       for (let i = 0; i < schedules.length; i++) {
         const schedule = schedules[i];
         const dates = schedule?.dates?.map((date: any) => formatDate(date));
         const formattedTime = schedule?.emailTime?.format("HH:mm");
-        console.log("formStates", formStates[i]);
-        console.log("filter_list", formStates[i].tableList.filter_list);
 
         const filterList = formStates[i].tableList.map(
           (table: any) => table.filter_list
         );
         const mergedFilterList = [].concat(...filterList);
-        console.log("mergedFilterList", mergedFilterList);
 
         const emailScheduleData = {
           email_config_uid: emailConfigUID,
@@ -240,29 +230,27 @@ const EmailScheduleForm = ({
                     setCurrentFormIndex(formIndex);
                   }}
                 />
-                {currentFormIndex !== null &&
-                  (console.log("currentFormIndex", currentFormIndex),
-                  (
-                    <EmailScheduleFilter
-                      open={insertScheduleFilterOpen}
-                      setOpen={setScheduleFilterOpen}
-                      configUID={emailConfigUID}
-                      tableList={formStates[currentFormIndex].tableList}
-                      setTableList={(value: any) => {
-                        const newFormStates = [...formStates];
-                        if (editingIndex !== null) {
-                          newFormStates[currentFormIndex].tableList[
-                            editingIndex
-                          ] = value;
-                        } else {
-                          newFormStates[currentFormIndex].tableList.push(value);
-                        }
-                        setFormStates(newFormStates);
-                      }}
-                      editingIndex={editingIndex}
-                      setEditingIndex={setEditingIndex}
-                    />
-                  ))}
+                {currentFormIndex !== null && (
+                  <EmailScheduleFilter
+                    open={insertScheduleFilterOpen}
+                    setOpen={setScheduleFilterOpen}
+                    configUID={emailConfigUID}
+                    tableList={formStates[currentFormIndex].tableList}
+                    setTableList={(value: any) => {
+                      const newFormStates = [...formStates];
+                      if (editingIndex !== null) {
+                        newFormStates[currentFormIndex].tableList[
+                          editingIndex
+                        ] = value;
+                      } else {
+                        newFormStates[currentFormIndex].tableList.push(value);
+                      }
+                      setFormStates(newFormStates);
+                    }}
+                    editingIndex={editingIndex}
+                    setEditingIndex={setEditingIndex}
+                  />
+                )}
               </div>
             ))}
 

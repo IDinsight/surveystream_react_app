@@ -134,18 +134,24 @@ export const getAllEmailDetails = async (form_uid: string) => {
 
 // Email Schedule Endpoints
 
-export const getEmailSchedule = async (id: string) => {
+export const getEmailSchedule = async (
+  id: string,
+  email_config_uid: string
+) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const response = await axios.get(`${API_BASE_URL}/emails/schedule/${id}`, {
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/schedule/${id}?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
 
     return response;
   } catch (error) {
