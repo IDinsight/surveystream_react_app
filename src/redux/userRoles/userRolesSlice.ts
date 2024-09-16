@@ -132,6 +132,9 @@ const userRolesSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    resetSupervisorRoles: () => {
+      return initialState;
+    },
   },
 });
 
@@ -147,6 +150,7 @@ export const {
   postSupervisorRolesFailure,
   addSupervisorRole,
   setSupervisorRoles,
+  resetSupervisorRoles,
   setRolePermissions,
   getUserHierarchyFailure,
   getUserHierarchyRequest,

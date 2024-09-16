@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://127.0.0.1:5001/",
   "dependencies": {
+    "@ant-design/colors": "^7.1.0",
     "@ant-design/icons": "^5.0.1",
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^7.0.0",
