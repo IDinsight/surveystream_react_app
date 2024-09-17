@@ -87,6 +87,8 @@ function EditSurveyUsers() {
 
   const [userDetails, setUserDetails] = useState<any>({
     ...editUser,
+    is_survey_admin:
+      editUser?.user_admin_survey_names.length > 0 ? true : false,
   });
 
   const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
@@ -487,6 +489,8 @@ function EditSurveyUsers() {
                         ? rolesTableData.find((r: any) =>
                             userDetails?.roles?.includes(r.role_uid)
                           ).role_uid
+                        : userDetails?.is_survey_admin
+                        ? "Survey Admin"
                         : undefined
                     }
                     rules={
