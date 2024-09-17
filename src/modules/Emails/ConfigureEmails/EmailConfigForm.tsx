@@ -219,7 +219,9 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
         const emailConfigData = {
           form_uid: sctoFormUID,
           config_name: configName,
-          nofication_users: notificationUsers,
+          email_source_columns: gsheetColumnHeader,
+          report_users: notificationUsers,
+          cc_users: ccUsers,
           ...formValues,
         };
 

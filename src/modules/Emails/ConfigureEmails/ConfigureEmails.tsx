@@ -175,10 +175,10 @@ function ConfigureEmails() {
                 title: "Email Config",
               },
               {
-                title: "Email Schedules",
+                title: "Email Templates",
               },
               {
-                title: "Email Templates",
+                title: "Email Schedules",
               },
             ]}
           />
@@ -199,19 +199,19 @@ function ConfigureEmails() {
             />
           ) : null}
           {stepIndex === 1 ? (
-            <EmailScheduleForm
-              handleBack={handleBack}
-              emailConfigUID={configUid}
-              configNames={configNames}
-              handleContinue={handleContinue}
-            />
-          ) : null}
-          {stepIndex === 2 ? (
             <EmailTemplateForm
               handleBack={handleBack}
               emailConfigUID={configUid}
               stcoForms={sctoForms}
               config={configNames}
+              handleContinue={handleContinue}
+            />
+          ) : null}
+          {stepIndex === 2 ? (
+            <EmailScheduleForm
+              handleBack={handleBack}
+              emailConfigUID={configUid}
+              configNames={configNames}
               handleContinue={handleContinue}
             />
           ) : null}

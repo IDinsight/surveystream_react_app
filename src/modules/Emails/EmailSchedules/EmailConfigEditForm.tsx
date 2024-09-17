@@ -119,6 +119,7 @@ const EmailConfigEditForm = ({
       const formValues = await form.validateFields();
 
       const emailConfigData = {
+        email_source_columns: gsheetColumnHeader,
         ...formValues,
       };
 
