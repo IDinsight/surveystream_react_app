@@ -121,8 +121,14 @@ const ManualEmailTriggerForm = ({
           })
         );
       }
+      if (updatedInitialValues?.config_name) {
+        updatedInitialValues.email_config_uid = emailConfigData.find(
+          (config: any) => config.config_name === initialValues.config_name
+        )?.email_config_uid;
+      }
       form.setFieldsValue({
         ...updatedInitialValues,
+        email_config_uid: updatedInitialValues.email_config_uid,
         date: updatedInitialValues.date
           ? dayjs(updatedInitialValues.date)
           : null,
@@ -168,7 +174,12 @@ const ManualEmailTriggerForm = ({
         label="Time"
         rules={[{ required: true, message: "Please select the time" }]}
       >
-        <TimePicker format="HH:mm" />
+        <TimePicker
+          format="HH:mm"
+          minuteStep={30}
+          showNow={false}
+          needConfirm={false}
+        />
       </Form.Item>
       <Form.Item
         name="recipients"
