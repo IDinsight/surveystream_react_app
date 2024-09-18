@@ -158,9 +158,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                 >
                   <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
-                    <p>
-                      Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
-                    </p>
+                    <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
                     <Tooltip title="Edit">
                       <Button
                         type="link"
