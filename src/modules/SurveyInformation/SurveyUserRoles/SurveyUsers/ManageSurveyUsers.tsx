@@ -100,7 +100,6 @@ function ManageSurveyUsers() {
           supervisor: findUserName(user.supervisor_uid, usersRes.payload),
         })
       );
-
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
     }

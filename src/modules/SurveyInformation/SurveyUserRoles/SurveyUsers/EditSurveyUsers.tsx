@@ -88,7 +88,7 @@ function EditSurveyUsers() {
   const [userDetails, setUserDetails] = useState<any>({
     ...editUser,
     is_survey_admin:
-      editUser?.user_admin_survey_names.length > 0 ? true : false,
+      editUser?.user_admin_survey_names?.length > 0 ? true : false,
   });
 
   const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
@@ -105,7 +105,6 @@ function EditSurveyUsers() {
       role_uid: roleUid,
       parent_user_uid: parentUid,
     };
-
     if (!hasReportingRole) {
       const deleteHierarchyRes = await dispatch(
         deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
@@ -124,6 +123,25 @@ function EditSurveyUsers() {
     const commonRoles = rolesTableData.filter((r: any) =>
       initialUserData?.roles?.includes(r.role_uid)
     );
+
+    if (
+      initialUserData?.user_admin_survey_names.length > 0 &&
+      !userDetails.is_survey_admin
+    ) {
+      // Check if the survey has other survey admins
+      const otherAdmins = userList.filter(
+        (user: any) =>
+          user.user_uid !== initialUserData.user_uid &&
+          user.user_admin_survey_names.length > 0
+      );
+      if (otherAdmins.length === 0) {
+        message.error(
+          "There should be at least one survey admin in the survey. Kindly assign another user as survey admin before removing this user's survey admin role."
+        );
+        setLoading(false);
+        return;
+      }
+    }
 
     // For non survey admins, if there were survey roles before and
     // now there are less roles, it means no new role was added
