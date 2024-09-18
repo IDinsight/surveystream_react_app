@@ -230,6 +230,14 @@ function EmailTableModel({
       }
     }
 
+    // 7. Cheeck if enumerator_id column is selected
+    if (!selectedColumns["enumerator_id"]?.selected) {
+      message.error(
+        "enumerator_id column must be selected to send email tables to enumerator"
+      );
+      return;
+    }
+
     const column_mapping: any = {};
     for (const key of selectedColumnKeys) {
       column_mapping[key] = selectedColumns[key].text;
@@ -411,6 +419,11 @@ function EmailTableModel({
           {selectedTable && availableColumns.length > 0 ? (
             <>
               <div>
+                <Row>
+                  <Col span={12}>
+                    <p>Kindly Ensure to map enumerator_id column in table</p>
+                  </Col>
+                </Row>
                 <Row>
                   <Col span={6}>
                     <p>Columns in the table</p>
