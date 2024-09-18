@@ -47,7 +47,7 @@ function AddUser() {
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
-    const checkResponse = await dispatch(postCheckUser(email));
+    const checkResponse = await dispatch(postCheckUser({ email: email }));
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
       setIsExistingUser(true);
