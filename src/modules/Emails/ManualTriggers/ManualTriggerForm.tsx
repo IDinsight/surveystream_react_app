@@ -164,10 +164,7 @@ const ManualEmailTriggerForm = ({
           { validator: validateDate },
         ]}
       >
-        <DatePicker
-          format="YYYY-MM-DD"
-          defaultValue={dayjs(initialValues?.date)}
-        />
+        <DatePicker format="YYYY-MM-DD" />
       </Form.Item>
       <Form.Item
         name="time"
