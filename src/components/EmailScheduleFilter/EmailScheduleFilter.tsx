@@ -15,7 +15,7 @@ import {
   Tag,
 } from "antd";
 import { useEffect, useState } from "react";
-import { getTableCatalog } from "../../redux/emails/apiService";
+import { getTableCatalogSchedule } from "../../redux/emails/apiService";
 import FullScreenLoader from "../Loaders/FullScreenLoader";
 
 const { Option } = Select;
@@ -180,7 +180,7 @@ function EmailScheduleFilter({
   useEffect(() => {
     if (configUID) {
       setLoading(true);
-      getTableCatalog(configUID)
+      getTableCatalogSchedule(configUID)
         .then((res: any) => {
           setLoading(false);
           if (res.status === 200 && res.data.success) {

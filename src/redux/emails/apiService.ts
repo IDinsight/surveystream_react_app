@@ -239,7 +239,7 @@ export const getEmailSchedules = async (email_config_uid: string) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/schedules?email_config_uid=${email_config_uid}`,
+      `${API_BASE_URL}/emails/schedule?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -524,6 +524,28 @@ export const getTableCatalog = async (email_config_uid: string) => {
 
     const response = await axios.get(
       `${API_BASE_URL}/emails/tablecatalog?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getTableCatalogSchedule = async (email_config_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/tablecatalog/schedules?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
