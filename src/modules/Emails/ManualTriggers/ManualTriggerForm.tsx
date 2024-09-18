@@ -187,12 +187,14 @@ const ManualEmailTriggerForm = ({
           showSearch
           mode="multiple"
           placeholder="Select recipients"
-          options={surveyEnumerators.map((enumerator: any, index: any) => ({
-            label: enumerator.name,
-            value: enumerator.enumerator_uid,
-            key: index,
-          }))}
-        />
+          optionFilterProp="children"
+        >
+          {surveyEnumerators.map((enumerator: any, index: any) => (
+            <Option value={enumerator.enumerator_uid} key={index}>
+              {enumerator.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
       <Form.Item>
         <Button type="primary" onClick={handleSubmit} loading={loading}>

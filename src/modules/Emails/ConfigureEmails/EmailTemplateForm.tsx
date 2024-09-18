@@ -418,10 +418,15 @@ const EmailTemplateForm = ({
           </>
         )}
       </Form.List>
-      <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "20px",
+        }}
+      >
         <Button
           style={{
-            display: "flex",
             float: "left",
           }}
           loading={loading}
@@ -432,9 +437,8 @@ const EmailTemplateForm = ({
 
         <Button
           style={{
-            display: "flex",
-            marginRight: "auto",
-            marginLeft: "auto",
+            marginRight: "40%",
+            marginLeft: "40%",
           }}
           loading={loading}
           onClick={handleContinue}
@@ -445,10 +449,10 @@ const EmailTemplateForm = ({
         <Button
           type="primary"
           style={{
-            display: "flex",
             backgroundColor: "#597EF7",
             color: "white",
-            float: "right",
+            marginLeft: "auto",
+            marginRight: "5$",
           }}
           loading={loading}
           onClick={handleSubmit}
