@@ -274,7 +274,7 @@ const EmailScheduleForm = ({
         <Button
           style={{
             display: "flex",
-            marginRight: "35%",
+            float: "left",
           }}
           loading={loading}
           onClick={handleBack}
@@ -285,9 +285,9 @@ const EmailScheduleForm = ({
         <Button
           style={{
             display: "flex",
-            marginRight: "35%",
+            marginLeft: "auto",
+            marginRight: "auto",
           }}
-          loading={loading}
           onClick={handleContinue}
         >
           Skip

@@ -202,7 +202,7 @@ function ConfigureEmails() {
             <EmailTemplateForm
               handleBack={handleBack}
               emailConfigUID={configUid}
-              stcoForms={sctoForms}
+              sctoForms={sctoForms}
               config={configNames}
               handleContinue={handleContinue}
             />

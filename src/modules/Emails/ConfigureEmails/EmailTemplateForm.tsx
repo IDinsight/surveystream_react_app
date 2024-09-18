@@ -13,10 +13,10 @@ import React from "react";
 const { Option } = Select;
 
 interface EmailTemplateFormProps {
-  handleContinue: (emailConfigUID: string) => void;
+  handleContinue: () => void;
   handleBack: () => void;
   config: any;
-  stcoForms: any;
+  sctoForms: any;
   emailConfigUID: string;
 }
 
@@ -24,7 +24,7 @@ const EmailTemplateForm = ({
   handleContinue,
   handleBack,
   config,
-  stcoForms,
+  sctoForms,
   emailConfigUID,
 }: EmailTemplateFormProps) => {
   const [form] = Form.useForm();
@@ -113,7 +113,7 @@ const EmailTemplateForm = ({
         }
 
         message.success("Email templates updated successfully");
-        handleContinue(emailConfigUID);
+        handleContinue();
       }
     } catch (error) {
       message.error("Failed to update email templates");
@@ -177,11 +177,11 @@ const EmailTemplateForm = ({
 
   // Getting enumerator languages
   useEffect(() => {
-    if (stcoForms.length > 0) {
-      if (stcoForms[0].form_uid) {
+    if (sctoForms.length > 0) {
+      if (sctoForms[0].form_uid) {
         dispatch(
           getEnumeratorLanguages({
-            formUID: stcoForms[0].form_uid,
+            formUID: sctoForms[0].form_uid,
           })
         ).then((res) => {
           if (res.payload?.success) {
@@ -196,7 +196,7 @@ const EmailTemplateForm = ({
         });
       }
     }
-  }, [stcoForms]);
+  }, [sctoForms]);
 
   // Getting and setting available variables
   useEffect(() => {
@@ -428,6 +428,18 @@ const EmailTemplateForm = ({
           onClick={handleBack}
         >
           Back
+        </Button>
+
+        <Button
+          style={{
+            display: "flex",
+            marginRight: "auto",
+            marginLeft: "auto",
+          }}
+          loading={loading}
+          onClick={handleContinue}
+        >
+          Skip
         </Button>
 
         <Button
