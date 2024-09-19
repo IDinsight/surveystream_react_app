@@ -5,11 +5,16 @@ import {
   Button,
   Select,
   message,
+  Popconfirm,
   DatePicker,
   TimePicker,
   Collapse,
 } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   createEmailSchedule,
@@ -160,9 +165,10 @@ const EmailScheduleForm = ({
                     key={key}
                     extra={
                       fields.length > 1 && (
-                        <MinusCircleOutlined
-                          onClick={(e) => {
-                            e.stopPropagation();
+                        <Popconfirm
+                          title="Are you sure you want to delete this schedule?"
+                          onConfirm={(e: any) => {
+                            e?.stopPropagation();
                             remove(name);
                             setFormStates((prevFormStates: any) =>
                               prevFormStates.filter(
@@ -170,8 +176,15 @@ const EmailScheduleForm = ({
                               )
                             );
                           }}
-                          style={{ float: "right", color: "red" }}
-                        />
+                          onCancel={(e: any) => e?.stopPropagation()}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <DeleteOutlined
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ float: "right", color: "red" }}
+                          />
+                        </Popconfirm>
                       )
                     }
                   >
