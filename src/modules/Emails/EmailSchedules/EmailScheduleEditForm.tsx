@@ -150,7 +150,13 @@ const EmailScheduleEditForm = ({
           multiple={true}
           placeholder="Select Dates"
           format="YYYY-MM-DD"
-          minDate={dayjs()}
+          disabledDate={(current) => {
+            const selectedDates = form.getFieldValue("dates") || [];
+            const isSelected = selectedDates.some((date: dayjs.Dayjs) =>
+              date.isSame(current, "day")
+            );
+            return !isSelected && current && current < dayjs().endOf("day");
+          }}
           maxTagCount={15}
         />
       </Form.Item>
