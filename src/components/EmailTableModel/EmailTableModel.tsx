@@ -231,7 +231,10 @@ function EmailTableModel({
     }
 
     // 7. Cheeck if enumerator_id column is selected
-    if (!selectedColumns["enumerator_id"]?.selected) {
+    if (
+      !selectedColumns["enumerator_id"]?.selected &&
+      !selectedColumns["Surveyor ID"]?.selected
+    ) {
       message.error(
         "enumerator_id column must be selected to send email tables to enumerator"
       );

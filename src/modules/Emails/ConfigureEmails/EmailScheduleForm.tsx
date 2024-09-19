@@ -7,6 +7,7 @@ import {
   message,
   DatePicker,
   TimePicker,
+  Collapse,
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -135,6 +136,8 @@ const EmailScheduleForm = ({
     return <FullScreenLoader />;
   }
 
+  const [activeKey, setActiveKey] = useState<string | string[]>(["0"]);
+
   return (
     <Form form={form} layout="vertical">
       <Form.List name="schedules" initialValue={[{}]}>
@@ -142,115 +145,136 @@ const EmailScheduleForm = ({
           <>
             {fields.map(({ key, name, ...restField }, formIndex) => (
               <div key={key} style={{ marginBottom: 8 }}>
-                {fields.length > 1 && (
-                  <MinusCircleOutlined
-                    onClick={() => {
-                      remove(name);
-                      setFormStates((prevFormStates: any) =>
-                        prevFormStates.filter(
-                          (_: any, index: number) => index !== formIndex
-                        )
-                      );
-                    }}
-                    style={{ float: "right" }}
-                  />
-                )}
-                <Form.Item
-                  {...restField}
-                  name={[name, "emailScheduleName"]}
-                  label="Email Schedule Name"
-                  tooltip="Select a unique name for the email schedule"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the email schedule name",
-                    },
-                  ]}
+                <Collapse
+                  activeKey={activeKey}
+                  onChange={(keys) => setActiveKey(keys)}
                 >
-                  <Input placeholder="Email Schedule Name e.g. Morning, Midday, Evening" />
-                </Form.Item>
-                <div style={{ display: "flex" }}>
-                  <Form.Item
-                    {...restField}
-                    style={{
-                      width: "100%",
-                      marginRight: "5px",
-                      maxHeight: "150px",
-                    }}
-                    name={[name, "dates"]}
-                    label="Email Dates"
-                    tooltip="Select all dates to send emails according to the schedule, multiple dates can be selected."
-                    rules={[
-                      { required: true, message: "Please select a date" },
-                    ]}
+                  <Collapse.Panel
+                    header={
+                      form.getFieldValue([
+                        "schedules",
+                        formIndex,
+                        "emailScheduleName",
+                      ]) || `Schedule ${formIndex + 1}`
+                    }
+                    key={key}
+                    extra={
+                      fields.length > 1 && (
+                        <MinusCircleOutlined
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            remove(name);
+                            setFormStates((prevFormStates: any) =>
+                              prevFormStates.filter(
+                                (_: any, index: number) => index !== formIndex
+                              )
+                            );
+                          }}
+                          style={{ float: "right", color: "red" }}
+                        />
+                      )
+                    }
                   >
-                    <DatePicker
-                      multiple={true}
-                      placeholder="Select Dates"
-                      format="YYYY-MM-DD"
-                      minDate={dayjs()}
-                      maxTagCount={15}
+                    <Form.Item
+                      {...restField}
+                      name={[name, "emailScheduleName"]}
+                      label="Email Schedule Name"
+                      tooltip="Select a unique name for the email schedule"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter the email schedule name",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Email Schedule Name e.g. Morning, Midday, Evening" />
+                    </Form.Item>
+                    <div style={{ display: "flex" }}>
+                      <Form.Item
+                        {...restField}
+                        style={{
+                          width: "100%",
+                          marginRight: "5px",
+                          maxHeight: "150px",
+                        }}
+                        name={[name, "dates"]}
+                        label="Email Dates"
+                        tooltip="Select all dates to send emails according to the schedule, multiple dates can be selected."
+                        rules={[
+                          { required: true, message: "Please select a date" },
+                        ]}
+                      >
+                        <DatePicker
+                          multiple={true}
+                          placeholder="Select Dates"
+                          format="YYYY-MM-DD"
+                          minDate={dayjs()}
+                          maxTagCount={15}
+                        />
+                      </Form.Item>
+                    </div>
+                    <div style={{ display: "flex" }}>
+                      <Form.Item
+                        style={{ width: "20%", marginRight: "auto" }}
+                        {...restField}
+                        name={[name, "emailTime"]}
+                        label="Email Time"
+                        tooltip="Time the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
+                        rules={[
+                          { required: true, message: "Please select a time" },
+                        ]}
+                      >
+                        <TimePicker
+                          placeholder="Select Time"
+                          format="HH:mm"
+                          minuteStep={30}
+                          showNow={false}
+                          needConfirm={false}
+                        />
+                      </Form.Item>
+                      <Button
+                        onClick={() => {
+                          setEditingIndex(null);
+                          setScheduleFilterOpen(true);
+                          setCurrentFormIndex(formIndex);
+                        }}
+                      >
+                        Add Filters for Schedule
+                      </Button>
+                    </div>
+                    <EmailScheduleFilterCard
+                      tableList={formStates[formIndex].tableList}
+                      handleEditTable={(tableIndex: any) => {
+                        setEditingIndex(tableIndex);
+                        setScheduleFilterOpen(true);
+                        setCurrentFormIndex(formIndex);
+                      }}
                     />
-                  </Form.Item>
-                </div>
-                <div style={{ display: "flex" }}>
-                  <Form.Item
-                    style={{ width: "20%", marginRight: "auto" }}
-                    {...restField}
-                    name={[name, "emailTime"]}
-                    label="Email Time"
-                    tooltip="Time the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
-                    rules={[
-                      { required: true, message: "Please select a time" },
-                    ]}
-                  >
-                    <TimePicker
-                      placeholder="Select Time"
-                      format="HH:mm"
-                      minuteStep={30}
-                      showNow={false}
-                      needConfirm={false}
-                    />
-                  </Form.Item>
-                  <Button
-                    onClick={() => {
-                      setEditingIndex(null);
-                      setScheduleFilterOpen(true);
-                      setCurrentFormIndex(formIndex);
-                    }}
-                  >
-                    Add Filters for Schedule
-                  </Button>
-                </div>
-                <EmailScheduleFilterCard
-                  tableList={formStates[formIndex].tableList}
-                  handleEditTable={(tableIndex: any) => {
-                    setEditingIndex(tableIndex);
-                    setScheduleFilterOpen(true);
-                    setCurrentFormIndex(formIndex);
-                  }}
-                />
-                {currentFormIndex !== null && (
-                  <EmailScheduleFilter
-                    open={insertScheduleFilterOpen}
-                    setOpen={setScheduleFilterOpen}
-                    configUID={emailConfigUID}
-                    tableList={formStates[currentFormIndex].tableList}
-                    setTableList={(value: any) => {
-                      const newFormStates = [...formStates];
-                      if (editingIndex !== null) {
-                        newFormStates[currentFormIndex].tableList[
-                          editingIndex
-                        ] = value;
-                      } else {
-                        newFormStates[currentFormIndex].tableList.push(value);
-                      }
-                      setFormStates(newFormStates);
-                    }}
-                    editingIndex={editingIndex}
-                    setEditingIndex={setEditingIndex}
-                  />
-                )}
+                    {currentFormIndex !== null && (
+                      <EmailScheduleFilter
+                        open={insertScheduleFilterOpen}
+                        setOpen={setScheduleFilterOpen}
+                        configUID={emailConfigUID}
+                        tableList={formStates[currentFormIndex].tableList}
+                        setTableList={(value: any) => {
+                          const newFormStates = [...formStates];
+                          if (editingIndex !== null) {
+                            newFormStates[currentFormIndex].tableList[
+                              editingIndex
+                            ] = value;
+                          } else {
+                            newFormStates[currentFormIndex].tableList.push(
+                              value
+                            );
+                          }
+                          setFormStates(newFormStates);
+                        }}
+                        editingIndex={editingIndex}
+                        setEditingIndex={setEditingIndex}
+                      />
+                    )}
+                  </Collapse.Panel>
+                </Collapse>
               </div>
             ))}
 
@@ -260,6 +284,7 @@ const EmailScheduleForm = ({
                 onClick={() => {
                   add();
                   addFormState();
+                  setActiveKey([`${fields.length}`]);
                 }}
                 block
                 icon={<PlusOutlined />}

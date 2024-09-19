@@ -204,13 +204,15 @@ const EmailScheduleEditForm = ({
           Submit
         </Button>
       </div>
-      <EmailScheduleFilterCard
-        tableList={tableList}
-        handleEditTable={(tableIndex: any) => {
-          setEditingIndex(tableIndex);
-          setScheduleFilterOpen(true);
-        }}
-      />
+      <div style={{ display: "flex", marginTop: "10px" }}>
+        <EmailScheduleFilterCard
+          tableList={tableList}
+          handleEditTable={(tableIndex: any) => {
+            setEditingIndex(tableIndex);
+            setScheduleFilterOpen(true);
+          }}
+        />
+      </div>
     </Form>
   );
 };
