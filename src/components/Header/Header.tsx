@@ -169,11 +169,12 @@ const Header = () => {
       </div>
       <div className="flex items-center px-4">
         <Button
-          type="primary"
+          type="link"
           target="_blank"
           shape="round"
           // icon={<QuestionOutlined />}
           href="https://docs.surveystream.idinsight.io"
+          danger
         >
           Documentation
         </Button>
