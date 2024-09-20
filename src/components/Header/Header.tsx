@@ -14,10 +14,12 @@ import { Link, useLocation } from "react-router-dom";
 
 import Logo from "assets/logo.svg";
 
+import { Button } from "antd";
 import {
   ApartmentOutlined,
   HomeFilled,
   BookFilled,
+  QuestionOutlined,
   MailOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
@@ -89,15 +91,8 @@ const Header = () => {
         url: "/",
         label: "Home",
         icon: HomeFilled,
-        show: !isSignedIn(),
+        show: location.pathname.includes("login"),
         home: true,
-      },
-      {
-        url: "https://docs.surveystream.idinsight.io",
-        label: "Documentation",
-        icon: BookFilled,
-        show: true,
-        external: true,
       },
       {
         url: "https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform",
@@ -131,16 +126,17 @@ const Header = () => {
           />
         </Link>
       </div>
-      <div className="nav-menu flex flex-1 justify-end">
+      <div className="nav-menu flex flex-1">
         {navItems.map((item: any, index) => {
           if (item.home) {
             return (
               <div
-                className="bg-geekblue-5 justify-center w-40 px-2 "
+                className="bg-geekblue-5 justify-center align-start w-40"
                 key={index}
               >
                 {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
-                <span>Home</span>
+
+                <a href="/">Home</a>
               </div>
             );
           }
@@ -170,6 +166,17 @@ const Header = () => {
             </div>
           );
         })}
+      </div>
+      <div className="flex items-center px-4">
+        <Button
+          type="primary"
+          target="_blank"
+          shape="round"
+          // icon={<QuestionOutlined />}
+          href="https://docs.surveystream.idinsight.io"
+        >
+          Documentation
+        </Button>
       </div>
       {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}
     </header>
