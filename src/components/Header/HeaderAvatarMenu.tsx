@@ -12,6 +12,7 @@ const ProfileWrapper = styled.div`
   font-size: 18px;
   font-weight: 300;
   line-height: 28px;
+  cursor: pointer;
 `;
 
 const AvatarWrapper = styled.div`
@@ -78,7 +79,7 @@ function HeaderAvatarMenu({ userProfile }: { userProfile?: any }) {
 
   return (
     <ProfileWrapper className="flex items-center ml-auto mr-6">
-      <Dropdown menu={{ items }} trigger={["hover", "click"]}>
+      <Dropdown menu={{ items }} trigger={["click"]}>
         <a id="user_profile_avatar">
           <AvatarWrapper>{getInitials()}</AvatarWrapper>
         </a>
