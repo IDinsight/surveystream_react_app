@@ -10,23 +10,15 @@ import {
   TimePicker,
   Collapse,
 } from "antd";
-import {
-  DeleteOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import {
-  createEmailSchedule,
-  getEmailSchedules,
-} from "../../../redux/emails/emailsActions";
+import { createEmailSchedule } from "../../../redux/emails/emailsActions";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import dayjs from "dayjs";
 import EmailScheduleFilter from "../../../components/EmailScheduleFilter";
 import EmailScheduleFilterCard from "../../../components/EmailScheduleFilterCard";
-const { Option } = Select;
-const { RangePicker } = DatePicker;
+import { getEmailSchedules } from "../../../redux/emails/apiService";
 
 const EmailScheduleForm = ({
   handleBack,
@@ -36,7 +28,9 @@ const EmailScheduleForm = ({
 }: any) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
-  const isLoading = useAppSelector((state: RootState) => state.emails.loading);
+  const { loading: isLoading, emailScheduleList } = useAppSelector(
+    (state: RootState) => state.emails
+  );
   const [currentFormIndex, setCurrentFormIndex] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -55,6 +49,8 @@ const EmailScheduleForm = ({
       tableList: [],
     },
   ]);
+  const [disabledIndices, setDisabledIndices] = useState<number[]>([]);
+
   const addFormState = (index: number | null = null) => {
     const currentData = index !== null ? formStates[index] : null;
     const newFormState = {
@@ -62,6 +58,7 @@ const EmailScheduleForm = ({
     };
     setFormStates([...formStates, newFormState]);
   };
+
   const updateFormState = (index: any, key: any, value: any) => {
     const newFormStates = [...formStates];
     newFormStates[index][key] = value;
@@ -77,10 +74,32 @@ const EmailScheduleForm = ({
   };
 
   const fetchEmailSchedules = async () => {
-    const email_config_uid = emailConfigUID;
-    const emailSchedulesRes = await dispatch(
-      getEmailSchedules({ email_config_uid })
-    );
+    const emailSchedulesRes: any = await getEmailSchedules(emailConfigUID);
+    if (emailSchedulesRes?.data?.success) {
+      const schedules = emailSchedulesRes.data.data;
+      form.setFieldsValue({
+        schedules: schedules.map((schedule: any, index: number) => {
+          if (schedule.filter_list) {
+            if (!formStates[index]) {
+              formStates[index] = { tableList: [] };
+            }
+            updateFormState(index, "tableList", [...schedule.filter_list]);
+          }
+          return {
+            emailScheduleName: schedule.email_schedule_name,
+            dates: schedule.dates.map((date: any) => dayjs(date)),
+            emailTime: dayjs(schedule.time, "HH:mm"),
+          };
+        }),
+      });
+      setDisabledIndices(schedules.map((_: any, index: number) => index)); // Disable fields for fetched schedules
+    } else {
+      message.error(
+        emailSchedulesRes?.message
+          ? emailSchedulesRes?.message
+          : "An error occurred, email schedules could not be fetched. Kindly check form data and try again"
+      );
+    }
   };
 
   const handleSubmit = async () => {
@@ -90,6 +109,9 @@ const EmailScheduleForm = ({
       const { schedules } = form.getFieldsValue();
 
       for (let i = 0; i < schedules.length; i++) {
+        if (disabledIndices.includes(i)) {
+          continue;
+        }
         const schedule = schedules[i];
         const dates = schedule?.dates?.map((date: any) => formatDate(date));
         const formattedTime = schedule?.emailTime?.format("HH:mm");
@@ -133,9 +155,9 @@ const EmailScheduleForm = ({
 
   useEffect(() => {
     if (emailConfigUID) {
-      // fetchEmailSchedules();
+      fetchEmailSchedules();
     }
-  }, []);
+  }, [emailConfigUID]);
 
   if (loading || isLoading) {
     return <FullScreenLoader />;
@@ -145,6 +167,11 @@ const EmailScheduleForm = ({
 
   return (
     <Form form={form} layout="vertical">
+      {disabledIndices.length > 0 && (
+        <div style={{ marginBottom: 16, color: "red" }}>
+          Previously filled schedules can only be edited at the main screen.
+        </div>
+      )}
       <Form.List name="schedules" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
@@ -164,7 +191,8 @@ const EmailScheduleForm = ({
                     }
                     key={key}
                     extra={
-                      fields.length > 1 && (
+                      fields.length > 1 &&
+                      !disabledIndices.includes(formIndex) && (
                         <Popconfirm
                           title="Are you sure you want to delete this schedule?"
                           onConfirm={(e: any) => {
@@ -200,7 +228,10 @@ const EmailScheduleForm = ({
                         },
                       ]}
                     >
-                      <Input placeholder="Email Schedule Name e.g. Morning, Midday, Evening" />
+                      <Input
+                        placeholder="Email Schedule Name e.g. Morning, Midday, Evening"
+                        disabled={disabledIndices.includes(formIndex)}
+                      />
                     </Form.Item>
                     <div style={{ display: "flex" }}>
                       <Form.Item
@@ -223,6 +254,7 @@ const EmailScheduleForm = ({
                           format="YYYY-MM-DD"
                           minDate={dayjs()}
                           maxTagCount={15}
+                          disabled={disabledIndices.includes(formIndex)}
                         />
                       </Form.Item>
                     </div>
@@ -243,6 +275,7 @@ const EmailScheduleForm = ({
                           minuteStep={30}
                           showNow={false}
                           needConfirm={false}
+                          disabled={disabledIndices.includes(formIndex)}
                         />
                       </Form.Item>
                       <Button
@@ -251,6 +284,7 @@ const EmailScheduleForm = ({
                           setScheduleFilterOpen(true);
                           setCurrentFormIndex(formIndex);
                         }}
+                        disabled={disabledIndices.includes(formIndex)}
                       >
                         Add Filters for Schedule
                       </Button>
@@ -258,10 +292,14 @@ const EmailScheduleForm = ({
                     <EmailScheduleFilterCard
                       tableList={formStates[formIndex].tableList}
                       handleEditTable={(tableIndex: any) => {
+                        if (disabledIndices.includes(formIndex)) {
+                          return;
+                        }
                         setEditingIndex(tableIndex);
                         setScheduleFilterOpen(true);
                         setCurrentFormIndex(formIndex);
                       }}
+                      disableEdit={disabledIndices.includes(formIndex)}
                     />
                     {currentFormIndex !== null && (
                       <EmailScheduleFilter

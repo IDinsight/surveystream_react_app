@@ -4,11 +4,13 @@ import TextArea from "antd/es/input/TextArea";
 interface EmailScheduleFilterCardProps {
   tableList: any;
   handleEditTable: any;
+  disableEdit: boolean;
 }
 
 const EmailScheduleFilterCard = ({
   tableList,
   handleEditTable,
+  disableEdit,
 }: EmailScheduleFilterCardProps) => {
   return (
     <>
@@ -32,7 +34,11 @@ const EmailScheduleFilterCard = ({
               </p>
             </Col>
             <Col style={{ textAlign: "right" }} span={6}>
-              <Button type="link" onClick={() => handleEditTable(index)}>
+              <Button
+                type="link"
+                onClick={() => handleEditTable(index)}
+                disabled={disableEdit}
+              >
                 Edit Filters
               </Button>
             </Col>

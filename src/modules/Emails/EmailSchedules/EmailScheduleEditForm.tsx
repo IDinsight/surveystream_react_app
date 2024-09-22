@@ -217,6 +217,7 @@ const EmailScheduleEditForm = ({
             setEditingIndex(tableIndex);
             setScheduleFilterOpen(true);
           }}
+          disableEdit={false}
         />
       </div>
     </Form>
