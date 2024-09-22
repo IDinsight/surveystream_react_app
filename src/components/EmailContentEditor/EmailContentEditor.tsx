@@ -9,6 +9,7 @@ interface EmailContentEditorProps {
   setCursorPosition: any;
   value?: string;
   standalone?: boolean;
+  disableEdit?: boolean;
 }
 
 function EmailContentEditor({
@@ -18,6 +19,7 @@ function EmailContentEditor({
   setCursorPosition,
   value,
   standalone = false,
+  disableEdit = false,
 }: EmailContentEditorProps) {
   const [val, setVal] = useState(value || "");
 
@@ -70,6 +72,7 @@ function EmailContentEditor({
         onChange={(val) => setVal(val)}
         modules={modules}
         onChangeSelection={handleSelectionChange}
+        readOnly={disableEdit}
       />
     </>
   );
