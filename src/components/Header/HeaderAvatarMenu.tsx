@@ -1,9 +1,7 @@
 import styled from "styled-components";
 import { Dropdown, Menu, MenuProps } from "antd";
 import { useAppDispatch } from "redux/hooks";
-
 import { performLogout } from "redux/auth/authActions";
-
 import { useNavigate } from "react-router-dom";
 
 const ProfileWrapper = styled.div`

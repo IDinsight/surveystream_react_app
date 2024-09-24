@@ -80,7 +80,6 @@ function SurveysHomePage() {
             >
               <Collapse
                 ghost
-                defaultActiveKey={["1"]}
                 items={[
                   {
                     key: "1",
@@ -125,9 +124,7 @@ function SurveysHomePage() {
                               <Text>Configure new survey</Text>
                             </NewSurveyCard>
                           </StyledLink>
-                        ) : (
-                          <></>
-                        )}
+                        ) : null}
                         {draftSurveys.map((survey, index: number) => (
                           <div key={survey.survey_uid}>
                             <SurveyCard

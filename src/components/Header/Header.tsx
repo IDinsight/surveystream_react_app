@@ -87,13 +87,13 @@ const Header = () => {
         isActive: location.pathname.includes("users"),
         external: false,
       },
-      {
-        url: "/",
-        label: "Home",
-        icon: HomeFilled,
-        show: location.pathname.includes("login"),
-        home: true,
-      },
+      // {
+      //   url: "/",
+      //   label: "Home",
+      //   icon: HomeFilled,
+      //   show: location.pathname.includes("login"),
+      //   home: true,
+      // },
       {
         url: "https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform",
         label: "Contact Us",
@@ -128,18 +128,18 @@ const Header = () => {
       </div>
       <div className="nav-menu flex flex-1">
         {navItems.map((item: any, index) => {
-          if (item.home) {
-            return (
-              <div
-                className="bg-geekblue-5 justify-center align-start w-40"
-                key={index}
-              >
-                {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
+          // if (item.home) {
+          //   return (
+          //     <div
+          //       className="bg-geekblue-5 justify-center align-start w-40"
+          //       key={index}
+          //     >
+          //       {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
 
-                <a href="/">Home</a>
-              </div>
-            );
-          }
+          //       <a href="/">Home</a>
+          //     </div>
+          //   );
+          // }
           if (item.external) {
             return (
               <div className="min-w-32 justify-center w-40" key={index}>
@@ -167,17 +167,13 @@ const Header = () => {
           );
         })}
       </div>
-      <div className="flex items-center px-4">
-        <Button
-          type="link"
-          target="_blank"
-          shape="round"
-          // icon={<QuestionOutlined />}
-          href="https://docs.surveystream.idinsight.io"
-          danger
-        >
-          Documentation
-        </Button>
+      <div className="nav-menu flex mr-2">
+        <div className="nav-menu-item justify-center w-40 px-2">
+          <Link to="https://docs.surveystream.idinsight.io">
+            {/* <item.icon className="flex items-center !text-base !text-gray-2 mx-1" /> */}
+            <span className="!text-gray-2">Documentation</span>
+          </Link>
+        </div>
       </div>
       {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}
     </header>
