@@ -155,7 +155,7 @@ const EmailScheduleEditForm = ({
             const isSelected = selectedDates.some((date: dayjs.Dayjs) =>
               date.isSame(current, "day")
             );
-            return !isSelected && current && current < dayjs().endOf("day");
+            return !isSelected && current && current < dayjs().startOf("day");
           }}
           maxTagCount={15}
         />
