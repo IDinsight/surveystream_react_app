@@ -180,7 +180,7 @@ jobs:
 
   build-docker-on-dev:
     if: github.event_name == 'pull_request'
-    name: Unit Test on PR (Dev branch)
+    name: Unit Test on Dev
     runs-on: ubuntu-latest
 
     permissions:
