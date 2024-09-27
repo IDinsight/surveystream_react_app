@@ -65,7 +65,7 @@ function SurveyorsTab({
   return (
     <>
       <SurveyorsTable
-        rowKey={(record) => record["enumerator_uid"]}
+        rowKey={(record: any) => record["enumerator_uid"]}
         columns={enumeratorTableColumns}
         dataSource={mainData}
         scroll={{ x: 2200, y: "calc(100vh - 380px)" }}
