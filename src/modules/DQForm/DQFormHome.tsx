@@ -3,8 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import NavItems from "../../components/NavItems";
-import Header from "../../components/Header";
+
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn } from "./DQForm.styled";
 import { RootState } from "../../redux/store";
@@ -47,7 +46,6 @@ function DQFormHome() {
 
   return (
     <>
-      <Header items={NavItems} />
       {isDQFormLoading ? (
         <FullScreenLoader />
       ) : (

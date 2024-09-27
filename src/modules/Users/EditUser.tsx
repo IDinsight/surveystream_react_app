@@ -6,8 +6,7 @@ import { RootState } from "../../redux/store";
 import { putUpdateUser } from "../../redux/userManagement/userManagementActions";
 import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import { GlobalStyle } from "../../shared/Global.styled";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { CloseCircleOutlined } from "@ant-design/icons";
@@ -80,7 +79,7 @@ function EditUser() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <HeaderContainer>
         <Title>
           {`Edit User :  ${userDetails.first_name} ${userDetails.last_name}`}

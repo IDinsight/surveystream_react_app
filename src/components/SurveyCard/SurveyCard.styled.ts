@@ -16,6 +16,8 @@ export const CardContainer = styled.div`
   border-radius: 0.125rem;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
 
+  font-family: "Lato", sans-serif !important;
+
   &:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }

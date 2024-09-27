@@ -10,7 +10,7 @@ export const GlobalStyle = createGlobalStyle`
 
 export const PurplePrimaryButton = styled(Button)`
   background-color: ${geekblue[4]};
-  &:hover {
+  &:hover:enabled {
     background-color: ${geekblue[5]} !important;
   }
 `;

@@ -24,7 +24,7 @@ import {
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
-import Header from "../../../../components/Header";
+
 import Column from "antd/lib/table/Column";
 import {
   getAllUsers,
@@ -232,7 +232,7 @@ function ManageSurveyUsers() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

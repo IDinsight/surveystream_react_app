@@ -1,6 +1,5 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import Header from "../../../../components/Header";
-import NavItems from "../../../../components/NavItems";
+
 import { PushpinOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -390,7 +389,7 @@ function CreateAssignments() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <div>
         <div
           style={{

@@ -2,7 +2,6 @@
   "name": "surveystream",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://127.0.0.1:5001/",
   "dependencies": {
     "@ant-design/colors": "^7.1.0",
     "@ant-design/icons": "^5.0.1",
