@@ -42,7 +42,7 @@ function TargetsTab({
   return (
     <>
       <TargetsTable
-        rowKey={(record) => record["target_uid"]}
+        rowKey={(record: any) => record["target_uid"]}
         columns={targetTableColumns}
         dataSource={mainData}
         bordered={true}

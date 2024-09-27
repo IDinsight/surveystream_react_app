@@ -161,7 +161,7 @@ const EmailTemplates = ({
             showQuickJumper: true,
             onShowSizeChange: (_, size) => setPaginationPageSize(size),
           }}
-          rowKey={(record) => record.config_type}
+          rowKey={(record: any) => record.config_type}
         />
       ) : (
         <div

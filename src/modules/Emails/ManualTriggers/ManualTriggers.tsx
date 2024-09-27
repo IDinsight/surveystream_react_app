@@ -178,7 +178,7 @@ function ManualTriggers({
             showQuickJumper: true,
             onShowSizeChange: (_, size) => setPaginationPageSize(size),
           }}
-          rowKey={(record) => record.manual_email_trigger_uid}
+          rowKey={(record: any) => record.manual_email_trigger_uid}
         />
       ) : (
         <div
