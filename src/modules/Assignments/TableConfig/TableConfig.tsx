@@ -63,11 +63,6 @@ function TableConfig() {
     form_uid: string;
   }>();
 
-  // Ensure that the survey_uid are available
-  if (!survey_uid) {
-    return <NotFound />;
-  }
-
   const {
     loading: isTableConfigLoading,
     data: tableConfig,
@@ -568,6 +563,11 @@ function TableConfig() {
   useEffect(() => {
     setDefaultSelectedCols();
   }, [selectedColumns, sctoColumns, otherColumns]);
+
+  // Ensure that the survey_uid are available
+  if (!survey_uid) {
+    return <NotFound />;
+  }
 
   return (
     <>

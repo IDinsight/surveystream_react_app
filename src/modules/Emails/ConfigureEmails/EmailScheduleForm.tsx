@@ -32,6 +32,7 @@ const EmailScheduleForm = ({
     (state: RootState) => state.emails
   );
   const [currentFormIndex, setCurrentFormIndex] = useState<number | null>(null);
+  const [activeKey, setActiveKey] = useState<string | string[]>(["0"]);
 
   const [loading, setLoading] = useState(false);
   const [insertScheduleFilterOpen, setScheduleFilterOpen] = useState(false);
@@ -162,8 +163,6 @@ const EmailScheduleForm = ({
   if (loading || isLoading) {
     return <FullScreenLoader />;
   }
-
-  const [activeKey, setActiveKey] = useState<string | string[]>(["0"]);
 
   return (
     <Form form={form} layout="vertical">
