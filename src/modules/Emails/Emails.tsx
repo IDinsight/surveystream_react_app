@@ -85,7 +85,6 @@ function Emails() {
           const lengthA = Array.isArray(b?.schedules) ? b.schedules.length : 0;
           return lengthA - lengthB;
         });
-
         setEmailConfigData(sortedEmailConfigs);
         setSchedulesData(sortedEmailConfigs);
       } else {

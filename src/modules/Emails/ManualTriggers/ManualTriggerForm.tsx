@@ -115,14 +115,20 @@ const ManualEmailTriggerForm = ({
       if (updatedInitialValues?.recipients) {
         updatedInitialValues.recipients = initialValues.recipients.map(
           (id: number) => ({
-            label: surveyEnumerators.find((e: any) => e.enumerator_id == id)
+            label: surveyEnumerators.find((e: any) => e.enumerator_uid == id)
               ?.name,
             value: id,
           })
         );
       }
+      if (updatedInitialValues?.config_name) {
+        updatedInitialValues.email_config_uid = emailConfigData.find(
+          (config: any) => config.config_name === initialValues.config_name
+        )?.email_config_uid;
+      }
       form.setFieldsValue({
         ...updatedInitialValues,
+        email_config_uid: updatedInitialValues.email_config_uid,
         date: updatedInitialValues.date
           ? dayjs(updatedInitialValues.date)
           : null,
@@ -158,17 +164,19 @@ const ManualEmailTriggerForm = ({
           { validator: validateDate },
         ]}
       >
-        <DatePicker
-          format="YYYY-MM-DD"
-          defaultValue={dayjs(initialValues?.date)}
-        />
+        <DatePicker format="YYYY-MM-DD" />
       </Form.Item>
       <Form.Item
         name="time"
         label="Time"
         rules={[{ required: true, message: "Please select the time" }]}
       >
-        <TimePicker format="HH:mm" />
+        <TimePicker
+          format="HH:mm"
+          minuteStep={30}
+          showNow={false}
+          needConfirm={false}
+        />
       </Form.Item>
       <Form.Item
         name="recipients"
@@ -179,12 +187,14 @@ const ManualEmailTriggerForm = ({
           showSearch
           mode="multiple"
           placeholder="Select recipients"
-          options={surveyEnumerators.map((enumerator: any, index: any) => ({
-            label: enumerator.name,
-            value: enumerator.enumerator_id,
-            key: index,
-          }))}
-        />
+          optionFilterProp="children"
+        >
+          {surveyEnumerators.map((enumerator: any, index: any) => (
+            <Option value={enumerator.enumerator_uid} key={index}>
+              {enumerator.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
       <Form.Item>
         <Button type="primary" onClick={handleSubmit} loading={loading}>

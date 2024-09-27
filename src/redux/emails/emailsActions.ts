@@ -290,10 +290,13 @@ export const getEmailSchedules = createAsyncThunk(
 
 export const getEmailSchedule = createAsyncThunk(
   "emails/getEmailSchedule",
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async (
+    { id, email_config_uid }: { id: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getEmailScheduleRequest());
-      const response: any = await api.getEmailSchedule(id);
+      const response: any = await api.getEmailSchedule(id, email_config_uid);
       if (response.status === 200) {
         dispatch(getEmailScheduleSuccess(response.data));
         return { ...response, success: true };

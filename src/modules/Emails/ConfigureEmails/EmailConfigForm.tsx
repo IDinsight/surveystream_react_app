@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { set } from "lodash";
 
 const { Option } = Select;
 
@@ -32,8 +33,8 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
   const [selectedconfigName, setSelectedconfigName] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [emailconfigNames, setEmailconfigNames] = useState<any>(configNames);
-  const [pdfAttachment, setPdfAttachment] = useState("");
-  const [pdfEncryption, setPdfEncryption] = useState("");
+  const [pdfAttachment, setPdfAttachment] = useState<boolean>(false);
+  const [pdfEncryption, setPdfEncryption] = useState<boolean>(false);
   const [pdfPassword, setPdfPassword] = useState("");
   const [gsheetColumnHeader, setGsheetColumnHeader] = useState<string[]>([]);
   const [loadingGsheet, setGsheet] = useState(false);
@@ -74,6 +75,29 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
 
   const handleSelectChange = (value: any) => {
     setSelectedconfigName(value);
+
+    emailconfigNames.forEach((type: any) => {
+      if (type.config_name === value) {
+        setConfigUid(type.email_config_uid);
+        setSourceType(type.email_source);
+        handleGsheetColumnHeaderChange(type.email_source_columns);
+        setPdfAttachment(type.pdf_attachment);
+        setPdfEncryption(type.pdf_encryption);
+        setPdfPassword(type.pdf_encryption_password_type);
+        form.setFieldsValue({
+          report_users: type.report_users,
+          cc_users: type.cc_users,
+          email_source: type.email_source,
+          email_source_gsheet_link: type.email_source_gsheet_link,
+          email_source_gsheet_tab: type.email_source_gsheet_tab,
+          email_source_gsheet_header_row: type.email_source_gsheet_header_row,
+          pdf_attachment: type.pdf_attachment,
+          pdf_encryption: type.pdf_encryption,
+          pdf_encryption_password_type: type.pdf_encryption_password_type,
+          pdf_encryption_password: type.pdf_encryption_password,
+        });
+      }
+    });
   };
 
   const handleSearch = (value: any) => {
@@ -195,7 +219,9 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
         const emailConfigData = {
           form_uid: sctoFormUID,
           config_name: configName,
-          nofication_users: notificationUsers,
+          email_source_columns: gsheetColumnHeader,
+          report_users: notificationUsers,
+          cc_users: ccUsers,
           ...formValues,
         };
 
@@ -439,11 +465,11 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
         ]}
       >
         <Radio.Group onChange={handlePdfAttachmentChange}>
-          <Radio value="true">Yes</Radio>
-          <Radio value="false">No</Radio>
+          <Radio value={true}>Yes</Radio>
+          <Radio value={false}>No</Radio>
         </Radio.Group>
       </Form.Item>
-      {pdfAttachment === "true" && (
+      {pdfAttachment && (
         <>
           <Form.Item
             name="pdf_encryption"
@@ -457,12 +483,12 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
             ]}
           >
             <Radio.Group onChange={handlePdfEncryptionChange}>
-              <Radio value="true">Yes</Radio>
-              <Radio value="false">No</Radio>
+              <Radio value={true}>Yes</Radio>
+              <Radio value={false}>No</Radio>
             </Radio.Group>
           </Form.Item>
 
-          {pdfEncryption === "true" && (
+          {pdfEncryption && (
             <>
               <Form.Item
                 name="pdf_encryption_password_type"

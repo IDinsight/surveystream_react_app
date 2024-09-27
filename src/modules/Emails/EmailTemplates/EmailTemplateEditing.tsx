@@ -324,6 +324,7 @@ function EmailTemplateEditing({
               setEditingIndex(index);
               setInsertTableModelOpen(true);
             }}
+            disableEdit={false}
           />
           <Button
             onClick={() => {

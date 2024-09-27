@@ -2,11 +2,9 @@ import {
   DeleteFilled,
   PlusCircleFilled,
   PlusSquareFilled,
-  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import {
   Button,
-  Checkbox,
   Col,
   Divider,
   Input,
@@ -15,15 +13,14 @@ import {
   Row,
   Select,
   Tag,
-  Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
-import { getTableCatalog } from "../../redux/emails/apiService";
+import { getTableCatalogSchedule } from "../../redux/emails/apiService";
 import FullScreenLoader from "../Loaders/FullScreenLoader";
 
 const { Option } = Select;
 
-interface EmailTableModelProps {
+interface EmailScheduleFilterProps {
   open: boolean;
   setOpen: any;
   configUID: string;
@@ -31,10 +28,9 @@ interface EmailTableModelProps {
   setTableList: any;
   editingIndex: null | number;
   setEditingIndex: any;
-  insertText: any;
 }
 
-function EmailTableModel({
+function EmailScheduleFilter({
   open,
   setOpen,
   configUID,
@@ -42,18 +38,13 @@ function EmailTableModel({
   setTableList,
   editingIndex,
   setEditingIndex,
-  insertText,
-}: EmailTableModelProps) {
+}: EmailScheduleFilterProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [tableCatelog, setTableCatelog] = useState<any[]>([]);
   const [availableColumns, setAvailableColumns] = useState<any[]>([]);
 
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const [selectedColumns, setSelectedColumns] = useState<any>({});
-  const [customTableName, setCustomTableName] = useState<string | null>(null);
-
   const [filterList, setFilterList] = useState<any[]>([]);
-  const [sortList, setSortList] = useState<any[]>([]);
 
   const validateOperator = [
     "Is",
@@ -64,33 +55,13 @@ function EmailTableModel({
     "Is not empty",
   ];
 
-  const handleCheckboxChange = (column: any) => {
-    setSelectedColumns((prev: any) => ({
-      ...prev,
-      [column]: {
-        ...prev[column],
-        selected: !prev[column]?.selected,
-        text: column,
-      },
-    }));
-  };
-
-  const handleColumnInputChange = (column: any, text: any) => {
-    setSelectedColumns((prev: any) => ({
-      ...prev,
-      [column]: {
-        ...prev[column],
-        text,
-      },
-    }));
-  };
-
   const handleAddFilterGroup = () => {
     setFilterList((prev) => [
       ...prev,
       {
         filter_group: [
           {
+            table_name: selectedTable,
             column: null,
             type: null,
             value: null,
@@ -158,30 +129,6 @@ function EmailTableModel({
     );
   };
 
-  const handleAddSort = () => {
-    setSortList((prev) => [
-      ...prev,
-      {
-        column: null,
-        mode: null,
-      },
-    ]);
-  };
-
-  const handleRemoveSort = (index: number) => {
-    setSortList((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSortChange = (
-    value: string,
-    index: number,
-    key: "column" | "mode"
-  ) => {
-    setSortList((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [key]: value } : item))
-    );
-  };
-
   const handleSubmit = () => {
     // 1. Check if a table is selected
     if (!selectedTable) {
@@ -189,30 +136,13 @@ function EmailTableModel({
       return;
     }
 
-    // 2. Check if custom table name is valid
-    if (!customTableName || customTableName.trim() === "") {
-      message.error("Custom table name cannot be empty.");
+    // 2. Check if any filter group is added
+    if (filterList.length === 0) {
+      message.error("Please add a filter group.");
       return;
     }
 
-    // 3. Check if at least one column is selected
-    const selectedColumnKeys = Object.keys(selectedColumns).filter(
-      (key) => selectedColumns[key].selected
-    );
-    if (selectedColumnKeys.length === 0) {
-      message.error("Please select at least one column.");
-      return;
-    }
-
-    // 4. Check if all selected columns have a display name
-    for (const key of selectedColumnKeys) {
-      if (!selectedColumns[key].text) {
-        message.error(`Display name for column ${key} cannot be empty.`);
-        return;
-      }
-    }
-
-    // 5. Check if all filters in filter groups are valid
+    // 4. Check if all filters in filter groups are valid
     for (const group of filterList) {
       for (const filter of group.filter_group) {
         if (!filter.column || !filter.type) {
@@ -220,35 +150,6 @@ function EmailTableModel({
           return;
         }
       }
-    }
-
-    // 6. Check if all sorting rows are valid
-    for (const sort of sortList) {
-      if (!sort.column || !sort.mode) {
-        message.error("Each sort must have a column and a sort type.");
-        return;
-      }
-    }
-
-    // 7. Cheeck if enumerator_id column is selected
-    if (
-      !selectedColumns["enumerator_id"]?.selected &&
-      !selectedColumns["Surveyor ID"]?.selected
-    ) {
-      message.error(
-        "enumerator_id column must be selected to send email tables to enumerator"
-      );
-      return;
-    }
-
-    const column_mapping: any = {};
-    for (const key of selectedColumnKeys) {
-      column_mapping[key] = selectedColumns[key].text;
-    }
-
-    const sort_list: any = {};
-    for (const sort of sortList) {
-      sort_list[sort.column] = sort.mode;
     }
 
     const filter_list = filterList.map((group) => ({
@@ -260,30 +161,17 @@ function EmailTableModel({
       })),
     }));
 
-    let variable_name = "";
-    if (editingIndex !== null && tableList[editingIndex].variable_name) {
-      variable_name = tableList[editingIndex].variable_name;
-    } else {
-      variable_name = `${customTableName}`;
-      insertText(`{{${variable_name}}}`);
-    }
-
     // Combine all parts into the final structure
     const result = {
       table_name: selectedTable,
-      column_mapping,
-      sort_list,
-      variable_name,
-      filter_list,
+      filter_list: filter_list,
     };
 
     setTableList(result);
 
+    // Reset the form on successful submission
     setSelectedTable(null);
-    setCustomTableName(null);
-    setSelectedColumns({});
     setFilterList([]);
-    setSortList([]);
     setEditingIndex(null);
     setOpen(false);
   };
@@ -292,7 +180,7 @@ function EmailTableModel({
   useEffect(() => {
     if (configUID) {
       setLoading(true);
-      getTableCatalog(configUID)
+      getTableCatalogSchedule(configUID)
         .then((res: any) => {
           setLoading(false);
           if (res.status === 200 && res.data.success) {
@@ -321,40 +209,18 @@ function EmailTableModel({
   useEffect(() => {
     if (tableList.length > 0 && editingIndex !== null) {
       const table = tableList[editingIndex];
-
-      console.log(table);
       setSelectedTable(table.table_name);
-      setCustomTableName(table.variable_name);
 
-      const column_mapping = table.column_mapping;
-      const sort_list = table.sort_list;
       const filter_list = table.filter_list;
-
-      const selectedColumns: any = {};
-      for (const key of Object.keys(column_mapping)) {
-        selectedColumns[key] = {
-          selected: true,
-          text: column_mapping[key],
-        };
-      }
-      setSelectedColumns(selectedColumns);
-
       const filterList = filter_list.map((group: any) => ({
-        filter_group: (group?.filter_group ? group.filter_group : group).map(
-          (filter: any) => ({
-            column: filter.filter_variable,
-            type: filter.filter_operator,
-            value: filter.filter_value,
-          })
-        ),
+        filter_group: group.filter_group.map((filter: any) => ({
+          table_name: table.table_name,
+          column: filter.filter_variable,
+          type: filter.filter_operator,
+          value: filter.filter_value,
+        })),
       }));
       setFilterList(filterList);
-
-      const sortList = Object.keys(sort_list).map((key) => ({
-        column: key,
-        mode: sort_list[key],
-      }));
-      setSortList(sortList);
     }
   }, [tableList, editingIndex]);
 
@@ -362,13 +228,10 @@ function EmailTableModel({
     <Modal
       width="100%"
       open={open}
-      title="Insert table"
+      title="Add Schedule Filter"
       onCancel={() => {
         setSelectedTable(null);
-        setCustomTableName(null);
-        setSelectedColumns({});
         setFilterList([]);
-        setSortList([]);
         setOpen(false);
       }}
       onOk={handleSubmit}
@@ -377,14 +240,14 @@ function EmailTableModel({
       {loading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ height: "350px", overflowY: "auto" }}>
+        <div style={{ maxHeight: "450px", overflowY: "auto" }}>
           <div style={{ marginBottom: 16 }}>
+            <p>Select tables to apply filters for schedules</p>
             <Row>
-              <Col span={12}>
-                <p>Select tables to insert them in the email table:</p>
+              <Col span={6}>
                 <Select
                   placeholder="Select table"
-                  style={{ width: "50%" }}
+                  style={{ width: "100%" }}
                   value={selectedTable}
                   onChange={(val) => setSelectedTable(val)}
                 >
@@ -395,75 +258,10 @@ function EmailTableModel({
                   ))}
                 </Select>
               </Col>
-              {selectedTable && (
-                <Col span={12}>
-                  <p>
-                    <span style={{ color: "red" }}>* </span>
-                    Custom table name{" "}
-                    <Tooltip
-                      title="This name will be used to refer to the table in the email template"
-                      placement="right"
-                    >
-                      <QuestionCircleOutlined />
-                    </Tooltip>
-                    {" :"}
-                  </p>
-                  <Input
-                    style={{ width: "50%" }}
-                    placeholder="Enter custom table name"
-                    value={customTableName || ""}
-                    onChange={(e) => setCustomTableName(e.target.value)}
-                    disabled={editingIndex !== null}
-                  />
-                </Col>
-              )}
             </Row>
           </div>
           {selectedTable && availableColumns.length > 0 ? (
             <>
-              <div>
-                <Row>
-                  <Col span={12}>
-                    <p>Kindly Ensure to map enumerator_id column in table</p>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={6}>
-                    <p>Columns in the table</p>
-                  </Col>
-                  <Col span={6}>
-                    <p>Display name</p>
-                  </Col>
-                </Row>
-                {availableColumns.map((col, index) => (
-                  <Row key={index} style={{ marginBottom: "10px" }}>
-                    <Col span={6}>
-                      <Checkbox
-                        checked={
-                          selectedColumns[col.column_name]?.selected || false
-                        }
-                        onChange={() => handleCheckboxChange(col.column_name)}
-                      >
-                        {col.column_name}
-                      </Checkbox>
-                    </Col>
-                    <Col span={6}>
-                      <Input
-                        placeholder={col.column_name || ""}
-                        value={selectedColumns[col.column_name]?.text || ""}
-                        onChange={(e) =>
-                          handleColumnInputChange(
-                            col.column_name,
-                            e.target.value
-                          )
-                        }
-                        disabled={!selectedColumns[col.column_name]?.selected}
-                      />
-                    </Col>
-                  </Row>
-                ))}
-              </div>
-              <Divider />
               <div>
                 <p>Apply filter</p>
                 {filterList.map((item, groupIndex) => (
@@ -497,7 +295,6 @@ function EmailTableModel({
                             filterIndex !== item.filter_group.length ? (
                               <Row
                                 gutter={16}
-                                justify="center"
                                 style={{
                                   marginTop: "10px",
                                   marginBottom: "10px",
@@ -608,50 +405,6 @@ function EmailTableModel({
                 </Button>
               </div>
               <Divider />
-              <div>
-                <p>Apply sort</p>
-                {sortList.map((sort, index) => (
-                  <Row gutter={16} key={index} style={{ marginBottom: 8 }}>
-                    <Col span={6}>
-                      <Select
-                        placeholder="Choose column"
-                        style={{ width: "100%" }}
-                        value={sort.column}
-                        onChange={(val) =>
-                          handleSortChange(val, index, "column")
-                        }
-                      >
-                        {availableColumns.map((col) => (
-                          <Option key={col.column_name} value={col.column_name}>
-                            {col.column_name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Col>
-                    <Col span={6}>
-                      <Select
-                        placeholder="Sort type"
-                        style={{ width: "100%" }}
-                        value={sort.mode}
-                        onChange={(val) => handleSortChange(val, index, "mode")}
-                      >
-                        <Option value="asc">Ascending</Option>
-                        <Option value="desc">Descending</Option>
-                      </Select>
-                    </Col>
-                    <Button danger onClick={() => handleRemoveSort(index)}>
-                      <DeleteFilled />
-                    </Button>
-                  </Row>
-                ))}
-                <Button
-                  type="dashed"
-                  icon={<PlusCircleFilled />}
-                  onClick={handleAddSort}
-                >
-                  Add sort
-                </Button>
-              </div>
             </>
           ) : null}
         </div>
@@ -660,4 +413,4 @@ function EmailTableModel({
   );
 }
 
-export default EmailTableModel;
+export default EmailScheduleFilter;

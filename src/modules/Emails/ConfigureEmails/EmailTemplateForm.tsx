@@ -1,22 +1,35 @@
 import { useState, useEffect, useRef } from "react";
-import { Form, Input, Button, Select, message, Row, Col, Divider } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  Popconfirm,
+  message,
+  Row,
+  Col,
+  Divider,
+  Collapse,
+} from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../../../redux/hooks";
 import { createEmailTemplates } from "../../../redux/emails/emailsActions";
 import { getEnumeratorLanguages } from "../../../redux/enumerators/enumeratorsActions";
 import EmailContentEditor from "../../../components/EmailContentEditor";
 import EmailTableModel from "../../../components/EmailTableModel";
-import { useParams } from "react-router-dom";
 import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
+import { getEmailTemplates } from "../../../redux/emails/apiService";
+import { use } from "chai";
+
 const { Option } = Select;
 
 interface EmailTemplateFormProps {
-  handleContinue: (emailConfigUID: string) => void;
+  handleContinue: () => void;
   handleBack: () => void;
   config: any;
-  stcoForms: any;
+  sctoForms: any;
   emailConfigUID: string;
 }
 
@@ -24,7 +37,7 @@ const EmailTemplateForm = ({
   handleContinue,
   handleBack,
   config,
-  stcoForms,
+  sctoForms,
   emailConfigUID,
 }: EmailTemplateFormProps) => {
   const [form] = Form.useForm();
@@ -84,6 +97,9 @@ const EmailTemplateForm = ({
       if (templates) {
         const templatePayload = [];
         for (let i = 0; i < templates.length; i++) {
+          if (disabledIndices.includes(i)) {
+            continue;
+          }
           const template = templates[i];
 
           templatePayload.push({
@@ -113,7 +129,7 @@ const EmailTemplateForm = ({
         }
 
         message.success("Email templates updated successfully");
-        handleContinue(emailConfigUID);
+        handleContinue();
       }
     } catch (error) {
       message.error("Failed to update email templates");
@@ -177,11 +193,11 @@ const EmailTemplateForm = ({
 
   // Getting enumerator languages
   useEffect(() => {
-    if (stcoForms.length > 0) {
-      if (stcoForms[0].form_uid) {
+    if (sctoForms.length > 0) {
+      if (sctoForms[0].form_uid) {
         dispatch(
           getEnumeratorLanguages({
-            formUID: stcoForms[0].form_uid,
+            formUID: sctoForms[0].form_uid,
           })
         ).then((res) => {
           if (res.payload?.success) {
@@ -196,7 +212,7 @@ const EmailTemplateForm = ({
         });
       }
     }
-  }, [stcoForms]);
+  }, [sctoForms]);
 
   // Getting and setting available variables
   useEffect(() => {
@@ -210,177 +226,261 @@ const EmailTemplateForm = ({
     }
   }, [config]);
 
+  const [disabledIndices, setDisabledIndices] = useState<number[]>([]);
+
+  const fetchEmailTemplates = async () => {
+    const fetchtTemplateRes: any = await getEmailTemplates(emailConfigUID);
+    if (fetchtTemplateRes?.data?.success) {
+      const templates = fetchtTemplateRes.data.data;
+      if (templates.length > 0) {
+        const newFormStates = [];
+        const newFields = [];
+        const newDisabledIndices = [];
+        for (let i = 0; i < templates.length; i++) {
+          const template = templates[i];
+          newFields.push({
+            language: template.language,
+            subject: template.subject,
+            content: template.content,
+          });
+          newFormStates.push({
+            quillRef: React.createRef<ReactQuill>(),
+            insertedVariables: template.variable_list,
+            tableList: template.table_list,
+            cursorPosition: 0,
+          });
+          newDisabledIndices.push(i);
+        }
+        form.setFieldsValue({ templates: newFields });
+        setFormStates(newFormStates);
+        setDisabledIndices(newDisabledIndices);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (emailConfigUID) {
+      fetchEmailTemplates();
+    }
+  }, [emailConfigUID]);
+
+  const [activeKey, setActiveKey] = useState<string | string[]>(["0"]);
+
   return (
     <Form form={form} layout="vertical">
+      {disabledIndices.length > 0 && (
+        <div style={{ marginBottom: 16, color: "red" }}>
+          Previously filled templates can only be edited at the main screen.
+        </div>
+      )}
       <Form.List name="templates" initialValue={[{}]}>
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name, ...restField }, formIndex) => (
-              <>
-                <Divider />
-                <div key={key} style={{ display: "flex" }}>
-                  <div style={{ marginBottom: 8, flex: "6" }}>
-                    {fields.length > 1 && (
-                      <MinusCircleOutlined
-                        onClick={() => {
-                          remove(name);
-                          setFormStates((prevFormStates: any) =>
-                            prevFormStates.filter(
-                              (_: any, index: number) => index !== formIndex
-                            )
-                          );
-                        }}
-                        style={{ float: "right", color: "red" }}
-                      />
-                    )}
-                    <Form.Item
-                      {...restField}
-                      name={[name, "language"]}
-                      label="Language"
-                      rules={[
-                        { required: true, message: "Please select language" },
-                      ]}
-                      tooltip="Select the language for the email template"
-                    >
-                      <Select placeholder="Select language">
-                        {availableLanguages.map((language) => (
-                          <Option key={language} value={language}>
-                            {language}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, "subject"]}
-                      label="Subject"
-                      rules={[
-                        { required: true, message: "Please enter subject" },
-                      ]}
-                      tooltip="Enter the subject of the email template"
-                    >
-                      <Input placeholder="Enter subject" />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, "content"]}
-                      label="Content"
-                      rules={[
-                        { required: true, message: "Please enter content" },
-                      ]}
-                      tooltip="Enter the content of the email template"
-                      getValueProps={(value) => ({ value })}
-                      getValueFromEvent={(content) => content}
-                    >
-                      <EmailContentEditor
-                        quillRef={formStates[formIndex].quillRef}
-                        form={form}
-                        formIndex={formIndex}
-                        setCursorPosition={(position: any) =>
-                          updateFormState(formIndex, "cursorPosition", position)
-                        }
-                        value={form.getFieldValue([
-                          "templates",
-                          name,
-                          "content",
-                        ])}
-                      />
-                    </Form.Item>
-                    <EmailTableCard
-                      tableList={formStates[formIndex].tableList}
-                      handleEditTable={(tableIndex: any) => {
-                        setEditingIndex(tableIndex);
-                        setInsertTableModelOpen(true);
-                        setCurrentFormIndex(formIndex);
-                      }}
-                    />
-                    <Button
-                      onClick={() => {
-                        setEditingIndex(null);
-                        setInsertTableModelOpen(true);
-                        setCurrentFormIndex(formIndex);
-                      }}
-                    >
-                      Insert table
-                    </Button>
-                  </div>
-                  <div
-                    style={{
-                      flex: "4",
-                      marginLeft: "24px",
-                      border: "1px solid #d9d9d9",
-                      padding: "16px",
-                      borderRadius: "4px",
-                      height: "250px",
-                      marginTop: "30px",
-                    }}
+              <div key={key} style={{ marginBottom: 10 }}>
+                <Collapse
+                  key={key}
+                  activeKey={activeKey}
+                  onChange={(keys) => setActiveKey(keys)}
+                >
+                  <Collapse.Panel
+                    header={
+                      form.getFieldValue([
+                        "templates",
+                        formIndex,
+                        "language",
+                      ]) || `Template ${formIndex + 1}`
+                    }
+                    key={key}
+                    extra={
+                      fields.length > 1 &&
+                      !disabledIndices.includes(formIndex) && (
+                        <Popconfirm
+                          title="Are you sure you want to delete this template?"
+                          onConfirm={() => remove(name)}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <Button
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            style={{ color: "red" }}
+                          />
+                        </Popconfirm>
+                      )
+                    }
                   >
-                    <p
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "18px",
-                        marginTop: 0,
-                      }}
-                    >
-                      Insert variables
-                    </p>
-                    <p>List of variables:</p>
-                    <Select
-                      showSearch
-                      style={{ width: 250 }}
-                      placeholder="Select an option"
-                      optionFilterProp="children"
-                      onChange={(value) =>
-                        setSelectedVariable((prev: any) => ({
-                          ...prev,
-                          variable: value,
-                        }))
-                      }
-                    >
-                      {availableVariables.map((variable) => (
-                        <Option key={variable} value={variable}>
-                          {variable}
-                        </Option>
-                      ))}
-                    </Select>
-                    <p>List of aggregation functions:</p>
-                    <Select
-                      showSearch
-                      style={{ width: 250 }}
-                      placeholder="Select an option"
-                      onChange={(value) =>
-                        setSelectedVariable((prev: any) => ({
-                          ...prev,
-                          aggregation: value,
-                        }))
-                      }
-                    >
-                      <Option value={null}>Not required</Option>
-                      {aggregationFunctions.map((fun) => (
-                        <Option key={fun} value={fun}>
-                          {fun}
-                        </Option>
-                      ))}
-                    </Select>
-                    <Row style={{ marginTop: 16 }}>
-                      {/* <Button
-                        onClick={() =>
-                          handleInsertVariable(formIndex, "subject")
-                        }
+                    <Divider />
+                    <div style={{ display: "flex" }}>
+                      <div style={{ marginBottom: 8, flex: "6" }}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "language"]}
+                          label="Language"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select language",
+                            },
+                          ]}
+                          tooltip="Select the language for the email template"
+                        >
+                          <Select
+                            placeholder="Select language"
+                            disabled={disabledIndices.includes(formIndex)}
+                          >
+                            {availableLanguages.map((language) => (
+                              <Option key={language} value={language}>
+                                {language}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "subject"]}
+                          label="Subject"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter subject",
+                            },
+                          ]}
+                          tooltip="Enter the subject of the email template"
+                        >
+                          <Input
+                            placeholder="Enter subject"
+                            disabled={disabledIndices.includes(formIndex)}
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "content"]}
+                          label="Content"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter content",
+                            },
+                          ]}
+                          tooltip="Enter the content of the email template"
+                          getValueProps={(value) => ({ value })}
+                          getValueFromEvent={(content) => content}
+                        >
+                          <EmailContentEditor
+                            quillRef={formStates[formIndex].quillRef}
+                            form={form}
+                            formIndex={formIndex}
+                            setCursorPosition={(position: any) =>
+                              updateFormState(
+                                formIndex,
+                                "cursorPosition",
+                                position
+                              )
+                            }
+                            value={form.getFieldValue([
+                              "templates",
+                              name,
+                              "content",
+                            ])}
+                            disableEdit={disabledIndices.includes(formIndex)}
+                          />
+                        </Form.Item>
+                        <EmailTableCard
+                          tableList={formStates[formIndex].tableList}
+                          handleEditTable={(tableIndex: any) => {
+                            setEditingIndex(tableIndex);
+                            setInsertTableModelOpen(true);
+                            setCurrentFormIndex(formIndex);
+                          }}
+                          disableEdit={disabledIndices.includes(formIndex)}
+                        />
+                        <Button
+                          onClick={() => {
+                            setEditingIndex(null);
+                            setInsertTableModelOpen(true);
+                            setCurrentFormIndex(formIndex);
+                          }}
+                          disabled={disabledIndices.includes(formIndex)}
+                        >
+                          Insert table
+                        </Button>
+                      </div>
+                      <div
+                        style={{
+                          flex: "4",
+                          marginLeft: "24px",
+                          border: "1px solid #d9d9d9",
+                          padding: "16px",
+                          borderRadius: "4px",
+                          height: "250px",
+                          marginTop: "30px",
+                        }}
                       >
-                        Insert in Subject
-                      </Button> */}
-                      <Button
-                        onClick={() =>
-                          handleInsertVariable(formIndex, "content")
-                        }
-                      >
-                        Insert in Content
-                      </Button>
-                    </Row>
-                  </div>
-                </div>
-              </>
+                        <p
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "18px",
+                            marginTop: 0,
+                          }}
+                        >
+                          Insert variables
+                        </p>
+                        <p>List of variables:</p>
+                        <Select
+                          showSearch
+                          style={{ width: 250 }}
+                          placeholder="Select an option"
+                          optionFilterProp="children"
+                          onChange={(value) =>
+                            setSelectedVariable((prev: any) => ({
+                              ...prev,
+                              variable: value,
+                            }))
+                          }
+                          disabled={disabledIndices.includes(formIndex)}
+                        >
+                          {availableVariables.map((variable) => (
+                            <Option key={variable} value={variable}>
+                              {variable}
+                            </Option>
+                          ))}
+                        </Select>
+                        <p>List of aggregation functions:</p>
+                        <Select
+                          showSearch
+                          style={{ width: 250 }}
+                          placeholder="Select an option"
+                          onChange={(value) =>
+                            setSelectedVariable((prev: any) => ({
+                              ...prev,
+                              aggregation: value,
+                            }))
+                          }
+                          disabled={disabledIndices.includes(formIndex)}
+                        >
+                          <Option value={null}>Not required</Option>
+                          {aggregationFunctions.map((fun) => (
+                            <Option key={fun} value={fun}>
+                              {fun}
+                            </Option>
+                          ))}
+                        </Select>
+                        <Row style={{ marginTop: 16 }}>
+                          <Button
+                            onClick={() =>
+                              handleInsertVariable(formIndex, "content")
+                            }
+                            disabled={disabledIndices.includes(formIndex)}
+                          >
+                            Insert in Content
+                          </Button>
+                        </Row>
+                      </div>
+                    </div>
+                  </Collapse.Panel>
+                </Collapse>
+              </div>
             ))}
             <Row style={{ marginTop: 10 }}>
               <Col>
@@ -389,6 +489,7 @@ const EmailTemplateForm = ({
                     onClick={() => {
                       add();
                       addFormState();
+                      setActiveKey([`${fields.length}`]);
                     }}
                     block
                     icon={<PlusOutlined />}
@@ -406,6 +507,7 @@ const EmailTemplateForm = ({
                       const lastIndex = currentFields.length - 1;
                       add(currentFields[lastIndex]);
                       addFormState(lastIndex);
+                      setActiveKey([`${fields.length}`]);
                     }}
                     block
                     icon={<PlusOutlined />}
@@ -418,10 +520,15 @@ const EmailTemplateForm = ({
           </>
         )}
       </Form.List>
-      <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "20px",
+        }}
+      >
         <Button
           style={{
-            display: "flex",
             float: "left",
           }}
           loading={loading}
@@ -431,12 +538,23 @@ const EmailTemplateForm = ({
         </Button>
 
         <Button
+          style={{
+            marginRight: "40%",
+            marginLeft: "40%",
+          }}
+          loading={loading}
+          onClick={handleContinue}
+        >
+          Skip
+        </Button>
+
+        <Button
           type="primary"
           style={{
-            display: "flex",
             backgroundColor: "#597EF7",
             color: "white",
-            float: "right",
+            marginLeft: "auto",
+            marginRight: "5$",
           }}
           loading={loading}
           onClick={handleSubmit}
