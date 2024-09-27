@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -211,7 +211,7 @@ function EnumeratorsMap() {
         getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
       );
       if (
-        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
           "Location"
         )
       ) {
@@ -225,13 +225,16 @@ function EnumeratorsMap() {
       setErrorCount(0);
       const values = await enumeratorMappingForm.validateFields();
       const column_mapping = enumeratorMappingForm.getFieldsValue();
-      column_mapping.custom_fields = {};
+      column_mapping.custom_fields = [];
       if (customHeaderSelection) {
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
           if (shouldInclude) {
-            column_mapping["custom_fields"][column_name] = column_name; // Set the column_type to "custom_fields"
+            column_mapping.custom_fields.push({
+              column_name: column_name,
+              field_label: column_name,
+            });
           }
         }
       }
@@ -350,7 +353,7 @@ function EnumeratorsMap() {
                   column_type: personal
                     ? "personal_details"
                     : location
-                    ? "location_details"
+                    ? "location"
                     : "custom_fields",
                 };
               }
@@ -436,9 +439,9 @@ function EnumeratorsMap() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title>
           {(() => {
@@ -481,7 +484,7 @@ function EnumeratorsMap() {
                             {
                               required:
                                 (item.key === "language" &&
-                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
                                     "Language"
                                   )) ||
                                 item.key === "home_address"

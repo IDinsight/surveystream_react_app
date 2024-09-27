@@ -1,14 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Key, useCallback, useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
 import { Button, TabsProps } from "antd";
 import {
   ArrowUpOutlined,
   ClearOutlined,
+  UploadOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
 import NotebooksImg from "./../../assets/notebooks.svg";
@@ -35,6 +35,7 @@ import ErrorHandler from "../../components/ErrorHandler";
 import CSVDownloadButton from "../../components/CSVDownloadButton";
 import { GlobalStyle } from "../../shared/Global.styled";
 import { HeaderContainer, SearchBox, Title } from "../../shared/Nav.styled";
+import { userHasPermission } from "../../utils/helper";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -58,6 +59,13 @@ function Assignments() {
     useAppSelector((state: RootState) => state.enumerators);
   const { data: targeData, loading: targetLoading } = useAppSelector(
     (state: RootState) => state.assignments.targets
+  );
+
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const canUserUpload = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Assignments Upload"
   );
 
   // State variables for component
@@ -157,6 +165,13 @@ function Assignments() {
       {
         state: { selectedAssignmentRows, formID: form_uid },
       }
+    );
+  };
+
+  // Handle the make assignments button
+  const handleUploadAssignments = () => {
+    navigate(
+      `/module-configuration/assignments/${survey_uid}/${form_uid}/upload`
     );
   };
 
@@ -391,12 +406,12 @@ function Assignments() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <div>
             <HeaderContainer>
               <Title>Assignments</Title>
@@ -413,12 +428,21 @@ function Assignments() {
               />
               <Button
                 icon={<UserAddOutlined />}
-                style={{ marginLeft: "16px" }}
+                style={{ marginLeft: "8px" }}
                 disabled={!hasRowSelected}
                 onClick={handleMakeAssignments}
               >
                 Make assignments
               </Button>
+              {canUserUpload && (
+                <Button
+                  icon={<UploadOutlined />}
+                  style={{ marginLeft: "8px" }}
+                  onClick={handleUploadAssignments}
+                >
+                  Upload assignments
+                </Button>
+              )}
               <CSVDownloadButton
                 keyRef={keyRefs}
                 columns={columns}

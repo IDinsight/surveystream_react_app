@@ -28,14 +28,20 @@ export const postSupervisorRoles = createAsyncThunk(
   async (
     {
       supervisorRolesData,
+      validate_hierarchy,
       surveyUid,
-    }: { supervisorRolesData: SupervisorRole[]; surveyUid: string },
+    }: {
+      supervisorRolesData: SupervisorRole[];
+      validate_hierarchy: boolean;
+      surveyUid: string;
+    },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(postSupervisorRolesRequest());
       const response = await api.postSupervisorRoles(
         supervisorRolesData,
+        validate_hierarchy,
         surveyUid
       );
       if (response.status == 200) {
@@ -44,7 +50,9 @@ export const postSupervisorRoles = createAsyncThunk(
       }
 
       const error = {
-        message: response.message,
+        message: response?.response?.data?.errors
+          ? response?.response?.data?.errors
+          : response.message,
         status: false,
       };
       dispatch(postSupervisorRolesFailure(error));
@@ -81,10 +89,10 @@ export const getSupervisorRoles = createAsyncThunk(
 
 export const getAllPermissions = createAsyncThunk(
   "userRoles/getAllPermissions",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getAllPermissionsRequest());
-      const res: any = await api.fetchAllPermissions();
+      const res: any = await api.fetchAllPermissions(params.survey_uid);
 
       if (res.status === 200) {
         dispatch(getAllPermissionsSuccess(res.data));

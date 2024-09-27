@@ -8,8 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import Footer from "../../components/Footer";
 import {
   BodyWrapper,
@@ -232,7 +231,7 @@ function UsersManage() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <HeaderContainer>
         <Title>Users</Title>
 

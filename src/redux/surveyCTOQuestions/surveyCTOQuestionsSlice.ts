@@ -29,6 +29,9 @@ const surveyCTOQuestionsSlice = createSlice({
     setSurveyCTOQuestionsForm: (state, action: PayloadAction<any>) => {
       state.surveyCTOQuestionsForm = action.payload;
     },
+    resetSurveyCTOQuestionsForm: (state) => {
+      state.surveyCTOQuestionsForm = initialState.surveyCTOQuestionsForm;
+    },
     getFormQuestionsDefinitionRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -101,6 +104,7 @@ export const {
   putFormMappingRequest,
   putFormMappingSuccess,
   setSurveyCTOQuestionsForm,
+  resetSurveyCTOQuestionsForm,
 } = surveyCTOQuestionsSlice.actions;
 
 export default surveyCTOQuestionsSlice.reducer;

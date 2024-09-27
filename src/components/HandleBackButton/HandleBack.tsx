@@ -1,18 +1,21 @@
 import { BackArrow, BackLink } from "../../shared/Nav.styled";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
-const HandleBack = () => {
+const HandleBack = ({ surveyPage }: { surveyPage?: boolean }) => {
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
+    if (surveyPage) {
       navigate(`/survey-configuration/${survey_uid}`);
+    } else {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate(`/survey-configuration/${survey_uid}`);
+      }
     }
   };
 

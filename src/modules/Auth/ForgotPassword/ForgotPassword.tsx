@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Footer from "../../../components/Footer";
-import Header from "../../../components/Header";
+
 import ForgotPasswordComponent from "../../../components/ForgotPasswordComponent";
 import SuccessCard from "../../../components/SuccessCard";
 import { performForgotPassword } from "../../../redux/auth/authActions";
@@ -55,7 +55,6 @@ function ForgotPassword() {
     <>
       <GlobalStyle />
 
-      <Header />
       {contextHolder}
       {loading ? (
         <FullScreenLoader />

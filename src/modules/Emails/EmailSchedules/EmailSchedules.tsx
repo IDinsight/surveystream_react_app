@@ -2,10 +2,11 @@ import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
+import { Tooltip, Button, Popconfirm, Drawer, message, DatePicker } from "antd";
 import {
   deleteEmailConfig,
   deleteEmailSchedule,
+  getEmailSchedule,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
@@ -14,9 +15,10 @@ import dayjs from "dayjs";
 
 function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
   const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
     useState(false);
-
+  const [editScheduleLoading, setEditScheduleLoading] = useState(false);
   const [isEditConfigDrawerVisible, setIsEditConfigDrawerVisible] =
     useState(false);
 
@@ -58,10 +60,59 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
 
   const scheduleColumns = [
     {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-      sorter: (a: any, b: any) => a.config_type.localeCompare(b.config_type),
+      title: "Config Name",
+      dataIndex: "config_name",
+      key: "config_name",
+      sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
+      render: (text: any, record: any) => (
+        <div
+          style={{
+            position: "relative",
+            overflowWrap: "break-word",
+            textAlign: "center",
+            top: "5px",
+          }}
+        >
+          <p>
+            <span style={{ marginBottom: 10 }}>{record?.config_name}</span>
+            <span
+              style={{
+                position: "relative",
+                top: "5px",
+              }}
+            >
+              <Tooltip title="Edit Config">
+                <Button
+                  type="link"
+                  icon={<EditOutlined />}
+                  disabled={!record?.email_config_uid}
+                  onClick={() => handleEditConfig(record)}
+                >
+                  Edit Config
+                </Button>
+              </Tooltip>
+
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this config type?"
+                  onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    disabled={!record?.email_config_uid}
+                    type="link"
+                    icon={<DeleteOutlined />}
+                    danger
+                  >
+                    Delete Config
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            </span>
+          </p>
+        </div>
+      ),
     },
     {
       title: "Email Source",
@@ -69,7 +120,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       key: "email_source",
       sorter: (a: any, b: any) => a.email_source.localeCompare(b.email_source),
     },
-
     {
       title: "Email Schedules",
       key: "schedules",
@@ -93,6 +143,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
           {record.schedules.length > 0 ? (
             record.schedules.map((schedule, index) => {
               const { email_schedule_name, dates, time } = schedule;
+
               const formattedDates = formatDates(dates).split("; ");
 
               return (
@@ -105,60 +156,18 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   }}
                   key={index}
                 >
-                  <div style={{ marginRight: "10px", width: "50%" }}>
+                  <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
-                    <p>
-                      Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
-                    </p>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>
-                        Dates
-                        <ul>
-                          {formattedDates
-                            .slice(0, Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>&nbsp;</p>
-                      <p>
-                        <ul>
-                          {formattedDates
-                            .slice(Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      float: "right",
-                    }}
-                  >
+                    <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
                     <Tooltip title="Edit">
                       <Button
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => handleEditSchedule(schedule)}
+                        loading={editScheduleLoading}
                         style={{ marginBottom: 8 }}
                       >
-                        Edit
+                        Edit Schedule
                       </Button>
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -169,10 +178,37 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         cancelText="No"
                       >
                         <Button type="link" icon={<DeleteOutlined />} danger>
-                          Delete
+                          Delete Schedule
                         </Button>
                       </Popconfirm>
                     </Tooltip>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      width: "100%",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "85px",
+                      }}
+                    >
+                      Dates:
+                      <br />
+                      <DatePicker
+                        multiple={true}
+                        placeholder="Select Dates"
+                        format="YYYY-MM-DD"
+                        minDate={dayjs()}
+                        maxTagCount={10}
+                        value={dates.map((date: string) => dayjs(date))}
+                        allowClear={false}
+                        inputReadOnly={true}
+                      />
+                    </span>
                   </div>
                 </div>
               );
@@ -181,43 +217,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
             <p>No schedules available</p>
           )}
         </div>
-      ),
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      key: "actions",
-      render: (text: any, record: any) => (
-        <span>
-          <Tooltip title="Edit Config">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              disabled={!record?.email_config_uid}
-              onClick={() => handleEditConfig(record)}
-            >
-              Edit Config
-            </Button>
-          </Tooltip>
-
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete this config type?"
-              onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                disabled={!record?.email_config_uid}
-                type="link"
-                icon={<DeleteOutlined />}
-                danger
-              >
-                Delete Config
-              </Button>
-            </Popconfirm>
-          </Tooltip>
-        </span>
       ),
     },
   ];

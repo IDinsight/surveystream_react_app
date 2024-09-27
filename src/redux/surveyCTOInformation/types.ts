@@ -9,4 +9,5 @@ export type SurveyCTOForm = {
   encryption_key_shared: boolean;
   server_access_role_granted: boolean;
   server_access_allowed: boolean;
+  form_type?: string;
 };

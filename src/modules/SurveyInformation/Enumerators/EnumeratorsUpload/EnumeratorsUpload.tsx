@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -142,9 +142,9 @@ function EnumeratorsUpload() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -391,11 +391,9 @@ function TargetsMap() {
       const moduleQQuestionnaireRes = await dispatch(
         getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
       );
-      if (
-        moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria
-      ) {
+      if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
         if (
-          moduleQQuestionnaireRes?.payload?.data?.supervisor_assignment_criteria.includes(
+          moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria.includes(
             "Location"
           )
         ) {
@@ -485,7 +483,7 @@ function TargetsMap() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 
@@ -520,7 +518,7 @@ function TargetsMap() {
                             {
                               required:
                                 (item.key === "location_id_column" &&
-                                  !moduleQuestionnaire?.supervisor_assignment_criteria.includes(
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
                                     "Location"
                                   )) ||
                                 item.key === "gender" ||

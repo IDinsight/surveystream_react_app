@@ -24,3 +24,7 @@ export const QuestionsFormTitle = styled.div`
   margin: 10px;
   margin-bottom: 50px;
 `;
+
+export const SCTOLoadErrorArea = styled.div`
+  padding-right: 48px;
+`;

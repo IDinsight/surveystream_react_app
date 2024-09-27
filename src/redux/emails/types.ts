@@ -1,7 +1,12 @@
 export type EmailConfig = {
   email_config_uid: number;
-  config_type: string; // assignments, finance, etc.
+  config_name: string; // assignments, finance, etc.
   form_uid: number;
+  report_users: number[];
+  cc_users: number[];
+  pdf_attachment: boolean;
+  pdf_encryption: boolean;
+  pdf_encryption_password_type: "Password" | "Pattern" | null;
 };
 
 export type EmailSchedule = {

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import Header from "../../components/Header";
 import SideMenu from "./SideMenu";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { RootState } from "../../redux/store";
@@ -40,6 +39,7 @@ import {
   MailOutlined,
   SoundOutlined,
   PictureOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -92,9 +92,11 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
+    "Assignments column configuration": "table-config",
     Emails: "emails",
     "Media (Audio/Photo) audits": "media-audits",
     "Track data quality": "dq-forms",
+    "Admin forms": "admin-forms",
   },
 };
 
@@ -199,6 +201,8 @@ const SurveyConfiguration: React.FC = () => {
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
       case "Media (Audio/Photo) audits":
         return <AudioOutlined style={{ color: "#08979C", ...iconProps }} />;
+      case "Admin forms":
+        return <FormOutlined style={{ color: "#8308cf", ...iconProps }} />;
       default:
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
     }
@@ -369,7 +373,6 @@ const SurveyConfiguration: React.FC = () => {
     <>
       <GlobalStyle />
 
-      <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
           <BackArrow />
