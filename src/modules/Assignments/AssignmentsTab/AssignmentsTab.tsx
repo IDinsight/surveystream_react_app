@@ -91,7 +91,7 @@ function AssignmentsTab({
   return (
     <>
       <AssignmentsTable
-        rowKey={(record) => record["target_uid"]}
+        rowKey={(record: any) => record["target_uid"]}
         rowSelection={rowSelection}
         columns={mainTableColumns}
         dataSource={mainData}
