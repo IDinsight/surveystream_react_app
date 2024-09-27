@@ -1,4 +1,3 @@
-import Header from "../../components/Header.OLD";
 import {
   NavWrapper,
   BackLink,
@@ -26,7 +25,7 @@ function ModuleSelection() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
         <Title>

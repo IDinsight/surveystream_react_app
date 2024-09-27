@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "../../../components/Header.OLD";
+
 import Footer from "../../../components/Footer";
 import ResetPasswordComponent from "../../../components/ResetPasswordComponent";
 import SuccessCard from "../../../components/SuccessCard";
@@ -76,7 +76,6 @@ function ResetPassword() {
     <>
       <GlobalStyle />
 
-      {/* <Header /> */}
       {contextHolder}
       {loading ? (
         <FullScreenLoader />

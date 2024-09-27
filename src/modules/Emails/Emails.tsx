@@ -10,7 +10,7 @@ import { BodyWrapper } from "./Emails.styled";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import Header from "../../components/Header.OLD";
+
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
 import {
@@ -190,7 +190,7 @@ function Emails() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Emails</Title>

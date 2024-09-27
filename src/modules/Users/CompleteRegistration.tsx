@@ -1,5 +1,5 @@
 import { message } from "antd";
-import Header from "../../components/Header.OLD";
+
 import Footer from "../../components/Footer";
 
 import { useEffect, useState } from "react";
@@ -83,7 +83,7 @@ function CompleteRegistration() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       {contextHolder}
       {loading ? (
         <FullScreenLoader />

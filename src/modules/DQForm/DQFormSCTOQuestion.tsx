@@ -3,8 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import NavItems from "../../components/NavItems.OLD";
-import Header from "../../components/Header.OLD";
+
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import {
   BodyContainer,
@@ -263,7 +262,6 @@ function DQFormSCTOQuestion() {
 
   return (
     <>
-      {/* <Header items={NavItems} /> */}
       <>
         <Container />
         <HeaderContainer>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Form, Row, Col, Input, Select, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "../../../components/Header.OLD";
+
 import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
 import {
   FooterWrapper,
@@ -168,7 +168,7 @@ function SurveyCTOInfomation() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <Container />
       <HeaderContainer>
         <Title>SurveyCTO information</Title>

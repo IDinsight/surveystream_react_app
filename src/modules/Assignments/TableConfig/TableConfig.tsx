@@ -1,8 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChangeEvent, useEffect, useState } from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import Header from "../../../components/Header.OLD";
-import NavItems from "../../../components/NavItems.OLD";
+
 import Container from "../../../components/Layout/Container";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -572,7 +571,6 @@ function TableConfig() {
 
   return (
     <>
-      {/* <Header items={NavItems} /> */}
       {isTableConfigLoading ? (
         <FullScreenLoader />
       ) : (

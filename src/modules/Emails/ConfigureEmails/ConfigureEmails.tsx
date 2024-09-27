@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import { EmailConfigurationSteps } from "./ConfigureEmails.styled";
 import { RootState } from "../../../redux/store";
-import Header from "../../../components/Header.OLD";
+
 import Container from "../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import EmailConfigForm from "./EmailConfigForm";
@@ -122,7 +122,7 @@ function ConfigureEmails() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <Container />
       <HeaderContainer>
         <MailOutlined

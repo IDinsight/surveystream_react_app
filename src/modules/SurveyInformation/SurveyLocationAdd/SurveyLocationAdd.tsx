@@ -29,7 +29,7 @@ import {
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import Header from "../../../components/Header.OLD";
+
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 
@@ -241,7 +241,7 @@ function SurveyLocationAdd() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <Container />
       <HeaderContainer>
         <Title>Survey location types</Title>

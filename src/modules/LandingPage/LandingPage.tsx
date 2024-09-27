@@ -8,7 +8,6 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 
-import Header from "../../components/Header.OLD";
 import Footer from "../../components/Footer";
 
 import CreditImg from "./../../assets/credit.svg";
@@ -81,7 +80,7 @@ function LandingPage() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header items={NavItems} /> */}
+
       <LandingPageContainer>
         <TextContainer>
           <p style={{ fontSize: "56px", lineHeight: "64px", color: "#4B5563" }}>

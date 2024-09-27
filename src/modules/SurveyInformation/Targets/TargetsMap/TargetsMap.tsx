@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
-import Header from "../../../../components/Header.OLD";
+
 import {
   BackArrow,
   BackLink,
@@ -483,7 +483,7 @@ function TargetsMap() {
   return (
     <>
       <GlobalStyle />
-      {/* <Header /> */}
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

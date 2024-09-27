@@ -5,7 +5,6 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { RootState } from "../../redux/store";
 
-import Header from "../../components/Header.OLD";
 import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
@@ -13,7 +12,7 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { Button, Result } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
-import NavItems from "../../components/NavItems.OLD";
+
 import { GlobalStyle } from "../../shared/Global.styled";
 import { StyledLink, NewSurveyCard, Text } from "./SurveysHome.styled";
 
@@ -48,7 +47,6 @@ function SurveysHomePage() {
     <>
       <GlobalStyle />
 
-      {/* <Header items={NavItems} /> */}
       {isLoading ? (
         <>
           <FullScreenLoader></FullScreenLoader>
