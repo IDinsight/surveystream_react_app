@@ -20,6 +20,7 @@ import {
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
+import EmailTemplates from "./EmailTemplates/EmailTemplates";
 
 function Emails() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function Emails() {
   };
   const [schedulesData, setSchedulesData] = useState<any[]>([]);
   const [manualTriggersData, setManualTriggersData] = useState<any[]>([]);
+  const [templatesData, setTemplatesData] = useState<any[]>([]);
   const [emailConfigData, setEmailConfigData] = useState<any>([]);
 
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
@@ -139,6 +141,30 @@ function Emails() {
     setLoading(false);
   };
 
+  const fetchEmailTemplates = async () => {
+    setLoading(true);
+    if (formUID) {
+      const res = await dispatch(getEmailDetails({ form_uid: formUID }));
+      if (res.payload.success) {
+        const emailConfigs = res.payload?.data?.data;
+        setEmailConfigData(emailConfigs);
+
+        const templatesTableData = emailConfigs.filter(
+          (emailConfig: any) => emailConfig.templates.length > 0
+        );
+        setTemplatesData(templatesTableData);
+      } else {
+        message.error("Could not fetch email configurations for this survey");
+      }
+    } else {
+      message.error(
+        "Cannot fetch email configurations, kindly check that the form_uid is provided"
+      );
+      navigate(`/module-configuration/emails/${survey_uid}`);
+    }
+    setLoading(false);
+  };
+
   const handleFormUID = async () => {
     try {
       setLoading(true);
@@ -155,7 +181,7 @@ function Emails() {
         navigate(`/survey-information/survey-cto-information/${survey_uid}`);
       }
     } catch (error) {
-      console.log("Error fetching sctoForm:", error);
+      message.error("Error fetching sctoForm");
     } finally {
       setLoading(false);
     }
@@ -181,6 +207,8 @@ function Emails() {
       if (tabId === "manual") {
         fetchManualTriggers();
         getEnumeratorsList(formUID);
+      } else if (tabId === "templates") {
+        fetchEmailTemplates();
       } else {
         fetchEmailSchedules();
       }
@@ -195,32 +223,28 @@ function Emails() {
       <HeaderContainer>
         <Title>Emails</Title>
         <div style={{ marginLeft: "auto" }}>
-          {tabId != "manual" ? (
-            <Button
-              type="primary"
-              style={{
-                marginLeft: "25px",
-                backgroundColor: "#2F54EB",
-              }}
-              icon={<MailOutlined />}
-              onClick={handleConfigureEmails}
-            >
-              Configure Emails
-            </Button>
-          ) : (
-            <Button
-              type="primary"
-              style={{
-                marginLeft: "25px",
-                backgroundColor: "#2F54EB",
-              }}
-              icon={<MailOutlined />}
-              loading={loading || isLoading}
-              onClick={handleCreateManualTrigger}
-            >
-              Create Manual Email Trigger
-            </Button>
-          )}
+          <Button
+            type="primary"
+            style={{
+              marginLeft: "25px",
+              backgroundColor: "#2F54EB",
+            }}
+            icon={<MailOutlined />}
+            loading={loading || isLoading}
+            onClick={
+              tabId === "manual"
+                ? handleCreateManualTrigger
+                : tabId === "templates"
+                ? handleConfigureEmails
+                : handleConfigureEmails
+            }
+          >
+            {tabId === "manual"
+              ? "Create Manual Email Trigger"
+              : tabId === "templates"
+              ? "Create Email Template"
+              : "Configure Emails"}
+          </Button>
         </div>
       </HeaderContainer>
 
@@ -236,6 +260,11 @@ function Emails() {
                 surveyEnumerators={surveyEnumerators}
                 emailConfigData={emailConfigData}
                 fetchManualTriggers={fetchManualTriggers}
+              />
+            ) : tabId === "templates" ? (
+              <EmailTemplates
+                templatesData={templatesData}
+                fetchEmailTemplates={fetchEmailTemplates}
               />
             ) : (
               <EmailSchedules

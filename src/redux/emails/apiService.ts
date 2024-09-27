@@ -369,7 +369,6 @@ export const getManualEmailTriggers = async (email_config_uid: string) => {
 };
 
 // Email Template Endpoints
-
 export const createEmailTemplate = async (emailTemplateData: any) => {
   try {
     await getCSRFToken();
@@ -377,6 +376,30 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
 
     const response = await axios.post(
       `${API_BASE_URL}/emails/template`,
+      emailTemplateData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+// Email Template Endpoints
+export const createEmailTemplates = async (emailTemplateData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/templates`,
       emailTemplateData,
       {
         headers: {
@@ -415,8 +438,102 @@ export const getEmailTemplates = async (email_config_uid: any) => {
   }
 };
 
-// Get Google sheet headers
+export const getEmailTemplate = async (email_template_uid: number) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
 
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/template/${email_template_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateEmailTemplate = async (
+  email_template_uid: string,
+  emailTemplatePayload: any
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/emails/template/${email_template_uid}`,
+      { ...emailTemplatePayload },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deleteEmailTemplate = async (
+  email_template_uid: string,
+  email_config_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.delete(
+      `${API_BASE_URL}/emails/template/${email_template_uid}?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getTableCatalog = async (email_config_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/tablecatalog?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+// Get Google sheet headers
 export const getEmailGsheetHeaders = async (emailGsheetData: any) => {
   try {
     await getCSRFToken();
