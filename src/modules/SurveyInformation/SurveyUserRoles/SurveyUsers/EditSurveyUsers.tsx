@@ -388,7 +388,7 @@ function EditSurveyUsers() {
 
     // Update state with filtered user list and editUser details
     setUserDetails({ ...editUser });
-  }, [editUser]);
+  }, [survey_uid, editUser]);
 
   useEffect(() => {
     if (
@@ -397,7 +397,7 @@ function EditSurveyUsers() {
     ) {
       fetchLocationDetails();
     }
-  }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
 
   const isLoading =
     isSupervisorRolesLoading ||

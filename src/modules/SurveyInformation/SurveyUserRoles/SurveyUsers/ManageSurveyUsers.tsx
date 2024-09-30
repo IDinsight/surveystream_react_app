@@ -331,89 +331,87 @@ function ManageSurveyUsers() {
     setLoading(false);
   };
 
-  const usersTableColumn = () => {
-    return [
-      {
-        title: "Email ID",
-        dataIndex: "email",
-        key: "email",
+  const usersTableColumn = [
+    {
+      title: "Email ID",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: any, record: any) => {
+        return `${record.first_name} ${record.last_name}`;
       },
-      {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        render: (text: any, record: any) => {
-          return `${record.first_name} ${record.last_name}`;
-        },
+    },
+    {
+      title: "Roles",
+      key: "user_survey_role_names",
+      dataIndex: "user_survey_role_names",
+      render: (text: any, record: any) => {
+        if (
+          record.user_admin_survey_names &&
+          record.user_admin_survey_names.length > 0
+        ) {
+          return <>{`Survey Admin`}</>;
+        } else if (
+          record.user_survey_role_names &&
+          record.user_survey_role_names.length > 0
+        ) {
+          return <>{record.user_survey_role_names[0]["role_name"]}</>;
+        } else {
+          return <>{``}</>;
+        }
       },
-      {
-        title: "Roles",
-        key: "user_survey_role_names",
-        dataIndex: "user_survey_role_names",
-        render: (text: any, record: any) => {
-          if (
-            record.user_admin_survey_names &&
-            record.user_admin_survey_names.length > 0
-          ) {
-            return <>{`Survey Admin`}</>;
-          } else if (
-            record.user_survey_role_names &&
-            record.user_survey_role_names.length > 0
-          ) {
-            return <>{record.user_survey_role_names[0]["role_name"]}</>;
-          } else {
-            return <>{``}</>;
-          }
-        },
-      },
-      {
-        title: "Supervisor Name",
-        key: "supervisor",
-        dataIndex: "supervisor",
-      },
-      ...(mappingCriteriaFields.includes("Gender")
-        ? [
-            {
-              title: "Gender",
-              key: "gender",
-              dataIndex: "gender",
+    },
+    {
+      title: "Supervisor Name",
+      key: "supervisor",
+      dataIndex: "supervisor",
+    },
+    ...(mappingCriteriaFields.includes("Gender")
+      ? [
+          {
+            title: "Gender",
+            key: "gender",
+            dataIndex: "gender",
+          },
+        ]
+      : []),
+    ...(mappingCriteriaFields.includes("Location") &&
+    locationDetailsField.length > 0
+      ? [
+          {
+            title: locationDetailsField[0]?.title,
+            key: locationDetailsField[0]?.key,
+            dataIndex: locationDetailsField[0]?.key,
+            render: (text: any, record: any) => {
+              return record.location_names.join(", ") || "";
             },
-          ]
-        : []),
-      ...(mappingCriteriaFields.includes("Location") &&
-      locationDetailsField.length > 0
-        ? [
-            {
-              title: locationDetailsField[0]?.title,
-              key: locationDetailsField[0]?.key,
-              dataIndex: locationDetailsField[0]?.key,
-              render: (text: any, record: any) => {
-                return record.location_names.join(", ") || "";
-              },
-              width: 200,
+            width: 200,
+          },
+        ]
+      : []),
+    ...(mappingCriteriaFields.includes("Language")
+      ? [
+          {
+            title: "Language",
+            dataIndex: "languages",
+            key: "languages",
+            render: (text: any, record: any) => {
+              return record.languages.join(", ");
             },
-          ]
-        : []),
-      ...(mappingCriteriaFields.includes("Language")
-        ? [
-            {
-              title: "Language",
-              dataIndex: "languages",
-              key: "languages",
-              render: (text: any, record: any) => {
-                return record.languages.join(", ");
-              },
-              width: 150,
-            },
-          ]
-        : []),
-      {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-      },
-    ];
-  };
+            width: 150,
+          },
+        ]
+      : []),
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+  ];
 
   const addUserOptions: MenuProps["items"] = [
     {
@@ -475,7 +473,7 @@ function ManageSurveyUsers() {
     fetchSupervisorRoles();
     fetchSurveyBasicInformation();
     fetchSurveyModuleQuestionnaire();
-  }, []);
+  }, [survey_uid]);
 
   useEffect(() => {
     if (
@@ -483,9 +481,8 @@ function ManageSurveyUsers() {
       surveyPrimeGeoLocation !== "no_location"
     ) {
       fetchLocationDetails();
-      usersTableColumn();
     }
-  }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
 
   const isLoading =
     isUsersLoading ||
@@ -599,7 +596,7 @@ function ManageSurveyUsers() {
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
                 }}
               >
-                {usersTableColumn().map((column) => (
+                {usersTableColumn.map((column) => (
                   <Column
                     key={column.dataIndex}
                     title={column.title}

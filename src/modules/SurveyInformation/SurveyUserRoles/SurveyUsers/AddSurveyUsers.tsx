@@ -389,7 +389,7 @@ function AddSurveyUsers() {
     fetchSupervisorRoles();
     fetchSurveyBasicInformation();
     fetchSurveyModuleQuestionnaire();
-  }, []);
+  }, [survey_uid]);
 
   useEffect(() => {
     if (
@@ -398,7 +398,7 @@ function AddSurveyUsers() {
     ) {
       fetchLocationDetails();
     }
-  }, [mappingCriteriaFields, surveyPrimeGeoLocation]);
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
 
   return (
     <>
