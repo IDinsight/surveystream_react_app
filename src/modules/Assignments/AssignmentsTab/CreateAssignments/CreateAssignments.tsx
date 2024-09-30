@@ -29,8 +29,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { useForm } from "antd/es/form/Form";
-import { use } from "chai";
-import { filter } from "lodash";
 
 function CreateAssignments() {
   const location = useLocation();
