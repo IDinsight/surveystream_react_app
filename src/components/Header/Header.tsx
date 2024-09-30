@@ -14,12 +14,9 @@ import { Link, useLocation } from "react-router-dom";
 
 import Logo from "assets/logo.svg";
 
-import { Button } from "antd";
 import {
   ApartmentOutlined,
   HomeFilled,
-  BookFilled,
-  QuestionOutlined,
   MailOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
@@ -62,16 +59,18 @@ const Header = () => {
   const [navItems, setNavItems] = useState<any[]>([]);
   const isSignedIn = () => userProfile?.user_uid;
 
+  const isUsersOrSurveysPage = () => {
+    const found = location.pathname.match(/^\/(users|surveys)(\/.+)*/g);
+    return found && found.length > 0;
+  };
+
   useEffect(() => {
     const items = [
       {
         url: "/surveys",
         label: "Surveys",
         icon: HomeFilled,
-        show:
-          isSignedIn() &&
-          (location.pathname.includes("surveys") ||
-            location.pathname.includes("users")),
+        show: isSignedIn() && isUsersOrSurveysPage(),
         isActive: location.pathname.includes("surveys"),
         external: false,
       },
@@ -80,20 +79,10 @@ const Header = () => {
         label: "User management",
         icon: ApartmentOutlined,
         show:
-          isSignedIn() &&
-          (location.pathname.includes("surveys") ||
-            location.pathname.includes("users")) &&
-          userProfile?.is_super_admin,
+          isSignedIn() && isUsersOrSurveysPage() && userProfile?.is_super_admin,
         isActive: location.pathname.includes("users"),
         external: false,
       },
-      // {
-      //   url: "/",
-      //   label: "Home",
-      //   icon: HomeFilled,
-      //   show: location.pathname.includes("login"),
-      //   home: true,
-      // },
       {
         url: "https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform",
         label: "Contact Us",
@@ -128,22 +117,9 @@ const Header = () => {
       </div>
       <div className="nav-menu flex flex-1">
         {navItems.map((item: any, index) => {
-          // if (item.home) {
-          //   return (
-          //     <div
-          //       className="bg-geekblue-5 justify-center align-start w-40"
-          //       key={index}
-          //     >
-          //       {/* <HomeFilled className="flex items-center !text-[16px]" /> */}
-
-          //       <a href="/">Home</a>
-          //     </div>
-          //   );
-          // }
           if (item.external) {
             return (
               <div className="min-w-32 justify-center w-40" key={index}>
-                {/* <item.icon className="flex items-center !text-[16px]" /> */}
                 <span>
                   <a target="_blank" rel="noreferrer" href={item.url}>
                     {item.label}
@@ -160,7 +136,6 @@ const Header = () => {
               key={index}
             >
               <Link to={item.url}>
-                {/* <item.icon className="flex items-center !text-base !text-gray-2 mx-1" /> */}
                 <span className="!text-gray-2">{item.label}</span>
               </Link>
             </div>
@@ -170,7 +145,6 @@ const Header = () => {
       <div className="nav-menu flex mr-2">
         <div className="nav-menu-item justify-center w-40 px-2">
           <Link to="https://docs.surveystream.idinsight.io">
-            {/* <item.icon className="flex items-center !text-base !text-gray-2 mx-1" /> */}
             <span className="!text-gray-2">Documentation</span>
           </Link>
         </div>
