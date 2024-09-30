@@ -56,6 +56,12 @@ import {
   getEmailDetailsRequest,
   getEmailDetailsSuccess,
   getEmailDetailsFailure,
+  deleteEmailTemplateRequest,
+  deleteEmailTemplateSuccess,
+  deleteEmailTemplateFailure,
+  updateEmailTemplateRequest,
+  updateEmailTemplateSuccess,
+  updateEmailTemplateFailure,
 } from "./emailsSlice";
 
 // Email Config Actions
@@ -284,10 +290,13 @@ export const getEmailSchedules = createAsyncThunk(
 
 export const getEmailSchedule = createAsyncThunk(
   "emails/getEmailSchedule",
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async (
+    { id, email_config_uid }: { id: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(getEmailScheduleRequest());
-      const response: any = await api.getEmailSchedule(id);
+      const response: any = await api.getEmailSchedule(id, email_config_uid);
       if (response.status === 200) {
         dispatch(getEmailScheduleSuccess(response.data));
         return { ...response, success: true };
@@ -554,6 +563,33 @@ export const createEmailTemplate = createAsyncThunk(
   }
 );
 
+export const createEmailTemplates = createAsyncThunk(
+  "emails/createEmailTemplates",
+  async (emailTemplatesData: any, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(createEmailTemplateRequest());
+      const response: any = await api.createEmailTemplates(emailTemplatesData);
+      if (response.status === 201) {
+        dispatch(createEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to create email template.",
+        success: false,
+      };
+      dispatch(createEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to create email template.";
+      dispatch(createEmailTemplateFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const getEmailTemplates = createAsyncThunk(
   "emails/getEmailTemplates",
   async (
@@ -579,6 +615,79 @@ export const getEmailTemplates = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to fetch email templates.";
       dispatch(getEmailTemplatesFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateEmailTemplate = createAsyncThunk(
+  "emails/updateEmailTemplate",
+  async (
+    {
+      email_template_uid,
+      emailTemplatePayload,
+    }: { email_template_uid: string; emailTemplatePayload: any },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateEmailTemplateRequest());
+
+      const response: any = await api.updateEmailTemplate(
+        email_template_uid,
+        emailTemplatePayload
+      );
+      if (response.status === 200) {
+        dispatch(updateEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update email template.",
+        success: false,
+      };
+      dispatch(updateEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update email template.";
+      dispatch(updateEmailTemplateFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const deleteEmailTemplate = createAsyncThunk(
+  "emails/deleteEmailTemplate",
+  async (
+    {
+      email_template_uid,
+      email_config_uid,
+    }: { email_template_uid: string; email_config_uid: string },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(deleteEmailTemplateRequest());
+      const response: any = await api.deleteEmailTemplate(
+        email_template_uid,
+        email_config_uid
+      );
+      if (response.status === 200) {
+        dispatch(deleteEmailTemplateSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to delete email template.",
+        success: false,
+      };
+      dispatch(deleteEmailTemplateFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to delete email template.";
+      dispatch(deleteManualEmailTriggerFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }
@@ -625,4 +734,6 @@ export const emailActions = {
   getEmailTemplates,
   createEmailTemplate,
   getEmailGsheet,
+  deleteEmailTemplate,
+  getEmailDetails,
 };

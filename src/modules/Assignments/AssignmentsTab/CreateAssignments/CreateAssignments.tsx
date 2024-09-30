@@ -1,6 +1,5 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import Header from "../../../../components/Header";
-import NavItems from "../../../../components/NavItems";
+
 import { PushpinOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -390,7 +389,7 @@ function CreateAssignments() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <div>
         <div
           style={{
@@ -467,7 +466,7 @@ function CreateAssignments() {
                 Select surveyors to assign/re-assign the targets
               </p>
               <Table
-                rowKey={(record) => record.email}
+                rowKey={(record: any) => record.email}
                 rowSelection={rowSelection}
                 columns={surveyorsTableColumns}
                 dataSource={surveyorsDataSource}
@@ -509,7 +508,7 @@ function CreateAssignments() {
                 surveyors.
               </p>
               <Table
-                rowKey={(record) => record.target_uid}
+                rowKey={(record: any) => record.target_uid}
                 columns={reviewAssignmentTableColumn}
                 dataSource={targetAssignments}
                 pagination={false}

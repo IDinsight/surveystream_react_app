@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -337,7 +337,7 @@ function TargetsHome() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Targets</Title>

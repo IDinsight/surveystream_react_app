@@ -2,8 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import NavItems from "../../../components/NavItems";
-import Header from "../../../components/Header";
+
 import {
   Button,
   Col,
@@ -294,7 +293,6 @@ function SurveyStatusMapping() {
 
   return (
     <>
-      <Header items={NavItems} />
       {isLoading || isMappingLoading || isBasicInfoLoading ? (
         <FullScreenLoader />
       ) : (

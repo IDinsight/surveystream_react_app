@@ -9,7 +9,12 @@ import {
 } from "../../SurveyInformation.styled";
 import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
 import Header from "../../../../components/Header";
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  BackArrow,
+  BackLink,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import SideMenu from "../SideMenu";
@@ -409,7 +414,7 @@ function EditSurveyUsers() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

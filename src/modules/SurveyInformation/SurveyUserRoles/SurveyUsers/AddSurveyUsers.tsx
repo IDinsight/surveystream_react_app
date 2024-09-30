@@ -16,9 +16,16 @@ import {
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
 import { DescriptionText } from "../../SurveyInformation.styled";
+
 import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
 import Header from "../../../../components/Header";
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  BackArrow,
+  BackLink,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
+
 import SideMenu from "../SideMenu";
 import { RootState } from "../../../../redux/store";
 import {
@@ -403,7 +410,7 @@ function AddSurveyUsers() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

@@ -120,7 +120,7 @@ function ManualTriggers({
               overflowY: "scroll",
               maxHeight: "300px",
             }}
-            open={showModal === !!record.manual_email_trigger_uid}
+            open={showModal === record.manual_email_trigger_uid}
             onOk={handleOk}
             onCancel={handleClose}
             width={500}
@@ -129,7 +129,7 @@ function ManualTriggers({
             <ul>
               {record.recipients.map((id: any, idx: any) => (
                 <li key={idx}>
-                  {surveyEnumerators?.find((e: any) => e.enumerator_id == id)
+                  {surveyEnumerators?.find((e: any) => e.enumerator_uid == id)
                     ?.name || ""}
                 </li>
               ))}
@@ -178,7 +178,7 @@ function ManualTriggers({
             showQuickJumper: true,
             onShowSizeChange: (_, size) => setPaginationPageSize(size),
           }}
-          rowKey={(record) => record.manual_email_trigger_uid}
+          rowKey={(record: any) => record.manual_email_trigger_uid}
         />
       ) : (
         <div

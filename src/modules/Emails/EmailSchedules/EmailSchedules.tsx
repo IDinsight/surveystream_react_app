@@ -6,6 +6,7 @@ import { Tooltip, Button, Popconfirm, Drawer, message, DatePicker } from "antd";
 import {
   deleteEmailConfig,
   deleteEmailSchedule,
+  getEmailSchedule,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
@@ -14,9 +15,10 @@ import dayjs from "dayjs";
 
 function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
   const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
     useState(false);
-
+  const [editScheduleLoading, setEditScheduleLoading] = useState(false);
   const [isEditConfigDrawerVisible, setIsEditConfigDrawerVisible] =
     useState(false);
 
@@ -141,6 +143,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
           {record.schedules.length > 0 ? (
             record.schedules.map((schedule, index) => {
               const { email_schedule_name, dates, time } = schedule;
+
               const formattedDates = formatDates(dates).split("; ");
 
               return (
@@ -155,14 +158,13 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                 >
                   <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
-                    <p>
-                      Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
-                    </p>
+                    <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
                     <Tooltip title="Edit">
                       <Button
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => handleEditSchedule(schedule)}
+                        loading={editScheduleLoading}
                         style={{ marginBottom: 8 }}
                       >
                         Edit Schedule
@@ -188,7 +190,12 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                       width: "100%",
                     }}
                   >
-                    <p>
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "85px",
+                      }}
+                    >
                       Dates:
                       <br />
                       <DatePicker
@@ -198,14 +205,10 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         minDate={dayjs()}
                         maxTagCount={10}
                         value={dates.map((date: string) => dayjs(date))}
-                        style={{
-                          width: "100%",
-                          maxHeight: "85px",
-                        }}
                         allowClear={false}
                         inputReadOnly={true}
                       />
-                    </p>
+                    </span>
                   </div>
                 </div>
               );

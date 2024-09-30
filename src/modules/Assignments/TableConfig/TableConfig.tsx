@@ -1,8 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChangeEvent, useEffect, useState } from "react";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import Header from "../../../components/Header";
-import NavItems from "../../../components/NavItems";
+
 import Container from "../../../components/Layout/Container";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -63,11 +62,6 @@ function TableConfig() {
     survey_uid: string;
     form_uid: string;
   }>();
-
-  // Ensure that the survey_uid are available
-  if (!survey_uid) {
-    return <NotFound />;
-  }
 
   const {
     loading: isTableConfigLoading,
@@ -570,9 +564,13 @@ function TableConfig() {
     setDefaultSelectedCols();
   }, [selectedColumns, sctoColumns, otherColumns]);
 
+  // Ensure that the survey_uid are available
+  if (!survey_uid) {
+    return <NotFound />;
+  }
+
   return (
     <>
-      <Header items={NavItems} />
       {isTableConfigLoading ? (
         <FullScreenLoader />
       ) : (
