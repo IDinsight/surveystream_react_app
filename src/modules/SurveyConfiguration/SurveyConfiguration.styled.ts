@@ -114,7 +114,7 @@ export const CheckboxLabel = styled.span`
 export const StatusWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 0.2rem;
+  margin-top: 2rem;
 `;
 
 export const StatusText = styled.p`

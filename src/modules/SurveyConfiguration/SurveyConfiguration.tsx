@@ -20,7 +20,7 @@ import {
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
-import { Result, Button } from "antd";
+import { Result, Button, Tag, Progress } from "antd";
 import {
   InfoCircleFilled,
   LayoutFilled,
@@ -40,6 +40,10 @@ import {
   SoundOutlined,
   PictureOutlined,
   FormOutlined,
+  CheckCircleOutlined,
+  SyncOutlined,
+  CloseCircleOutlined,
+  HourglassOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -130,23 +134,25 @@ const SurveyConfiguration: React.FC = () => {
       getSurveyConfig({ survey_uid: survey_uid })
     );
   };
-
   const renderStatus = (status: string) => {
-    let color;
-    if (status === "Done") {
-      color = "#389E0D";
-    } else if (status === "In Progress") {
-      color = "#D48806";
-    } else if (status === "Error") {
-      color = "#F5222D";
-    } else {
-      color = "#8C8C8C";
-    }
+    const colors: { [key: string]: string } = {
+      Done: "success",
+      "In Progress": "warning",
+      Error: "error",
+    };
+    const color = colors[status];
+    const icons: { [key: string]: any } = {
+      Done: CheckCircleOutlined,
+      "In Progress": SyncOutlined,
+      Error: CloseCircleOutlined,
+    };
+    const IconComponent = icons[status] || HourglassOutlined;
 
     return (
       <StatusWrapper>
-        <CustomCheckbox checked={true} color={color} />
-        <StatusText>{status}</StatusText>
+        <Tag icon={<IconComponent />} color={color}>
+          {status}
+        </Tag>
       </StatusWrapper>
     );
   };
@@ -371,10 +377,6 @@ const SurveyConfiguration: React.FC = () => {
   }, [survey_uid]);
 
   const { height } = useWindowDimensions();
-
-  useEffect(() => {
-    console.log(height);
-  }, [height]);
 
   return (
     <>
