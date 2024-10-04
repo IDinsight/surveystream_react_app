@@ -1,9 +1,12 @@
 import { Card } from "antd";
 import styled from "styled-components";
-export const SideMenuWrapper = styled.div`
+
+const HEADER_HEIGHT = 131;
+
+export const SideMenuWrapper = styled.div<{ windowHeight: number }>`
   background-color: #f5f5f5;
   width: 250px;
-  min-height: 120vh;
+  min-height: ${({ windowHeight }) => windowHeight - HEADER_HEIGHT};
   padding: 1rem;
   padding-top: 20px;
   display: flex;
@@ -78,11 +81,13 @@ export const Title = styled.h1`
   margin-top: 1rem;
   margin-bottom: 1rem;
 `;
-export const MainWrapper = styled.div`
+export const MainWrapper = styled.div<{ windowHeight: number }>`
   flex: 1;
   padding: 1rem;
   padding-left: 2rem;
   background-color: #f5f5f5;
+  overflow-y: auto;
+  height: ${({ windowHeight }) => Math.min(windowHeight - HEADER_HEIGHT)}px;
 `;
 
 export const StyledCard = styled(Card)`

@@ -43,6 +43,7 @@ import {
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 
 interface CheckboxProps {
   checked: boolean;
@@ -369,6 +370,12 @@ const SurveyConfiguration: React.FC = () => {
     fetchData();
   }, [survey_uid]);
 
+  const { height } = useWindowDimensions();
+
+  useEffect(() => {
+    console.log(height);
+  }, [height]);
+
   return (
     <>
       <GlobalStyle />
@@ -393,11 +400,13 @@ const SurveyConfiguration: React.FC = () => {
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
-          <SideMenu surveyProgress={surveyConfigs} />
-          <MainWrapper>
+          <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
+          <MainWrapper windowHeight={height}>
             {Object.entries(surveyConfigs).map(
               ([sectionTitle, sectionConfig], index) => (
-                <>{renderSection(sectionTitle, sectionConfig, index)}</>
+                <React.Fragment key={index}>
+                  {renderSection(sectionTitle, sectionConfig, index)}
+                </React.Fragment>
               )
             )}
           </MainWrapper>

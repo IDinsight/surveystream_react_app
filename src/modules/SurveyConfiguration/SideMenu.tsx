@@ -12,9 +12,15 @@ interface SurveyProgress {
   [key: string]: string[] | any;
 }
 
-function SideMenu({ surveyProgress }: { surveyProgress: SurveyProgress }) {
+function SideMenu({
+  surveyProgress,
+  windowHeight,
+}: {
+  surveyProgress: SurveyProgress;
+  windowHeight: number;
+}) {
   return (
-    <SideMenuWrapper>
+    <SideMenuWrapper windowHeight={windowHeight}>
       <StepCard title="Configuration completion">
         <StepsWrapper>
           <div
