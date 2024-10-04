@@ -6,7 +6,8 @@ const HEADER_HEIGHT = 131;
 export const SideMenuWrapper = styled.div<{ windowHeight: number }>`
   background-color: #f5f5f5;
   width: 250px;
-  min-height: ${({ windowHeight }) => windowHeight - HEADER_HEIGHT};
+  height: ${({ windowHeight }) => Math.min(windowHeight - HEADER_HEIGHT)}px;
+  overflow-y: auto;
   padding: 1rem;
   padding-top: 20px;
   display: flex;
