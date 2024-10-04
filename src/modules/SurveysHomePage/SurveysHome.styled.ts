@@ -15,7 +15,7 @@ export const NewSurveyCard = styled.div`
 
   padding: 10px;
   width: 270px;
-  height: 80px;
+  height: 132px;
   border-radius: 0.125rem;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
 
