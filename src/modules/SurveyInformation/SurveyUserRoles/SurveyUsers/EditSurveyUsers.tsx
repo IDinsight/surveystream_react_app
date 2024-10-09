@@ -14,6 +14,7 @@ import {
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
@@ -429,6 +430,9 @@ function EditSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Users - Edit user</Title>
+      </HeaderContainer>
       {isLoading || isuserManagementLoading || rolesLoading ? (
         <FullScreenLoader />
       ) : (
@@ -436,9 +440,8 @@ function EditSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Users</DescriptionTitle>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Edit user role
+              <DescriptionText>
+                Edit existing user in the survey.
               </DescriptionText>
               <div>
                 <Form

@@ -24,6 +24,7 @@ import {
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 
 import SideMenu from "../SideMenu";
@@ -425,6 +426,9 @@ function AddSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Users - Add new user</Title>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -432,7 +436,11 @@ function AddSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText>Add new user</DescriptionText>
+              <DescriptionText>
+                Add users for the survey. Pro tip: Start with users with the top
+                most role in the survey, in order to be able to select them as
+                supervisors for their reportees when adding them.
+              </DescriptionText>
               <div>
                 {!isVerified ? (
                   <Form
