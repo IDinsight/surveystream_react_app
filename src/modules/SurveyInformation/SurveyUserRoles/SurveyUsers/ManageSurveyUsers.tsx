@@ -204,7 +204,7 @@ function ManageSurveyUsers() {
             );
             setLocationDetailsField([
               {
-                title: `${primeGeoLevel.geo_level_name} ID`,
+                title: `${primeGeoLevel.geo_level_name}`,
                 key: `location_id_column`,
                 values: primeGeoLevelLocations,
               },

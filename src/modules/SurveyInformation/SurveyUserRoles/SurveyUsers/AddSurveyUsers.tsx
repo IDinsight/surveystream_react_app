@@ -353,7 +353,7 @@ function AddSurveyUsers() {
             );
             setLocationDetailsField([
               {
-                title: `${primeGeoLevel.geo_level_name} ID`,
+                title: `${primeGeoLevel.geo_level_name}`,
                 key: `location_id_column`,
                 values: primeGeoLevelLocations,
               },
@@ -758,7 +758,7 @@ function AddSurveyUsers() {
                           label={
                             <span>
                               {locationDetailsField[0].title}&nbsp;
-                              <StyledTooltip title="Prime geo locations associated with the given user.">
+                              <StyledTooltip title="Prime geo locations associated with the given user. Dropdown values are in the format: 'Location ID - Name'.">
                                 <QuestionCircleOutlined />
                               </StyledTooltip>
                             </span>
