@@ -181,7 +181,8 @@ export const buildColumnDefinition = (
     if (
       keyArray[0] === "target_locations" ||
       keyArray[0] === "surveyor_locations" ||
-      keyArray[0] === "form_productivity"
+      keyArray[0] === "form_productivity" ||
+      keyArray[0] === "supervisors"
     ) {
       columnDefinition = {
         ...columnDefinition,

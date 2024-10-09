@@ -7,16 +7,17 @@ import {
   assignmentsRequest,
   assignmentsSuccess,
   assignmentsFailure,
-  assignableEnumeratorsRequest,
-  assignableEnumeratorsSuccess,
-  assignableEnumeratorsFailure,
-  targetsRequest,
-  targetsFailure,
-  targetsSuccess,
+  assignmentTargetsRequest,
+  assignmentTargetsSuccess,
+  assignmentTargetsFailure,
+  assignmentEnumeratorsRequest,
+  assignmentEnumeratorsSuccess,
+  assignmentEnumeratorsFailure,
 } from "./assignmentsSlice";
 
 import {
-  fetchAssignableEnumerators,
+  fetchAssignmentTargets,
+  fetchAssignmentEnumerators,
   fetchAssignments,
   fetchTableConfig,
   makeAssignments,
@@ -24,16 +25,24 @@ import {
   updateAssignableEnumerators,
   uploadAssignments,
 } from "./apiService";
-import { fetchTargets } from "../targets/apiService";
 import { AssignmentFormPayload } from "./types";
 import { getEnumerators } from "../enumerators/enumeratorsActions";
 
 export const getTableConfig = createAsyncThunk(
   "assignments/getTableConfig",
-  async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
+  async (
+    {
+      formUID,
+      filter_supervisors,
+    }: {
+      formUID: string;
+      filter_supervisors?: boolean;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       dispatch(tableConfigRequest());
-      const response: any = await fetchTableConfig(formUID);
+      const response: any = await fetchTableConfig(formUID, filter_supervisors);
       if (response.status == 200) {
         dispatch(tableConfigSuccess(response.data));
         return { ...response, success: true };
@@ -95,8 +104,8 @@ export const updateAssignments = createAsyncThunk(
       }
 
       const errorObj = {
-        message: response.message
-          ? response.message
+        message: response.response.data.errors.message
+          ? response.response.data.errors.message
           : "Failed to update assignments.",
         success: false,
       };
@@ -153,14 +162,42 @@ export const uploadCSVAssignments = createAsyncThunk(
   }
 );
 
-export const getAssignableEnumerators = createAsyncThunk(
-  "assignments/getAssignableEnumerators",
+export const getAssignmentTargets = createAsyncThunk(
+  "assignments/getAssignmentTargets",
   async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(assignableEnumeratorsRequest());
-      const response: any = await fetchAssignableEnumerators(formUID);
+      dispatch(assignmentTargetsRequest());
+      const response: any = await fetchAssignmentTargets(formUID);
       if (response.status == 200) {
-        dispatch(assignableEnumeratorsSuccess(response.data.data));
+        dispatch(assignmentTargetsSuccess(response.data.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to fetch targets.",
+        success: false,
+      };
+      dispatch(assignmentTargetsFailure(error.message));
+      return error;
+    } catch (error: any) {
+      const errorMessage = error || "Failed to fetch targets.";
+      dispatch(assignmentTargetsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getAssignmentEnumerators = createAsyncThunk(
+  "assignments/getAssignmentEnumerators",
+  async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(assignmentEnumeratorsRequest());
+      const response: any = await fetchAssignmentEnumerators(formUID);
+      if (response.status == 200) {
+        dispatch(assignmentEnumeratorsSuccess(response.data.data));
         return { ...response, success: true };
       }
 
@@ -171,11 +208,11 @@ export const getAssignableEnumerators = createAsyncThunk(
           : "Failed to fetch enumerators.",
         success: false,
       };
-      dispatch(assignableEnumeratorsFailure(error.message));
+      dispatch(assignmentEnumeratorsFailure(error.message));
       return error;
     } catch (error: any) {
       const errorMessage = error || "Failed to fetch enumerators.";
-      dispatch(assignableEnumeratorsFailure(errorMessage));
+      dispatch(assignmentEnumeratorsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }
@@ -195,7 +232,7 @@ export const updateEnumeratorStatus = createAsyncThunk(
         newStatus
       );
       if (response.status == 200) {
-        dispatch(getEnumerators({ formUID }));
+        dispatch(getAssignmentEnumerators({ formUID }));
 
         // Update the assignments list if the surveyor is dropout
         if (newStatus === "Dropout") {
@@ -207,34 +244,6 @@ export const updateEnumeratorStatus = createAsyncThunk(
       return { success: false };
     } catch (error: any) {
       return { success: false };
-    }
-  }
-);
-
-export const getTargets = createAsyncThunk(
-  "assignments/getTargets",
-  async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
-    try {
-      dispatch(targetsRequest());
-      const response: any = await fetchTargets(formUID);
-      if (response.status == 200) {
-        dispatch(targetsSuccess(response.data.data));
-        return { ...response, success: true };
-      }
-
-      const error = {
-        errors: response.response.data.errors,
-        message: response.message
-          ? response.message
-          : "Failed to fetch targets.",
-        success: false,
-      };
-      dispatch(targetsFailure(error.message));
-      return error;
-    } catch (error: any) {
-      const errorMessage = error || "Failed to fetch targets.";
-      dispatch(targetsFailure(errorMessage));
-      return rejectWithValue(errorMessage);
     }
   }
 );
