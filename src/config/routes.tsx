@@ -358,7 +358,7 @@ const AppRoutes = () => {
           element={<MappingHome />}
         />
         <Route
-          path="/survey-information/mapping/:survey_uid?/:mapping_name?/:mapping_uid?"
+          path="/survey-information/mapping/:survey_uid?/:mapping_name?"
           element={<MappingManage />}
         />
       </Route>

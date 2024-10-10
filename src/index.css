@@ -16,3 +16,7 @@ body {
 .disabled-row .ant-checkbox-wrapper {
     display: none;
 }
+
+.ant-table table {
+    font-family: "Lato", sans-serif;
+}

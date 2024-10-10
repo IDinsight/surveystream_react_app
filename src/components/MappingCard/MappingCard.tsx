@@ -1,5 +1,6 @@
 import { Card, Button, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
+import { CustomBtn } from "../../modules/Mapping/Mapping.styled";
 
 const { Text, Title } = Typography;
 
@@ -41,9 +42,13 @@ const MappingCard = ({
       <Text type="secondary" style={{ display: "block" }}>
         {description}
       </Text>
-      <Button type="primary" style={{ marginTop: 16 }} onClick={handleGoButton}>
+      <CustomBtn
+        type="primary"
+        style={{ marginTop: 16, width: 80 }}
+        onClick={handleGoButton}
+      >
         Go
-      </Button>
+      </CustomBtn>
     </Card>
   );
 };

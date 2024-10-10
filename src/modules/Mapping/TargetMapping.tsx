@@ -11,33 +11,33 @@ import {
   Popconfirm,
 } from "antd";
 import {
-  deleteSurveyorsMappingConfig,
-  fetchSurveyorsMapping,
-  fetchSurveyorsMappingConfig,
+  fetchTargetsMappingConfig,
+  updateTargetsMappingConfig,
+  deleteTargetsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
-  updateSurveyorsMapping,
-  updateSurveyorsMappingConfig,
+  updateTargetsMapping,
+  fetchTargetsMapping,
 } from "../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
-import MappingCountBox from "../../components/MappingCountBox";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import MappingCountBox from "../../components/MappingCountBox";
 import { CustomBtn } from "./Mapping.styled";
 
 const { Option } = Select;
 
-interface SurveyorMappingProps {
+interface TargetMappingProps {
   formUID: string;
   SurveyUID: string;
   criteria: string[];
 }
 
-const SurveyorMapping = ({
+const TargetMapping = ({
   formUID,
   SurveyUID,
   criteria,
-}: SurveyorMappingProps) => {
+}: TargetMappingProps) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -67,34 +67,34 @@ const SurveyorMapping = ({
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
+            title: "Target Location",
+            dataIndex: "targetLocation",
+            key: "targetLocation",
           },
         ]
       : []),
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
+            title: "Target Language",
+            dataIndex: "targetLanguage",
+            key: "targetLanguage",
           },
         ]
       : []),
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
+            title: "Target Gender",
+            dataIndex: "targetGender",
+            key: "targetGender",
           },
         ]
       : []),
     {
-      title: "Surveyor Count",
-      dataIndex: "surveyorCount",
-      key: "surveyorCount",
+      title: "Target Count",
+      dataIndex: "targetCount",
+      key: "targetCount",
     },
     ...(criteria.includes("Location")
       ? [
@@ -143,34 +143,34 @@ const SurveyorMapping = ({
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
+            title: "Target Location",
+            dataIndex: "targetLocation",
+            key: "targetLocation",
           },
         ]
       : []),
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
+            title: "Target Language",
+            dataIndex: "targetLanguage",
+            key: "targetLanguage",
           },
         ]
       : []),
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
+            title: "Target Gender",
+            dataIndex: "targetGender",
+            key: "targetGender",
           },
         ]
       : []),
     {
-      title: "Surveyor Count",
-      dataIndex: "surveyorCount",
-      key: "surveyorCount",
+      title: "Target Count",
+      dataIndex: "targetCount",
+      key: "targetCount",
     },
     ...(criteria.includes("Location")
       ? [
@@ -276,21 +276,20 @@ const SurveyorMapping = ({
 
   // Filter out the mapped pairs from the main mapping config
   // and map the data to the columns for table
-  const mappedSurveyors = mappingConfig?.filter(
+  const mappedTargets = mappingConfig?.filter(
     (config: any) => config.supervisor_mapping_criteria_values !== null
   );
 
-  const mappedPairsData = mappedSurveyors?.map((config: any, index: number) => {
+  const mappedPairsData = mappedTargets?.map((config: any, index: number) => {
     return {
       key: "mappedPair" + index,
-      surveyorLocation:
-        config.surveyor_mapping_criteria_values.other?.location_name,
-      surveyorLanguage:
-        config.surveyor_mapping_criteria_values.criteria?.Language,
-      surveyorGender: config.surveyor_mapping_criteria_values.criteria?.Gender,
-      surveyorCount: config.surveyor_count,
+      targetLocation:
+        config.target_mapping_criteria_values?.other?.location_name,
+      targetLanguage: config.target_mapping_criteria_values.criteria?.Language,
+      targetGender: config.target_mapping_criteria_values.criteria?.Gender,
+      targetCount: config.target_count,
       supervisorLocation:
-        config.supervisor_mapping_criteria_values.other?.location_name,
+        config.supervisor_mapping_criteria_values?.other?.location_name,
       supervisorLanguage:
         config.supervisor_mapping_criteria_values.criteria?.Language,
       supervisorGender:
@@ -300,13 +299,13 @@ const SurveyorMapping = ({
     };
   });
 
-  // Filter out the unmapped surveyors from the mapping config
+  // Filter out the unmapped targets from the mapping config
   // and map the data to the columns for table
-  const unmappedSurveyors = mappingConfig?.filter(
+  const unmappedTargets = mappingConfig?.filter(
     (config: any) => config.supervisor_mapping_criteria_values === null
   );
 
-  const unmappedPairData = unmappedSurveyors?.map(
+  const unmappedPairData = unmappedTargets?.map(
     (config: any, index: number) => {
       const key = "unmappedPair" + index;
 
@@ -359,15 +358,14 @@ const SurveyorMapping = ({
 
       return {
         key: key,
-        surveyorLocation:
-          config.surveyor_mapping_criteria_values.other.location_name,
-        surveyorLocationUID:
-          config.surveyor_mapping_criteria_values.criteria.Location,
-        surveyorLanguage:
-          config.surveyor_mapping_criteria_values.criteria?.Language,
-        surveyorGender:
-          config.surveyor_mapping_criteria_values.criteria?.Gender,
-        surveyorCount: config.surveyor_count,
+        targetLocation:
+          config.target_mapping_criteria_values?.other.location_name,
+        targetLocationUID:
+          config.target_mapping_criteria_values.criteria.Location,
+        targetLanguage:
+          config.target_mapping_criteria_values.criteria?.Language,
+        targetGender: config.target_mapping_criteria_values.criteria?.Gender,
+        targetCount: config.target_count,
         supervisorCount: isSelectionMade ? supervisiorList.length : null,
       };
     }
@@ -383,10 +381,10 @@ const SurveyorMapping = ({
       [record.key]: {
         mapping_from:
           type === "Location"
-            ? record.surveyorLocationUID
+            ? record.targetLocationUID
             : type === "Language"
-            ? record.surveyorLanguage
-            : record.surveyorGender,
+            ? record.targetLanguage
+            : record.targetGender,
         mapping_to: value,
       },
     });
@@ -403,16 +401,16 @@ const SurveyorMapping = ({
   const handleConfigSave = () => {
     const mappingConfigPayload: any = [];
 
-    // Create the payload for mapped surveyors
-    mappedSurveyors.forEach((surveyor: any) => {
+    // Create the payload for mapped target
+    mappedTargets.forEach((target: any) => {
       const mappingValues = criteria.map((criterion) => ({
         criteria: criterion,
-        value: surveyor.surveyor_mapping_criteria_values.criteria[criterion],
+        value: target.target_mapping_criteria_values.criteria[criterion],
       }));
 
       const mappedToValues = criteria.map((criterion) => ({
         criteria: criterion,
-        value: surveyor.supervisor_mapping_criteria_values.criteria[criterion],
+        value: target.supervisor_mapping_criteria_values.criteria[criterion],
       }));
 
       mappingConfigPayload.push({
@@ -421,7 +419,7 @@ const SurveyorMapping = ({
       });
     });
 
-    // Create the payload for unmapped surveyors for each criterion
+    // Create the payload for unmapped targets for each criterion
     const selectedCriteria: any = {
       Location: selectedLocations,
       Language: selectedLanguages,
@@ -473,18 +471,18 @@ const SurveyorMapping = ({
       }
     });
 
-    const surveyorsMappingConfigPayload = {
+    const targetssMappingConfigPayload = {
       form_uid: formUID,
       mapping_config: mappingConfigPayload,
     };
 
     setLoading(true);
-    updateSurveyorsMappingConfig(formUID, surveyorsMappingConfigPayload).then(
+    updateTargetsMappingConfig(formUID, targetssMappingConfigPayload).then(
       (res: any) => {
         if (res?.data?.success || res?.data?.message === "Success") {
           message.success("Mapping updated successfully");
           setLoading(true);
-          fetchSurveyorsMappingConfig(formUID).then((res: any) => {
+          fetchTargetsMappingConfig(formUID).then((res: any) => {
             if (res?.data?.success) {
               setSelectedLocations({});
               setMappingConfig(res?.data?.data);
@@ -503,10 +501,10 @@ const SurveyorMapping = ({
     );
   };
 
-  const handleSurveyorMappingSave = () => {
-    const mappingsPayload = selectedSurveyorRows?.map((surveyor: any) => {
+  const handleTargetMappingSave = () => {
+    const mappingsPayload = selectedTargetRows?.map((target: any) => {
       return {
-        enumerator_uid: surveyor.surveyorUID,
+        target_uid: target.targetUID,
         supervisor_uid: selectedMappingValue,
       };
     });
@@ -517,11 +515,11 @@ const SurveyorMapping = ({
     }
 
     setLoading(true);
-    updateSurveyorsMapping(formUID, mappingsPayload).then((res: any) => {
+    updateTargetsMapping(formUID, mappingsPayload).then((res: any) => {
       if (res?.data?.success) {
-        message.success("Surveyor to Supervisor mapping updated successfully");
+        message.success("Target to Supervisor mapping updated successfully");
         setLoading(true);
-        fetchSurveyorsMapping(formUID).then((res: any) => {
+        fetchTargetsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
           } else {
@@ -531,7 +529,11 @@ const SurveyorMapping = ({
         });
         onDrawerClose();
       } else {
-        message.error("Failed to update mapping");
+        if (res?.response?.data.errors?.record_errors) {
+          message.error(res?.response?.data.errors?.record_errors);
+        } else {
+          message.error("Failed to update mapping");
+        }
       }
       setLoading(false);
     });
@@ -539,7 +541,7 @@ const SurveyorMapping = ({
 
   const handleContinue = () => {
     setLoading(true);
-    fetchSurveyorsMapping(formUID).then((res: any) => {
+    fetchTargetsMapping(formUID).then((res: any) => {
       if (res?.data?.success) {
         setMappingData(res?.data?.data);
         setIsConfigSetupPage(false);
@@ -553,11 +555,11 @@ const SurveyorMapping = ({
   const resetMappingConfig = () => {
     // Reset the existing mapping config
     setLoading(true);
-    deleteSurveyorsMappingConfig(formUID).then((res: any) => {
+    deleteTargetsMappingConfig(formUID).then((res: any) => {
       if (res?.data?.success) {
         message.success("Mapping reset successfully");
         setLoading(true);
-        fetchSurveyorsMappingConfig(formUID).then((res: any) => {
+        fetchTargetsMappingConfig(formUID).then((res: any) => {
           if (res?.data?.success) {
             // Reset the mapping config state
             setMappingConfig(res?.data?.data);
@@ -573,46 +575,41 @@ const SurveyorMapping = ({
     });
   };
 
-  const surveyorsMappingColumns: any = [
+  const targetsMappingColumns: any = [
     {
-      title: "Surveyor ID",
-      dataIndex: "surveyorID",
-      key: "surveyorID",
-    },
-    {
-      title: "Surveyor Name",
-      dataIndex: "surveyorName",
-      key: "surveyorName",
+      title: "Target ID",
+      dataIndex: "targetID",
+      key: "targetID",
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
           {
-            title: "Surveyor Location ID",
-            dataIndex: "surveyorLocationID",
-            key: "surveyorLocationID",
+            title: "Target Location ID",
+            dataIndex: "targetLocationID",
+            key: "targetLocationID",
           },
           {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
+            title: "Target Location",
+            dataIndex: "targetLocation",
+            key: "targetLocation",
           },
         ]
       : []),
     ...(criteria.includes("Language") || criteria.includes("Manual")
       ? [
           {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
+            title: "Target Language",
+            dataIndex: "targetLanguage",
+            key: "targetLanguage",
           },
         ]
       : []),
     ...(criteria.includes("Gender") || criteria.includes("Manual")
       ? [
           {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
+            title: "Target Gender",
+            dataIndex: "targetGender",
+            key: "targetGender",
           },
         ]
       : []),
@@ -622,9 +619,9 @@ const SurveyorMapping = ({
       key: "supervisorEmail",
       filters: [
         ...new Map(
-          mappingData?.map((surveyor: { supervisor_email: string }) => [
-            surveyor.supervisor_email,
-            surveyor.supervisor_email,
+          mappingData?.map((target: { supervisor_email: string }) => [
+            target.supervisor_email,
+            target.supervisor_email,
           ])
         ).values(),
       ].map((email) => ({
@@ -642,9 +639,9 @@ const SurveyorMapping = ({
       filters: [
         ...new Map(
           mappingData?.map(
-            (surveyor: { supervisor_uid: string; supervisor_name: string }) => [
-              surveyor.supervisor_uid,
-              surveyor.supervisor_name,
+            (target: { supervisor_uid: string; supervisor_name: string }) => [
+              target.supervisor_uid,
+              target.supervisor_name,
             ]
           )
         ).values(),
@@ -685,27 +682,26 @@ const SurveyorMapping = ({
       : []),
   ];
 
-  const mappingTableData = mappingData?.map((surveyor: any) => {
+  const mappingTableData = mappingData?.map((target: any) => {
     return {
-      key: surveyor.enumerator_uid,
-      surveyorID: surveyor.enumerator_id,
-      surveyorName: surveyor.name,
-      surveyorUID: surveyor.enumerator_uid,
-      surveyorLocationID: surveyor?.location_id?.[0],
-      surveyorLocation: surveyor?.location_name?.[0],
-      surveyorLanguage: surveyor?.language,
-      surveyorGender: surveyor?.gender,
-      supervisorEmail: surveyor.supervisor_email,
-      supervisorName: surveyor.supervisor_name,
-      supervisorUID: surveyor.supervisor_uid,
+      key: target.target_uid,
+      targetID: target.target_uid,
+      targetUID: target.target_uid,
+      targetLocationID: target?.location_id?.[0],
+      targetLocation: target?.location_name?.[0],
+      targetLanguage: target?.language,
+      targetGender: target?.gender,
+      supervisorEmail: target.supervisor_email,
+      supervisorName: target.supervisor_name,
+      supervisorUID: target.supervisor_uid,
       supervisorLocation:
-        surveyor.supervisor_mapping_criteria_values.other?.location_name,
+        target.supervisor_mapping_criteria_values?.other?.location_name,
       supervisorLocationUID:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Location,
+        target.supervisor_mapping_criteria_values.criteria?.Location,
       supervisorLanguage:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Language,
+        target.supervisor_mapping_criteria_values.criteria?.Language,
       supervisorGender:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Gender,
+        target.supervisor_mapping_criteria_values.criteria?.Gender,
     };
   });
 
@@ -714,9 +710,7 @@ const SurveyorMapping = ({
 
     if (criteria.includes("Location")) {
       userLocations?.map((user: any) => {
-        if (
-          user.location_uid === selectedSurveyorRows[0].supervisorLocationUID
-        ) {
+        if (user.location_uid === selectedTargetRows[0].supervisorLocationUID) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -727,7 +721,7 @@ const SurveyorMapping = ({
 
     if (criteria.includes("Language")) {
       userLanguages?.map((user: any) => {
-        if (user.language === selectedSurveyorRows[0].supervisorLanguage) {
+        if (user.language === selectedTargetRows[0].supervisorLanguage) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -738,7 +732,7 @@ const SurveyorMapping = ({
 
     if (criteria.includes("Gender")) {
       userLanguages?.map((user: any) => {
-        if (user.language === selectedSurveyorRows[0].supervisorGender) {
+        if (user.language === selectedTargetRows[0].supervisorGender) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -778,31 +772,31 @@ const SurveyorMapping = ({
     ));
   };
 
-  const [selectedSurveyorRows, setSelectedSurveyorRows] = useState<any>([]);
+  const [selectedTargetRows, setSelectedTargetRows] = useState<any>([]);
 
   const rowSelection = {
-    selectedSurveyorRows,
+    selectedTargetRows,
     onSelect: (record: any, selected: any, selectedRow: any) => {
-      setSelectedSurveyorRows(selectedRow);
+      setSelectedTargetRows(selectedRow);
     },
     onSelectAll: (selected: boolean, selectedRows: any, changeRows: any) => {
-      setSelectedSurveyorRows(selectedRows);
+      setSelectedTargetRows(selectedRows);
     },
     getCheckboxProps: (record: any) => {
       const isManual = criteria.includes("Manual");
       const isDisabled =
         !isManual &&
-        selectedSurveyorRows.length > 0 &&
-        selectedSurveyorRows[0] &&
+        selectedTargetRows.length > 0 &&
+        selectedTargetRows[0] &&
         ((criteria.includes("Location") &&
           record.supervisorLocation !==
-            selectedSurveyorRows[0].supervisorLocation) ||
+            selectedTargetRows[0].supervisorLocation) ||
           (criteria.includes("Language") &&
             record.supervisorLanguage !==
-              selectedSurveyorRows[0].supervisorLanguage) ||
+              selectedTargetRows[0].supervisorLanguage) ||
           (criteria.includes("Gender") &&
             record.supervisorGender !==
-              selectedSurveyorRows[0].supervisorGender));
+              selectedTargetRows[0].supervisorGender));
 
       return {
         disabled: isDisabled,
@@ -823,7 +817,7 @@ const SurveyorMapping = ({
   useEffect(() => {
     if (formUID) {
       setLoading(true);
-      fetchSurveyorsMappingConfig(formUID).then((res: any) => {
+      fetchTargetsMappingConfig(formUID).then((res: any) => {
         if (res?.data?.success) {
           setMappingConfig(res?.data?.data);
         } else {
@@ -902,10 +896,10 @@ const SurveyorMapping = ({
             dataSource={mappedPairsData}
             pagination={false}
           />
-          {unmappedSurveyors?.length > 0 && (
+          {unmappedTargets?.length > 0 && (
             <>
               <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                There is no mapping available for below listed Surveyor, please
+                There is no mapping available for below listed Target, please
                 map them manually:
               </p>
               <Table
@@ -927,7 +921,7 @@ const SurveyorMapping = ({
               Save
             </CustomBtn>
             <Button
-              disabled={unmappedSurveyors?.length > 0}
+              disabled={unmappedTargets?.length > 0}
               onClick={handleContinue}
             >
               Continue
@@ -943,16 +937,16 @@ const SurveyorMapping = ({
             <MappingCountBox
               mapped={
                 mappingTableData?.filter(
-                  (surveyor: any) => surveyor.supervisorEmail !== null
+                  (target: any) => target.supervisorEmail !== null
                 ).length
               }
               unmapped={
                 mappingTableData?.filter(
-                  (surveyor: any) => surveyor.supervisorEmail === null
+                  (target: any) => target.supervisorEmail === null
                 ).length
               }
             />
-            {selectedSurveyorRows.length > 0 ? (
+            {selectedTargetRows.length > 0 ? (
               <Button
                 type="primary"
                 style={{ marginLeft: "auto" }}
@@ -963,7 +957,7 @@ const SurveyorMapping = ({
             ) : null}
           </div>
           <Table
-            columns={surveyorsMappingColumns}
+            columns={targetsMappingColumns}
             dataSource={mappingTableData}
             rowSelection={rowSelection}
             scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
@@ -972,32 +966,32 @@ const SurveyorMapping = ({
               showSizeChanger: false,
             }}
           />
-          {selectedSurveyorRows.length > 0 && (
+          {selectedTargetRows.length > 0 && (
             <Drawer
-              title="Edit Surveyor to Supervisor Mapping"
+              title="Edit Target to Supervisor Mapping"
               onClose={onDrawerClose}
               open={isEditingOpen}
               width={480}
             >
               <Row>
                 <Col span={8}>
-                  {criteria.includes("Location") && <p>Surveyor Location:</p>}
-                  {criteria.includes("Language") && <p>Surveyor Language:</p>}
-                  {criteria.includes("Gender") && <p>Surveyor Gender:</p>}
-                  {criteria.includes("Manual") && <p>Surveyor count:</p>}
+                  {criteria.includes("Location") && <p>Target Location:</p>}
+                  {criteria.includes("Language") && <p>Target Language:</p>}
+                  {criteria.includes("Gender") && <p>Target Gender:</p>}
+                  {criteria.includes("Manual") && <p>Target count:</p>}
                 </Col>
                 <Col span={12}>
                   {criteria.includes("Location") && (
-                    <p>{selectedSurveyorRows[0].surveyorLocation}</p>
+                    <p>{selectedTargetRows[0].targetLocation}</p>
                   )}
                   {criteria.includes("Language") && (
-                    <p>{selectedSurveyorRows[0].surveyorLanguage}</p>
+                    <p>{selectedTargetRows[0].targetLanguage}</p>
                   )}
                   {criteria.includes("Gender") && (
-                    <p>{selectedSurveyorRows[0].surveyorGender}</p>
+                    <p>{selectedTargetRows[0].targetGender}</p>
                   )}
                   {criteria.includes("Manual") && (
-                    <p>{selectedSurveyorRows.length}</p>
+                    <p>{selectedTargetRows.length}</p>
                   )}
                 </Col>
               </Row>
@@ -1009,10 +1003,8 @@ const SurveyorMapping = ({
                   <Select
                     style={{ width: "100%" }}
                     defaultValue={() => {
-                      selectedMappingValue(
-                        selectedSurveyorRows[0].supervisorUID
-                      );
-                      return selectedSurveyorRows[0].supervisorUID;
+                      selectedMappingValue(selectedTargetRows[0].supervisorUID);
+                      return selectedTargetRows[0].supervisorUID;
                     }}
                     value={selectedMappingValue}
                     onChange={(value) => setSelectedMappingValue(value)}
@@ -1022,7 +1014,7 @@ const SurveyorMapping = ({
                 </Col>
               </Row>
               <div style={{ marginTop: 16 }}>
-                <Button type="primary" onClick={handleSurveyorMappingSave}>
+                <Button type="primary" onClick={handleTargetMappingSave}>
                   Save
                 </Button>
                 <Button style={{ marginLeft: 16 }} onClick={onDrawerClose}>
@@ -1037,4 +1029,4 @@ const SurveyorMapping = ({
   );
 };
 
-export default SurveyorMapping;
+export default TargetMapping;

@@ -10,18 +10,20 @@ import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInfo
 import { RootState } from "../../redux/store";
 import { Button, Col, Row, Select, Tooltip } from "antd";
 import { userHasPermission } from "../../utils/helper";
-import { BodyContainer, FormItemLabel } from "./Mapping.styled";
+import { BodyContainer, CustomBtn, FormItemLabel } from "./Mapping.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import SurveyorMapping from "./SurveyorMapping";
+import { getSurveyModuleQuestionnaire } from "../../redux/surveyConfig/surveyConfigActions";
+import { TargetMappingTable } from "../SurveyInformation/SurveyStatusMapping/SurveyStatusMapping.styled";
+import TargetMapping from "./TargetMapping";
 
 function MappingManage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { survey_uid, mapping_name, mapping_uid } = useParams<any>() ?? {
+  const { survey_uid, mapping_name } = useParams<any>() ?? {
     survey_uid: "",
     mapping_name: "",
-    mapping_uid: "",
   };
 
   if (!survey_uid) {
@@ -39,8 +41,14 @@ function MappingManage() {
     (state: RootState) => state.surveyCTOInformation
   );
 
+  const { loading: surveyConfigLoading, moduleQuestionnaire } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [formID, setFormID] = useState<null | string>(null);
   const [isFormIDSelected, setIsFormIDSelected] = useState(false);
+
+  const [criteria, setCriteria] = useState<string[]>([]);
 
   const handleLoadButton = () => {
     setIsFormIDSelected(true);
@@ -48,9 +56,20 @@ function MappingManage() {
 
   useEffect(() => {
     dispatch(getSurveyCTOForm({ survey_uid }));
+    dispatch(getSurveyModuleQuestionnaire({ survey_uid }));
   }, [dispatch, survey_uid]);
 
-  const isLoading = isSurveyCTOFormLoading;
+  useEffect(() => {
+    if (moduleQuestionnaire) {
+      if (mapping_name === "surveyor") {
+        setCriteria(moduleQuestionnaire.surveyor_mapping_criteria);
+      } else if (mapping_name === "target") {
+        setCriteria(moduleQuestionnaire.target_mapping_criteria);
+      }
+    }
+  }, [moduleQuestionnaire, mapping_name]);
+
+  const isLoading = isSurveyCTOFormLoading || surveyConfigLoading;
 
   return (
     <>
@@ -66,7 +85,9 @@ function MappingManage() {
           <BodyContainer>
             {!isFormIDSelected ? (
               <>
-                <p>Map Surveyors to Supervisors based on: Location</p>
+                <p>
+                  Map Surveyors to Supervisors based on: {criteria?.join(", ")}
+                </p>
                 <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
                   <Col span={5}>
                     <FormItemLabel>
@@ -96,14 +117,24 @@ function MappingManage() {
                   </Col>
                 </Row>
                 <Row style={{ marginTop: 12 }}>
-                  <Button type="primary" onClick={handleLoadButton}>
+                  <CustomBtn type="primary" onClick={handleLoadButton}>
                     Load
-                  </Button>
+                  </CustomBtn>
                 </Row>
               </>
-            ) : (
-              <SurveyorMapping />
-            )}
+            ) : mapping_name === "surveyor" ? (
+              <SurveyorMapping
+                formUID={formID ?? ""}
+                SurveyUID={survey_uid ?? ""}
+                criteria={criteria}
+              />
+            ) : mapping_name === "target" ? (
+              <TargetMapping
+                formUID={formID ?? ""}
+                SurveyUID={survey_uid ?? ""}
+                criteria={criteria}
+              />
+            ) : null}
           </BodyContainer>
         </>
       )}
