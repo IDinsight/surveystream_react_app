@@ -3,18 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import NavItems from "../../components/NavItems";
-import Header from "../../components/Header";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Button, Col, Row, Select, Tooltip } from "antd";
+import { Col, Row, Select, Tooltip } from "antd";
 import { userHasPermission } from "../../utils/helper";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./Mapping.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import SurveyorMapping from "./SurveyorMapping";
 import { getSurveyModuleQuestionnaire } from "../../redux/surveyConfig/surveyConfigActions";
-import { TargetMappingTable } from "../SurveyInformation/SurveyStatusMapping/SurveyStatusMapping.styled";
 import TargetMapping from "./TargetMapping";
 
 function MappingManage() {
@@ -73,7 +70,6 @@ function MappingManage() {
 
   return (
     <>
-      <Header items={NavItems} />
       {isLoading ? (
         <FullScreenLoader />
       ) : (

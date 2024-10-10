@@ -1,8 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
-import NavItems from "../../components/NavItems";
-import Header from "../../components/Header";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { BodyContainer } from "./Mapping.styled";
 import MappingCard from "../../components/MappingCard";
@@ -20,7 +17,6 @@ function MappingHome() {
 
   return (
     <>
-      <Header items={NavItems} />
       <Container />
       <HeaderContainer>
         <Title>Mapping</Title>
