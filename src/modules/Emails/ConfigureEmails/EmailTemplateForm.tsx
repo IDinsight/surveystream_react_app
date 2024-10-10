@@ -485,6 +485,7 @@ const EmailTemplateForm = ({
                         </Select>
                         <Row style={{ marginTop: 16 }}>
                           <Button
+                            style={{ marginRight: 8 }}
                             onClick={() =>
                               handleInsertVariable(formIndex, "subject")
                             }

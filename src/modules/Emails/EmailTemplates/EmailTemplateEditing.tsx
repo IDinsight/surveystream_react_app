@@ -291,7 +291,10 @@ function EmailTemplateEditing({
               ))}
             </Select>
             <Row style={{ marginTop: 8 }}>
-              <Button onClick={() => handleInsertVariable("subject")}>
+              <Button
+                onClick={() => handleInsertVariable("subject")}
+                style={{ marginRight: 8 }}
+              >
                 Insert in Subject
               </Button>
               <Button onClick={() => handleInsertVariable("content")}>
