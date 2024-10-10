@@ -11,41 +11,33 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import { EmailConfigurationSteps } from "./ConfigureEmails.styled";
 import { RootState } from "../../../redux/store";
-import Header from "../../../components/Header";
+
 import Container from "../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import EmailConfigForm from "./EmailConfigForm";
 import EmailScheduleForm from "./EmailScheduleForm";
 import EmailTemplateForm from "./EmailTemplateForm";
 import { getEmailConfigs } from "../../../redux/emails/emailsActions";
+import { getSCTOForms } from "../../../utils/helper";
 
 function ConfigureEmails() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   // State variables for component
   const [stepIndex, setStepIndex] = useState<number>(0);
 
-  const [manualTriggerData, setManualTriggerData] = useState({
-    date: null,
-    time: null,
-  });
-  const [manualTriggerForm] = useForm();
-  const [emailMode, setEmailMode] = useState<string | null>(null);
   const [stepLoading, setStepLoading] = useState<boolean>(false);
   const [configNames, setconfigNames] = useState([]);
 
-  const [loading, setLoading] = useState(false);
   const [configUid, setConfigUid] = useState<string>("");
+  const [sctoForms, setSctoForms] = useState<any>([]);
 
   const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
     survey_uid: "",
   };
-
-  const { sctoForms } = location.state || {};
 
   const handleBack = async (emailConfigUid = "") => {
     setStepLoading(true);
@@ -82,12 +74,17 @@ function ConfigureEmails() {
       } else {
         setStepLoading(false);
 
-        message.error("the email config is not selected or configured");
+        message.error("The email config is not selected or configured");
         return;
       }
-    } else if (stepIndex < 3) {
+    } else if (stepIndex < 2) {
       setStepIndex((prev: number) => prev + 1);
       setStepLoading(false);
+      return;
+    } else if (stepIndex == 2) {
+      setStepLoading(false);
+      message.success("Email configuration completed successfully");
+      navigate(`/module-configuration/emails/${survey_uid}`);
       return;
     }
   };
@@ -97,7 +94,7 @@ function ConfigureEmails() {
   };
 
   const fetchEmailConfigs = async () => {
-    if (sctoForms.length > 0) {
+    if (sctoForms?.length > 0) {
       const form_uid = sctoForms[0].form_uid;
       const configResponse = await dispatch(getEmailConfigs({ form_uid }));
       if (configResponse.payload?.success) {
@@ -111,9 +108,26 @@ function ConfigureEmails() {
     }
   };
 
+  const fetchSCTOForms = async () => {
+    const resp = (await getSCTOForms(survey_uid ?? "")) as any;
+    if (resp?.data?.success) {
+      setSctoForms(resp.data.data);
+    } else {
+      message.error("Failed to fetch surveyCTO forms");
+    }
+  };
+
   useEffect(() => {
-    fetchEmailConfigs();
-  }, []);
+    if (survey_uid) {
+      fetchSCTOForms();
+    }
+  }, [survey_uid]);
+
+  useEffect(() => {
+    if (sctoForms?.length > 0) {
+      fetchEmailConfigs();
+    }
+  }, [sctoForms]);
 
   if (isLoading) {
     return <FullScreenLoader />;
@@ -122,7 +136,7 @@ function ConfigureEmails() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <Container />
       <HeaderContainer>
         <MailOutlined
@@ -161,13 +175,10 @@ function ConfigureEmails() {
                 title: "Email Config",
               },
               {
-                title: "Email Schedules",
-              },
-              {
                 title: "Email Templates",
               },
               {
-                title: "Template Variables",
+                title: "Email Schedules",
               },
             ]}
           />
@@ -176,9 +187,8 @@ function ConfigureEmails() {
         <div
           style={{
             height: "calc(100vh - 190px)",
-            padding: "40px",
+            padding: "48px",
             margin: "auto",
-            width: "40%",
           }}
         >
           {stepIndex === 0 ? (
@@ -186,23 +196,24 @@ function ConfigureEmails() {
               handleContinue={handleContinue}
               configNames={configNames}
               sctoForms={sctoForms}
-            ></EmailConfigForm>
+            />
           ) : null}
           {stepIndex === 1 ? (
+            <EmailTemplateForm
+              handleBack={handleBack}
+              emailConfigUID={configUid}
+              sctoForms={sctoForms}
+              config={configNames}
+              handleContinue={handleContinue}
+            />
+          ) : null}
+          {stepIndex === 2 ? (
             <EmailScheduleForm
               handleBack={handleBack}
               emailConfigUID={configUid}
               configNames={configNames}
               handleContinue={handleContinue}
-            ></EmailScheduleForm>
-          ) : null}
-          {stepIndex === 2 ? (
-            <EmailTemplateForm
-              handleBack={handleBack}
-              emailConfigUID={configUid}
-              configNames={configNames}
-              handleContinue={handleContinue}
-            ></EmailTemplateForm>
+            />
           ) : null}
         </div>
       </div>

@@ -7,7 +7,7 @@ import {
   DescriptionTitle,
 } from "../../SurveyInformation.styled";
 import { BodyWrapper } from "../SurveyUserRoles.styled";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -229,7 +229,7 @@ function EditSurveyUsers() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

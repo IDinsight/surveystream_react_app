@@ -2,8 +2,8 @@
   "name": "surveystream",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://127.0.0.1:5001/",
   "dependencies": {
+    "@ant-design/colors": "^7.1.0",
     "@ant-design/icons": "^5.0.1",
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^7.0.0",
@@ -36,6 +36,7 @@
     "react-ga4": "^1.4.1",
     "react-papaparse": "^4.1.0",
     "react-password-strength-bar": "^0.4.1",
+    "react-quill": "^2.0.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",

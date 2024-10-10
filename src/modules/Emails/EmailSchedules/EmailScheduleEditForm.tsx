@@ -12,6 +12,9 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { updateEmailSchedule } from "../../../redux/emails/emailsActions";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+
+import EmailScheduleFilter from "../../../components/EmailScheduleFilter";
+import EmailScheduleFilterCard from "../../../components/EmailScheduleFilterCard";
 import dayjs from "dayjs";
 
 const { Option } = Select;
@@ -28,7 +31,10 @@ const EmailScheduleEditForm = ({
   const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   const [loading, setLoading] = useState(false);
-
+  const [insertScheduleFilterOpen, setScheduleFilterOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [tableList, setTableList] = useState<any[]>([]);
+  const [emailConfigUID, setEmailConfigUID] = useState("");
   const formatDate = (date: any) => {
     const d = new Date(date);
     const month = `${d.getMonth() + 1}`.padStart(2, "0");
@@ -59,11 +65,15 @@ const EmailScheduleEditForm = ({
       }
       const formattedTime = emailTime.format("HH:mm");
 
+      const filterList = tableList.map((table: any) => table.filter_list);
+      const mergedFilterList = [].concat(...filterList);
+
       const emailScheduleData = {
         dates: formattedDates,
         time: formattedTime,
         email_schedule_name: emailScheduleName,
         email_config_uid: initialValues.email_config_uid,
+        filter_list: mergedFilterList,
       };
 
       const emailScheduleUID = initialValues.email_schedule_uid;
@@ -101,7 +111,10 @@ const EmailScheduleEditForm = ({
         dates: initialValues.dates.map((date: any) => dayjs(date)),
         emailTime: dayjs(initialValues.time, "HH:mm"),
       };
-
+      if (initialValues.filter_list) {
+        setTableList(initialValues.filter_list);
+      }
+      setEmailConfigUID(initialValues.email_config_uid);
       form.setFieldsValue({ ...formValues });
     }
   }, [initialValues]);
@@ -137,7 +150,13 @@ const EmailScheduleEditForm = ({
           multiple={true}
           placeholder="Select Dates"
           format="YYYY-MM-DD"
-          minDate={dayjs()}
+          disabledDate={(current) => {
+            const selectedDates = form.getFieldValue("dates") || [];
+            const isSelected = selectedDates.some((date: dayjs.Dayjs) =>
+              date.isSame(current, "day")
+            );
+            return !isSelected && current && current < dayjs().startOf("day");
+          }}
           maxTagCount={15}
         />
       </Form.Item>
@@ -156,6 +175,31 @@ const EmailScheduleEditForm = ({
           needConfirm={false}
         />
       </Form.Item>
+      <Button
+        onClick={() => {
+          setEditingIndex(null);
+          setScheduleFilterOpen(true);
+        }}
+      >
+        Add Filters for Schedule
+      </Button>
+      <EmailScheduleFilter
+        open={insertScheduleFilterOpen}
+        setOpen={setScheduleFilterOpen}
+        configUID={initialValues.email_config_uid}
+        tableList={tableList}
+        setTableList={(value: any) => {
+          const newTableList = [...tableList];
+          if (editingIndex !== null) {
+            newTableList[editingIndex] = value;
+          } else {
+            newTableList.push(value);
+          }
+          setTableList(newTableList);
+        }}
+        editingIndex={editingIndex}
+        setEditingIndex={setEditingIndex}
+      />
 
       <div style={{ display: "flex", marginTop: "40px" }}>
         <Button
@@ -165,6 +209,16 @@ const EmailScheduleEditForm = ({
         >
           Submit
         </Button>
+      </div>
+      <div style={{ display: "flex", marginTop: "10px" }}>
+        <EmailScheduleFilterCard
+          tableList={tableList}
+          handleEditTable={(tableIndex: any) => {
+            setEditingIndex(tableIndex);
+            setScheduleFilterOpen(true);
+          }}
+          disableEdit={false}
+        />
       </div>
     </Form>
   );

@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Key, useCallback, useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
+
 import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
 import { Button, TabsProps } from "antd";
@@ -406,7 +406,7 @@ function Assignments() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       {isLoading ? (
         <FullScreenLoader />
       ) : (

@@ -10,7 +10,7 @@ import {
 } from "../../../../redux/userManagement/userManagementActions";
 import { DescriptionText } from "../../SurveyInformation.styled";
 import { BodyWrapper } from "../SurveyUserRoles.styled";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -261,7 +261,7 @@ function AddSurveyUsers() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 

@@ -1,14 +1,14 @@
-import { Button, Form, Input } from "antd";
+import { Form, Input, message } from "antd";
+
 import React, { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
-import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
 import CustomerSurvey from "./../../../assets/customer-survey.svg";
 import { useForm } from "antd/es/form/Form";
-import { message } from "antd";
+
 import { useNavigate } from "react-router-dom";
 import {
   performGetUserProfile,
@@ -16,7 +16,10 @@ import {
 } from "../../../redux/auth/authActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { getCookie } from "../../../utils/helper";
-import { GlobalStyle } from "../../../shared/Global.styled";
+import {
+  GlobalStyle,
+  PurplePrimaryButton,
+} from "../../../shared/Global.styled";
 
 const Login = () => {
   const [form] = useForm();
@@ -85,7 +88,6 @@ const Login = () => {
     <>
       <GlobalStyle />
 
-      <Header />
       <div className="mb-[80px]">
         <div className="mt-[44px]">
           <p className="font-normal font-medium text-[30px] leading-[38px] text-gray-9 m-0 text-center">
@@ -130,12 +132,12 @@ const Login = () => {
               </Form.Item>
               <Form.Item shouldUpdate>
                 {() => (
-                  <Button
+                  <PurplePrimaryButton
                     id="loginForm_submit"
                     type="primary"
                     htmlType="submit"
                     block
-                    className="w-full bg-geekblue-5 h-[40px]"
+                    className="w-full h-[40px]"
                     loading={loading}
                     disabled={
                       !form.isFieldsTouched(true) ||
@@ -145,7 +147,7 @@ const Login = () => {
                     }
                   >
                     Login
-                  </Button>
+                  </PurplePrimaryButton>
                 )}
               </Form.Item>
             </Form>

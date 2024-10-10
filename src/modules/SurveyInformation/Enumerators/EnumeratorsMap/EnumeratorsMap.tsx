@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -439,7 +439,7 @@ function EnumeratorsMap() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton surveyPage={true}></HandleBackButton>
 
