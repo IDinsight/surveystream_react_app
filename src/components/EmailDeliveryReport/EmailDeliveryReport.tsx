@@ -107,7 +107,7 @@ function EmailDeliveryReport({
     setTableKey((prevKey) => prevKey + 1);
   };
   return (
-    <div>
+    <div style={{ fontFamily: "Lato" }}>
       <h2> Email Delivery Report</h2>
 
       {slot_type === "trigger" ? (
@@ -186,7 +186,13 @@ function EmailDeliveryReport({
             }}
           >
             <Col span={8}>
-              <Tag color="green">
+              <Tag
+                color="green"
+                style={{
+                  fontSize: "14px",
+                  marginTop: "10px",
+                }}
+              >
                 Total Enumerators with emails Sent:{" "}
                 {
                   deliveryReportData
@@ -201,7 +207,14 @@ function EmailDeliveryReport({
               </Tag>
             </Col>
             <Col span={8}>
-              <Tag color="red" style={{ marginLeft: "10px" }}>
+              <Tag
+                color="red"
+                style={{
+                  marginLeft: "10px",
+                  fontSize: "14px",
+                  marginTop: "10px",
+                }}
+              >
                 Total Enumerators with emails Failed:{" "}
                 {
                   deliveryReportData
