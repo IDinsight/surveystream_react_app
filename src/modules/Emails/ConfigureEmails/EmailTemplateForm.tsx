@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -21,7 +21,6 @@ import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
-import { use } from "chai";
 
 const { Option } = Select;
 
@@ -163,7 +162,23 @@ const EmailTemplateForm = ({
         text = `{{${aggregation}(${variable})}}`;
       }
 
-      insertText(text, formIndex);
+      if (mode === "subject") {
+        form.setFieldsValue({
+          templates: form
+            .getFieldsValue()
+            .templates.map((template: any, i: any) =>
+              i === formIndex
+                ? {
+                    ...template,
+                    subject: template.subject + text,
+                  }
+                : template
+            ),
+        });
+      } else if (mode === "content") {
+        insertText(text, formIndex);
+      }
+
       updateFormState(formIndex, "insertedVariables", [
         ...formStates[formIndex].insertedVariables,
         {
@@ -432,6 +447,7 @@ const EmailTemplateForm = ({
                           style={{ width: 250 }}
                           placeholder="Select an option"
                           optionFilterProp="children"
+                          value={selectedVariable.variable}
                           onChange={(value) =>
                             setSelectedVariable((prev: any) => ({
                               ...prev,
@@ -451,6 +467,7 @@ const EmailTemplateForm = ({
                           showSearch
                           style={{ width: 250 }}
                           placeholder="Select an option"
+                          value={selectedVariable.aggregation}
                           onChange={(value) =>
                             setSelectedVariable((prev: any) => ({
                               ...prev,
@@ -467,6 +484,15 @@ const EmailTemplateForm = ({
                           ))}
                         </Select>
                         <Row style={{ marginTop: 16 }}>
+                          <Button
+                            style={{ marginRight: 8 }}
+                            onClick={() =>
+                              handleInsertVariable(formIndex, "subject")
+                            }
+                            disabled={disabledIndices.includes(formIndex)}
+                          >
+                            Insert in Subject
+                          </Button>
                           <Button
                             onClick={() =>
                               handleInsertVariable(formIndex, "content")
