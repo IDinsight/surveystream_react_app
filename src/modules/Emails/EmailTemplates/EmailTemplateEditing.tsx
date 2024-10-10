@@ -1,14 +1,11 @@
-import { MinusCircleOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, message, Row, Select } from "antd";
 import { useAppDispatch } from "../../../redux/hooks";
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
-import { useParams } from "react-router-dom";
 import EmailContentEditor from "../../../components/EmailContentEditor";
 import EmailTableCard from "../../../components/EmailTableCard";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { set } from "lodash";
 import EmailTableModel from "../../../components/EmailTableModel";
 import { updateEmailTemplate } from "../../../redux/emails/emailsActions";
 
@@ -98,6 +95,12 @@ function EmailTemplateEditing({
           variable_expression: text,
         },
       ]);
+
+      // Reset after insertion
+      setSelectedVariable({
+        variable_name: null,
+        variable_expression: null,
+      });
     }
   };
 
@@ -253,6 +256,7 @@ function EmailTemplateEditing({
               style={{ width: 250 }}
               placeholder="Select an option"
               optionFilterProp="children"
+              value={selectedVariable.variable}
               onChange={(value) =>
                 setSelectedVariable((prev: any) => ({
                   ...prev,
@@ -271,6 +275,7 @@ function EmailTemplateEditing({
               showSearch
               style={{ width: 250 }}
               placeholder="Select an option"
+              value={selectedVariable.aggregation}
               onChange={(value) =>
                 setSelectedVariable((prev: any) => ({
                   ...prev,
@@ -286,9 +291,9 @@ function EmailTemplateEditing({
               ))}
             </Select>
             <Row style={{ marginTop: 8 }}>
-              {/* <Button onClick={() => handleInsertVariable("subject")}>
+              <Button onClick={() => handleInsertVariable("subject")}>
                 Insert in Subject
-              </Button> */}
+              </Button>
               <Button onClick={() => handleInsertVariable("content")}>
                 Insert in Content
               </Button>
