@@ -46,6 +46,14 @@ function SurveysHomePage() {
   const draftSurveys = surveys.filter((survey) => survey.state === "Draft");
   const pastSurveys = surveys.filter((survey) => survey.state === "Past");
 
+  const onConfigureNewSurvey = () => {
+    dispatch(setActiveSurvey({}));
+    localStorage.setItem(
+      "activeSurvey",
+      JSON.stringify({})
+    );
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -92,13 +100,7 @@ function SurveysHomePage() {
                         marginLeft: "50px",
                         backgroundColor: "#2F54EB",
                       }}
-                      onClick={() => {
-                        dispatch(setActiveSurvey({}));
-                        localStorage.setItem(
-                          "activeSurvey",
-                          JSON.stringify({})
-                        );
-                      }}
+                      onClick={ onConfigureNewSurvey }
                       id="configure-new-survey-link"
                       href="/new-survey-config"
                     >
