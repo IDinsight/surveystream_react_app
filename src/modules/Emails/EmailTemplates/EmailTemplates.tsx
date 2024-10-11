@@ -131,7 +131,7 @@ const EmailTemplates = ({
           )}
           <Drawer
             title={"Edit Email Template"}
-            width={700}
+            width={750}
             open={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
             style={{ paddingBottom: 80, fontFamily: "Lato" }}

@@ -59,16 +59,18 @@ const Header = () => {
   const [navItems, setNavItems] = useState<any[]>([]);
   const isSignedIn = () => userProfile?.user_uid;
 
+  const isUsersOrSurveysPage = () => {
+    const found = location.pathname.match(/^\/(users|surveys)(\/.+)*/g);
+    return found && found.length > 0;
+  };
+
   useEffect(() => {
     const items = [
       {
         url: "/surveys",
         label: "Surveys",
         icon: HomeFilled,
-        show:
-          isSignedIn() &&
-          (location.pathname.includes("surveys") ||
-            location.pathname.includes("users")),
+        show: isSignedIn() && isUsersOrSurveysPage(),
         isActive: location.pathname.includes("surveys"),
         external: false,
       },
@@ -77,10 +79,7 @@ const Header = () => {
         label: "User management",
         icon: ApartmentOutlined,
         show:
-          isSignedIn() &&
-          (location.pathname.includes("surveys") ||
-            location.pathname.includes("users")) &&
-          userProfile?.is_super_admin,
+          isSignedIn() && isUsersOrSurveysPage() && userProfile?.is_super_admin,
         isActive: location.pathname.includes("users"),
         external: false,
       },
