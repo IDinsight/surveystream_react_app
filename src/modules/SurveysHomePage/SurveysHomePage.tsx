@@ -9,7 +9,7 @@ import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { Button, Result } from "antd";
+import { Button, Result, Empty, Typography } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 
@@ -17,7 +17,34 @@ import { GlobalStyle } from "../../shared/Global.styled";
 import { StyledLink, NewSurveyCard, Text } from "./SurveysHome.styled";
 import { Collapse } from "antd/lib";
 
-import { Title, HeaderContainer } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../shared/Nav.styled";
+
+function ConfigureNewSurveyButton({ userProfile }: { userProfile?: any }) {
+  const dispatch = useAppDispatch();
+
+  const onConfigureNewSurvey = () => {
+    dispatch(setActiveSurvey({}));
+    localStorage.setItem("activeSurvey", JSON.stringify({}));
+  };
+
+  return (
+    (userProfile.is_super_admin || userProfile.can_create_survey) && (
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        style={{
+          marginLeft: "50px",
+          backgroundColor: "#2F54EB",
+        }}
+        onClick={onConfigureNewSurvey}
+        id="configure-new-survey-link"
+        href="/new-survey-config"
+      >
+        Configure new survey
+      </Button>
+    )
+  );
+}
 
 function SurveysHomePage() {
   const dispatch = useAppDispatch();
@@ -45,14 +72,6 @@ function SurveysHomePage() {
   const activeSurveys = surveys.filter((survey) => survey.state === "Active");
   const draftSurveys = surveys.filter((survey) => survey.state === "Draft");
   const pastSurveys = surveys.filter((survey) => survey.state === "Past");
-
-  const onConfigureNewSurvey = () => {
-    dispatch(setActiveSurvey({}));
-    localStorage.setItem(
-      "activeSurvey",
-      JSON.stringify({})
-    );
-  };
 
   return (
     <>
@@ -90,24 +109,7 @@ function SurveysHomePage() {
                     marginBottom: "15px",
                   }}
                 ></div>
-                {(userProfile.is_super_admin ||
-                  userProfile.can_create_survey) && (
-                  <div style={{ float: "right", marginTop: "0px" }}>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      style={{
-                        marginLeft: "50px",
-                        backgroundColor: "#2F54EB",
-                      }}
-                      onClick={ onConfigureNewSurvey }
-                      id="configure-new-survey-link"
-                      href="/new-survey-config"
-                    >
-                      Configure new survey
-                    </Button>
-                  </div>
-                )}
+                <ConfigureNewSurveyButton userProfile={userProfile} />
               </HeaderContainer>
 
               <div
@@ -146,27 +148,7 @@ function SurveysHomePage() {
                       label: `Draft surveys (${draftSurveys?.length})`,
                       children: (
                         <div className="flex flex-wrap">
-                          {userProfile.is_super_admin ||
-                          userProfile.can_create_survey ? (
-                            <StyledLink
-                              onClick={() => {
-                                dispatch(setActiveSurvey({}));
-                                localStorage.setItem(
-                                  "activeSurvey",
-                                  JSON.stringify({})
-                                );
-                              }}
-                              id="configure-new-survey-link"
-                              to="/new-survey-config"
-                              className="no-underline flex items-center"
-                            >
-                              <NewSurveyCard key="new_survey">
-                                <PlusOutlined />
-                                <Text>Configure new survey</Text>
-                              </NewSurveyCard>
-                            </StyledLink>
-                          ) : null}
-                          {draftSurveys.map((survey, index: number) => (
+                          {draftSurveys.map((survey) => (
                             <div key={survey.survey_uid}>
                               <SurveyCard
                                 title={survey.survey_name}
