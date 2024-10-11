@@ -54,7 +54,7 @@ function SurveysHomePage() {
         </>
       ) : (
         <>
-          {showError && (
+          {showError ? (
             <Result
               status={showError.code}
               title={showError.code}
@@ -70,14 +70,14 @@ function SurveysHomePage() {
                 </Button>
               }
             />
-          )}
-          {!showError && (
+          ) : (
             <div
               className="pl-20 py-10 bg-gray-2"
               style={{ minHeight: "calc( 100vh - 158px)" }}
             >
               <Collapse
                 ghost
+                defaultActiveKey={["1"]}
                 items={[
                   {
                     key: "1",
