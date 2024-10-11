@@ -17,6 +17,8 @@ import { GlobalStyle } from "../../shared/Global.styled";
 import { StyledLink, NewSurveyCard, Text } from "./SurveysHome.styled";
 import { Collapse } from "antd/lib";
 
+import { Title, HeaderContainer } from "../../shared/Nav.styled";
+
 function SurveysHomePage() {
   const dispatch = useAppDispatch();
   const surveys = useAppSelector((state: RootState) => state.surveys.surveys);
@@ -71,96 +73,136 @@ function SurveysHomePage() {
               }
             />
           ) : (
-            <div
-              className="pl-20 py-10 bg-gray-2"
-              style={{ minHeight: "calc( 100vh - 158px)" }}
-            >
-              <Collapse
-                ghost
-                defaultActiveKey={["1"]}
-                items={[
-                  {
-                    key: "1",
-                    label: `Active surveys (${activeSurveys?.length})`,
-                    children: (
-                      <div id="surveys-active-items" className="flex flex-wrap">
-                        {activeSurveys.map((survey) => (
-                          <SurveyCard
-                            survey_uid={survey.survey_uid.toString()}
-                            key={survey.survey_uid}
-                            link={`/survey-configuration/${survey.survey_uid.toString()}`}
-                            title={survey.survey_name}
-                            start={getDayMonth(survey.planned_start_date)}
-                            end={getDayMonth(survey.planned_end_date)}
-                            state="Active"
-                          />
-                        ))}
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "2",
-                    label: `Draft surveys (${draftSurveys?.length})`,
-                    children: (
-                      <div className="flex flex-wrap">
-                        {userProfile.is_super_admin ||
-                        userProfile.can_create_survey ? (
-                          <StyledLink
-                            onClick={() => {
-                              dispatch(setActiveSurvey({}));
-                              localStorage.setItem(
-                                "activeSurvey",
-                                JSON.stringify({})
-                              );
-                            }}
-                            id="configure-new-survey-link"
-                            to="/new-survey-config"
-                            className="no-underline flex items-center"
-                          >
-                            <NewSurveyCard key="new_survey">
-                              <PlusOutlined />
-                              <Text>Configure new survey</Text>
-                            </NewSurveyCard>
-                          </StyledLink>
-                        ) : null}
-                        {draftSurveys.map((survey, index: number) => (
-                          <div key={survey.survey_uid}>
+            <>
+              <HeaderContainer>
+                <div
+                  style={{
+                    display: "flex",
+                    marginLeft: "auto",
+                    marginBottom: "15px",
+                  }}
+                ></div>
+                {(userProfile.is_super_admin ||
+                  userProfile.can_create_survey) && (
+                  <div style={{ float: "right", marginTop: "0px" }}>
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      style={{
+                        marginLeft: "50px",
+                        backgroundColor: "#2F54EB",
+                      }}
+                      onClick={() => {
+                        dispatch(setActiveSurvey({}));
+                        localStorage.setItem(
+                          "activeSurvey",
+                          JSON.stringify({})
+                        );
+                      }}
+                      id="configure-new-survey-link"
+                      href="/new-survey-config"
+                    >
+                      Configure new survey
+                    </Button>
+                  </div>
+                )}
+              </HeaderContainer>
+
+              <div
+                className="pl-20 py-10 bg-gray-2"
+                style={{ minHeight: "calc( 100vh - 158px)" }}
+              >
+                <Collapse
+                  ghost
+                  accordion
+                  defaultActiveKey={"1"}
+                  items={[
+                    {
+                      key: "1",
+                      label: `Active surveys (${activeSurveys?.length})`,
+                      children: (
+                        <div
+                          id="surveys-active-items"
+                          className="flex flex-wrap"
+                        >
+                          {activeSurveys.map((survey) => (
                             <SurveyCard
-                              title={survey.survey_name}
-                              link={`/survey-configuration/${survey.survey_uid.toString()}`}
                               survey_uid={survey.survey_uid.toString()}
-                              state="Draft"
-                              lastUpdatedAt={getDayMonth(
-                                survey.last_updated_at
-                              )}
+                              key={survey.survey_uid}
+                              link={`/survey-configuration/${survey.survey_uid.toString()}`}
+                              title={survey.survey_name}
+                              start={getDayMonth(survey.planned_start_date)}
+                              end={getDayMonth(survey.planned_end_date)}
+                              state="Active"
                             />
-                          </div>
-                        ))}
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "3",
-                    label: `Past surveys (${pastSurveys?.length})`,
-                    children: (
-                      <div id="surveys-past-items" className="flex flex-wrap">
-                        {pastSurveys.map((survey) => (
-                          <SurveyCard
-                            survey_uid={survey.survey_uid.toString()}
-                            key={survey.survey_uid}
-                            link={`/survey-configuration/${survey.survey_uid.toString()}`}
-                            title={survey.survey_name}
-                            start={getDayMonth(survey.planned_start_date)}
-                            end={getDayMonth(survey.planned_end_date)}
-                            state="Past"
-                          />
-                        ))}
-                      </div>
-                    ),
-                  },
-                ]}
-              />
-            </div>
+                          ))}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: `Draft surveys (${draftSurveys?.length})`,
+                      children: (
+                        <div className="flex flex-wrap">
+                          {userProfile.is_super_admin ||
+                          userProfile.can_create_survey ? (
+                            <StyledLink
+                              onClick={() => {
+                                dispatch(setActiveSurvey({}));
+                                localStorage.setItem(
+                                  "activeSurvey",
+                                  JSON.stringify({})
+                                );
+                              }}
+                              id="configure-new-survey-link"
+                              to="/new-survey-config"
+                              className="no-underline flex items-center"
+                            >
+                              <NewSurveyCard key="new_survey">
+                                <PlusOutlined />
+                                <Text>Configure new survey</Text>
+                              </NewSurveyCard>
+                            </StyledLink>
+                          ) : null}
+                          {draftSurveys.map((survey, index: number) => (
+                            <div key={survey.survey_uid}>
+                              <SurveyCard
+                                title={survey.survey_name}
+                                link={`/survey-configuration/${survey.survey_uid.toString()}`}
+                                survey_uid={survey.survey_uid.toString()}
+                                state="Draft"
+                                lastUpdatedAt={getDayMonth(
+                                  survey.last_updated_at
+                                )}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
+                      label: `Past surveys (${pastSurveys?.length})`,
+                      children: (
+                        <div id="surveys-past-items" className="flex flex-wrap">
+                          {pastSurveys.map((survey) => (
+                            <SurveyCard
+                              survey_uid={survey.survey_uid.toString()}
+                              key={survey.survey_uid}
+                              link={`/survey-configuration/${survey.survey_uid.toString()}`}
+                              title={survey.survey_name}
+                              start={getDayMonth(survey.planned_start_date)}
+                              end={getDayMonth(survey.planned_end_date)}
+                              state="Past"
+                            />
+                          ))}
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            </>
           )}
           <Footer />
         </>
