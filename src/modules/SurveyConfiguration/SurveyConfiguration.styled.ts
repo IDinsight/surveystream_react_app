@@ -9,7 +9,6 @@ export const SideMenuWrapper = styled.div<{ windowHeight: number }>`
   height: ${({ windowHeight }) => Math.min(windowHeight - HEADER_HEIGHT)}px;
   overflow-y: auto;
   padding: 1rem;
-  padding-top: 20px;
   display: flex;
   flex-direction: column;
 `;
