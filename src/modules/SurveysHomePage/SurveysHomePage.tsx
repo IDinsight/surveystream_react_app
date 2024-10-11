@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { PlusOutlined } from "@ant-design/icons";
 import { getDayMonth } from "../../utils/helper";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
@@ -9,9 +8,8 @@ import Footer from "../../components/Footer";
 import SurveyCard from "../../components/SurveyCard";
 
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { Button, Result, Empty, Typography } from "antd";
+import { Button, Result } from "antd";
 import { performGetUserProfile } from "../../redux/auth/authActions";
-import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 
 import { GlobalStyle } from "../../shared/Global.styled";
 import { Collapse } from "antd/lib";
