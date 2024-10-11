@@ -34,7 +34,8 @@ function SideMenu() {
       label: (
         <Link
           className={`${isActive(
-            `/module-configuration/emails/${survey_uid}/schedules`
+            isActive(`/module-configuration/emails/${survey_uid}/schedules`) ||
+              isActive(`/module-configuration/emails/${survey_uid}`)
           )}`}
           to={`/module-configuration/emails/${survey_uid}/schedules`}
         >
