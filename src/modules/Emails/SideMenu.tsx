@@ -6,9 +6,9 @@ import {
 } from "@ant-design/icons";
 import { Menu, MenuProps, Layout } from "antd";
 import { Link } from "react-router-dom";
-const { Sider } = Layout;
 import { useEffect, useState } from "react";
 
+const { Sider } = Layout;
 function SideMenu() {
   const location = useLocation();
 

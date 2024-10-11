@@ -1,6 +1,5 @@
 import { MailOutlined } from "@ant-design/icons";
 import { Form, Button, message, Drawer, Layout } from "antd";
-const { Content } = Layout;
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -23,6 +22,7 @@ import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
 import EmailTemplates from "./EmailTemplates/EmailTemplates";
 
+const { Content } = Layout;
 function Emails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
