@@ -8,11 +8,6 @@ import { Menu, MenuProps, Layout } from "antd";
 import { Link } from "react-router-dom";
 const { Sider } = Layout;
 import { useEffect, useState } from "react";
-import {
-  IconWrapper,
-  MenuItem,
-  SideMenuWrapper,
-} from "../../shared/SideMenu.styled";
 
 function SideMenu() {
   const location = useLocation();
@@ -85,7 +80,7 @@ function SideMenu() {
     if (path.includes("/schedules")) return "emailSchedules";
     if (path.includes("/templates")) return "emailTemplates";
 
-    return "schedules";
+    return "emailSchedules";
   };
 
   useEffect(() => {
