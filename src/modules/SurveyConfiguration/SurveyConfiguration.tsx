@@ -136,9 +136,9 @@ const SurveyConfiguration: React.FC = () => {
   };
   const renderStatus = (status: string) => {
     const colors: { [key: string]: string } = {
-      Done: "success",
-      "In Progress": "warning",
-      Error: "error",
+      Done: "green",
+      "In Progress": "orange",
+      Error: "red",
     };
     const color = colors[status];
     const icons: { [key: string]: any } = {
