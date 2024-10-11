@@ -1,6 +1,5 @@
 import { MailOutlined } from "@ant-design/icons";
-import { Form, Button, message, Drawer, Layout } from "antd";
-const { Content } = Layout;
+import { Form, Button, message, Drawer } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -251,32 +250,30 @@ function Emails() {
       {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
-        <Layout>
+        <div style={{ display: "flex" }}>
           <SideMenu></SideMenu>
-          <Content>
-            <BodyWrapper>
-              {tabId === "manual" ? (
-                <ManualTriggers
-                  data={manualTriggersData}
-                  surveyEnumerators={surveyEnumerators}
-                  emailConfigData={emailConfigData}
-                  fetchManualTriggers={fetchManualTriggers}
-                />
-              ) : tabId === "templates" ? (
-                <EmailTemplates
-                  templatesData={templatesData}
-                  fetchEmailTemplates={fetchEmailTemplates}
-                />
-              ) : (
-                <EmailSchedules
-                  data={schedulesData}
-                  fetchEmailSchedules={fetchEmailSchedules}
-                  sctoForms={sctoForms}
-                />
-              )}
-            </BodyWrapper>
-          </Content>
-        </Layout>
+          <BodyWrapper>
+            {tabId === "manual" ? (
+              <ManualTriggers
+                data={manualTriggersData}
+                surveyEnumerators={surveyEnumerators}
+                emailConfigData={emailConfigData}
+                fetchManualTriggers={fetchManualTriggers}
+              />
+            ) : tabId === "templates" ? (
+              <EmailTemplates
+                templatesData={templatesData}
+                fetchEmailTemplates={fetchEmailTemplates}
+              />
+            ) : (
+              <EmailSchedules
+                data={schedulesData}
+                fetchEmailSchedules={fetchEmailSchedules}
+                sctoForms={sctoForms}
+              />
+            )}
+          </BodyWrapper>
+        </div>
       )}
 
       <Drawer

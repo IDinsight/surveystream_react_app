@@ -4,9 +4,7 @@ import {
   MailOutlined,
   SendOutlined,
 } from "@ant-design/icons";
-import { Menu, MenuProps, Layout } from "antd";
-import { Link } from "react-router-dom";
-const { Sider } = Layout;
+import { Menu, MenuProps } from "antd";
 import { useEffect, useState } from "react";
 import {
   IconWrapper,
@@ -16,8 +14,6 @@ import {
 
 function SideMenu() {
   const location = useLocation();
-
-  const [collapsed, setCollapsed] = useState(false);
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -30,55 +26,63 @@ function SideMenu() {
 
   const items: MenuProps["items"] = [
     {
-      icon: <CalendarOutlined />,
       label: (
-        <Link
-          className={`${isActive(
-            `/module-configuration/emails/${survey_uid}/schedules`
-          )}`}
+        <MenuItem
+          className={
+            isActive(`/module-configuration/emails/${survey_uid}/schedules`) ||
+            isActive(`/module-configuration/emails/${survey_uid}`)
+          }
           to={`/module-configuration/emails/${survey_uid}/schedules`}
         >
+          <IconWrapper>
+            <CalendarOutlined />
+          </IconWrapper>
           Email Schedules
-        </Link>
+        </MenuItem>
       ),
       key: "emailSchedules",
     },
     {
-      icon: <SendOutlined />,
       label: (
-        <Link
+        <MenuItem
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/manual`
           )}`}
           to={`/module-configuration/emails/${survey_uid}/manual`}
         >
+          <IconWrapper>
+            <SendOutlined />
+          </IconWrapper>
           Manual Triggers
-        </Link>
+        </MenuItem>
       ),
       key: "manualTriggers",
     },
     {
-      icon: <MailOutlined />,
       label: (
-        <Link
+        <MenuItem
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/templates`
           )}`}
           to={`/module-configuration/emails/${survey_uid}/templates`}
         >
+          <IconWrapper>
+            <MailOutlined />
+          </IconWrapper>
           Email Templates
-        </Link>
+        </MenuItem>
       ),
       key: "emailTemplates",
     },
   ];
-  const [currentKey, setCurrentKey] = useState("emailSchedules");
+  const [current, setCurrent] = useState("mail");
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const onClick: MenuProps["onClick"] = (e) => {
-    setCurrentKey(e.key);
+    setCurrent(e.key);
   };
 
-  const getCurrentKey = () => {
+  const getPossibleKey = () => {
     const path = location.pathname;
     if (path.includes("/manual")) return "manualTriggers";
     if (path.includes("/schedules")) return "emailSchedules";
@@ -88,24 +92,21 @@ function SideMenu() {
   };
 
   useEffect(() => {
-    const key = getCurrentKey();
-    setCurrentKey(key);
-  }, []);
+    const key: string = getPossibleKey();
+    setOpenKeys([key]);
+  }, [setOpenKeys]);
 
   return (
-    <Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={(value) => setCollapsed(value)}
-      theme="light"
-    >
+    <SideMenuWrapper>
       <Menu
         onClick={onClick}
-        selectedKeys={[currentKey]}
+        selectedKeys={[current]}
+        openKeys={openKeys}
+        onOpenChange={(key) => setOpenKeys(key)}
         mode="inline"
         items={items}
       />
-    </Sider>
+    </SideMenuWrapper>
   );
 }
 
