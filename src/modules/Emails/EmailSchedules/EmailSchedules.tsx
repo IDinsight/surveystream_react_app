@@ -1,7 +1,13 @@
 import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ReconciliationFilled,
+  ReconciliationTwoTone,
+  ReconciliationOutlined,
+} from "@ant-design/icons";
 import {
   Tooltip,
   Button,
@@ -10,6 +16,7 @@ import {
   message,
   DatePicker,
   Modal,
+  Row,
 } from "antd";
 import {
   deleteEmailConfig,
@@ -199,74 +206,11 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
                     <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
-                    <Button
-                      type="link"
-                      onClick={async () => {
-                        await fetchDeliveryReport(
-                          email_config_uid,
-                          email_schedule_uid
-                        );
-                        setIsDeliveryReportModalVisible(index);
-                      }}
-                    >
-                      View Delivery Report
-                    </Button>
-                    <Modal
-                      open={isDeliveryReportModalVisible === index}
-                      onCancel={() => setIsDeliveryReportModalVisible(-1)}
-                      style={{
-                        fontFamily: "Lato",
-                        overflowY: "scroll",
-                        maxHeight: "500px",
-                      }}
-                      width={"80%"}
-                      height={"80%"}
-                      footer={[
-                        <Button
-                          key="close"
-                          onClick={() => setIsDeliveryReportModalVisible(-1)}
-                        >
-                          Close
-                        </Button>,
-                      ]}
-                    >
-                      {deliveryReportData && deliveryReportData.length > 0 ? (
-                        <EmailDeliveryReport
-                          deliveryReportData={deliveryReportData}
-                          slot_type="schedule"
-                        />
-                      ) : (
-                        <p>No report data found</p>
-                      )}
-                    </Modal>
-                    <Tooltip title="Edit">
-                      <Button
-                        type="link"
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditSchedule(schedule)}
-                        loading={editScheduleLoading}
-                        style={{ marginBottom: 8 }}
-                      >
-                        Edit Schedule
-                      </Button>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <Popconfirm
-                        title="Are you sure you want to delete this schedule?"
-                        onConfirm={() => handleDeleteSchedule(schedule)}
-                        okText="Yes"
-                        cancelText="No"
-                      >
-                        <Button type="link" icon={<DeleteOutlined />} danger>
-                          Delete Schedule
-                        </Button>
-                      </Popconfirm>
-                    </Tooltip>
                   </div>
-
                   <div
                     style={{
                       display: "flex",
+                      flexDirection: "column",
                       width: "100%",
                     }}
                   >
@@ -274,6 +218,80 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                       style={{
                         width: "100%",
                         maxHeight: "85px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        type="link"
+                        icon={<ReconciliationOutlined />}
+                        style={{ color: "green" }}
+                        onClick={async () => {
+                          await fetchDeliveryReport(
+                            email_config_uid,
+                            email_schedule_uid
+                          );
+                          setIsDeliveryReportModalVisible(index);
+                        }}
+                      >
+                        View Delivery Report
+                      </Button>
+                      <Modal
+                        open={isDeliveryReportModalVisible === index}
+                        onCancel={() => setIsDeliveryReportModalVisible(-1)}
+                        style={{
+                          fontFamily: "Lato",
+                          overflowY: "scroll",
+                          maxHeight: "500px",
+                        }}
+                        width={"80%"}
+                        height={"80%"}
+                        footer={[
+                          <Button
+                            key="close"
+                            onClick={() => setIsDeliveryReportModalVisible(-1)}
+                          >
+                            Close
+                          </Button>,
+                        ]}
+                      >
+                        {deliveryReportData && deliveryReportData.length > 0 ? (
+                          <EmailDeliveryReport
+                            deliveryReportData={deliveryReportData}
+                            slot_type="schedule"
+                          />
+                        ) : (
+                          <p>No report data found</p>
+                        )}
+                      </Modal>
+                      <Tooltip title="Edit">
+                        <Button
+                          type="link"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEditSchedule(schedule)}
+                          loading={editScheduleLoading}
+                        >
+                          Edit Schedule
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <Popconfirm
+                          title="Are you sure you want to delete this schedule?"
+                          onConfirm={() => handleDeleteSchedule(schedule)}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <Button type="link" icon={<DeleteOutlined />} danger>
+                            Delete Schedule
+                          </Button>
+                        </Popconfirm>
+                      </Tooltip>
+                    </span>
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "120px",
                       }}
                     >
                       Dates:
