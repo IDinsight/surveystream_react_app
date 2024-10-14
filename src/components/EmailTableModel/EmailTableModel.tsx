@@ -8,6 +8,7 @@ import {
   Button,
   Checkbox,
   Col,
+  DatePicker,
   Divider,
   Input,
   message,
@@ -20,6 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import { getTableCatalog } from "../../redux/emails/apiService";
 import FullScreenLoader from "../Loaders/FullScreenLoader";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -62,6 +64,12 @@ function EmailTableModel({
     "Does not contain",
     "Is empty",
     "Is not empty",
+    "Greather than",
+    "Smaller than",
+    "Date: Is Current Date",
+    "Date: In last week",
+    "Date: In last month",
+    "Date: In Date Range",
   ];
 
   const handleCheckboxChange = (column: any) => {
@@ -322,7 +330,6 @@ function EmailTableModel({
     if (tableList.length > 0 && editingIndex !== null) {
       const table = tableList[editingIndex];
 
-      console.log(table);
       setSelectedTable(table.table_name);
       setCustomTableName(table.variable_name);
 
@@ -344,7 +351,12 @@ function EmailTableModel({
           (filter: any) => ({
             column: filter.filter_variable,
             type: filter.filter_operator,
-            value: filter.filter_value,
+            value:
+              filter.filter_operator === "Date: In Date Range"
+                ? typeof filter.filter_value === "string"
+                  ? filter.filter_value.split(",")
+                  : filter.filter_value
+                : filter.filter_value,
           })
         ),
       }));
@@ -555,19 +567,40 @@ function EmailTableModel({
                                 </Select>
                               </Col>
                               <Col span={6}>
-                                <Input
-                                  placeholder="Filter value"
-                                  style={{ width: "100%" }}
-                                  value={filter.value}
-                                  onChange={(e) =>
-                                    handleFilterFieldChange(
-                                      groupIndex,
-                                      filterIndex,
-                                      "value",
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                {filter.type === "Date: In Date Range" ? (
+                                  <DatePicker.RangePicker
+                                    style={{ width: "100%" }}
+                                    value={
+                                      filter.value
+                                        ? filter.value
+                                            .split(",")
+                                            .map((d: string) => dayjs(d))
+                                        : null
+                                    }
+                                    onChange={(dates, dateStrings) =>
+                                      handleFilterFieldChange(
+                                        groupIndex,
+                                        filterIndex,
+                                        "value",
+                                        dateStrings.join(",")
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  <Input
+                                    placeholder="Filter value"
+                                    style={{ width: "100%" }}
+                                    value={filter.value}
+                                    onChange={(e) =>
+                                      handleFilterFieldChange(
+                                        groupIndex,
+                                        filterIndex,
+                                        "value",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                )}
                               </Col>
                               <Button
                                 danger

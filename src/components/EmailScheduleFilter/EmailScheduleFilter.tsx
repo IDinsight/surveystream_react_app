@@ -13,10 +13,12 @@ import {
   Row,
   Select,
   Tag,
+  DatePicker,
 } from "antd";
 import { useEffect, useState } from "react";
 import { getTableCatalogSchedule } from "../../redux/emails/apiService";
 import FullScreenLoader from "../Loaders/FullScreenLoader";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -45,7 +47,6 @@ function EmailScheduleFilter({
 
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [filterList, setFilterList] = useState<any[]>([]);
-
   const validateOperator = [
     "Is",
     "Is not",
@@ -53,6 +54,12 @@ function EmailScheduleFilter({
     "Does not contain",
     "Is empty",
     "Is not empty",
+    "Greather than",
+    "Smaller than",
+    "Date: Is Current Date",
+    "Date: In last week",
+    "Date: In last month",
+    "Date: In Date Range",
   ];
 
   const handleAddFilterGroup = () => {
@@ -352,19 +359,40 @@ function EmailScheduleFilter({
                                 </Select>
                               </Col>
                               <Col span={6}>
-                                <Input
-                                  placeholder="Filter value"
-                                  style={{ width: "100%" }}
-                                  value={filter.value}
-                                  onChange={(e) =>
-                                    handleFilterFieldChange(
-                                      groupIndex,
-                                      filterIndex,
-                                      "value",
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                {filter.type === "Date: In Date Range" ? (
+                                  <DatePicker.RangePicker
+                                    style={{ width: "100%" }}
+                                    value={
+                                      filter.value
+                                        ? filter.value
+                                            .split(",")
+                                            .map((d: string) => dayjs(d))
+                                        : null
+                                    }
+                                    onChange={(dates, dateStrings) =>
+                                      handleFilterFieldChange(
+                                        groupIndex,
+                                        filterIndex,
+                                        "value",
+                                        dateStrings.join(",")
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  <Input
+                                    placeholder="Filter value"
+                                    style={{ width: "100%" }}
+                                    value={filter.value || ""}
+                                    onChange={(e) =>
+                                      handleFilterFieldChange(
+                                        groupIndex,
+                                        filterIndex,
+                                        "value",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                )}
                               </Col>
                               <Button
                                 danger
