@@ -3,13 +3,13 @@ import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 
-export const postCheckUser = async (email?: any) => {
+export const postCheckUser = async (email: any, survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
     const url = `${API_BASE_URL}/users/check-email-availability`;
 
-    const payload = { email: email };
+    const payload = { email: email, survey_uid: survey_uid };
 
     const res = await axios.post(url, payload, {
       headers: {

@@ -1,5 +1,6 @@
 import { Button, Col, Form, Input, Radio, Row, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   DescriptionText,
   DescriptionTitle,
@@ -14,7 +15,11 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { Key, useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
+import {
+  BodyWrapper,
+  CustomBtn,
+  StyledTooltip,
+} from "../SurveyUserRoles.styled";
 import {
   NavWrapper,
   Title,
@@ -268,7 +273,14 @@ function EditSurveyRoles() {
                     </StyledFormItem>
 
                     <StyledFormItem
-                      label="Does this role report to someone?"
+                      label={
+                        <span>
+                          Does this role report to someone?&nbsp;
+                          <StyledTooltip title="As saved under role hierachy. Use the 'Edit role hierarchy' button on the previous screen to edit this.">
+                            <QuestionCircleOutlined />
+                          </StyledTooltip>
+                        </span>
+                      }
                       labelAlign="right"
                       labelCol={{ span: 24 }}
                       style={{ display: "block" }}
@@ -288,7 +300,14 @@ function EditSurveyRoles() {
 
                     {hasReportingRole && (
                       <StyledFormItem
-                        label="Reporting role"
+                        label={
+                          <span>
+                            Reporting role?&nbsp;
+                            <StyledTooltip title="As saved under role hierachy. Use the 'Edit role hierarchy' button on the previous screen to edit this.">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
                         labelAlign="right"
                         name="reporting_role_uid"
                         hasFeedback
