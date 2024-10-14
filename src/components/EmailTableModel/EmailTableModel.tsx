@@ -351,12 +351,7 @@ function EmailTableModel({
           (filter: any) => ({
             column: filter.filter_variable,
             type: filter.filter_operator,
-            value:
-              filter.filter_operator === "Date: In Date Range"
-                ? typeof filter.filter_value === "string"
-                  ? filter.filter_value.split(",")
-                  : filter.filter_value
-                : filter.filter_value,
+            value: filter.filter_value,
           })
         ),
       }));
