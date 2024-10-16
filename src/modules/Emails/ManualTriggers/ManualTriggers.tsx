@@ -140,7 +140,7 @@ function ManualTriggers({
               handleShow(record.manual_email_trigger_uid);
             }}
           >
-            View Recipients ({record.recipients.length})
+            View Recipients
           </Button>
           <Modal
             style={{
@@ -161,7 +161,10 @@ function ManualTriggers({
                 slot_type="trigger"
               />
             ) : (
-              <p>No report data found</p>
+              <p>
+                No Emails sent yet, delivery reports will be visible after
+                trigger time.
+              </p>
             )}
           </Modal>
         </>

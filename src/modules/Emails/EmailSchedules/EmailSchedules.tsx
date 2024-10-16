@@ -262,7 +262,10 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                             slot_type="schedule"
                           />
                         ) : (
-                          <p>No report data found</p>
+                          <p>
+                            No Emails sent yet, delivery reports will be visible
+                            after schedule time.
+                          </p>
                         )}
                       </Modal>
                       <Tooltip title="Edit">
