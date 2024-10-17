@@ -959,6 +959,55 @@ const SurveyorMapping = ({
     setIsEditingOpen(false);
   };
 
+  const handleOnEdit = () => {
+    if (criteria.includes("Location")) {
+      const supervisorLocations = selectedSurveyorRows.map(
+        (surveyor: any) => surveyor.supervisorLocation
+      );
+
+      const isSameLocation = new Set(supervisorLocations).size === 1;
+
+      if (!isSameLocation) {
+        message.error(
+          "You can't map rows with different mapping criteria values together."
+        );
+        return;
+      }
+    }
+
+    if (criteria.includes("Language")) {
+      const supervisorLanguages = selectedSurveyorRows.map(
+        (surveyor: any) => surveyor.supervisorLanguage
+      );
+
+      const isSameLanguage = new Set(supervisorLanguages).size === 1;
+
+      if (!isSameLanguage) {
+        message.error(
+          "You can't map rows with different mapping criteria values together."
+        );
+        return;
+      }
+    }
+
+    if (criteria.includes("Gender")) {
+      const supervisorGenders = selectedSurveyorRows.map(
+        (surveyor: any) => surveyor.supervisorGender
+      );
+
+      const isSameGender = new Set(supervisorGenders).size === 1;
+
+      if (!isSameGender) {
+        message.error(
+          "You can't map rows with different mapping criteria values together."
+        );
+        return;
+      }
+    }
+
+    showDrawer();
+  };
+
   const populateMappingStats = (mappingConfig: any) => {
     const mappedData = mappingConfig?.filter(
       (config: any) => config.supervisor_email !== null
@@ -1099,7 +1148,7 @@ const SurveyorMapping = ({
               <Button
                 type="primary"
                 style={{ marginLeft: "auto" }}
-                onClick={() => showDrawer()}
+                onClick={handleOnEdit}
               >
                 Edit
               </Button>
