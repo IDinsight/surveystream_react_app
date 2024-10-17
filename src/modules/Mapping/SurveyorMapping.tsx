@@ -403,6 +403,13 @@ const SurveyorMapping = ({
   };
 
   const handleConfigSave = () => {
+    for (const record of unmappedPairData) {
+      if (record.supervisorCount === null || record.supervisorCount === 0) {
+        message.error("Some mapping selections contain no supervisor count");
+        return;
+      }
+    }
+
     const mappingConfigPayload: any = [];
 
     // Create the payload for mapped surveyors
