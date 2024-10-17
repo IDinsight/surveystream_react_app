@@ -1148,6 +1148,7 @@ const SurveyorMapping = ({
             scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
             pagination={{
               pageSize: tablePageSize,
+              pageSizeOptions: ["5", "10", "20", "50", "100"],
               showSizeChanger: true,
               onShowSizeChange: (current, size) => setTablePageSize(size),
             }}
