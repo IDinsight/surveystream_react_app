@@ -934,26 +934,6 @@ const SurveyorMapping = ({
     onSelectAll: (selected: boolean, selectedRows: any, changeRows: any) => {
       setSelectedSurveyorRows(selectedRows);
     },
-    getCheckboxProps: (record: any) => {
-      const isManual = criteria.includes("Manual");
-      const isDisabled =
-        !isManual &&
-        selectedSurveyorRows.length > 0 &&
-        selectedSurveyorRows[0] &&
-        ((criteria.includes("Location") &&
-          record.supervisorLocation !==
-            selectedSurveyorRows[0].supervisorLocation) ||
-          (criteria.includes("Language") &&
-            record.supervisorLanguage !==
-              selectedSurveyorRows[0].supervisorLanguage) ||
-          (criteria.includes("Gender") &&
-            record.supervisorGender !==
-              selectedSurveyorRows[0].supervisorGender));
-
-      return {
-        disabled: isDisabled,
-      };
-    },
   };
 
   const [isEditingOpen, setIsEditingOpen] = useState(false);
@@ -1169,7 +1149,6 @@ const SurveyorMapping = ({
             pagination={{
               pageSize: tablePageSize,
               showSizeChanger: true,
-              hideOnSinglePage: true,
               onShowSizeChange: (current, size) => setTablePageSize(size),
             }}
           />

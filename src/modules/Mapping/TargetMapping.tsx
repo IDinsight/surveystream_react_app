@@ -888,26 +888,6 @@ const TargetMapping = ({
     onSelectAll: (selected: boolean, selectedRows: any, changeRows: any) => {
       setSelectedTargetRows(selectedRows);
     },
-    getCheckboxProps: (record: any) => {
-      const isManual = criteria.includes("Manual");
-      const isDisabled =
-        !isManual &&
-        selectedTargetRows.length > 0 &&
-        selectedTargetRows[0] &&
-        ((criteria.includes("Location") &&
-          record.supervisorLocation !==
-            selectedTargetRows[0].supervisorLocation) ||
-          (criteria.includes("Language") &&
-            record.supervisorLanguage !==
-              selectedTargetRows[0].supervisorLanguage) ||
-          (criteria.includes("Gender") &&
-            record.supervisorGender !==
-              selectedTargetRows[0].supervisorGender));
-
-      return {
-        disabled: isDisabled,
-      };
-    },
   };
 
   const [isEditingOpen, setIsEditingOpen] = useState(false);
@@ -1123,7 +1103,6 @@ const TargetMapping = ({
             pagination={{
               pageSize: tablePageSize,
               showSizeChanger: true,
-              hideOnSinglePage: true,
               onShowSizeChange: (current, size) => setTablePageSize(size),
             }}
           />
