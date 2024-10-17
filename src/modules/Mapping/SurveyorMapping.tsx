@@ -1,6 +1,5 @@
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Table,
   Button,
   Select,
   Tag,
@@ -11,19 +10,20 @@ import {
   Popconfirm,
 } from "antd";
 import {
-  deleteSurveyorsMappingConfig,
-  fetchSurveyorsMapping,
   fetchSurveyorsMappingConfig,
+  updateSurveyorsMappingConfig,
+  deleteSurveyorsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
+  fetchSurveyorsMapping,
   updateSurveyorsMapping,
-  updateSurveyorsMappingConfig,
 } from "../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
-import MappingCountBox from "../../components/MappingCountBox";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { CustomBtn } from "./Mapping.styled";
+import { CustomBtn, MappingTable, ResetButton } from "./Mapping.styled";
+import { useAppDispatch } from "./../../redux/hooks";
+import { updateMappingStatsSuccess } from "./../../redux/mapping/mappingSlice";
 
 const { Option } = Select;
 
@@ -39,9 +39,11 @@ const SurveyorMapping = ({
   criteria,
 }: SurveyorMappingProps) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isConfigSetupPage, setIsConfigSetupPage] = useState<boolean>(true);
+  const [tablePageSize, setTablePageSize] = useState(5);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
@@ -524,14 +526,20 @@ const SurveyorMapping = ({
         fetchSurveyorsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
+            populateMappingStats(res?.data?.data);
           } else {
             message.error("Failed to fetch mapping");
           }
           setLoading(false);
         });
+        setSelectedMappingValue(null);
         onDrawerClose();
       } else {
-        message.error("Failed to update mapping");
+        if (res?.response?.data.errors?.record_errors) {
+          message.error(res?.response?.data.errors?.record_errors);
+        } else {
+          message.error("Failed to update mapping");
+        }
       }
       setLoading(false);
     });
@@ -542,6 +550,7 @@ const SurveyorMapping = ({
     fetchSurveyorsMapping(formUID).then((res: any) => {
       if (res?.data?.success) {
         setMappingData(res?.data?.data);
+        populateMappingStats(res?.data?.data);
         setIsConfigSetupPage(false);
       } else {
         message.error("Failed to fetch mapping");
@@ -578,11 +587,13 @@ const SurveyorMapping = ({
       title: "Surveyor ID",
       dataIndex: "surveyorID",
       key: "surveyorID",
+      sorter: (a: any, b: any) => a.surveyorID.localeCompare(b.surveyorID),
     },
     {
       title: "Surveyor Name",
       dataIndex: "surveyorName",
       key: "surveyorName",
+      sorter: (a: any, b: any) => a.surveyorName.localeCompare(b.surveyorName),
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -590,11 +601,39 @@ const SurveyorMapping = ({
             title: "Surveyor Location ID",
             dataIndex: "surveyorLocationID",
             key: "surveyorLocationID",
+            sorter: (a: any, b: any) =>
+              a.surveyorLocationID.localeCompare(b.surveyorLocationID),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map((surveyor: any) => surveyor.location_id[0])
+                )
+              ),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: { surveyorLocationID: string }) =>
+              record.surveyorLocationID.indexOf(value) === 0,
           },
           {
             title: "Surveyor Location",
             dataIndex: "surveyorLocation",
             key: "surveyorLocation",
+            sorter: (a: any, b: any) =>
+              a.surveyorLocation.localeCompare(b.surveyorLocation),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map((surveyor: any) => surveyor.location_name[0])
+                )
+              ),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: { surveyorLocation: string }) =>
+              record.surveyorLocation.indexOf(value) === 0,
           },
         ]
       : []),
@@ -604,6 +643,22 @@ const SurveyorMapping = ({
             title: "Surveyor Language",
             dataIndex: "surveyorLanguage",
             key: "surveyorLanguage",
+            sorter: (a: any, b: any) =>
+              a.surveyorLanguage.localeCompare(b.surveyorLanguage),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map(
+                    (surveyor: { language: string }) => surveyor.language
+                  )
+                )
+              ),
+            ].map((language) => ({
+              text: language,
+              value: language,
+            })),
+            onFilter: (value: any, record: { surveyorLanguage: string }) =>
+              record.surveyorLanguage.indexOf(value) === 0,
           },
         ]
       : []),
@@ -613,6 +668,22 @@ const SurveyorMapping = ({
             title: "Surveyor Gender",
             dataIndex: "surveyorGender",
             key: "surveyorGender",
+            sorter: (a: any, b: any) =>
+              a.surveyorGender.localeCompare(b.surveyorGender),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map(
+                    (surveyor: { gender: string }) => surveyor.gender
+                  )
+                )
+              ),
+            ].map((gender) => ({
+              text: gender,
+              value: gender,
+            })),
+            onFilter: (value: any, record: { surveyorGender: string }) =>
+              record.surveyorGender.indexOf(value) === 0,
           },
         ]
       : []),
@@ -620,18 +691,23 @@ const SurveyorMapping = ({
       title: "Supervisor Email",
       dataIndex: "supervisorEmail",
       key: "supervisorEmail",
+      sorter: (a: any, b: any) =>
+        a.supervisorEmail.localeCompare(b.supervisorEmail),
       filters: [
-        ...new Map(
-          mappingData?.map((surveyor: { supervisor_email: string }) => [
-            surveyor.supervisor_email,
-            surveyor.supervisor_email,
-          ])
-        ).values(),
+        ...Array.from(
+          new Set(
+            mappingData?.map((surveyor: { supervisor_email: string }) =>
+              surveyor.supervisor_email !== null
+                ? surveyor.supervisor_email
+                : "Not mapped"
+            )
+          )
+        ),
       ].map((email) => ({
-        text: email as React.ReactNode,
-        value: email as string,
+        text: email,
+        value: email,
       })),
-      onFilter: (value: boolean | Key, record: { supervisorEmail: string }) =>
+      onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorEmail?.indexOf(value) === 0,
     },
@@ -639,20 +715,23 @@ const SurveyorMapping = ({
       title: "Supervisor Name",
       dataIndex: "supervisorName",
       key: "supervisorName",
+      sorter: (a: any, b: any) =>
+        a.supervisorName.localeCompare(b.supervisorName),
       filters: [
-        ...new Map(
-          mappingData?.map(
-            (surveyor: { supervisor_uid: string; supervisor_name: string }) => [
-              surveyor.supervisor_uid,
-              surveyor.supervisor_name,
-            ]
+        ...Array.from(
+          new Set(
+            mappingData?.map((surveyor: any) =>
+              surveyor.supervisor_name !== null
+                ? surveyor.supervisor_name
+                : "Not mapped"
+            )
           )
-        ).values(),
+        ),
       ].map((name) => ({
-        text: name as React.ReactNode,
-        value: name as string,
+        text: name,
+        value: name,
       })),
-      onFilter: (value: boolean | Key, record: { supervisorName: string }) =>
+      onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorName?.indexOf(value) === 0,
     },
@@ -662,6 +741,24 @@ const SurveyorMapping = ({
             title: "Supervisor Location",
             dataIndex: "supervisorLocation",
             key: "supervisorLocation",
+            sorter: (a: any, b: any) =>
+              a.supervisorLocation.localeCompare(b.supervisorLocation),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map(
+                    (surveyor: any) =>
+                      surveyor.supervisor_mapping_criteria_values.other
+                        ?.location_name
+                  )
+                )
+              ),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorLocation.indexOf(value) === 0,
           },
         ]
       : []),
@@ -671,6 +768,24 @@ const SurveyorMapping = ({
             title: "Supervisor Language",
             dataIndex: "supervisorLanguage",
             key: "supervisorLanguage",
+            sorter: (a: any, b: any) =>
+              a.supervisorLanguage.localeCompare(b.supervisorLanguage),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map(
+                    (surveyor: any) =>
+                      surveyor.supervisor_mapping_criteria_values.criteria
+                        ?.Language
+                  )
+                )
+              ),
+            ].map((language) => ({
+              text: language,
+              value: language,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorLanguage.indexOf(value) === 0,
           },
         ]
       : []),
@@ -680,6 +795,24 @@ const SurveyorMapping = ({
             title: "Supervisor Gender",
             dataIndex: "supervisorGender",
             key: "supervisorGender",
+            sorter: (a: any, b: any) =>
+              a.supervisorGender.localeCompare(b.supervisorGender),
+            filters: [
+              ...Array.from(
+                new Set(
+                  mappingData?.map(
+                    (surveyor: any) =>
+                      surveyor.supervisor_mapping_criteria_values.criteria
+                        ?.Gender
+                  )
+                )
+              ),
+            ].map((gender) => ({
+              text: gender,
+              value: gender,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorGender.indexOf(value) === 0,
           },
         ]
       : []),
@@ -695,8 +828,14 @@ const SurveyorMapping = ({
       surveyorLocation: surveyor?.location_name?.[0],
       surveyorLanguage: surveyor?.language,
       surveyorGender: surveyor?.gender,
-      supervisorEmail: surveyor.supervisor_email,
-      supervisorName: surveyor.supervisor_name,
+      supervisorEmail:
+        surveyor.supervisor_email !== null
+          ? surveyor.supervisor_email
+          : "Not mapped",
+      supervisorName:
+        surveyor.supervisor_name !== null
+          ? surveyor.supervisor_name
+          : "Not mapped",
       supervisorUID: surveyor.supervisor_uid,
       supervisorLocation:
         surveyor.supervisor_mapping_criteria_values.other?.location_name,
@@ -820,6 +959,28 @@ const SurveyorMapping = ({
     setIsEditingOpen(false);
   };
 
+  const populateMappingStats = (mappingConfig: any) => {
+    const mappedData = mappingConfig?.filter(
+      (config: any) => config.supervisor_email !== null
+    ).length;
+
+    const unmappedData = mappingConfig.length - mappedData;
+
+    dispatch(
+      updateMappingStatsSuccess({
+        type: "surveyor",
+        mapped: mappedData,
+        unmapped: unmappedData,
+      })
+    );
+  };
+
+  useEffect(() => {
+    return () => {
+      dispatch(updateMappingStatsSuccess(null));
+    };
+  }, [dispatch]);
+
   useEffect(() => {
     if (formUID) {
       setLoading(true);
@@ -888,16 +1049,15 @@ const SurveyorMapping = ({
               okText="Delete"
               cancelText="No"
             >
-              <Button
-                danger
+              <ResetButton
                 style={{ marginLeft: "auto" }}
                 disabled={criteria.includes("Manual")}
               >
                 Reset Mapping
-              </Button>
+              </ResetButton>
             </Popconfirm>
           </div>
-          <Table
+          <MappingTable
             columns={mappedPairsColumns}
             dataSource={mappedPairsData}
             pagination={false}
@@ -908,7 +1068,7 @@ const SurveyorMapping = ({
                 There is no mapping available for below listed Surveyor, please
                 map them manually:
               </p>
-              <Table
+              <MappingTable
                 columns={unmappedColumns}
                 dataSource={unmappedPairData}
                 pagination={false}
@@ -926,12 +1086,7 @@ const SurveyorMapping = ({
             >
               Save
             </CustomBtn>
-            <Button
-              disabled={unmappedSurveyors?.length > 0}
-              onClick={handleContinue}
-            >
-              Continue
-            </Button>
+            <Button onClick={handleContinue}>Continue</Button>
             <Button style={{ marginLeft: "10px" }} onClick={() => navigate(0)}>
               Cancel
             </Button>
@@ -940,18 +1095,6 @@ const SurveyorMapping = ({
       ) : (
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <MappingCountBox
-              mapped={
-                mappingTableData?.filter(
-                  (surveyor: any) => surveyor.supervisorEmail !== null
-                ).length
-              }
-              unmapped={
-                mappingTableData?.filter(
-                  (surveyor: any) => surveyor.supervisorEmail === null
-                ).length
-              }
-            />
             {selectedSurveyorRows.length > 0 ? (
               <Button
                 type="primary"
@@ -962,14 +1105,16 @@ const SurveyorMapping = ({
               </Button>
             ) : null}
           </div>
-          <Table
+          <MappingTable
             columns={surveyorsMappingColumns}
             dataSource={mappingTableData}
             rowSelection={rowSelection}
             scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
             pagination={{
-              pageSize: 5,
-              showSizeChanger: false,
+              pageSize: tablePageSize,
+              showSizeChanger: true,
+              hideOnSinglePage: true,
+              onShowSizeChange: (current, size) => setTablePageSize(size),
             }}
           />
           {selectedSurveyorRows.length > 0 && (

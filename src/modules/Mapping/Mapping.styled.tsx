@@ -12,14 +12,37 @@ export const FormItemLabel = styled.p`
   line-height: 22px,
 `;
 
-export const CustomBtn = styled(Button)`
-  background-color: #2f54eb;
-  color: white;
+export const CustomBtn = styled(Button)<{ disabled?: boolean }>`
+  background-color: ${({ disabled }) => (disabled ? "#d9d9d9" : "#2f54eb")};
+  color: ${({ disabled }) => (disabled ? "#bfbfbf" : "white")};
   border-radius: 8px !important;
   min-width: 94px !important;
 
   &:hover {
-    background-color: #2f54eb !important;
-    color: white !important;
+    background-color: ${({ disabled }) =>
+      disabled ? "#d9d9d9" : "#2f54eb"} !important;
+    color: ${({ disabled }) => (disabled ? "#bfbfbf" : "white")} !important;
+  }
+`;
+
+export const ResetButton = styled(Button)`
+  &:hover {
+    color: red !important;
+    border-color: red !important;
+  }
+`;
+
+export const MappingTable = styled(Table)`
+  overflow: auto;
+  margin-top: 15px;
+  margin-bottom: 68px;
+  & th {
+    color: #434343 !important;
+    background-color: #d6e4ff !important;
+  }
+  & th::before {
+    background-color: #595959 !important;
+  }
+  & td {
   }
 `;

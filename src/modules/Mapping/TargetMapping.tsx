@@ -1,6 +1,5 @@
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Table,
   Button,
   Select,
   Tag,
@@ -17,13 +16,14 @@ import {
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
-  updateTargetsMapping,
   fetchTargetsMapping,
+  updateTargetsMapping,
 } from "../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import MappingCountBox from "../../components/MappingCountBox";
-import { CustomBtn } from "./Mapping.styled";
+import { CustomBtn, MappingTable, ResetButton } from "./Mapping.styled";
+import { useAppDispatch } from "./../../redux/hooks";
+import { updateMappingStatsSuccess } from "./../../redux/mapping/mappingSlice";
 
 const { Option } = Select;
 
@@ -39,9 +39,11 @@ const TargetMapping = ({
   criteria,
 }: TargetMappingProps) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isConfigSetupPage, setIsConfigSetupPage] = useState<boolean>(true);
+  const [tablePageSize, setTablePageSize] = useState(5);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
@@ -522,11 +524,13 @@ const TargetMapping = ({
         fetchTargetsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
+            populateMappingStats(res?.data?.data);
           } else {
             message.error("Failed to fetch mapping");
           }
           setLoading(false);
         });
+        setSelectedMappingValue(null);
         onDrawerClose();
       } else {
         if (res?.response?.data.errors?.record_errors) {
@@ -544,6 +548,7 @@ const TargetMapping = ({
     fetchTargetsMapping(formUID).then((res: any) => {
       if (res?.data?.success) {
         setMappingData(res?.data?.data);
+        populateMappingStats(res?.data?.data);
         setIsConfigSetupPage(false);
       } else {
         message.error("Failed to fetch mapping");
@@ -580,6 +585,7 @@ const TargetMapping = ({
       title: "Target ID",
       dataIndex: "targetID",
       key: "targetID",
+      sorter: (a: any, b: any) => a.targetID - b.targetID,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -587,11 +593,32 @@ const TargetMapping = ({
             title: "Target Location ID",
             dataIndex: "targetLocationID",
             key: "targetLocationID",
+            sorter: (a: any, b: any) => a.targetLocationID - b.targetLocationID,
+            filters: [
+              ...new Set(mappingData?.map((target: any) => target.location_id)),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.targetLocationID === value,
           },
           {
             title: "Target Location",
             dataIndex: "targetLocation",
             key: "targetLocation",
+            sorter: (a: any, b: any) =>
+              a.targetLocation.localeCompare(b.targetLocation),
+            filters: [
+              ...new Set(
+                mappingData?.map((target: any) => target.location_name)
+              ),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.targetLocation.indexOf(value) === 0,
           },
         ]
       : []),
@@ -601,6 +628,16 @@ const TargetMapping = ({
             title: "Target Language",
             dataIndex: "targetLanguage",
             key: "targetLanguage",
+            sorter: (a: any, b: any) =>
+              a.targetLanguage.localeCompare(b.targetLanguage),
+            filters: [
+              ...new Set(mappingData?.map((target: any) => target?.language)),
+            ].map((language) => ({
+              text: language,
+              value: language,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.targetLanguage.indexOf(value) === 0,
           },
         ]
       : []),
@@ -610,6 +647,16 @@ const TargetMapping = ({
             title: "Target Gender",
             dataIndex: "targetGender",
             key: "targetGender",
+            sorter: (a: any, b: any) =>
+              a.targetGender.localeCompare(b.targetGender),
+            filters: [
+              ...new Set(mappingData?.map((target: any) => target?.gender)),
+            ].map((gender) => ({
+              text: gender,
+              value: gender,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.targetGender.indexOf(value) === 0,
           },
         ]
       : []),
@@ -618,17 +665,18 @@ const TargetMapping = ({
       dataIndex: "supervisorEmail",
       key: "supervisorEmail",
       filters: [
-        ...new Map(
-          mappingData?.map((target: { supervisor_email: string }) => [
-            target.supervisor_email,
-            target.supervisor_email,
-          ])
-        ).values(),
+        ...new Set(
+          mappingData?.map((target: any) =>
+            target.supervisor_email !== null
+              ? target.supervisor_email
+              : "Not mapped"
+          )
+        ),
       ].map((email) => ({
-        text: email as React.ReactNode,
-        value: email as string,
+        text: email,
+        value: email,
       })),
-      onFilter: (value: boolean | Key, record: { supervisorEmail: string }) =>
+      onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorEmail?.indexOf(value) === 0,
     },
@@ -636,20 +684,21 @@ const TargetMapping = ({
       title: "Supervisor Name",
       dataIndex: "supervisorName",
       key: "supervisorName",
+      sorter: (a: any, b: any) =>
+        a.supervisorName.localeCompare(b.supervisorName),
       filters: [
-        ...new Map(
-          mappingData?.map(
-            (target: { supervisor_uid: string; supervisor_name: string }) => [
-              target.supervisor_uid,
-              target.supervisor_name,
-            ]
+        ...new Set(
+          mappingData?.map((target: any) =>
+            target.supervisor_name !== null
+              ? target.supervisor_name
+              : "Not mapped"
           )
-        ).values(),
+        ),
       ].map((name) => ({
-        text: name as React.ReactNode,
-        value: name as string,
+        text: name,
+        value: name,
       })),
-      onFilter: (value: boolean | Key, record: { supervisorName: string }) =>
+      onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorName?.indexOf(value) === 0,
     },
@@ -659,6 +708,22 @@ const TargetMapping = ({
             title: "Supervisor Location",
             dataIndex: "supervisorLocation",
             key: "supervisorLocation",
+            sorter: (a: any, b: any) =>
+              a.supervisorLocation.localeCompare(b.supervisorLocation),
+            filters: [
+              ...new Set(
+                mappingData?.map(
+                  (target: any) =>
+                    target.supervisor_mapping_criteria_values?.other
+                      ?.location_name
+                )
+              ),
+            ].map((location) => ({
+              text: location,
+              value: location,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorLocation?.indexOf(value) === 0,
           },
         ]
       : []),
@@ -668,6 +733,21 @@ const TargetMapping = ({
             title: "Supervisor Language",
             dataIndex: "supervisorLanguage",
             key: "supervisorLanguage",
+            sorter: (a: any, b: any) =>
+              a.supervisorLanguage.localeCompare(b.supervisorLanguage),
+            filters: [
+              ...new Set(
+                mappingData?.map(
+                  (target: any) =>
+                    target.supervisor_mapping_criteria_values.criteria?.Language
+                )
+              ),
+            ].map((language) => ({
+              text: language,
+              value: language,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorLanguage?.indexOf(value) === 0,
           },
         ]
       : []),
@@ -677,6 +757,21 @@ const TargetMapping = ({
             title: "Supervisor Gender",
             dataIndex: "supervisorGender",
             key: "supervisorGender",
+            sorter: (a: any, b: any) =>
+              a.supervisorGender.localeCompare(b.supervisorGender),
+            filters: [
+              ...new Set(
+                mappingData?.map(
+                  (target: any) =>
+                    target.supervisor_mapping_criteria_values.criteria?.Gender
+                )
+              ),
+            ].map((gender) => ({
+              text: gender,
+              value: gender,
+            })),
+            onFilter: (value: any, record: any) =>
+              record.supervisorGender?.indexOf(value) === 0,
           },
         ]
       : []),
@@ -687,12 +782,16 @@ const TargetMapping = ({
       key: target.target_uid,
       targetID: target.target_uid,
       targetUID: target.target_uid,
-      targetLocationID: target?.location_id?.[0],
-      targetLocation: target?.location_name?.[0],
+      targetLocationID: target?.location_id,
+      targetLocation: target?.location_name,
       targetLanguage: target?.language,
       targetGender: target?.gender,
-      supervisorEmail: target.supervisor_email,
-      supervisorName: target.supervisor_name,
+      supervisorEmail:
+        target.supervisor_email !== null
+          ? target.supervisor_email
+          : "Not mapped",
+      supervisorName:
+        target.supervisor_name !== null ? target.supervisor_name : "Not mapped",
       supervisorUID: target.supervisor_uid,
       supervisorLocation:
         target.supervisor_mapping_criteria_values?.other?.location_name,
@@ -814,6 +913,28 @@ const TargetMapping = ({
     setIsEditingOpen(false);
   };
 
+  const populateMappingStats = (mappingConfig: any) => {
+    const mappedData = mappingConfig?.filter(
+      (config: any) => config.supervisor_email !== null
+    ).length;
+
+    const unmappedData = mappingConfig.length - mappedData;
+
+    dispatch(
+      updateMappingStatsSuccess({
+        type: "target",
+        mapped: mappedData,
+        unmapped: unmappedData,
+      })
+    );
+  };
+
+  useEffect(() => {
+    return () => {
+      dispatch(updateMappingStatsSuccess(null));
+    };
+  }, [dispatch]);
+
   useEffect(() => {
     if (formUID) {
       setLoading(true);
@@ -882,16 +1003,15 @@ const TargetMapping = ({
               okText="Delete"
               cancelText="No"
             >
-              <Button
-                danger
+              <ResetButton
                 style={{ marginLeft: "auto" }}
                 disabled={criteria.includes("Manual")}
               >
                 Reset Mapping
-              </Button>
+              </ResetButton>
             </Popconfirm>
           </div>
-          <Table
+          <MappingTable
             columns={mappedPairsColumns}
             dataSource={mappedPairsData}
             pagination={false}
@@ -902,7 +1022,7 @@ const TargetMapping = ({
                 There is no mapping available for below listed Target, please
                 map them manually:
               </p>
-              <Table
+              <MappingTable
                 columns={unmappedColumns}
                 dataSource={unmappedPairData}
                 pagination={false}
@@ -920,12 +1040,7 @@ const TargetMapping = ({
             >
               Save
             </CustomBtn>
-            <Button
-              disabled={unmappedTargets?.length > 0}
-              onClick={handleContinue}
-            >
-              Continue
-            </Button>
+            <Button onClick={handleContinue}>Continue</Button>
             <Button style={{ marginLeft: "10px" }} onClick={() => navigate(0)}>
               Cancel
             </Button>
@@ -934,18 +1049,6 @@ const TargetMapping = ({
       ) : (
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <MappingCountBox
-              mapped={
-                mappingTableData?.filter(
-                  (target: any) => target.supervisorEmail !== null
-                ).length
-              }
-              unmapped={
-                mappingTableData?.filter(
-                  (target: any) => target.supervisorEmail === null
-                ).length
-              }
-            />
             {selectedTargetRows.length > 0 ? (
               <Button
                 type="primary"
@@ -956,14 +1059,16 @@ const TargetMapping = ({
               </Button>
             ) : null}
           </div>
-          <Table
+          <MappingTable
             columns={targetsMappingColumns}
             dataSource={mappingTableData}
             rowSelection={rowSelection}
             scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
             pagination={{
-              pageSize: 5,
-              showSizeChanger: false,
+              pageSize: tablePageSize,
+              showSizeChanger: true,
+              hideOnSinglePage: true,
+              onShowSizeChange: (current, size) => setTablePageSize(size),
             }}
           />
           {selectedTargetRows.length > 0 && (

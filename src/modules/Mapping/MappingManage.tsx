@@ -7,12 +7,13 @@ import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
 import { Col, Row, Select, Tooltip } from "antd";
-import { userHasPermission } from "../../utils/helper";
+import { properCase, userHasPermission } from "../../utils/helper";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./Mapping.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import SurveyorMapping from "./SurveyorMapping";
 import { getSurveyModuleQuestionnaire } from "../../redux/surveyConfig/surveyConfigActions";
 import TargetMapping from "./TargetMapping";
+import MappingStats from "../../components/MappingStats";
 
 function MappingManage() {
   const navigate = useNavigate();
@@ -42,6 +43,10 @@ function MappingManage() {
     (state: RootState) => state.surveyConfig
   );
 
+  const { loading: mappingLoading, stats: mappingStats } = useAppSelector(
+    (state: RootState) => state.mapping
+  );
+
   const [formID, setFormID] = useState<null | string>(null);
   const [isFormIDSelected, setIsFormIDSelected] = useState(false);
 
@@ -66,7 +71,8 @@ function MappingManage() {
     }
   }, [moduleQuestionnaire, mapping_name]);
 
-  const isLoading = isSurveyCTOFormLoading || surveyConfigLoading;
+  const isLoading =
+    isSurveyCTOFormLoading || surveyConfigLoading || mappingLoading;
 
   return (
     <>
@@ -77,18 +83,22 @@ function MappingManage() {
           <Container />
           <HeaderContainer>
             <Title>Mapping</Title>
+            {mappingStats !== null ? (
+              <MappingStats stats={mappingStats} />
+            ) : null}
           </HeaderContainer>
           <BodyContainer>
             {!isFormIDSelected ? (
               <>
                 <p>
-                  Map Surveyors to Supervisors based on: {criteria?.join(", ")}
+                  Map {properCase(mapping_name || "")}s to Supervisors based on:{" "}
+                  {criteria?.join(", ")}
                 </p>
                 <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
                   <Col span={5}>
                     <FormItemLabel>
                       <span style={{ color: "red" }}>*</span> SCTO form ID{" "}
-                      <Tooltip title="Select the SCTO form to map surveyors to supervisors based on the selected form.">
+                      <Tooltip title="Select the SurveyCTO main form ID">
                         <QuestionCircleOutlined />
                       </Tooltip>{" "}
                       :
