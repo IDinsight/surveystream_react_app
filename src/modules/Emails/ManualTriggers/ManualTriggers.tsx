@@ -7,6 +7,8 @@ import { ManualTriggersTable } from "./ManualTriggers.styled";
 import ManualEmailTriggerForm from "./ManualTriggerForm";
 import { useAppDispatch } from "../../../redux/hooks";
 import { deleteManualEmailTrigger } from "../../../redux/emails/emailsActions";
+import { getEmailDeliveryReportTrigger } from "../../../redux/emails/apiService";
+import EmailDeliveryReport from "../../../components/EmailDeliveryReport";
 
 function ManualTriggers({
   data,
@@ -62,6 +64,27 @@ function ManualTriggers({
     }
   };
 
+  const [deliveryReportData, setDeliveryReportData] = useState<any>([]);
+
+  const fetchDeliveryReport = async (
+    email_config_uid: string,
+    manual_email_trigger_uid: string
+  ) => {
+    try {
+      const result = await getEmailDeliveryReportTrigger(
+        email_config_uid,
+        manual_email_trigger_uid
+      );
+      if ((result as any).data?.success) {
+        setDeliveryReportData((result as any).data.data);
+      } else {
+        setDeliveryReportData([]);
+      }
+    } catch (error) {
+      message.error("An error occurred while fetching email delivery report");
+    }
+  };
+
   const handleEditTrigger = (trigger: any) => {
     setEditTriggerValues(trigger);
     showEditManualDrawer();
@@ -109,31 +132,40 @@ function ManualTriggers({
         <>
           <Button
             type="link"
-            onClick={() => handleShow(record.manual_email_trigger_uid)}
+            onClick={() => {
+              fetchDeliveryReport(
+                record.email_config_uid,
+                record.manual_email_trigger_uid
+              );
+              handleShow(record.manual_email_trigger_uid);
+            }}
           >
-            View Recipients ({record.recipients.length})
+            View Recipients
           </Button>
           <Modal
-            title="Recipients"
             style={{
               fontFamily: "Lato",
               overflowY: "scroll",
-              maxHeight: "300px",
+              maxHeight: "500px",
             }}
+            width={"80%"}
+            height={"80%"}
             open={showModal === record.manual_email_trigger_uid}
             onOk={handleOk}
             onCancel={handleClose}
-            width={500}
             key={record.manual_email_trigger_uid}
           >
-            <ul>
-              {record.recipients.map((id: any, idx: any) => (
-                <li key={idx}>
-                  {surveyEnumerators?.find((e: any) => e.enumerator_uid == id)
-                    ?.name || ""}
-                </li>
-              ))}
-            </ul>
+            {deliveryReportData && deliveryReportData.length > 0 ? (
+              <EmailDeliveryReport
+                deliveryReportData={deliveryReportData}
+                slot_type="trigger"
+              />
+            ) : (
+              <p>
+                No Emails sent yet, delivery reports will be visible after
+                trigger time.
+              </p>
+            )}
           </Modal>
         </>
       ),
