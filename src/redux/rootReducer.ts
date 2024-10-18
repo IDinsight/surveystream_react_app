@@ -19,6 +19,7 @@ import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
 import dqFormsReducer from "./dqForm/dqFormSlice";
 import tableConfigSlice from "./tableConfig/tableConfigSlice";
 import adminFormsReducer from "./adminForm/adminFormSlice";
+import mappingReducer from ".//mapping/mappingSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   dqForms: dqFormsReducer,
   tableConfig: tableConfigSlice,
   adminForms: adminFormsReducer,
+  mapping: mappingReducer,
 });
 
 export default rootReducer;
