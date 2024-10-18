@@ -20,12 +20,12 @@ export interface AssignmentsState {
     data: any;
     err: string | null;
   };
-  assignableEnumerators: {
+  assignmentEnumerators: {
     loading: boolean;
     data: any;
     err: string | null;
   };
-  targets: {
+  assignmentTargets: {
     loading: boolean;
     data: any;
     err: string | null;

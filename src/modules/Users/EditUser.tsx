@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Radio, message } from "antd";
+import { Button, Form, Input, Radio, message, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -71,11 +71,11 @@ function EditUser() {
       return {
         ...prev,
         ...editUser,
-        user_role_names: userRolesData[0]?.user_role_names,
-        user_survey_names: userRolesData[0]?.user_survey_names,
+        user_survey_role_names: userRolesData[0]?.user_survey_role_names,
       };
     });
   }, [dispatch]);
+
   return (
     <>
       <GlobalStyle />
@@ -176,18 +176,40 @@ function EditUser() {
                       placeholder="Enter last name"
                     />
                   </Form.Item>
+                  <Form.Item
+                    name="gender"
+                    label="Gender"
+                    initialValue={userDetails.gender}
+                    hasFeedback
+                  >
+                    <Select
+                      style={{ width: "100%" }}
+                      allowClear={true}
+                      placeholder="Male/ Female"
+                      value={userDetails?.gender}
+                      onChange={(val: any) => {
+                        setUserDetails((prev: any) => ({
+                          ...prev,
+                          gender: val,
+                        }));
+                      }}
+                    >
+                      <Select.Option value="Male">Male</Select.Option>
+                      <Select.Option value="Female">Female</Select.Option>
+                    </Select>
+                  </Form.Item>
 
                   {isExistingUser &&
-                    userDetails?.user_role_names &&
-                    userDetails?.user_role_names[0] != null && (
+                    userDetails?.user_survey_role_names &&
+                    userDetails?.user_survey_role_names[0] != null && (
                       <>
                         <DescriptionText>Existing Roles</DescriptionText>
-                        {userDetails.user_role_names?.map(
+                        {userDetails.user_survey_role_names?.map(
                           (role: any, i: any) => (
                             <>
                               <Form.Item
                                 label="Project name"
-                                initialValue={userDetails.user_survey_names[i]}
+                                initialValue={role["survey_name"]}
                                 hasFeedback
                                 rules={[
                                   {
@@ -196,14 +218,14 @@ function EditUser() {
                                 ]}
                               >
                                 <Input
-                                  value={userDetails.user_survey_names[i]}
+                                  value={role["survey_name"]}
                                   required
                                   disabled={isExistingUser}
                                 />
                               </Form.Item>
                               <Form.Item
                                 label="Role"
-                                initialValue={role}
+                                initialValue={role["role_name"]}
                                 hasFeedback
                                 rules={[
                                   {
@@ -212,7 +234,7 @@ function EditUser() {
                                 ]}
                               >
                                 <Input
-                                  value={role}
+                                  value={role["role_name"]}
                                   required
                                   disabled={isExistingUser}
                                 />

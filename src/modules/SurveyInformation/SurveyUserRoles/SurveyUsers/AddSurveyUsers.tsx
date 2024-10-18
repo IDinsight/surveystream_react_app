@@ -3,20 +3,30 @@ import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import {
+  getSurveyLocationGeoLevels,
+  getSurveyLocationsLong,
+} from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import {
   postAddUser,
   postCheckUser,
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
 import { DescriptionText } from "../../SurveyInformation.styled";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
 
+import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
+
 import SideMenu from "../SideMenu";
 import { RootState } from "../../../../redux/store";
 import {
@@ -42,7 +52,9 @@ function AddSurveyUsers() {
   const [verificationForm] = Form.useForm();
   const [updateUserForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
+  const [filteredUserList, setFilteredUserList] = useState<any>(
+    userList ? [...userList] : []
+  );
 
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
@@ -51,6 +63,12 @@ function AddSurveyUsers() {
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
   const [isRoleRequired, setIsRoleRequired] = useState(true);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [mappingCriteriaFields, setMappingCriteriaFields] = useState<any>([]);
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
+  const [lowestRole, setLowestRole] = useState<string>("");
+  const [isLowestRole, setisLowestRole] = useState<boolean>(false);
 
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<any>({
@@ -98,7 +116,9 @@ function AddSurveyUsers() {
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
-    const checkResponse = await dispatch(postCheckUser(email));
+    const checkResponse = await dispatch(
+      postCheckUser({ email, survey_uid: survey_uid ?? "" })
+    );
 
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
@@ -122,14 +142,28 @@ function AddSurveyUsers() {
       }
 
       const role = rolesTableData.find((r: any) =>
-        checkResponse?.payload?.data?.user?.roles?.includes(r.role_uid)
+        checkResponse?.payload?.data?.user?.roles?.includes(r?.role_uid)
       );
       setNewRole(role?.role_uid);
 
       if (role?.has_reporting_role) {
         setHasReportingRole(true);
+
+        const _filteredUserList = userList?.filter((user: any) => {
+          return (
+            user?.roles?.includes(role?.reporting_role_uid) &&
+            user?.user_uid !== checkResponse.payload.data.user.user_uid
+          );
+        });
+        setFilteredUserList(_filteredUserList);
       } else {
         setHasReportingRole(false);
+      }
+
+      if (role?.role_uid === lowestRole) {
+        setisLowestRole(true);
+      } else {
+        setisLowestRole(false);
       }
 
       setIsExistingUser(true);
@@ -160,7 +194,8 @@ function AddSurveyUsers() {
 
         if (
           initialUserData?.roles &&
-          initialUserData.roles.length >= userDetails.roles.length
+          initialUserData.roles.length >= userDetails.roles.length &&
+          !userDetails.is_survey_admin
         ) {
           setNewRole(initialUserData?.roles[0]);
           userDetails.roles = initialUserData?.roles;
@@ -188,7 +223,7 @@ function AddSurveyUsers() {
         );
         if (updateRes.payload?.user_data) {
           if (newRole && userDetails?.supervisor) {
-            updateUserHierarchy(
+            await updateUserHierarchy(
               userDetails?.user_uid,
               survey_uid,
               newRole,
@@ -213,9 +248,8 @@ function AddSurveyUsers() {
 
         if (addRes.payload?.status == 200) {
           //update user hierarchy here
-
           updateUserHierarchy(
-            addRes.payload?.data?.user_uid,
+            addRes.payload?.data?.user.user_uid,
             survey_uid,
             newRole,
             userDetails?.supervisor
@@ -235,6 +269,102 @@ function AddSurveyUsers() {
     setLoading(false);
   };
 
+  const fetchSurveyBasicInformation = async () => {
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+      }
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+  };
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      let mapping_criteria_fields: any[] = [];
+      if (moduleQQuestionnaireRes?.payload) {
+        if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.target_mapping_criteria || []),
+          ];
+        }
+        if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...mapping_criteria_fields,
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.surveyor_mapping_criteria || []),
+          ];
+        }
+        // remove duplicates and "Manual" from the list
+        mapping_criteria_fields = mapping_criteria_fields.filter(
+          (value, index, array) =>
+            array.indexOf(value) === index && array[index] !== "Manual"
+        );
+        setMappingCriteriaFields(mapping_criteria_fields);
+      }
+    }
+  };
+
+  const findPrimeGeoLevel = (locationData: any) => {
+    let primeGeoLevel = null;
+    for (const item of locationData) {
+      if (item.geo_level_uid === surveyPrimeGeoLocation) {
+        primeGeoLevel = item;
+      }
+    }
+
+    return primeGeoLevel;
+  };
+
+  const fetchLocationDetails = async () => {
+    if (survey_uid) {
+      // Get location levels
+      const locationlevelsRes = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+
+      if (locationlevelsRes?.payload) {
+        const primeGeoLevel = findPrimeGeoLevel(locationlevelsRes?.payload);
+        if (primeGeoLevel) {
+          const locationRes = await dispatch(
+            getSurveyLocationsLong({
+              survey_uid: survey_uid,
+              geo_level_uid: primeGeoLevel?.geo_level_uid,
+            })
+          );
+          if (locationRes?.payload.length > 0) {
+            // filter out the prime geo level locations columns
+            const primeGeoLevelLocations: any[] = locationRes?.payload.map(
+              (location: any) => ({
+                location_uid: location.location_uid,
+                location_id: location.location_id,
+                location_name: location.location_name,
+              })
+            );
+            setLocationDetailsField([
+              {
+                title: `${primeGeoLevel.geo_level_name}`,
+                key: `location_id_column`,
+                values: primeGeoLevelLocations,
+              },
+            ]);
+          }
+        }
+      }
+    }
+  };
+
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
@@ -249,6 +379,15 @@ function AddSurveyUsers() {
       }));
 
       setRolesTableData(transformedData);
+
+      // lowest role is the role which is not a reporting role for any other role
+      const lowestRole = transformedData.find(
+        (role) =>
+          !transformedData.some(
+            (r) => r.reporting_role_uid === role.role_uid
+          ) && role.role !== "Super Admin"
+      );
+      setLowestRole(lowestRole?.role_uid);
     } else {
       console.log("missing roles");
     }
@@ -256,7 +395,18 @@ function AddSurveyUsers() {
 
   useEffect(() => {
     fetchSupervisorRoles();
-  }, [dispatch]);
+    fetchSurveyBasicInformation();
+    fetchSurveyModuleQuestionnaire();
+  }, [survey_uid]);
+
+  useEffect(() => {
+    if (
+      mappingCriteriaFields.includes("Location") &&
+      surveyPrimeGeoLocation !== "no_location"
+    ) {
+      fetchLocationDetails();
+    }
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
 
   return (
     <>
@@ -276,6 +426,9 @@ function AddSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Users - Add new user</Title>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -283,7 +436,11 @@ function AddSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText>Add new user</DescriptionText>
+              <DescriptionText>
+                Add users for the survey. Pro tip: Start with users with the top
+                most role in the survey, in order to be able to select them as
+                supervisors for their reportees when adding them.
+              </DescriptionText>
               <div>
                 {!isVerified ? (
                   <Form
@@ -352,13 +509,11 @@ function AddSurveyUsers() {
                     >
                       <Input disabled />
                     </Form.Item>
-
                     {isExistingUser && (
                       <DescriptionText>
                         User already exists in the system
                       </DescriptionText>
                     )}
-
                     <Form.Item
                       name="first_name"
                       label="First name"
@@ -379,6 +534,7 @@ function AddSurveyUsers() {
                           }))
                         }
                         placeholder="Enter first name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
                     <Form.Item
@@ -401,9 +557,9 @@ function AddSurveyUsers() {
                           }))
                         }
                         placeholder="Enter last name"
+                        disabled={isExistingUser}
                       />
                     </Form.Item>
-
                     <Form.Item
                       name="roles"
                       label="Role"
@@ -412,7 +568,11 @@ function AddSurveyUsers() {
                         rolesTableData.some((r: any) =>
                           userDetails?.roles?.includes(r.role_uid)
                         )
-                          ? userDetails.roles
+                          ? rolesTableData.find((r: any) =>
+                              userDetails?.roles?.includes(r.role_uid)
+                            ).role_uid
+                          : userDetails?.is_survey_admin
+                          ? "Survey Admin"
                           : undefined
                       }
                       rules={
@@ -439,31 +599,53 @@ function AddSurveyUsers() {
 
                           if (value == null && role?.role === "Survey Admin") {
                             setIsRoleRequired(false);
+                            setHasReportingRole(false);
+                            setisLowestRole(false);
+
                             return setUserDetails((prev: any) => ({
                               ...prev,
                               is_survey_admin: true,
+                              location_uids: [],
+                              location_ids: [],
+                              location_names: [],
+                              languages: [],
                             }));
                           } else {
                             setUserDetails((prev: any) => ({
                               ...prev,
                               is_survey_admin: false,
                             }));
-
                             setNewRole(role?.role_uid);
                             if (role?.has_reporting_role) {
                               setHasReportingRole(true);
 
-                              const _filteredUserList = userList.filter(
+                              const _filteredUserList = userList?.filter(
                                 (user: any) => {
-                                  return user?.roles?.includes(
-                                    role?.reporting_role_uid
+                                  return (
+                                    user?.roles?.includes(
+                                      role?.reporting_role_uid
+                                    ) &&
+                                    user?.user_uid !== userDetails?.user_uid
                                   );
                                 }
                               );
-
                               setFilteredUserList(_filteredUserList);
                             } else {
                               setHasReportingRole(false);
+                            }
+                            if (role?.role_uid === lowestRole) {
+                              setisLowestRole(true);
+                            } else {
+                              setisLowestRole(false);
+
+                              // also remove location details
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                location_uids: [],
+                                location_ids: [],
+                                location_names: [],
+                                languages: [],
+                              }));
                             }
 
                             setUserDetails((prev: any) => {
@@ -495,7 +677,6 @@ function AddSurveyUsers() {
                         ))}
                       </Select>
                     </Form.Item>
-
                     {hasReportingRole && (
                       <Form.Item
                         name="supervisor"
@@ -523,6 +704,143 @@ function AddSurveyUsers() {
                         </Select>
                       </Form.Item>
                     )}
+
+                    {isLowestRole && mappingCriteriaFields.length > 0 && (
+                      <DescriptionText>
+                        The user is assigned the smallest field supervisor role.
+                        The following fields will be used for mapping
+                        supervisors to surveyors or targets as per the mapping
+                        criteria selected under module questionnaire.
+                      </DescriptionText>
+                    )}
+
+                    {mappingCriteriaFields.includes("Gender") &&
+                      isLowestRole && (
+                        <Form.Item
+                          name="gender"
+                          label={
+                            <span>
+                              Gender&nbsp;
+                              {isExistingUser ? (
+                                <StyledTooltip title="Gender can't be updated at a survey level. Kindly contact SurveyStream team if gender needs to be updated.">
+                                  <QuestionCircleOutlined />
+                                </StyledTooltip>
+                              ) : (
+                                ""
+                              )}
+                            </span>
+                          }
+                          rules={[
+                            isExistingUser
+                              ? {}
+                              : {
+                                  required: true,
+                                  message: `Please enter the Gender`,
+                                },
+                          ]}
+                          initialValue={userDetails?.gender}
+                          hasFeedback
+                        >
+                          <Select
+                            style={{ width: "100%" }}
+                            allowClear={true}
+                            disabled={isExistingUser}
+                            value={userDetails?.gender}
+                            onSelect={(val: any) => {
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                gender: val,
+                              }));
+                            }}
+                          >
+                            <Select.Option value="Male">Male</Select.Option>
+                            <Select.Option value="Female">Female</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      )}
+                    {mappingCriteriaFields.includes("Location") &&
+                      isLowestRole &&
+                      locationDetailsField.length > 0 && (
+                        <Form.Item
+                          name="location_id"
+                          label={
+                            <span>
+                              {locationDetailsField[0].title}&nbsp;
+                              <StyledTooltip title="Prime geo locations associated with the given user. Dropdown values are in the format: 'Location ID - Name'.">
+                                <QuestionCircleOutlined />
+                              </StyledTooltip>
+                            </span>
+                          }
+                          initialValue={userDetails?.location_uids}
+                          rules={[
+                            {
+                              required: true,
+                              message: `Please enter the ${locationDetailsField[0].title}`,
+                            },
+                          ]}
+                          hasFeedback
+                        >
+                          <Select
+                            showSearch={true}
+                            optionFilterProp="children"
+                            allowClear={true}
+                            placeholder="Select locations (format: id - name)"
+                            mode="multiple"
+                            onChange={(value) => {
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                location_uids: value,
+                              }));
+                            }}
+                          >
+                            {locationDetailsField[0].values?.map(
+                              (location: any, i: any) => (
+                                <Select.Option
+                                  key={i}
+                                  value={location?.location_uid}
+                                >
+                                  {location?.location_id} -{" "}
+                                  {location?.location_name}
+                                </Select.Option>
+                              )
+                            )}
+                          </Select>
+                        </Form.Item>
+                      )}
+                    {mappingCriteriaFields.includes("Language") &&
+                      isLowestRole && (
+                        <Form.Item
+                          name="language"
+                          label={
+                            <span>
+                              Languages&nbsp;
+                              <StyledTooltip title="Languages associated with the given user. Kindly enter the values in a comma separated format like Hindi, Swahili, Odia">
+                                <QuestionCircleOutlined />
+                              </StyledTooltip>
+                            </span>
+                          }
+                          initialValue={userDetails?.languages}
+                          rules={[
+                            {
+                              required: true,
+                              message: `Please enter the languages`,
+                            },
+                          ]}
+                          hasFeedback
+                        >
+                          <Input
+                            onChange={(e) =>
+                              setUserDetails((prev: any) => ({
+                                ...prev,
+                                languages: e.target.value
+                                  .split(",")
+                                  .map((l) => l.trim()),
+                              }))
+                            }
+                            placeholder="Example: Hindi, Swahili, Odia"
+                          />
+                        </Form.Item>
+                      )}
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
                         loading={loading}

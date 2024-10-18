@@ -12,12 +12,12 @@ const initialState: AssignmentsState = {
     err: null,
     data: [],
   },
-  assignableEnumerators: {
+  assignmentEnumerators: {
     loading: false,
     err: null,
     data: [],
   },
-  targets: {
+  assignmentTargets: {
     loading: false,
     err: null,
     data: [],
@@ -50,27 +50,27 @@ const authSlice = createSlice({
       state.assignments.loading = false;
       state.assignments.err = action.payload;
     },
-    assignableEnumeratorsRequest(state) {
-      state.assignableEnumerators.loading = true;
+    assignmentEnumeratorsRequest(state) {
+      state.assignmentEnumerators.loading = true;
     },
-    assignableEnumeratorsSuccess(state, action: PayloadAction<any>) {
-      state.assignableEnumerators.loading = false;
-      state.assignableEnumerators.data = action.payload;
+    assignmentEnumeratorsSuccess(state, action: PayloadAction<any>) {
+      state.assignmentEnumerators.loading = false;
+      state.assignmentEnumerators.data = action.payload;
     },
-    assignableEnumeratorsFailure(state, action: PayloadAction<any>) {
-      state.assignableEnumerators.loading = false;
-      state.assignableEnumerators.err = action.payload;
+    assignmentEnumeratorsFailure(state, action: PayloadAction<any>) {
+      state.assignmentEnumerators.loading = false;
+      state.assignmentEnumerators.err = action.payload;
     },
-    targetsRequest(state) {
-      state.targets.loading = true;
+    assignmentTargetsRequest(state) {
+      state.assignmentTargets.loading = true;
     },
-    targetsSuccess(state, action: PayloadAction<any>) {
-      state.targets.loading = false;
-      state.targets.data = action.payload;
+    assignmentTargetsSuccess(state, action: PayloadAction<any>) {
+      state.assignmentTargets.loading = false;
+      state.assignmentTargets.data = action.payload;
     },
-    targetsFailure(state, action: PayloadAction<any>) {
-      state.targets.loading = false;
-      state.targets.err = action.payload;
+    assignmentTargetsFailure(state, action: PayloadAction<any>) {
+      state.assignmentTargets.loading = false;
+      state.assignmentTargets.err = action.payload;
     },
   },
 });
@@ -82,12 +82,12 @@ export const {
   assignmentsRequest,
   assignmentsSuccess,
   assignmentsFailure,
-  assignableEnumeratorsRequest,
-  assignableEnumeratorsSuccess,
-  assignableEnumeratorsFailure,
-  targetsRequest,
-  targetsSuccess,
-  targetsFailure,
+  assignmentEnumeratorsRequest,
+  assignmentEnumeratorsSuccess,
+  assignmentEnumeratorsFailure,
+  assignmentTargetsRequest,
+  assignmentTargetsSuccess,
+  assignmentTargetsFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

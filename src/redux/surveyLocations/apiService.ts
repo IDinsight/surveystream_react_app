@@ -121,9 +121,32 @@ export const getSurveyLocations = async (survey_uid: string) => {
   }
 };
 
+export const getSurveyLocationsLong = async (
+  survey_uid: string,
+  geo_level_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/locations/long?survey_uid=${survey_uid}&geo_level_uid=${geo_level_uid}`;
+
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   getSurveyLocationGeoLevels,
   updateSurveyLocationGeoLevels,
   getSurveyLocations,
   updateSurveyLocations,
+  getSurveyLocationsLong,
 };
