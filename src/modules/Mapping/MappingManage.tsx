@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -24,6 +24,10 @@ function MappingManage() {
     mapping_name: "",
   };
 
+  // Get the form_uid parameter from the URL
+  const [searchParam] = useSearchParams();
+  const form_uid = searchParam.get("form_uid");
+
   if (!survey_uid) {
     navigate("/surveys");
   }
@@ -47,13 +51,15 @@ function MappingManage() {
     (state: RootState) => state.mapping
   );
 
-  const [formID, setFormID] = useState<null | string>(null);
-  const [isFormIDSelected, setIsFormIDSelected] = useState(false);
-
+  const [formUID, setFormUID] = useState<null | string>(null);
   const [criteria, setCriteria] = useState<string[]>([]);
 
   const handleLoadButton = () => {
-    setIsFormIDSelected(true);
+    if (formUID) {
+      navigate(
+        `/survey-information/mapping/${survey_uid}/${mapping_name}?form_uid=${formUID}`
+      );
+    }
   };
 
   useEffect(() => {
@@ -82,13 +88,18 @@ function MappingManage() {
         <>
           <Container />
           <HeaderContainer>
-            <Title>Mapping</Title>
+            <Title>
+              Mapping -{" "}
+              {mapping_name === "surveyor"
+                ? "Surveyors <> Supervisors"
+                : "Targets <> Supervisors"}
+            </Title>
             {mappingStats !== null ? (
               <MappingStats stats={mappingStats} />
             ) : null}
           </HeaderContainer>
           <BodyContainer>
-            {!isFormIDSelected ? (
+            {!form_uid ? (
               <>
                 <p>
                   Map {properCase(mapping_name || "")}s to Supervisors based on:{" "}
@@ -108,10 +119,10 @@ function MappingManage() {
                     <Select
                       style={{ width: "100%" }}
                       placeholder="Select the SCTO form"
-                      value={formID}
+                      value={formUID}
                       disabled={!canUserWrite}
                       onSelect={(val) => {
-                        setFormID(val as string);
+                        setFormUID(val as string);
                       }}
                     >
                       {surveyCTOForm?.scto_form_id && (
@@ -130,13 +141,13 @@ function MappingManage() {
               </>
             ) : mapping_name === "surveyor" ? (
               <SurveyorMapping
-                formUID={formID ?? ""}
+                formUID={form_uid ?? ""}
                 SurveyUID={survey_uid ?? ""}
                 criteria={criteria}
               />
             ) : mapping_name === "target" ? (
               <TargetMapping
-                formUID={formID ?? ""}
+                formUID={form_uid ?? ""}
                 SurveyUID={survey_uid ?? ""}
                 criteria={criteria}
               />

@@ -12,7 +12,7 @@ import {
 import {
   fetchSurveyorsMappingConfig,
   updateSurveyorsMappingConfig,
-  deleteSurveyorsMappingConfig,
+  resetSurveyorsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
@@ -403,11 +403,16 @@ const SurveyorMapping = ({
   };
 
   const handleConfigSave = () => {
-    for (const record of unmappedPairData) {
-      if (record.supervisorCount === null || record.supervisorCount === 0) {
-        message.error("Some mapping selections contain no supervisor count");
-        return;
-      }
+    const hasValidMapping = unmappedPairData.some(
+      (record: any) =>
+        record.supervisorCount !== null && record.supervisorCount !== 0
+    );
+
+    if (!hasValidMapping) {
+      message.error(
+        "At least one mapping selection must contain a supervisor count"
+      );
+      return;
     }
 
     const mappingConfigPayload: any = [];
@@ -569,7 +574,7 @@ const SurveyorMapping = ({
   const resetMappingConfig = () => {
     // Reset the existing mapping config
     setLoading(true);
-    deleteSurveyorsMappingConfig(formUID).then((res: any) => {
+    resetSurveyorsMappingConfig(formUID).then((res: any) => {
       if (res?.data?.success) {
         message.success("Mapping reset successfully");
         setLoading(true);
@@ -613,7 +618,7 @@ const SurveyorMapping = ({
             filters: [
               ...Array.from(
                 new Set(
-                  mappingData?.map((surveyor: any) => surveyor.location_id[0])
+                  mappingData?.map((surveyor: any) => surveyor.location_id?.[0])
                 )
               ),
             ].map((location) => ({
@@ -632,7 +637,9 @@ const SurveyorMapping = ({
             filters: [
               ...Array.from(
                 new Set(
-                  mappingData?.map((surveyor: any) => surveyor.location_name[0])
+                  mappingData?.map(
+                    (surveyor: any) => surveyor.location_name?.[0]
+                  )
                 )
               ),
             ].map((location) => ({
@@ -1030,6 +1037,7 @@ const SurveyorMapping = ({
       });
 
       if (criteria.includes("Location") || criteria.includes("Manual")) {
+        console.log("fetching user locations");
         fetchUserLocations(SurveyUID).then((res: any) => {
           if (res?.data?.success) {
             const userLocations = res?.data?.data;
@@ -1066,7 +1074,7 @@ const SurveyorMapping = ({
         });
       }
     }
-  }, [formUID, SurveyUID]);
+  }, [formUID, SurveyUID, criteria]);
 
   if (loading) {
     return <FullScreenLoader />;

@@ -12,7 +12,7 @@ import {
 import {
   fetchTargetsMappingConfig,
   updateTargetsMappingConfig,
-  deleteTargetsMappingConfig,
+  resetTargetsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
@@ -401,11 +401,16 @@ const TargetMapping = ({
   };
 
   const handleConfigSave = () => {
-    for (const record of unmappedPairData) {
-      if (record.supervisorCount === null || record.supervisorCount === 0) {
-        message.error("Some mapping selections contain no supervisor count");
-        return;
-      }
+    const hasValidMapping = unmappedPairData.some(
+      (record: any) =>
+        record.supervisorCount !== null && record.supervisorCount !== 0
+    );
+
+    if (!hasValidMapping) {
+      message.error(
+        "At least one mapping selection must contain a supervisor count"
+      );
+      return;
     }
 
     const mappingConfigPayload: any = [];
@@ -567,7 +572,7 @@ const TargetMapping = ({
   const resetMappingConfig = () => {
     // Reset the existing mapping config
     setLoading(true);
-    deleteTargetsMappingConfig(formUID).then((res: any) => {
+    resetTargetsMappingConfig(formUID).then((res: any) => {
       if (res?.data?.success) {
         message.success("Mapping reset successfully");
         setLoading(true);
@@ -1020,7 +1025,7 @@ const TargetMapping = ({
         });
       }
     }
-  }, [formUID, SurveyUID]);
+  }, [formUID, SurveyUID, criteria]);
 
   if (loading) {
     return <FullScreenLoader />;
