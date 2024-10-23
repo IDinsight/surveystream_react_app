@@ -1037,7 +1037,6 @@ const SurveyorMapping = ({
       });
 
       if (criteria.includes("Location") || criteria.includes("Manual")) {
-        console.log("fetching user locations");
         fetchUserLocations(SurveyUID).then((res: any) => {
           if (res?.data?.success) {
             const userLocations = res?.data?.data;
