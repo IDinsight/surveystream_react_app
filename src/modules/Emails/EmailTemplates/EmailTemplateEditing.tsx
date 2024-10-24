@@ -328,6 +328,9 @@ function EmailTemplateEditing({
         <Col span={24}>
           <EmailTableCard
             tableList={tableList}
+            setTableList={(value: any) => {
+              setTableList(value);
+            }}
             handleEditTable={(index: number) => {
               setEditingIndex(index);
               setInsertTableModelOpen(true);
