@@ -107,6 +107,17 @@ const EmailTableCard = ({
                 >
                   Selected columns:
                 </p>
+                <p
+                  style={{
+                    fontSize: 12,
+                    margin: 0,
+                    marginBottom: 16,
+                    color: "grey",
+                  }}
+                >
+                  You can change the order of columns in the table by dragging
+                  them.
+                </p>
                 <DndContext
                   sensors={sensors}
                   onDragEnd={(event) => handleDragEnd(event, index)}

@@ -14,6 +14,7 @@ interface DraggableTagProps {
 const commonStyle: React.CSSProperties = {
   cursor: "move",
   transition: "unset",
+  fontSize: "14px",
 };
 
 const DraggableTag: React.FC<DraggableTagProps> = (props) => {
