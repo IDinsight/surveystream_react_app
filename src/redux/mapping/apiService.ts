@@ -44,11 +44,11 @@ export const updateSurveyorsMappingConfig = async (
   }
 };
 
-export const deleteSurveyorsMappingConfig = async (formUID: string) => {
+export const resetSurveyorsMappingConfig = async (formUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/mapping/surveyors-mapping-config?form_uid=${formUID}`;
+    const url = `${API_BASE_URL}/mapping/surveyors-mapping-config/reset?form_uid=${formUID}`;
 
     const res = await axios.delete(url, {
       headers: {
@@ -104,11 +104,11 @@ export const updateTargetsMappingConfig = async (
   }
 };
 
-export const deleteTargetsMappingConfig = async (formUID: string) => {
+export const resetTargetsMappingConfig = async (formUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/mapping/targets-mapping-config?form_uid=${formUID}`;
+    const url = `${API_BASE_URL}/mapping/targets-mapping-config/reset?form_uid=${formUID}`;
 
     const res = await axios.delete(url, {
       headers: {
@@ -273,7 +273,12 @@ export const fetchUserGenders = async (survey_uid: string) => {
 export const api = {
   fetchSurveyorsMappingConfig,
   updateSurveyorsMappingConfig,
+  resetSurveyorsMappingConfig,
+  fetchTargetsMappingConfig,
+  updateTargetsMappingConfig,
+  resetTargetsMappingConfig,
   fetchSurveyorsMapping,
+  fetchTargetsMapping,
   fetchUserLocations,
   fetchUserLanguages,
   fetchUserGenders,
