@@ -403,6 +403,11 @@ const EmailTemplateForm = ({
                         </Form.Item>
                         <EmailTableCard
                           tableList={formStates[formIndex].tableList}
+                          setTableList={(value: any) => {
+                            const newFormStates = [...formStates];
+                            newFormStates[formIndex].tableList = value;
+                            setFormStates(newFormStates);
+                          }}
                           handleEditTable={(tableIndex: any) => {
                             setEditingIndex(tableIndex);
                             setInsertTableModelOpen(true);
