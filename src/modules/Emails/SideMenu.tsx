@@ -5,14 +5,20 @@ import {
   SendOutlined,
 } from "@ant-design/icons";
 import { Menu, MenuProps, Layout } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const { Sider } = Layout;
 function SideMenu() {
   const location = useLocation();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [collapsed, setCollapsed] = useState(
+    searchParams.get("collapsed") === "true"
+  );
+  useEffect(() => {
+    setSearchParams({ collapsed: collapsed + "" });
+  }, [collapsed]);
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -32,7 +38,7 @@ function SideMenu() {
             isActive(`/module-configuration/emails/${survey_uid}/schedules`) ||
               isActive(`/module-configuration/emails/${survey_uid}`)
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/schedules`}
+          to={`/module-configuration/emails/${survey_uid}/schedules?collapsed=${collapsed}`}
         >
           Email Schedules
         </Link>
@@ -46,7 +52,7 @@ function SideMenu() {
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/manual`
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/manual`}
+          to={`/module-configuration/emails/${survey_uid}/manual?collapsed=${collapsed}`}
         >
           Manual Triggers
         </Link>
@@ -60,7 +66,7 @@ function SideMenu() {
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/templates`
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/templates`}
+          to={`/module-configuration/emails/${survey_uid}/templates?collapsed=${collapsed}`}
         >
           Email Templates
         </Link>
