@@ -67,7 +67,8 @@ export const StyledSlider = styled(Sider)`
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 5px 0 25px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   }
   & .ant-menu-item {
     border-radius: 0;
