@@ -3,10 +3,13 @@ import {
   CalendarOutlined,
   MailOutlined,
   SendOutlined,
+  RightOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
-import { Menu, MenuProps, Layout } from "antd";
+import { Menu, MenuProps, Layout, Button } from "antd";
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { StyledSlider } from "./Emails.styled";
 
 const { Sider } = Layout;
 function SideMenu() {
@@ -94,20 +97,34 @@ function SideMenu() {
     setCurrentKey(key);
   }, []);
 
+  const toggle = () => {
+    setCollapsed(!collapsed);
+  };
+
   return (
-    <Sider
+    <StyledSlider
       collapsible
       collapsed={collapsed}
       onCollapse={(value) => setCollapsed(value)}
       theme="light"
+      trigger={null}
     >
+      <div className="my-sider-button-container">
+        <Button
+          type="text"
+          color="primary"
+          onClick={toggle}
+          shape="circle"
+          icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
+        />
+      </div>
       <Menu
         onClick={onClick}
         selectedKeys={[currentKey]}
         mode="inline"
         items={items}
       />
-    </Sider>
+    </StyledSlider>
   );
 }
 

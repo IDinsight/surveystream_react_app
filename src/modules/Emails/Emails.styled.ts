@@ -1,4 +1,5 @@
-import { Input, Table } from "antd";
+import { Table, Layout } from "antd";
+const { Sider } = Layout;
 import styled, { css } from "styled-components";
 
 export const BodyWrapper = styled.div`
@@ -58,5 +59,25 @@ export const RolesTable = styled(Table)`
   }
   & td {
     font-family: "Lato", sans-serif;
+  }
+`;
+
+export const StyledSlider = styled(Sider)`
+  .my-sider-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px 0 25px 0;
+  }
+  & .ant-menu-item {
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    height: 48px;
+    line-height: 48px;
+  }
+  & .ant-menu-item.ant-menu-item-selected {
+    background-color: rgba(47, 84, 235, 0.1);
+  }
   }
 `;
