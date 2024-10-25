@@ -1,6 +1,6 @@
 import { Table, Layout } from "antd";
-const { Sider } = Layout;
 import styled, { css } from "styled-components";
+const { Sider } = Layout;
 
 export const BodyWrapper = styled.div`
   min-height: calc(100vh - 114px);
