@@ -9,6 +9,9 @@ import {
   getSurveyLocationRequest,
   getSurveyLocationsFailure,
   getSurveyLocationsSuccess,
+  getSurveyLocationsLongRequest,
+  getSurveyLocationsLongSuccess,
+  getSurveyLocationsLongFailure,
   postSurveyLocationGeoLevelsFailure,
   postSurveyLocationGeoLevelsRequest,
   postSurveyLocationGeoLevelsSuccess,
@@ -187,6 +190,42 @@ export const getSurveyLocations = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to get survey locations";
       dispatch(getSurveyLocationsFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getSurveyLocationsLong = createAsyncThunk(
+  "surveyLocations/getSurveyLocationsLong",
+  async (
+    params: {
+      survey_uid: string;
+      geo_level_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(getSurveyLocationsLongRequest());
+      const res: any = await api.getSurveyLocationsLong(
+        params.survey_uid,
+        params.geo_level_uid
+      );
+
+      if (res.status === 200) {
+        dispatch(getSurveyLocationsLongSuccess(res.data.data));
+        return res.data.data;
+      }
+      const error = {
+        ...res.response.data,
+        code: res.response.status,
+        message: "Failed to get survey locations in long format",
+      };
+      dispatch(getSurveyLocationsLongFailure(error));
+      return res.response.data;
+    } catch (error) {
+      const errorMessage =
+        error || "Failed to get survey locations in long format";
+      dispatch(getSurveyLocationsLongFailure(errorMessage as string));
       return rejectWithValue(errorMessage);
     }
   }

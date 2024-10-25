@@ -21,6 +21,7 @@ import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
 import EmailTemplates from "./EmailTemplates/EmailTemplates";
+import { config } from "cypress/types/bluebird";
 
 const { Content } = Layout;
 function Emails() {
@@ -117,6 +118,7 @@ function Emails() {
               (trigger: any, index: number) => {
                 return {
                   key: trigger.manual_email_trigger_uid,
+                  email_config_uid: triggersTable.email_config_uid,
                   config_name: triggersTable.config_name,
                   manual_email_trigger_uid: trigger.manual_email_trigger_uid,
                   date: trigger.date,

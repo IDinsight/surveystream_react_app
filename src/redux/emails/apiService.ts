@@ -585,6 +585,56 @@ export const getEmailGsheetHeaders = async (emailGsheetData: any) => {
   }
 };
 
+export const getEmailDeliveryReportSchedule = async (
+  email_config_uid: string,
+  email_schedule_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/report?email_config_uid=${email_config_uid}&email_schedule_uid=${email_schedule_uid}&slot_type=schedule`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getEmailDeliveryReportTrigger = async (
+  email_config_uid: string,
+  manual_email_trigger_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/report?email_config_uid=${email_config_uid}&manual_email_trigger_uid=${manual_email_trigger_uid}&slot_type=trigger`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   createEmailConfig,
   getEmailConfigs,
@@ -605,4 +655,6 @@ export const api = {
   createEmailTemplate,
   getEmailTemplates,
   getEmailGsheetHeaders,
+  getEmailDeliveryReportSchedule,
+  getEmailDeliveryReportTrigger,
 };

@@ -94,6 +94,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Enumerators: "enumerators",
     Targets: "targets",
     "Target status mapping": "survey/status-mapping",
+    Mapping: "mapping",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
@@ -239,6 +240,9 @@ const SurveyConfiguration: React.FC = () => {
         break;
       case "Targets":
         permission_name = "READ Targets";
+        break;
+      case "Mapping":
+        permission_name = "READ Mapping";
         break;
       case "Target status mapping":
         permission_name = "READ Target Status Mapping";

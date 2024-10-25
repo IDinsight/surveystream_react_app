@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GeoLevel } from "./types";
+import { GeoLevel, SurveyLocationLong } from "./types";
 
 interface SurveyLocationsState {
   loading: boolean;
   error: any;
   surveyLocationGeoLevels: GeoLevel[];
   surveyLocations: any;
+  surveyLocationsLong: SurveyLocationLong[];
 }
 
 const initialState: SurveyLocationsState = {
@@ -13,6 +14,7 @@ const initialState: SurveyLocationsState = {
   error: null,
   surveyLocationGeoLevels: [],
   surveyLocations: [],
+  surveyLocationsLong: [],
 };
 
 const surveyLocationsSlice = createSlice({
@@ -93,6 +95,23 @@ const surveyLocationsSlice = createSlice({
       state.surveyLocations = [];
     },
 
+    getSurveyLocationsLongRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getSurveyLocationsLongSuccess: (state, action: PayloadAction<any>) => {
+      if (action.payload.length !== 0) {
+        state.surveyLocationsLong = action.payload;
+      }
+      state.loading = false;
+      state.error = null;
+    },
+    getSurveyLocationsLongFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.surveyLocationsLong = [];
+    },
+
     postSurveyLocationsRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -118,6 +137,9 @@ export const {
   getSurveyLocationRequest,
   getSurveyLocationsFailure,
   getSurveyLocationsSuccess,
+  getSurveyLocationsLongRequest,
+  getSurveyLocationsLongSuccess,
+  getSurveyLocationsLongFailure,
   postSurveyLocationGeoLevelsFailure,
   postSurveyLocationGeoLevelsRequest,
   postSurveyLocationGeoLevelsSuccess,

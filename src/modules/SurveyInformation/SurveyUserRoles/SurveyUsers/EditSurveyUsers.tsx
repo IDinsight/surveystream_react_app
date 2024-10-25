@@ -2,17 +2,19 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   DescriptionText,
   DescriptionTitle,
 } from "../../SurveyInformation.styled";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
-
+import { BodyWrapper, StyledTooltip } from "../SurveyUserRoles.styled";
+import Header from "../../../../components/Header";
 import {
   BackArrow,
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
@@ -24,6 +26,12 @@ import {
   deleteUserHierarchy,
 } from "../../../../redux/userRoles/userRolesActions";
 import { putUpdateUser } from "../../../../redux/userManagement/userManagementActions";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import {
+  getSurveyLocationGeoLevels,
+  getSurveyLocationsLong,
+} from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
@@ -43,6 +51,23 @@ function EditSurveyUsers() {
   const [isNewUserHierarchy, setNewUserHierarchy] = useState<boolean>(true);
   const [existingUserHierarchy, setExistingUserHierarchy] = useState<any>();
   const [isRoleRequired, setIsRoleRequired] = useState(true);
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
+  const [mappingCriteriaFields, setMappingCriteriaFields] = useState<any>([]);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [lowestRole, setLowestRole] = useState<string>("");
+  const [isLowestRole, setisLowestRole] = useState<boolean>(false);
+
+  const [isUserHierarchyLoading, setisUserHierarchyLoading] =
+    useState<boolean>(false);
+  const [isBasicInformationLoading, setisBasicInformationLoading] =
+    useState<boolean>(false);
+  const [isSupervisorRolesLoading, setisSupervisorRolesLoading] =
+    useState<boolean>(false);
+  const [isLocationDetailsLoading, setisLocationDetailsLoading] =
+    useState<boolean>(false);
+  const [isModuleQuestionnaireLoading, setisModuleQuestionnaireLoading] =
+    useState<boolean>(false);
 
   const [hasReportingRole, setHasReportingRole] = useState<boolean>(false);
 
@@ -50,7 +75,7 @@ function EditSurveyUsers() {
     (state: RootState) => state.surveys.activeSurvey
   );
 
-  const isLoading = useAppSelector(
+  const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
 
@@ -68,6 +93,8 @@ function EditSurveyUsers() {
 
   const [userDetails, setUserDetails] = useState<any>({
     ...editUser,
+    is_survey_admin:
+      editUser?.user_admin_survey_names?.length > 0 ? true : false,
   });
 
   const [filteredUserList, setFilteredUserList] = useState<any>([...userList]);
@@ -84,7 +111,6 @@ function EditSurveyUsers() {
       role_uid: roleUid,
       parent_user_uid: parentUid,
     };
-
     if (!hasReportingRole) {
       const deleteHierarchyRes = await dispatch(
         deleteUserHierarchy({ survey_uid: surveyUid, user_uid: userUid })
@@ -105,12 +131,35 @@ function EditSurveyUsers() {
     );
 
     if (
+      initialUserData?.user_admin_survey_names.length > 0 &&
+      !userDetails.is_survey_admin
+    ) {
+      // Check if the survey has other survey admins
+      const otherAdmins = userList.filter(
+        (user: any) =>
+          user.user_uid !== initialUserData.user_uid &&
+          user.user_admin_survey_names.length > 0
+      );
+      if (otherAdmins.length === 0) {
+        message.error(
+          "There should be at least one survey admin in the survey. Kindly assign another user as survey admin before removing this user's survey admin role."
+        );
+        setLoading(false);
+        return;
+      }
+    }
+
+    // For non survey admins, if there were survey roles before and
+    // now there are less roles, it means no new role was added
+    if (
       initialUserData?.roles &&
-      initialUserData.roles.length >= userDetails.roles.length
+      initialUserData.roles.length >= userDetails.roles.length &&
+      !userDetails.is_survey_admin
     ) {
       setNewRole(initialUserData?.roles[0]);
       userDetails.roles = initialUserData?.roles;
     } else {
+      // Remove the old survey roles from the user details if new roles are added
       if (commonRoles.length > 0) {
         userDetails.roles = userDetails.roles.filter(
           (role: any) => !commonRoles.map((r: any) => r.role_uid).includes(role)
@@ -155,6 +204,7 @@ function EditSurveyUsers() {
   };
 
   const fetchSupervisorRoles = async () => {
+    setisSupervisorRolesLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
@@ -169,6 +219,15 @@ function EditSurveyUsers() {
 
       setRolesTableData(transformedData);
 
+      // lowest role is the role which is not a reporting role for any other role
+      const _lowestRole = transformedData.find(
+        (role) =>
+          !transformedData.some(
+            (r) => r.reporting_role_uid === role.role_uid
+          ) && role.role !== "Super Admin"
+      );
+      setLowestRole(_lowestRole?.role_uid);
+
       const role = transformedData?.find((r: any) =>
         editUser?.roles?.includes(r.role_uid)
       );
@@ -176,13 +235,28 @@ function EditSurveyUsers() {
 
       if (role?.has_reporting_role) {
         setHasReportingRole(true);
+
+        let _filteredUserList = userList.filter(
+          (user: any) => user.user_uid !== editUser?.user_uid
+        );
+        _filteredUserList = _filteredUserList.filter((user: any) =>
+          user?.roles?.includes(role?.reporting_role_uid)
+        );
+        setFilteredUserList(_filteredUserList);
       } else {
         setHasReportingRole(false);
       }
+      if (role?.role_uid === _lowestRole?.role_uid) {
+        setisLowestRole(true);
+      } else {
+        setisLowestRole(false);
+      }
     }
+    setisSupervisorRolesLoading(false);
   };
 
   const fetchUserHierarchy = async () => {
+    setisUserHierarchyLoading(true);
     //find the user hierarchy here
     const userHierarchyRes = await dispatch(
       getUserHierarchy({
@@ -200,31 +274,143 @@ function EditSurveyUsers() {
       setNewUserHierarchy(false);
       setExistingUserHierarchy(userHierarchyRes?.payload?.data);
     }
+    setisUserHierarchyLoading(false);
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!editUser) {
-        message.error("Kindly select a user to edit");
-        navigate(`/survey-information/survey-users/users/${survey_uid}`);
-        return;
-      } else {
-        // Remove the editUser from the userList
-        const _filteredUserList = userList.filter(
-          (user: any) => user.user_uid !== editUser?.user_uid
+
+  const fetchSurveyBasicInformation = async () => {
+    setisBasicInformationLoading(true);
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
         );
-
-        // Fetch user hierarchy and supervisor roles
-        await fetchUserHierarchy();
-        await fetchSupervisorRoles();
-
-        // Update state with filtered user list and editUser details
-        setFilteredUserList(_filteredUserList);
-        setUserDetails({ ...editUser });
       }
-    };
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+    setisBasicInformationLoading(false);
+  };
 
-    fetchData();
-  }, []);
+  const fetchSurveyModuleQuestionnaire = async () => {
+    setisModuleQuestionnaireLoading(true);
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      let mapping_criteria_fields: any[] = [];
+      if (moduleQQuestionnaireRes?.payload) {
+        if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.target_mapping_criteria || []),
+          ];
+        }
+        if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...mapping_criteria_fields,
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.surveyor_mapping_criteria || []),
+          ];
+        }
+        // remove duplicates and "Manual" from the list
+        mapping_criteria_fields = mapping_criteria_fields.filter(
+          (value, index, array) =>
+            array.indexOf(value) === index && array[index] !== "Manual"
+        );
+        setMappingCriteriaFields(mapping_criteria_fields);
+      }
+    }
+    setisModuleQuestionnaireLoading(false);
+  };
+
+  const findPrimeGeoLevel = (locationData: any) => {
+    let primeGeoLevel = null;
+    for (const item of locationData) {
+      if (item.geo_level_uid === surveyPrimeGeoLocation) {
+        primeGeoLevel = item;
+      }
+    }
+
+    return primeGeoLevel;
+  };
+
+  const fetchLocationDetails = async () => {
+    setisLocationDetailsLoading(true);
+    if (survey_uid) {
+      // Get location levels
+      const locationlevelsRes = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+
+      if (locationlevelsRes?.payload) {
+        const primeGeoLevel = findPrimeGeoLevel(locationlevelsRes?.payload);
+        if (primeGeoLevel) {
+          const locationRes = await dispatch(
+            getSurveyLocationsLong({
+              survey_uid: survey_uid,
+              geo_level_uid: primeGeoLevel?.geo_level_uid,
+            })
+          );
+          if (locationRes?.payload.length > 0) {
+            // filter out the prime geo level locations columns
+            const primeGeoLevelLocations: any[] = locationRes?.payload.map(
+              (location: any) => ({
+                location_uid: location.location_uid,
+                location_id: location.location_id,
+                location_name: location.location_name,
+              })
+            );
+            setLocationDetailsField([
+              {
+                title: `${primeGeoLevel.geo_level_name}`,
+                key: `location_id_column`,
+                values: primeGeoLevelLocations,
+              },
+            ]);
+          }
+        }
+      }
+    }
+    setisLocationDetailsLoading(false);
+  };
+
+  useEffect(() => {
+    if (!editUser) {
+      message.error("Kindly select a user to edit");
+      navigate(`/survey-information/survey-users/users/${survey_uid}`);
+      return;
+    }
+    // Fetch user hierarchy and supervisor roles
+    fetchUserHierarchy();
+    fetchSupervisorRoles();
+
+    fetchSurveyBasicInformation();
+    fetchSurveyModuleQuestionnaire();
+
+    // Update state with filtered user list and editUser details
+    setUserDetails({ ...editUser });
+  }, [survey_uid, editUser]);
+
+  useEffect(() => {
+    if (
+      mappingCriteriaFields.includes("Location") &&
+      surveyPrimeGeoLocation !== "no_location"
+    ) {
+      fetchLocationDetails();
+    }
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
+
+  const isLoading =
+    isSupervisorRolesLoading ||
+    isLocationDetailsLoading ||
+    isModuleQuestionnaireLoading ||
+    isBasicInformationLoading ||
+    isUserHierarchyLoading;
 
   return (
     <>
@@ -244,16 +430,18 @@ function EditSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
-      {isLoading || rolesLoading ? (
+      <HeaderContainer>
+        <Title>Survey Users - Edit user</Title>
+      </HeaderContainer>
+      {isLoading || isuserManagementLoading || rolesLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Users</DescriptionTitle>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Edit user role
+              <DescriptionText>
+                Edit existing user in the survey.
               </DescriptionText>
               <div>
                 <Form
@@ -315,6 +503,7 @@ function EditSurveyUsers() {
                       required
                     />
                   </Form.Item>
+
                   <Form.Item
                     name="roles"
                     label="Role"
@@ -323,10 +512,10 @@ function EditSurveyUsers() {
                       rolesTableData.some((r: any) =>
                         userDetails?.roles?.includes(r.role_uid)
                       )
-                        ? rolesTableData.filter((role: any) =>
-                            userDetails.roles.includes(role.role_uid)
-                          )[0]?.role
-                        : userDetails.user_admin_surveys.includes(survey_uid)
+                        ? rolesTableData.find((r: any) =>
+                            userDetails?.roles?.includes(r.role_uid)
+                          ).role_uid
+                        : userDetails?.is_survey_admin
                         ? "Survey Admin"
                         : undefined
                     }
@@ -349,9 +538,16 @@ function EditSurveyUsers() {
 
                         if (value == null && role?.role === "Survey Admin") {
                           setIsRoleRequired(false);
+                          setHasReportingRole(false);
+                          setisLowestRole(false);
+
                           return setUserDetails((prev: any) => ({
                             ...prev,
                             is_survey_admin: true,
+                            location_uids: [],
+                            location_ids: [],
+                            location_names: [],
+                            languages: [],
                           }));
                         } else {
                           //this will run incase user does not select survey Admin
@@ -378,6 +574,21 @@ function EditSurveyUsers() {
                             setFilteredUserList(_filteredUserList);
                           } else {
                             setHasReportingRole(false);
+                          }
+
+                          if (role?.role_uid === lowestRole) {
+                            setisLowestRole(true);
+                          } else {
+                            setisLowestRole(false);
+
+                            // also remove location details
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              location_uids: [],
+                              location_ids: [],
+                              location_names: [],
+                              languages: [],
+                            }));
                           }
 
                           setUserDetails((prev: any) => {
@@ -420,6 +631,12 @@ function EditSurveyUsers() {
                       <Select
                         showSearch={true}
                         allowClear={true}
+                        onChange={(value) => {
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            supervisor: value,
+                          }));
+                        }}
                         placeholder="Select supervisor"
                       >
                         {filteredUserList?.map((user: any, i: any) => (
@@ -430,6 +647,130 @@ function EditSurveyUsers() {
                       </Select>
                     </Form.Item>
                   )}
+
+                  {isLowestRole && mappingCriteriaFields.length > 0 && (
+                    <DescriptionText>
+                      The user is assigned the smallest field supervisor role.
+                      The following fields will be used for mapping supervisors
+                      to surveyors or targets as per the mapping criteria
+                      selected under module questionnaire.
+                    </DescriptionText>
+                  )}
+
+                  {mappingCriteriaFields.includes("Gender") && isLowestRole && (
+                    <Form.Item
+                      name="gender"
+                      label={
+                        <span>
+                          Gender&nbsp;
+                          <StyledTooltip title="Gender can't be updated at a survey level. Kindly contact SurveyStream team if gender needs to be updated.">
+                            <QuestionCircleOutlined />
+                          </StyledTooltip>
+                        </span>
+                      }
+                      initialValue={userDetails?.gender}
+                      hasFeedback
+                    >
+                      <Select
+                        style={{ width: "100%" }}
+                        allowClear={true}
+                        disabled={true}
+                        value={userDetails?.gender}
+                        onSelect={(val: any) => {
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            gender: val,
+                          }));
+                        }}
+                      >
+                        <Select.Option value="Male">Male</Select.Option>
+                        <Select.Option value="Female">Female</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  )}
+                  {mappingCriteriaFields.includes("Location") &&
+                    isLowestRole &&
+                    locationDetailsField.length > 0 && (
+                      <Form.Item
+                        name="location_id"
+                        label={
+                          <span>
+                            {locationDetailsField[0].title}&nbsp;
+                            <StyledTooltip title="Prime geo locations associated with the given user. Dropdown values are in the format: 'Location ID - Name'.">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        initialValue={userDetails?.location_uids}
+                        rules={[
+                          {
+                            required: true,
+                            message: `Please enter the ${locationDetailsField[0].title}`,
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Select
+                          showSearch={true}
+                          optionFilterProp="children"
+                          allowClear={true}
+                          placeholder="Select locations (format: id - name)"
+                          mode="multiple"
+                          onChange={(value) => {
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              location_uids: value,
+                            }));
+                          }}
+                        >
+                          {locationDetailsField[0].values?.map(
+                            (location: any, i: any) => (
+                              <Select.Option
+                                key={i}
+                                value={location?.location_uid}
+                              >
+                                {location?.location_id} -{" "}
+                                {location?.location_name}
+                              </Select.Option>
+                            )
+                          )}
+                        </Select>
+                      </Form.Item>
+                    )}
+                  {mappingCriteriaFields.includes("Language") &&
+                    isLowestRole && (
+                      <Form.Item
+                        name="language"
+                        label={
+                          <span>
+                            Languages&nbsp;
+                            <StyledTooltip title="Languages associated with the given user. Kindly enter the values in a comma separated format like Hindi, Swahili, Odia">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        initialValue={userDetails?.languages}
+                        rules={[
+                          {
+                            required: true,
+                            message: `Please enter the languages`,
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input
+                          onChange={(e) =>
+                            setUserDetails((prev: any) => ({
+                              ...prev,
+                              languages: e.target.value
+                                .split(",")
+                                .map((l) => l.trim()),
+                            }))
+                          }
+                          placeholder="Example: Hindi, Swahili, Odia"
+                        />
+                      </Form.Item>
+                    )}
                   <Form.Item style={{ marginTop: 20 }}>
                     <Button
                       loading={loading}
