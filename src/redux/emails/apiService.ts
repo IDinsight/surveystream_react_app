@@ -134,18 +134,24 @@ export const getAllEmailDetails = async (form_uid: string) => {
 
 // Email Schedule Endpoints
 
-export const getEmailSchedule = async (id: string) => {
+export const getEmailSchedule = async (
+  id: string,
+  email_config_uid: string
+) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const response = await axios.get(`${API_BASE_URL}/emails/schedule/${id}`, {
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/schedule/${id}?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
 
     return response;
   } catch (error) {
@@ -233,7 +239,7 @@ export const getEmailSchedules = async (email_config_uid: string) => {
     const csrfToken = await getCookie("CSRF-TOKEN");
 
     const response = await axios.get(
-      `${API_BASE_URL}/emails/schedules?email_config_uid=${email_config_uid}`,
+      `${API_BASE_URL}/emails/schedule?email_config_uid=${email_config_uid}`,
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -369,7 +375,6 @@ export const getManualEmailTriggers = async (email_config_uid: string) => {
 };
 
 // Email Template Endpoints
-
 export const createEmailTemplate = async (emailTemplateData: any) => {
   try {
     await getCSRFToken();
@@ -377,6 +382,30 @@ export const createEmailTemplate = async (emailTemplateData: any) => {
 
     const response = await axios.post(
       `${API_BASE_URL}/emails/template`,
+      emailTemplateData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+// Email Template Endpoints
+export const createEmailTemplates = async (emailTemplateData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/templates`,
       emailTemplateData,
       {
         headers: {
@@ -415,6 +444,197 @@ export const getEmailTemplates = async (email_config_uid: any) => {
   }
 };
 
+export const getEmailTemplate = async (email_template_uid: number) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/template/${email_template_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateEmailTemplate = async (
+  email_template_uid: string,
+  emailTemplatePayload: any
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/emails/template/${email_template_uid}`,
+      { ...emailTemplatePayload },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deleteEmailTemplate = async (
+  email_template_uid: string,
+  email_config_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.delete(
+      `${API_BASE_URL}/emails/template/${email_template_uid}?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getTableCatalog = async (email_config_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/tablecatalog?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getTableCatalogSchedule = async (email_config_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/tablecatalog/schedules?email_config_uid=${email_config_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+// Get Google sheet headers
+export const getEmailGsheetHeaders = async (emailGsheetData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.post(
+      `${API_BASE_URL}/emails/gsheet`,
+      emailGsheetData,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getEmailDeliveryReportSchedule = async (
+  email_config_uid: string,
+  email_schedule_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/report?email_config_uid=${email_config_uid}&email_schedule_uid=${email_schedule_uid}&slot_type=schedule`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getEmailDeliveryReportTrigger = async (
+  email_config_uid: string,
+  manual_email_trigger_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/report?email_config_uid=${email_config_uid}&manual_email_trigger_uid=${manual_email_trigger_uid}&slot_type=trigger`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   createEmailConfig,
   getEmailConfigs,
@@ -434,4 +654,7 @@ export const api = {
   deleteManualEmailTrigger,
   createEmailTemplate,
   getEmailTemplates,
+  getEmailGsheetHeaders,
+  getEmailDeliveryReportSchedule,
+  getEmailDeliveryReportTrigger,
 };

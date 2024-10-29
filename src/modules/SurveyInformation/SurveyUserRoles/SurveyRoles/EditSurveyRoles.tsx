@@ -1,5 +1,6 @@
-import { Col, Form, Input, Radio, Row, Select, message } from "antd";
+import { Button, Col, Form, Input, Radio, Row, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   DescriptionText,
   DescriptionTitle,
@@ -14,23 +15,22 @@ import {
 } from "../../../../redux/userRoles/userRolesActions";
 import { Key, useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
+  BodyWrapper,
+  CustomBtn,
+  StyledTooltip,
+} from "../SurveyUserRoles.styled";
+import {
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
-import Header from "../../../../components/Header";
+
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -76,8 +76,9 @@ function EditSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
+
   const fetchAllPermissions = async () => {
-    const res = await dispatch(getAllPermissions());
+    const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
   };
 
@@ -119,6 +120,15 @@ function EditSurveyRoles() {
       }
 
       setRolesEditData(filteredRole);
+
+      dispatch(
+        setRolePermissions({
+          survey_uid: survey_uid ?? null,
+          permissions: filteredRole?.permissions,
+          role_uid: filteredRole?.role_uid ?? null,
+          duplicate: false,
+        })
+      );
     } else {
       message.error("Could not fetch roles, kindly reload to try again");
     }
@@ -169,6 +179,7 @@ function EditSurveyRoles() {
           const rolesRes = await dispatch(
             postSupervisorRoles({
               supervisorRolesData: otherRoles, // Pass validated form values
+              validate_hierarchy: false,
               surveyUid: survey_uid,
             })
           );
@@ -204,14 +215,14 @@ function EditSurveyRoles() {
       navigate(`/survey-information/survey-roles/roles/${survey_uid}`);
       return;
     }
-    fetchSupervisorRoles();
     fetchAllPermissions();
+    fetchSupervisorRoles();
   }, [dispatch]);
 
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 
@@ -226,6 +237,9 @@ function EditSurveyRoles() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Roles</Title>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -233,9 +247,8 @@ function EditSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText>
-                <>Edit Role</>
+                <>Edit selected role</>
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
@@ -260,23 +273,24 @@ function EditSurveyRoles() {
                     </StyledFormItem>
 
                     <StyledFormItem
-                      label="Does this role report to someone?"
+                      label={
+                        <span>
+                          Does this role report to someone?&nbsp;
+                          <StyledTooltip title="As saved under role hierachy. Use the 'Edit role hierarchy' button on the previous screen to edit this.">
+                            <QuestionCircleOutlined />
+                          </StyledTooltip>
+                        </span>
+                      }
                       labelAlign="right"
                       labelCol={{ span: 24 }}
                       style={{ display: "block" }}
-                      rules={[
-                        {
-                          required: false,
-                          message:
-                            "Please select if the role has a reporting role",
-                        },
-                      ]}
                       hasFeedback
                       name="has_reporting_role"
                     >
                       <Radio.Group
                         style={{ display: "flex", width: "100px" }}
                         onChange={(e) => handleRadioChange(e.target.value)}
+                        disabled={true}
                         defaultValue={false}
                       >
                         <Radio.Button value={true}>Yes</Radio.Button>
@@ -286,20 +300,22 @@ function EditSurveyRoles() {
 
                     {hasReportingRole && (
                       <StyledFormItem
-                        label="Reporting role"
+                        label={
+                          <span>
+                            Reporting role?&nbsp;
+                            <StyledTooltip title="As saved under role hierachy. Use the 'Edit role hierarchy' button on the previous screen to edit this.">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
                         labelAlign="right"
                         name="reporting_role_uid"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select the reporting role",
-                          },
-                        ]}
                         hasFeedback
                       >
                         <Select
                           showSearch={true}
                           allowClear={true}
+                          disabled={true}
                           placeholder="Select reporting role"
                           style={{ width: "100%" }}
                         >
@@ -334,15 +350,23 @@ function EditSurveyRoles() {
                   onPermissionsChange={handlePermissionsChange}
                 />
               </Form>
+              <div>
+                <Button
+                  style={{ marginTop: 0, marginRight: 24 }}
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/survey-roles/roles/${survey_uid}`
+                    )
+                  }
+                >
+                  Cancel
+                </Button>
+                <CustomBtn style={{ marginTop: 0 }} onClick={handleEditRole}>
+                  Save
+                </CustomBtn>
+              </div>
             </BodyWrapper>
           </div>
-
-          <FooterWrapper>
-            <SaveButton disabled>Save</SaveButton>
-            <ContinueButton loading={loading} onClick={handleEditRole}>
-              Finalize roles
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>

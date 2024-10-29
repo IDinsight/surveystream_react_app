@@ -1,6 +1,5 @@
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import Header from "../../../../components/Header";
-import NavItems from "../../../../components/NavItems";
+
 import { PushpinOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -19,7 +18,7 @@ import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { buildColumnDefinition } from "../../utils";
 import {
-  getAssignableEnumerators,
+  getAssignmentEnumerators,
   getTableConfig,
   updateAssignments,
   postAssignmentEmail,
@@ -63,7 +62,7 @@ function CreateAssignments() {
 
   // Fetch the data from the store
   const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
-    (state) => state.assignments.assignableEnumerators
+    (state) => state.assignments.assignmentEnumerators
   );
 
   const { loading: tableConfigLoading, data: tableConfig } = useAppSelector(
@@ -77,6 +76,9 @@ function CreateAssignments() {
   const [manualTriggerForm] = useForm();
   const [emailMode, setEmailMode] = useState<string | null>(null);
   const [stepLoading, setStepLoading] = useState<boolean>(false);
+  const [assignableSurveyors, setAssignableSurveyors] = useState<any[]>([]);
+  const [assignableSurveyorsLoading, setAssignableSurveyorsLoading] =
+    useState<boolean>(false);
 
   // Surveyors (step 0) table
   const surveyorsTableSpecialAttrs: any = {
@@ -99,7 +101,7 @@ function CreateAssignments() {
           children: configItem.columns.map((groupItem: any, i: any) => {
             return buildColumnDefinition(
               groupItem,
-              surveyorsData,
+              assignableSurveyors,
               surveyorsFilter,
               surveyorsTableSpecialAttrs
             );
@@ -108,7 +110,7 @@ function CreateAssignments() {
       } else {
         return buildColumnDefinition(
           configItem.columns[0],
-          surveyorsData,
+          assignableSurveyors,
           surveyorsFilter,
           surveyorsTableSpecialAttrs
         );
@@ -117,7 +119,7 @@ function CreateAssignments() {
   );
 
   // Surveyors data source
-  const surveyorsDataSource: any = [...surveyorsData];
+  const surveyorsDataSource: any = [...assignableSurveyors];
 
   // Row selection state and handler
   const onSelectOne = (record: any, selected: boolean, selectedRows: any) => {
@@ -375,22 +377,37 @@ function CreateAssignments() {
 
   useEffect(() => {
     if (Object.keys(tableConfig).length === 0) {
-      dispatch(getTableConfig({ formUID: formID }));
+      dispatch(getTableConfig({ formUID: formID, filter_supervisors: true }));
     }
 
     if (surveyorsData.length === 0) {
-      dispatch(getAssignableEnumerators({ formUID: formID }));
+      dispatch(getAssignmentEnumerators({ formUID: formID }));
     }
   }, []);
 
-  if (surveyorsLoading || tableConfigLoading) {
+  useEffect(() => {
+    setAssignableSurveyorsLoading(true);
+    if (surveyorsData.length > 0) {
+      const surveyors = surveyorsData.filter((surveyor: any) => {
+        // Filter out surveyors with status in ["Active", "Temp. Inactive"]
+        return (
+          surveyor.surveyor_status == "Active" ||
+          surveyor.surveyor_status == "Temp. Inactive"
+        );
+      });
+      setAssignableSurveyors(surveyors);
+    }
+    setAssignableSurveyorsLoading(false);
+  }, [surveyorsData]);
+
+  if (surveyorsLoading || tableConfigLoading || assignableSurveyorsLoading) {
     return <FullScreenLoader />;
   }
 
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <div>
         <div
           style={{
@@ -467,7 +484,7 @@ function CreateAssignments() {
                 Select surveyors to assign/re-assign the targets
               </p>
               <Table
-                rowKey={(record) => record.email}
+                rowKey={(record: any) => record.email}
                 rowSelection={rowSelection}
                 columns={surveyorsTableColumns}
                 dataSource={surveyorsDataSource}
@@ -509,7 +526,7 @@ function CreateAssignments() {
                 surveyors.
               </p>
               <Table
-                rowKey={(record) => record.target_uid}
+                rowKey={(record: any) => record.target_uid}
                 columns={reviewAssignmentTableColumn}
                 dataSource={targetAssignments}
                 pagination={false}

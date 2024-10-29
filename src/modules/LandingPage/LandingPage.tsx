@@ -8,7 +8,6 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 
-import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 import CreditImg from "./../../assets/credit.svg";
@@ -53,7 +52,7 @@ const NavItems = () => {
           <a
             target="_blank"
             rel="noreferrer"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSdLWVwrpStPL22WCtcY0ANntjc56GlLHYXZWcjrsQfVM0Syqg/viewform"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform"
           >
             Contact Us
           </a>
@@ -81,7 +80,7 @@ function LandingPage() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <LandingPageContainer>
         <TextContainer>
           <p style={{ fontSize: "56px", lineHeight: "64px", color: "#4B5563" }}>

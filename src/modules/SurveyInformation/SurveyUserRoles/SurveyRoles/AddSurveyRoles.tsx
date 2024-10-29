@@ -1,4 +1,4 @@
-import { Col, Form, Input, Radio, Row, Select, message } from "antd";
+import { Button, Col, Form, Input, Row, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionText,
@@ -12,22 +12,16 @@ import {
   getSupervisorRoles,
   postSupervisorRoles,
 } from "../../../../redux/userRoles/userRolesActions";
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { BodyWrapper } from "../SurveyUserRoles.styled";
+import { BodyWrapper, CustomBtn } from "../SurveyUserRoles.styled";
 import {
-  BackArrow,
-  BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
-import Header from "../../../../components/Header";
+
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
@@ -52,19 +46,11 @@ function AddSurveyRoles() {
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
   );
-  const isLoading = useAppSelector(
+  const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
 
-  const rolePermissions = useAppSelector(
-    (state: RootState) => state.userRoles.rolePermissions
-  );
-
   const [loading, setLoading] = useState(false);
-
-  const [rolesTableData, setRolesTableData] = useState<any>([]);
-
-  const [hasReportingRole, setHasReportingRole] = useState(false);
 
   const [allPermissions, setAllPermissions] = useState<any>([]);
 
@@ -77,13 +63,10 @@ function AddSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-  const handleRadioChange = (value: boolean) => {
-    setHasReportingRole(value);
-  };
 
   const fetchSupervisorRoles = async () => {
+    setLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
-
     if (res.payload.length > 0) {
       const originalRolesData: OriginalRolesData = res.payload;
 
@@ -103,15 +86,12 @@ function AddSurveyRoles() {
           role_uid: role.role_uid,
         });
       });
-
-      setRolesTableData(transformedData);
-    } else {
-      setRolesTableData([]);
     }
+    setLoading(false);
   };
 
   const fetchAllPermissions = async () => {
-    const res = await dispatch(getAllPermissions());
+    const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
   };
 
@@ -155,12 +135,19 @@ function AddSurveyRoles() {
             );
             return;
           }
+          if (formValues.role_name === "Survey Admin") {
+            message.error(
+              "Role name cannot be Survey Admin, kindly change the name to create a new role!"
+            );
+            return;
+          }
 
           otherRoles.push(formValues);
 
           const rolesRes = await dispatch(
             postSupervisorRoles({
               supervisorRolesData: otherRoles,
+              validate_hierarchy: false,
               surveyUid: survey_uid,
             })
           );
@@ -169,7 +156,9 @@ function AddSurveyRoles() {
             message.error(rolesRes.payload.message);
             return;
           } else {
-            navigate(`/survey-information/survey-roles/roles/${survey_uid}`);
+            navigate(
+              `/survey-information/survey-roles/hierarchy/${survey_uid}`
+            );
             message.success("Roles updated successfully");
           }
         })
@@ -190,10 +179,12 @@ function AddSurveyRoles() {
     fetchAllPermissions();
   }, [dispatch]);
 
+  const isLoading = isuserManagementLoading || loading;
+
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 
@@ -208,6 +199,9 @@ function AddSurveyRoles() {
           })()}
         </Title>
       </NavWrapper>
+      <HeaderContainer>
+        <Title>Survey Roles</Title>
+      </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
@@ -215,9 +209,8 @@ function AddSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
-                Create new role
+                Create a new role
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
@@ -240,64 +233,6 @@ function AddSurveyRoles() {
                     >
                       <Input style={{ width: "100%" }} />
                     </StyledFormItem>
-
-                    <StyledFormItem
-                      label="Does this role report to someone?"
-                      labelAlign="right"
-                      labelCol={{ span: 24 }}
-                      style={{ display: "block" }}
-                      rules={[
-                        {
-                          required: false,
-                          message:
-                            "Please select if the role has a reporting role",
-                        },
-                      ]}
-                      hasFeedback
-                      name="has_reporting_role"
-                    >
-                      <Radio.Group
-                        style={{ display: "flex", width: "100px" }}
-                        onChange={(e) => handleRadioChange(e.target.value)}
-                        defaultValue={hasReportingRole}
-                      >
-                        <Radio.Button value={true}>Yes</Radio.Button>
-                        <Radio.Button value={false}>No</Radio.Button>
-                      </Radio.Group>
-                    </StyledFormItem>
-
-                    {hasReportingRole && (
-                      <StyledFormItem
-                        label="Reporting role"
-                        labelAlign="right"
-                        name="reporting_role_uid"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select the reporting role",
-                          },
-                        ]}
-                        hasFeedback
-                      >
-                        <Select
-                          showSearch={true}
-                          allowClear={true}
-                          placeholder="Select reporting role"
-                          style={{ width: "100%" }}
-                        >
-                          {rolesTableData.map(
-                            (
-                              r: { role_uid: any; role: any },
-                              i: Key | null | undefined
-                            ) => (
-                              <Select.Option key={i} value={r.role_uid}>
-                                {r.role}
-                              </Select.Option>
-                            )
-                          )}
-                        </Select>
-                      </StyledFormItem>
-                    )}
                   </Col>
                 </Row>
 
@@ -312,15 +247,23 @@ function AddSurveyRoles() {
                   onPermissionsChange={handlePermissionsChange}
                 />
               </Form>
+              <div>
+                <Button
+                  style={{ marginTop: 0, marginRight: 24 }}
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/survey-roles/roles/${survey_uid}`
+                    )
+                  }
+                >
+                  Cancel
+                </Button>
+                <CustomBtn style={{ marginTop: 0 }} onClick={handleAddRole}>
+                  Save
+                </CustomBtn>
+              </div>
             </BodyWrapper>
           </div>
-
-          <FooterWrapper>
-            <SaveButton disabled>Save</SaveButton>
-            <ContinueButton loading={loading} onClick={handleAddRole}>
-              Finalize roles
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>

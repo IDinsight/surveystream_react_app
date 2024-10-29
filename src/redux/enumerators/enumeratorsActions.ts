@@ -103,6 +103,30 @@ export const getEnumerators = createAsyncThunk(
   }
 );
 
+export const getEnumeratorLanguages = createAsyncThunk(
+  "enumerators/getEnumeratorLanguages",
+  async ({ formUID }: { formUID: string }, { dispatch, rejectWithValue }) => {
+    try {
+      const response: any = await api.fetchEnumeratorLanguages(formUID);
+      if (response.status == 200) {
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to fetch enumerators.",
+        success: false,
+      };
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to fetch enumerators list.";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const updateEnumerator = createAsyncThunk(
   "enumerators/updateEnumerator",
   async (

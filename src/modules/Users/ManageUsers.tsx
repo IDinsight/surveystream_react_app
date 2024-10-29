@@ -8,8 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import Footer from "../../components/Footer";
 import {
   BodyWrapper,
@@ -64,6 +63,11 @@ function UsersManage() {
       key: "last_name",
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+    },
+    {
       title: "Roles",
       key: "user_roles",
       dataIndex: "user_roles",
@@ -92,14 +96,12 @@ function UsersManage() {
     if (usersRes?.payload?.length !== 0) {
       const usersWithKeys = usersRes?.payload?.map(
         (user: any, index: { toString: () => any }) => {
-          const roles = user?.user_role_names || [];
-          const surveys = user?.user_survey_names || [];
-
+          const survey_role_names = user?.user_survey_role_names || [];
           const superAdminRole = user.is_super_admin ? "[Super Admin]" : "";
 
           let surveyAdminRole = "";
 
-          if (user.user_admin_surveys.length > 0) {
+          if (user.user_admin_survey_names.length > 0) {
             if (user.user_admin_survey_names.length > 0) {
               for (const survey_name of user.user_admin_survey_names) {
                 surveyAdminRole = `${surveyAdminRole} [Survey Admin, ${survey_name}]`;
@@ -110,13 +112,13 @@ function UsersManage() {
           }
 
           const userRoles =
-            roles.length > 0
+            survey_role_names.length > 0
               ? [
                   superAdminRole,
                   surveyAdminRole,
-                  ...roles.map((role: any, i: any) => {
+                  ...survey_role_names.map((role: any, i: any) => {
                     if (role !== null) {
-                      return `[${role}, ${surveys[i]}]`;
+                      return `[${role["role_name"]}, ${role["survey_name"]}]`;
                     }
                   }),
                 ]
@@ -232,7 +234,7 @@ function UsersManage() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <HeaderContainer>
         <Title>Users</Title>
 

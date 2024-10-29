@@ -4,11 +4,14 @@ import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 import { AssignmentPayload } from "./types";
 
-export const fetchTableConfig = async (formUID: string) => {
+export const fetchTableConfig = async (
+  formUID: string,
+  filter_supervisors?: boolean
+) => {
   try {
     await getCSRFToken();
     const csrfToken = getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/assignments/table-config?form_uid=${formUID}`;
+    const url = `${API_BASE_URL}/assignments/table-config?form_uid=${formUID}&filter_supervisors=${filter_supervisors}`;
 
     const res = await axios.get(url, {
       headers: {
@@ -42,7 +45,26 @@ export const fetchAssignments = async (formUID: string) => {
   }
 };
 
-export const fetchAssignableEnumerators = async (formUID: string) => {
+export const fetchAssignmentTargets = async (formUID: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/assignments/targets?form_uid=${formUID}`;
+
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const fetchAssignmentEnumerators = async (formUID: string) => {
   try {
     await getCSRFToken();
     const csrfToken = getCookie("CSRF-TOKEN");
@@ -122,6 +144,36 @@ export const makeAssignments = async (
   }
 };
 
+export const uploadAssignments = async (formUID: string, fileData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/assignments?form_uid=${formUID}`;
+
+    const res = await axios.post(
+      url,
+      {
+        column_mapping: {
+          target_id: "target_id",
+          enumerator_id: "enumerator_id",
+        },
+        file: fileData,
+        mode: "merge",
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const scheduleAssignmentsEmail = async (formData: any) => {
   try {
     await getCSRFToken();
@@ -149,7 +201,8 @@ export const scheduleAssignmentsEmail = async (formData: any) => {
 
 export const api = {
   fetchAssignments,
-  fetchAssignableEnumerators,
+  fetchAssignmentTargets,
+  fetchAssignmentEnumerators,
   makeAssignments,
   scheduleAssignmentsEmail,
 };

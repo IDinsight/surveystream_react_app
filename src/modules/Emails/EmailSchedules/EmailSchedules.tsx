@@ -1,22 +1,41 @@
 import { Key, useState } from "react";
 import { SchedulesTable } from "./EmailSchedules.styled";
 import NotebooksImg from "../../../assets/notebooks.svg";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Tooltip, Button, Popconfirm, Drawer, message } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ReconciliationFilled,
+  ReconciliationTwoTone,
+  ReconciliationOutlined,
+} from "@ant-design/icons";
+import {
+  Tooltip,
+  Button,
+  Popconfirm,
+  Drawer,
+  message,
+  DatePicker,
+  Modal,
+  Row,
+} from "antd";
 import {
   deleteEmailConfig,
   deleteEmailSchedule,
+  getEmailSchedule,
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import EmailScheduleEditForm from "./EmailScheduleEditForm";
 import EmailConfigEditForm from "./EmailConfigEditForm";
 import dayjs from "dayjs";
+import { getEmailDeliveryReportSchedule } from "../../../redux/emails/apiService";
+import EmailDeliveryReport from "../../../components/EmailDeliveryReport";
 
 function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
   const [isEditScheduleDrawerVisible, setIsEditScheduleDrawerVisible] =
     useState(false);
-
+  const [editScheduleLoading, setEditScheduleLoading] = useState(false);
   const [isEditConfigDrawerVisible, setIsEditConfigDrawerVisible] =
     useState(false);
 
@@ -25,6 +44,9 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
   const [editConfigValues, setEditConfigValues] = useState();
 
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+
+  const [isDeliveryReportModalVisible, setIsDeliveryReportModalVisible] =
+    useState<number | null>(null);
 
   const showEditScheduleDrawer = () => {
     setIsEditScheduleDrawerVisible(true);
@@ -56,12 +78,82 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       .join("; ");
   };
 
+  const [deliveryReportData, setDeliveryReportData] = useState<any>([]);
+
+  const fetchDeliveryReport = async (
+    email_config_uid: string,
+    email_schedule_uid: string
+  ) => {
+    try {
+      const result = await getEmailDeliveryReportSchedule(
+        email_config_uid,
+        email_schedule_uid
+      );
+      if ((result as any).data?.success) {
+        setDeliveryReportData((result as any).data.data);
+      } else {
+        setDeliveryReportData([]);
+      }
+    } catch (error) {
+      message.error("An error occurred while fetching email delivery report");
+    }
+  };
+
   const scheduleColumns = [
     {
-      title: "Config Type",
-      dataIndex: "config_type",
-      key: "config_type",
-      sorter: (a: any, b: any) => a.config_type.localeCompare(b.config_type),
+      title: "Config Name",
+      dataIndex: "config_name",
+      key: "config_name",
+      sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
+      render: (text: any, record: any) => (
+        <div
+          style={{
+            position: "relative",
+            overflowWrap: "break-word",
+            textAlign: "center",
+            top: "5px",
+          }}
+        >
+          <p>
+            <span style={{ marginBottom: 10 }}>{record?.config_name}</span>
+            <span
+              style={{
+                position: "relative",
+                top: "5px",
+              }}
+            >
+              <Tooltip title="Edit Config">
+                <Button
+                  type="link"
+                  icon={<EditOutlined />}
+                  disabled={!record?.email_config_uid}
+                  onClick={() => handleEditConfig(record)}
+                >
+                  Edit Config
+                </Button>
+              </Tooltip>
+
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete this config type?"
+                  onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    disabled={!record?.email_config_uid}
+                    type="link"
+                    icon={<DeleteOutlined />}
+                    danger
+                  >
+                    Delete Config
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            </span>
+          </p>
+        </div>
+      ),
     },
     {
       title: "Email Source",
@@ -69,7 +161,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
       key: "email_source",
       sorter: (a: any, b: any) => a.email_source.localeCompare(b.email_source),
     },
-
     {
       title: "Email Schedules",
       key: "schedules",
@@ -87,13 +178,20 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
           dates: string[];
           time: string;
           email_schedule_name: string;
+          email_schedule_uid: string;
+          email_config_uid: string;
         }[];
       }) => (
         <div>
           {record.schedules.length > 0 ? (
             record.schedules.map((schedule, index) => {
-              const { email_schedule_name, dates, time } = schedule;
-              const formattedDates = formatDates(dates).split("; ");
+              const {
+                email_schedule_name,
+                dates,
+                time,
+                email_schedule_uid,
+                email_config_uid,
+              } = schedule;
 
               return (
                 <div
@@ -105,74 +203,113 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                   }}
                   key={index}
                 >
-                  <div style={{ marginRight: "10px", width: "50%" }}>
+                  <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
-                    <p>
-                      Time : {dayjs(`1970-01-01T${time}Z`).format("hh:mm A")}
-                    </p>
+                    <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
                   </div>
-
                   <div
                     style={{
                       display: "flex",
-                      maxHeight: "300px",
-                      overflowY: "auto",
+                      flexDirection: "column",
+                      width: "100%",
                     }}
                   >
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>
-                        Dates
-                        <ul>
-                          {formattedDates
-                            .slice(0, Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                    <div style={{ marginRight: "10px", width: "50%" }}>
-                      <p>&nbsp;</p>
-                      <p>
-                        <ul>
-                          {formattedDates
-                            .slice(Math.ceil(formattedDates.length / 2))
-                            .map((formattedDate: any, idx: any) => (
-                              <li key={idx}>{formattedDate}</li>
-                            ))}
-                        </ul>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      float: "right",
-                    }}
-                  >
-                    <Tooltip title="Edit">
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "85px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <Button
                         type="link"
-                        icon={<EditOutlined />}
-                        onClick={() => handleEditSchedule(schedule)}
-                        style={{ marginBottom: 8 }}
+                        icon={<ReconciliationOutlined />}
+                        style={{ color: "green" }}
+                        onClick={async () => {
+                          await fetchDeliveryReport(
+                            email_config_uid,
+                            email_schedule_uid
+                          );
+                          setIsDeliveryReportModalVisible(index);
+                        }}
                       >
-                        Edit
+                        View Delivery Report
                       </Button>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <Popconfirm
-                        title="Are you sure you want to delete this schedule?"
-                        onConfirm={() => handleDeleteSchedule(schedule)}
-                        okText="Yes"
-                        cancelText="No"
+                      <Modal
+                        open={isDeliveryReportModalVisible === index}
+                        onCancel={() => setIsDeliveryReportModalVisible(-1)}
+                        style={{
+                          fontFamily: "Lato",
+                          overflowY: "scroll",
+                          maxHeight: "500px",
+                        }}
+                        width={"80%"}
+                        height={"80%"}
+                        footer={[
+                          <Button
+                            key="close"
+                            onClick={() => setIsDeliveryReportModalVisible(-1)}
+                          >
+                            Close
+                          </Button>,
+                        ]}
                       >
-                        <Button type="link" icon={<DeleteOutlined />} danger>
-                          Delete
+                        {deliveryReportData && deliveryReportData.length > 0 ? (
+                          <EmailDeliveryReport
+                            deliveryReportData={deliveryReportData}
+                            slot_type="schedule"
+                          />
+                        ) : (
+                          <p>
+                            No Emails sent yet, delivery reports will be visible
+                            after schedule time.
+                          </p>
+                        )}
+                      </Modal>
+                      <Tooltip title="Edit">
+                        <Button
+                          type="link"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEditSchedule(schedule)}
+                          loading={editScheduleLoading}
+                        >
+                          Edit Schedule
                         </Button>
-                      </Popconfirm>
-                    </Tooltip>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <Popconfirm
+                          title="Are you sure you want to delete this schedule?"
+                          onConfirm={() => handleDeleteSchedule(schedule)}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <Button type="link" icon={<DeleteOutlined />} danger>
+                            Delete Schedule
+                          </Button>
+                        </Popconfirm>
+                      </Tooltip>
+                    </span>
+                    <span
+                      style={{
+                        width: "100%",
+                        maxHeight: "120px",
+                      }}
+                    >
+                      Dates:
+                      <br />
+                      <DatePicker
+                        multiple={true}
+                        placeholder="Select Dates"
+                        format="YYYY-MM-DD"
+                        minDate={dayjs()}
+                        maxTagCount={10}
+                        value={dates.map((date: string) => dayjs(date))}
+                        allowClear={false}
+                        inputReadOnly={true}
+                      />
+                    </span>
                   </div>
                 </div>
               );
@@ -181,43 +318,6 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
             <p>No schedules available</p>
           )}
         </div>
-      ),
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      key: "actions",
-      render: (text: any, record: any) => (
-        <span>
-          <Tooltip title="Edit Config">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              disabled={!record?.email_config_uid}
-              onClick={() => handleEditConfig(record)}
-            >
-              Edit Config
-            </Button>
-          </Tooltip>
-
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete this config type?"
-              onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                disabled={!record?.email_config_uid}
-                type="link"
-                icon={<DeleteOutlined />}
-                danger
-              >
-                Delete Config
-              </Button>
-            </Popconfirm>
-          </Tooltip>
-        </span>
       ),
     },
   ];

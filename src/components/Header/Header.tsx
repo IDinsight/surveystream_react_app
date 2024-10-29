@@ -1,61 +1,51 @@
-import { Dropdown, Menu, MenuProps } from "antd";
-import Logo from "./../../assets/logo.svg";
-import UserAvatar from "./UserAvatar";
-import styled from "styled-components";
-import { getCookie } from "../../utils/helper";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { RootState } from "redux/store";
+
+import { useEffect, useState } from "react";
+import { getCookie } from "utils/helper";
+
+import { performGetUserProfile } from "redux/auth/authActions";
+
+import { setUserProfile } from "redux/auth/authSlice";
+
+import HeaderAvatarMenu from "./HeaderAvatarMenu";
+
+import { Link, useLocation } from "react-router-dom";
+
+import Logo from "assets/logo.svg";
+
 import {
-  performGetUserProfile,
-  performLogout,
-} from "../../redux/auth/authActions";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { useEffect } from "react";
-import { RootState } from "../../redux/store";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { setUserProfile } from "../../redux/auth/authSlice";
+  ApartmentOutlined,
+  HomeFilled,
+  MailOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons";
 
-const ProfileWrapper = styled.div`
-  color: white;
-  font-family: "Lato", sans-serif;
-  font-size: 18px;
-  font-weight: 300;
-  line-height: 28px;
-`;
+import "./Header.css";
 
-const isAuthenticated = () => {
-  // Return true if authenticated, false otherwise
-  const rememberToken = getCookie("remember_token");
-  return rememberToken !== "";
-};
-
-function Header({ items }: { items?: any }) {
-  const NavItems: any = items;
+const Header = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const location = useLocation();
 
+  /* 
+  Determine if user is signed and if so retrieve the user profile
+  */
   const storedProfile = localStorage.getItem("userProfile");
   const reduxProfile = useAppSelector((state: RootState) => state.auth.profile);
   const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
 
-  const getUsernameText = (): string => {
-    if (userProfile?.first_name !== null && userProfile?.last_name !== null) {
-      return `${userProfile?.first_name} ${userProfile?.last_name}`;
-    } else if (userProfile?.email !== null) {
-      return userProfile?.email;
-    }
-    return "";
+  const isAuthenticated = () => {
+    // Return true if authenticated, false otherwise
+    const rememberToken = getCookie("remember_token");
+    return rememberToken !== "";
   };
 
-  const logoutUser = async () => {
-    const logoutRes = await dispatch(performLogout());
-    if (logoutRes.payload.status) {
-      navigate("/login");
-    }
-    return true;
+  const isUserAuthenticatedButProfileNotAvailable = () => {
+    return isAuthenticated() && !userProfile?.first_name;
   };
 
   useEffect(() => {
-    if (isAuthenticated() && !userProfile?.first_name) {
+    if (isUserAuthenticatedButProfileNotAvailable()) {
       dispatch(performGetUserProfile());
     }
     if (storedProfile) {
@@ -63,61 +53,105 @@ function Header({ items }: { items?: any }) {
     }
   }, []);
 
-  const avatarMenu: MenuProps["items"] = [
-    {
-      label: <Menu.Item key="profile">{getUsernameText()}</Menu.Item>,
-      key: "1",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: (
-        <Menu.Item key="logout" onClick={logoutUser}>
-          Logout
-        </Menu.Item>
-      ),
-      key: "3",
-    },
-  ];
+  /* 
+  Define the navigation items in this section and determine which ones to show or not depending on the user, if user
+  */
+  const [navItems, setNavItems] = useState<any[]>([]);
+  const isSignedIn = () => userProfile?.user_uid;
 
-  const helpMenu: MenuProps["items"] = [];
+  const isUsersOrSurveysPage = () => {
+    const found = location.pathname.match(/^\/(users|surveys)(\/.+)*/g);
+    return found && found.length > 0;
+  };
+
+  useEffect(() => {
+    const items = [
+      {
+        url: "/surveys",
+        label: "Surveys",
+        icon: HomeFilled,
+        show: isSignedIn() && isUsersOrSurveysPage(),
+        isActive: location.pathname.includes("surveys"),
+        external: false,
+      },
+      {
+        url: "/users",
+        label: "User management",
+        icon: ApartmentOutlined,
+        show:
+          isSignedIn() && isUsersOrSurveysPage() && userProfile?.is_super_admin,
+        isActive: location.pathname.includes("users"),
+        external: false,
+      },
+      {
+        url: "https://docs.google.com/forms/d/e/1FAIpQLSdNG2C4Dmtt4NiJGm05VxyAUakvfS8o_Hkgdc8vJhl3eKR1_g/viewform",
+        label: "Contact Us",
+        icon: MailOutlined,
+        show: !isSignedIn(),
+        external: true,
+      },
+      {
+        url: "https://docs.google.com/spreadsheets/d/1WbmebjDLrbo6c15KZzbu1rkvNHlnBAy_p-nREz3OjNE/",
+        label: "Roadmap",
+        icon: AppstoreAddOutlined,
+        show: !isSignedIn(),
+        external: true,
+      },
+    ];
+    const filteredItems = items.filter((item: any) => item?.show);
+
+    setNavItems(filteredItems);
+  }, [location]);
+
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
-        <Link to={userProfile?.user_uid ? "/surveys" : "/"}>
+        <Link to={isSignedIn() ? "/surveys" : "/"}>
           <img
-            className="pr-2"
+            className="pr-2 w-36"
             style={{ margin: "0 1.5rem" }}
             src={Logo}
             alt="SurveyStream Logo"
           />
         </Link>
       </div>
-      {items ? <NavItems /> : null}
-
-      {userProfile?.user_uid && (
-        <ProfileWrapper className="flex items-center ml-auto mr-6">
-          {/* <Dropdown menu={{ items: helpMenu }} trigger={["hover", "click"]}>
-            <div className="mr-4">
-              <span>Help</span>
-              <DownOutlined style={{ marginLeft: "4px" }} />
+      <div className="nav-menu flex flex-1">
+        {navItems.map((item: any, index) => {
+          if (item.external) {
+            return (
+              <div className="min-w-32 justify-center w-40" key={index}>
+                <span>
+                  <a target="_blank" rel="noreferrer" href={item.url}>
+                    {item.label}
+                  </a>
+                </span>
+              </div>
+            );
+          }
+          return (
+            <div
+              className={`nav-menu-item justify-center w-40 px-2 ${
+                item.isActive ? "bg-geekblue-5" : ""
+              }`}
+              key={index}
+            >
+              <Link to={item.url}>
+                <span className="!text-gray-2">{item.label}</span>
+              </Link>
             </div>
-          </Dropdown>
-
-          <div className="mr-4">
-            <BellOutlined style={{ color: "white" }} />
-          </div> */}
-
-          <Dropdown menu={{ items: avatarMenu }} trigger={["hover", "click"]}>
-            <a id="user_profile_avatar">
-              <UserAvatar name={getUsernameText()} />
-            </a>
-          </Dropdown>
-        </ProfileWrapper>
-      )}
+          );
+        })}
+      </div>
+      <div className="nav-menu flex mr-2">
+        <div className="nav-menu-item justify-center w-40 px-2">
+          <Link to="https://docs.surveystream.idinsight.io">
+            <span className="!text-gray-2">Documentation</span>
+          </Link>
+        </div>
+      </div>
+      {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}
     </header>
   );
-}
+};
 
 export default Header;

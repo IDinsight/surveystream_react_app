@@ -1,6 +1,5 @@
-import { lte } from "lodash";
-import { useAppSelector } from "../redux/hooks";
-import { RootState } from "../redux/store";
+import { message } from "antd";
+import { getSurveyCTOForms } from "../redux/surveyCTOInformation/apiService";
 
 /**
  * Return the day with month
@@ -91,4 +90,14 @@ export const userHasPermission = (
   }
 
   return false;
+};
+
+export const properCase = function (str: string) {
+  return str.replace(/\w\S*/g, function (str) {
+    return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+  });
+};
+
+export const getSCTOForms = async (survey_uid: string) => {
+  return await getSurveyCTOForms(survey_uid);
 };

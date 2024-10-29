@@ -1,14 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Key, useCallback, useEffect, useState } from "react";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
 import { Button, TabsProps } from "antd";
 import {
   ArrowUpOutlined,
   ClearOutlined,
+  UploadOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
 import NotebooksImg from "./../../assets/notebooks.svg";
@@ -18,9 +18,9 @@ import TargetsTab from "./TargetsTab/TargetsTab";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   getAssignments,
-  getAssignableEnumerators,
+  getAssignmentEnumerators,
   getTableConfig,
-  getTargets,
+  getAssignmentTargets,
 } from "../../redux/assignments/assignmentsActions";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import AssignmentsStatus from "../../components/AssignmentsStats";
@@ -29,12 +29,12 @@ import NotFound from "../../components/NotFound";
 import { RootState } from "../../redux/store";
 import { performSearch, getDataFromFilters, makeKeyRefs } from "./utils";
 import { IAssignmentsStats } from "./types";
-import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../components/ErrorHandler";
 import CSVDownloadButton from "../../components/CSVDownloadButton";
 import { GlobalStyle } from "../../shared/Global.styled";
 import { HeaderContainer, SearchBox, Title } from "../../shared/Nav.styled";
+import { userHasPermission } from "../../utils/helper";
 
 function Assignments() {
   const navigate = useNavigate();
@@ -54,10 +54,18 @@ function Assignments() {
   const { loading: assignmentsLoading, data: assignmentsData } = useAppSelector(
     (state: RootState) => state.assignments.assignments
   );
-  const { enumeratorList: enumeratorsData, loading: enumeratorLoading } =
-    useAppSelector((state: RootState) => state.enumerators);
-  const { data: targeData, loading: targetLoading } = useAppSelector(
-    (state: RootState) => state.assignments.targets
+  const { data: enumeratorData, loading: enumeratorLoading } = useAppSelector(
+    (state: RootState) => state.assignments.assignmentEnumerators
+  );
+  const { data: targetData, loading: targetLoading } = useAppSelector(
+    (state: RootState) => state.assignments.assignmentTargets
+  );
+
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const canUserUpload = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Assignments Upload"
   );
 
   // State variables for component
@@ -142,9 +150,9 @@ function Assignments() {
       case "assignments":
         return assignmentsData;
       case "surveyors":
-        return enumeratorsData;
+        return enumeratorData;
       case "targets":
-        return targeData;
+        return targetData;
       default:
         return [];
     }
@@ -157,6 +165,13 @@ function Assignments() {
       {
         state: { selectedAssignmentRows, formID: form_uid },
       }
+    );
+  };
+
+  // Handle the make assignments button
+  const handleUploadAssignments = () => {
+    navigate(
+      `/module-configuration/assignments/${survey_uid}/${form_uid}/upload`
     );
   };
 
@@ -270,11 +285,12 @@ function Assignments() {
   useEffect(() => {
     if (form_uid == "" || form_uid == undefined) return;
     dispatch(getSurveyCTOForm({ survey_uid }));
-    dispatch(getTableConfig({ formUID: form_uid || "" }));
+    dispatch(
+      getTableConfig({ formUID: form_uid || "", filter_supervisors: true })
+    );
     dispatch(getAssignments({ formUID: form_uid ?? "" }));
-    dispatch(getAssignableEnumerators({ formUID: form_uid ?? "" }));
-    dispatch(getEnumerators({ formUID: form_uid ?? "" }));
-    dispatch(getTargets({ formUID: form_uid ?? "" }));
+    dispatch(getAssignmentEnumerators({ formUID: form_uid ?? "" }));
+    dispatch(getAssignmentTargets({ formUID: form_uid ?? "" }));
   }, [form_uid]);
 
   // Update the main data and stats when the assignments data changes
@@ -311,17 +327,17 @@ function Assignments() {
       });
 
       resetData();
-    } else if (tabItemIndex === "surveyors" && enumeratorsData.length > 0) {
+    } else if (tabItemIndex === "surveyors" && enumeratorData.length > 0) {
       // Update the main data to the enumerators data
-      setMainData(enumeratorsData);
+      setMainData(enumeratorData);
 
       const keys = makeKeyRefs(tableConfigData?.surveyors);
       setKeyRefs(keys);
 
       resetData();
-    } else if (tabItemIndex === "targets" && targeData.length > 0) {
+    } else if (tabItemIndex === "targets" && targetData.length > 0) {
       // Update the main data to the targets data
-      setMainData(targeData);
+      setMainData(targetData);
 
       const keys = makeKeyRefs(tableConfigData?.targets);
       setKeyRefs(keys);
@@ -331,8 +347,8 @@ function Assignments() {
   }, [
     tableConfigData,
     assignmentsData,
-    enumeratorsData,
-    targeData,
+    enumeratorData,
+    targetData,
     tabItemIndex,
   ]);
 
@@ -391,12 +407,12 @@ function Assignments() {
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       {isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <div>
             <HeaderContainer>
               <Title>Assignments</Title>
@@ -413,12 +429,21 @@ function Assignments() {
               />
               <Button
                 icon={<UserAddOutlined />}
-                style={{ marginLeft: "16px" }}
+                style={{ marginLeft: "8px" }}
                 disabled={!hasRowSelected}
                 onClick={handleMakeAssignments}
               >
                 Make assignments
               </Button>
+              {canUserUpload && (
+                <Button
+                  icon={<UploadOutlined />}
+                  style={{ marginLeft: "8px" }}
+                  onClick={handleUploadAssignments}
+                >
+                  Upload assignments
+                </Button>
+              )}
               <CSVDownloadButton
                 keyRef={keyRefs}
                 columns={columns}

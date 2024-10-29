@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import { message } from "antd";
-import Header from "../../components/Header";
+
 import {
   NavWrapper,
   BackLink,
@@ -105,8 +105,14 @@ function NewSurveyConfig() {
 
         const validationRules = [
           {
-            key: "supervisor_assignment_criteria",
-            message: "Please select the supervisor assignment criteria",
+            key: "target_mapping_criteria",
+            message:
+              "Please select the supervisor to target assignment criteria",
+          },
+          {
+            key: "surveyor_mapping_criteria",
+            message:
+              "Please select the supervisor to surveyor assignment criteria",
           },
           {
             key: "supervisor_hierarchy_exists",
@@ -330,7 +336,6 @@ function NewSurveyConfig() {
 
   return (
     <>
-      <Header />
       <NavWrapper>
         <BackLink onClick={handleGoBack}>
           <BackArrow />

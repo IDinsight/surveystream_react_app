@@ -1,5 +1,5 @@
 import { useLocation, useParams } from "react-router-dom";
-import { ContactsOutlined, ShareAltOutlined } from "@ant-design/icons";
+import { TeamOutlined, ApartmentOutlined } from "@ant-design/icons";
 
 import { Menu, MenuProps } from "antd";
 
@@ -18,6 +18,9 @@ function SideMenu() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
+  const { role_uid } = useParams<{ role_uid?: string }>() ?? {
+    role_uid: "",
+  };
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
@@ -29,15 +32,20 @@ function SideMenu() {
       label: (
         <MenuItem
           className={`${
-            isActive(`/survey-information/survey-roles/${survey_uid}`) ||
             isActive(`/survey-information/survey-roles/roles/${survey_uid}`) ||
             isActive(`/survey-information/survey-roles/add/${survey_uid}`) ||
-            isActive(`/survey-information/survey-roles/edit/${survey_uid}`)
+            isActive(
+              `/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+            ) ||
+            isActive(`/survey-information/survey-roles/hierarchy/${survey_uid}`)
           }`}
           to={`/survey-information/survey-roles/roles/${survey_uid}`}
         >
           <IconWrapper>
-            <ContactsOutlined />
+            <ApartmentOutlined />
           </IconWrapper>
           Roles
         </MenuItem>
@@ -55,7 +63,7 @@ function SideMenu() {
           to={`/survey-information/survey-users/users/${survey_uid}`}
         >
           <IconWrapper>
-            <ShareAltOutlined />
+            <TeamOutlined />
           </IconWrapper>
           Users
         </MenuItem>

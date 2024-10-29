@@ -21,14 +21,22 @@ import {
   BackLink,
   NavWrapper,
   Title,
+  HeaderContainer,
 } from "../../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
-import Header from "../../../../components/Header";
+
 import Column from "antd/lib/table/Column";
 import {
   getAllUsers,
   putUpdateUser,
 } from "../../../../redux/userManagement/userManagementActions";
+import { deleteUserHierarchy } from "../../../../redux/userRoles/userRolesActions";
+import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
+import {
+  getSurveyLocationGeoLevels,
+  getSurveyLocationsLong,
+} from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { setEditUser } from "../../../../redux/userManagement/userManagementSlice";
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
@@ -49,27 +57,163 @@ function ManageSurveyUsers() {
   const [filteredUserTableData, setFilteredUserTableData] =
     useState(userTableDataSource);
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
-  const isLoading = useAppSelector(
+  const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
   );
   const [rolesTableData, setRolesTableData] = useState<any>([]);
+  const [mappingCriteriaFields, setMappingCriteriaFields] = useState<any>([]);
+  const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
+  const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
+    useState<any>("no_location");
+
+  const [loading, setLoading] = useState(false);
+  const [isUsersLoading, setisUsersLoading] = useState<boolean>(false);
+  const [isBasicInformationLoading, setisBasicInformationLoading] =
+    useState<boolean>(false);
+  const [isSupervisorRolesLoading, setisSupervisorRolesLoading] =
+    useState<boolean>(false);
+  const [isLocationDetailsLoading, setisLocationDetailsLoading] =
+    useState<boolean>(false);
+  const [isModuleQuestionnaireLoading, setisModuleQuestionnaireLoading] =
+    useState<boolean>(false);
 
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
 
+  const moduleQuestionnaire = useAppSelector(
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
+  );
+  const surveyLocationGeoLevels = useAppSelector(
+    (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
+  );
+
   const fetchAllUsers = async () => {
+    setisUsersLoading(true);
     const usersRes = await dispatch(getAllUsers({ survey_uid }));
     if (usersRes?.payload?.length !== 0) {
       const usersWithKeys = usersRes?.payload?.map(
         (user: any, index: { toString: () => any }) => ({
           ...user,
           key: index.toString(),
+          active: user?.status === "Active" ? true : false,
+          supervisor: findUserName(user.supervisor_uid, usersRes.payload),
         })
       );
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
     }
+    setisUsersLoading(false);
+  };
+
+  const findUserName = (user_uid: string, all_users: any) => {
+    const user = all_users?.find((u: any) => u.user_uid === user_uid);
+    if (user) {
+      return user?.first_name + " " + user?.last_name;
+    }
+    return "";
+  };
+
+  const fetchSurveyBasicInformation = async () => {
+    setisBasicInformationLoading(true);
+    const surveyBasicInformationRes = await dispatch(
+      getSurveyBasicInformation({ survey_uid: survey_uid })
+    );
+    if (surveyBasicInformationRes?.payload) {
+      if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        setSurveyPrimeGeoLocation(
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
+      }
+    } else {
+      message.error(
+        "Could not load survey basic information, kindly reload to try again"
+      );
+    }
+    setisBasicInformationLoading(false);
+  };
+
+  const findPrimeGeoLevel = (locationData: any) => {
+    let primeGeoLevel = null;
+    for (const item of locationData) {
+      if (item.geo_level_uid === surveyPrimeGeoLocation) {
+        primeGeoLevel = item;
+      }
+    }
+
+    return primeGeoLevel;
+  };
+
+  const fetchSurveyModuleQuestionnaire = async () => {
+    setisModuleQuestionnaireLoading(true);
+    if (survey_uid) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
+      );
+      let mapping_criteria_fields: any[] = [];
+      if (moduleQQuestionnaireRes?.payload) {
+        if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.target_mapping_criteria || []),
+          ];
+        }
+        if (moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria) {
+          mapping_criteria_fields = [
+            ...mapping_criteria_fields,
+            ...(moduleQQuestionnaireRes?.payload?.data
+              ?.surveyor_mapping_criteria || []),
+          ];
+        }
+        // remove duplicates and "Manual" from the list
+        mapping_criteria_fields = mapping_criteria_fields.filter(
+          (value, index, array) =>
+            array.indexOf(value) === index && array[index] !== "Manual"
+        );
+        setMappingCriteriaFields(mapping_criteria_fields);
+      }
+    }
+    setisModuleQuestionnaireLoading(false);
+  };
+
+  const fetchLocationDetails = async () => {
+    setisLocationDetailsLoading(true);
+    if (survey_uid) {
+      // Get location levels
+      const locationlevelsRes = await dispatch(
+        getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+      );
+
+      if (locationlevelsRes?.payload) {
+        const primeGeoLevel = findPrimeGeoLevel(locationlevelsRes?.payload);
+        if (primeGeoLevel) {
+          const locationRes = await dispatch(
+            getSurveyLocationsLong({
+              survey_uid: survey_uid,
+              geo_level_uid: primeGeoLevel?.geo_level_uid,
+            })
+          );
+          if (locationRes?.payload.length > 0) {
+            // filter out the prime geo level locations columns
+            const primeGeoLevelLocations: any[] = locationRes?.payload.map(
+              (location: any) => ({
+                location_uid: location.location_uid,
+                location_id: location.location_id,
+                location_name: location.location_name,
+              })
+            );
+            setLocationDetailsField([
+              {
+                title: `${primeGeoLevel.geo_level_name}`,
+                key: `location_id_column`,
+                values: primeGeoLevelLocations,
+              },
+            ]);
+          }
+        }
+      }
+    }
+    setisLocationDetailsLoading(false);
   };
 
   // Row selection state and handler
@@ -92,6 +236,8 @@ function ManageSurveyUsers() {
   const rowSelection = {
     selectedRows,
     onChange: onSelectChange,
+    hideSelectAll: true,
+    type: "radio" as const,
   };
 
   // Handler for Edit Data button
@@ -99,11 +245,26 @@ function ManageSurveyUsers() {
     if (!hasSelected) {
       message.error("No row selected for editing");
       return;
+    } else if (
+      selectedRows[0].user_admin_survey_names &&
+      selectedRows[0].user_admin_survey_names.length > 0
+    ) {
+      // check if there are other survey admins
+      const surveyAdmins = userTableDataSource.filter(
+        (user: any) =>
+          user.user_admin_survey_names &&
+          user.user_admin_survey_names?.length > 0
+      );
+      if (surveyAdmins.length < 2) {
+        message.error("Cannot remove the only survey admin from the survey");
+        return;
+      }
     }
     setIsOpenDeleteModel(true);
   };
 
   const handleDeleteUser = async () => {
+    setLoading(true);
     const selectedUserData = selectedRows[0];
 
     const rolesToRemove = rolesTableData.filter((r: any) =>
@@ -114,6 +275,11 @@ function ManageSurveyUsers() {
       (role: any) => !rolesToRemove.map((r: any) => r.role_uid).includes(role)
     );
 
+    // also reset all survey level details - locations and languages
+    selectedUserData.survey_uid = survey_uid;
+    selectedUserData.location_uids = [];
+    selectedUserData.languages = [];
+
     if (rolesToRemove.length < 1) {
       //handle survey admin removal
       selectedUserData.is_survey_admin = false;
@@ -121,20 +287,48 @@ function ManageSurveyUsers() {
         ? parseInt(survey_uid, 10)
         : null;
     }
+
     const updateRes = await dispatch(
       putUpdateUser({
         userUId: selectedUserData.user_uid,
         userData: selectedUserData,
       })
     );
+
+    // Remove user from user hierarchy as well
+    const deleteHierarchyRes = await dispatch(
+      deleteUserHierarchy({
+        survey_uid: survey_uid || "",
+        user_uid: selectedUserData.user_uid,
+      })
+    );
+
+    // for all reportees, remove the supervisor_uid
+    const reporties = userTableDataSource.filter(
+      (user: any) => user.supervisor_uid === selectedUserData.user_uid
+    );
+
+    if (reporties.length > 0) {
+      for (const reportee of reporties) {
+        reportee.supervisor_uid = null;
+        await dispatch(
+          deleteUserHierarchy({
+            survey_uid: survey_uid || "",
+            user_uid: reportee.user_uid,
+          })
+        );
+      }
+    }
+
     if (updateRes.payload?.user_data) {
-      message.success("User removed from project successfully");
+      message.success("User removed from survey successfully");
       setHasSelected(false);
     } else {
-      message.error("Failed to remove user from project, kindly try again");
+      message.error("Failed to remove user from survey, kindly try again");
     }
     fetchAllUsers();
     setIsOpenDeleteModel(false);
+    setLoading(false);
   };
 
   const usersTableColumn = [
@@ -144,27 +338,74 @@ function ManageSurveyUsers() {
       key: "email",
     },
     {
-      title: "First Name",
-      dataIndex: "first_name",
-      key: "first_name",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "last_name",
-      key: "last_name",
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: any, record: any) => {
+        return `${record.first_name} ${record.last_name}`;
+      },
     },
     {
       title: "Roles",
-      key: "user_role_names",
-      dataIndex: "user_role_names",
+      key: "user_survey_role_names",
+      dataIndex: "user_survey_role_names",
       render: (text: any, record: any) => {
-        if (record.user_admin_surveys && record.user_admin_surveys.length > 0) {
+        if (
+          record.user_admin_survey_names &&
+          record.user_admin_survey_names.length > 0
+        ) {
           return <>{`Survey Admin`}</>;
+        } else if (
+          record.user_survey_role_names &&
+          record.user_survey_role_names.length > 0
+        ) {
+          return <>{record.user_survey_role_names[0]["role_name"]}</>;
         } else {
-          return <>{record.user_role_names}</>;
+          return <>{``}</>;
         }
       },
     },
+    {
+      title: "Supervisor Name",
+      key: "supervisor",
+      dataIndex: "supervisor",
+    },
+    ...(mappingCriteriaFields.includes("Gender")
+      ? [
+          {
+            title: "Gender",
+            key: "gender",
+            dataIndex: "gender",
+          },
+        ]
+      : []),
+    ...(mappingCriteriaFields.includes("Location") &&
+    locationDetailsField.length > 0
+      ? [
+          {
+            title: locationDetailsField[0]?.title,
+            key: locationDetailsField[0]?.key,
+            dataIndex: locationDetailsField[0]?.key,
+            render: (text: any, record: any) => {
+              return record.location_names.join(", ") || "";
+            },
+            width: 200,
+          },
+        ]
+      : []),
+    ...(mappingCriteriaFields.includes("Language")
+      ? [
+          {
+            title: "Language",
+            dataIndex: "languages",
+            key: "languages",
+            render: (text: any, record: any) => {
+              return record.languages.join(", ");
+            },
+            width: 150,
+          },
+        ]
+      : []),
     {
       title: "Status",
       dataIndex: "status",
@@ -176,7 +417,9 @@ function ManageSurveyUsers() {
     {
       key: "1",
       label: (
-        <Link to="/survey-information/survey-users/add/">Add manually</Link>
+        <Link to={`/survey-information/survey-users/add/${survey_uid}`}>
+          Add manually
+        </Link>
       ),
     },
     {
@@ -207,7 +450,9 @@ function ManageSurveyUsers() {
 
     navigate(`/survey-information/survey-users/edit/${survey_uid}`);
   };
+
   const fetchSupervisorRoles = async () => {
+    setisSupervisorRolesLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
     if (Array.isArray(res.payload) && res.payload.length > 0) {
@@ -220,17 +465,37 @@ function ManageSurveyUsers() {
       }));
       setRolesTableData(transformedData);
     }
+    setisSupervisorRolesLoading(false);
   };
 
   useEffect(() => {
     fetchAllUsers();
     fetchSupervisorRoles();
-  }, []);
+    fetchSurveyBasicInformation();
+    fetchSurveyModuleQuestionnaire();
+  }, [survey_uid]);
+
+  useEffect(() => {
+    if (
+      mappingCriteriaFields.includes("Location") &&
+      surveyPrimeGeoLocation !== "no_location"
+    ) {
+      fetchLocationDetails();
+    }
+  }, [survey_uid, mappingCriteriaFields, surveyPrimeGeoLocation]);
+
+  const isLoading =
+    isUsersLoading ||
+    isSupervisorRolesLoading ||
+    isBasicInformationLoading ||
+    isModuleQuestionnaireLoading ||
+    isLocationDetailsLoading ||
+    loading;
 
   return (
     <>
       <GlobalStyle />
-      <Header />
+
       <NavWrapper>
         <HandleBackButton></HandleBackButton>
 
@@ -245,81 +510,80 @@ function ManageSurveyUsers() {
           })()}
         </Title>
       </NavWrapper>
-      {isLoading ? (
+      <HeaderContainer>
+        <Title>Survey Users</Title>
+        <div
+          style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
+        ></div>
+        <div style={{ float: "right", marginTop: "0px" }}>
+          <SearchBox
+            placeholder="Search"
+            enterButton
+            style={{ width: 367 }}
+            onSearch={(val) => {
+              setSearchText(val);
+              filterTableData(val);
+            }}
+            onChange={(e) => {
+              const { value } = e.target;
+              setSearchText(value);
+              filterTableData(value);
+            }}
+          />
+          <Dropdown menu={{ items: addUserOptions }} placement="bottomLeft">
+            {!hasSelected ? (
+              <Button
+                type="primary"
+                icon={<FileAddOutlined />}
+                style={{
+                  marginLeft: "25px",
+                  backgroundColor: "#2F54EB",
+                }}
+                onClick={() =>
+                  navigate(`/survey-information/survey-users/add/${survey_uid}`)
+                }
+              >
+                Add new user
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={handleEditUser}
+                >
+                  Edit user
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<DeleteOutlined />}
+                  style={{
+                    marginLeft: "25px",
+                    backgroundColor: "#2F54EB",
+                  }}
+                  onClick={onDeleteUser}
+                >
+                  Remove User
+                </Button>
+              </>
+            )}
+          </Dropdown>
+        </div>
+      </HeaderContainer>
+      {isuserManagementLoading || isLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Users</DescriptionTitle>
               <DescriptionText style={{ marginRight: "auto" }}>
-                Manage your survey users
+                Manage the users added to your survey here
               </DescriptionText>
-              <div style={{ float: "right", marginTop: "-60px" }}>
-                <SearchBox
-                  placeholder="Search"
-                  enterButton
-                  style={{ width: 367 }}
-                  onSearch={(val) => {
-                    setSearchText(val);
-                    filterTableData(val);
-                  }}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setSearchText(value);
-                    filterTableData(value);
-                  }}
-                />
-                <Dropdown
-                  menu={{ items: addUserOptions }}
-                  placement="bottomLeft"
-                >
-                  {!hasSelected ? (
-                    <Button
-                      type="primary"
-                      icon={<FileAddOutlined />}
-                      style={{
-                        marginLeft: "25px",
-                        backgroundColor: "#2F54EB",
-                      }}
-                      onClick={() =>
-                        navigate(
-                          `/survey-information/survey-users/add/${survey_uid}`
-                        )
-                      }
-                    >
-                      Add new user
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        type="primary"
-                        icon={<EditOutlined />}
-                        style={{
-                          marginLeft: "25px",
-                          backgroundColor: "#2F54EB",
-                        }}
-                        onClick={handleEditUser}
-                      >
-                        Edit user
-                      </Button>
-                      <Button
-                        type="primary"
-                        icon={<DeleteOutlined />}
-                        style={{
-                          marginLeft: "25px",
-                          backgroundColor: "#2F54EB",
-                        }}
-                        onClick={onDeleteUser}
-                      >
-                        Remove User
-                      </Button>
-                    </>
-                  )}
-                </Dropdown>
-              </div>
-
               <div style={{ display: "flex" }}></div>
               <UsersTable
                 dataSource={filteredUserTableData}
@@ -338,6 +602,7 @@ function ManageSurveyUsers() {
                     title={column.title}
                     dataIndex={column.dataIndex}
                     render={column.render}
+                    width={column?.width}
                     sorter={{
                       compare: (a: any, b: any) =>
                         a[column.dataIndex] - b[column.dataIndex],
@@ -357,19 +622,25 @@ function ManageSurveyUsers() {
               <Modal
                 open={isOpenDeleteModel}
                 title={
-                  <div style={{ display: "flex" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginTop: "-15px",
+                      marginBottom: "-10px",
+                    }}
+                  >
                     <ExclamationCircleFilled
                       style={{ color: "orange", fontSize: 20 }}
                     />
-                    <p style={{ marginLeft: "10px" }}>Remove the user</p>
+                    <p style={{ marginLeft: "15px" }}>Deletion Confirmation</p>
                   </div>
                 }
                 okText="Yes, remove user"
                 onOk={() => handleDeleteUser()} // Write the logic to delete
                 onCancel={() => setIsOpenDeleteModel(false)}
               >
-                <p>
-                  Are you sure you want to remove this user from this project?
+                <p style={{ marginBottom: "30px" }}>
+                  Are you sure you want to remove this user from the survey?
                 </p>
               </Modal>
             </BodyWrapper>

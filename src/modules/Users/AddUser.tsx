@@ -10,8 +10,7 @@ import {
 } from "../../redux/userManagement/userManagementActions";
 import { BodyWrapper, DescriptionText, MainContainer } from "./Users.styled";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import Header from "../../components/Header";
-import NavItems from "../../components/NavItems";
+
 import { GlobalStyle } from "../../shared/Global.styled";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import {
@@ -47,7 +46,7 @@ function AddUser() {
 
   const onCheckUser = async () => {
     const email = verificationForm.getFieldValue("email");
-    const checkResponse = await dispatch(postCheckUser(email));
+    const checkResponse = await dispatch(postCheckUser({ email: email }));
     if (checkResponse?.payload.status == 200) {
       message.success(checkResponse?.payload.data.message);
       setIsExistingUser(true);
@@ -65,8 +64,7 @@ function AddUser() {
           status: checkResponse.payload.data.user?.active
             ? "Active"
             : "Deactivated",
-          user_role_names: userRolesData[0]?.user_role_names,
-          user_survey_names: userRolesData[0]?.user_survey_names,
+          user_survey_role_names: userRolesData[0]?.user_survey_role_names,
         };
       });
     } else {
@@ -134,7 +132,7 @@ function AddUser() {
   return (
     <>
       <GlobalStyle />
-      <Header items={NavItems} />
+
       <HeaderContainer>
         <Title> Add new user</Title>
 
@@ -263,20 +261,40 @@ function AddUser() {
                         placeholder="Enter last name"
                       />
                     </Form.Item>
+                    <Form.Item
+                      name="gender"
+                      label="Gender"
+                      initialValue={userDetails.gender}
+                      hasFeedback
+                    >
+                      <Select
+                        style={{ width: "100%" }}
+                        allowClear={true}
+                        placeholder="Male/ Female"
+                        value={userDetails?.gender}
+                        onSelect={(val: any) => {
+                          setUserDetails((prev: any) => ({
+                            ...prev,
+                            gender: val,
+                          }));
+                        }}
+                      >
+                        <Select.Option value="Male">Male</Select.Option>
+                        <Select.Option value="Female">Female</Select.Option>
+                      </Select>
+                    </Form.Item>
 
                     {isExistingUser &&
-                      userDetails?.user_role_names &&
-                      userDetails?.user_role_names[0] != null && (
+                      userDetails?.user_survey_role_names &&
+                      userDetails?.user_survey_role_names[0] != null && (
                         <>
                           <DescriptionText>Existing Roles</DescriptionText>
-                          {userDetails.user_role_names.map(
+                          {userDetails.user_survey_role_names.map(
                             (role: any, i: any) => (
                               <>
                                 <Form.Item
                                   label="Project name"
-                                  initialValue={
-                                    userDetails.user_survey_names[i]
-                                  }
+                                  initialValue={role["survey_name"]}
                                   hasFeedback
                                   rules={[
                                     {
@@ -285,14 +303,14 @@ function AddUser() {
                                   ]}
                                 >
                                   <Input
-                                    value={userDetails.user_survey_names[i]}
+                                    value={role["survey_name"]}
                                     required
                                     disabled={isExistingUser}
                                   />
                                 </Form.Item>
                                 <Form.Item
                                   label="Role"
-                                  initialValue={role}
+                                  initialValue={role["role_name"]}
                                   hasFeedback
                                   rules={[
                                     {
@@ -301,7 +319,7 @@ function AddUser() {
                                   ]}
                                 >
                                   <Input
-                                    value={role}
+                                    value={role["role_name"]}
                                     required
                                     disabled={isExistingUser}
                                   />

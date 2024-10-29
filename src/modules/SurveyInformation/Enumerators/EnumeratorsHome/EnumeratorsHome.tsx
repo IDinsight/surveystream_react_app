@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
 import { useCSVDownloader } from "react-papaparse";
-import Header from "../../../../components/Header";
+
 import {
   BackArrow,
   BackLink,
@@ -391,8 +391,8 @@ function EnumeratorsHome() {
   return (
     <>
       <GlobalStyle />
-      <Header />
-      <Container />
+
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Enumerators</Title>
         {screenMode == "manage" ? (

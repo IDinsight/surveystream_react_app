@@ -15,7 +15,32 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "downlevelIteration": true,
+    "baseUrl": "./src/",
+    "paths": {
+      "@/assets/*": [
+        "assets/*"
+      ],
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/config/*": [
+        "config/*"
+      ],
+      "@/modules/*": [
+        "modules/*"
+      ],
+      "@/redux/*": [
+        "redux/*"
+      ],
+      "@/shared/*": [
+        "shared/*"
+      ],
+      "@/utils/*": [
+        "utils/*"
+      ],
+    }
   },
   "include": ["src", "e2e", "cypress"],
   "files": ["src", "e2e", "cypress"],

@@ -283,7 +283,6 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-
     getEmailTemplateRequest: (state) => {
       state.loading = true;
       state.error = null;
