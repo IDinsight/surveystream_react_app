@@ -124,12 +124,20 @@ export const updateAssignments = createAsyncThunk(
 export const uploadCSVAssignments = createAsyncThunk(
   "assignments/uploadCSVAssignments",
   async (
-    { formUID, fileData }: { formUID: string; fileData: any },
+    {
+      formUID,
+      fileData,
+      validate_mapping,
+    }: { formUID: string; fileData: any; validate_mapping: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(assignmentsRequest());
-      const response: any = await uploadAssignments(formUID, fileData);
+      const response: any = await uploadAssignments(
+        formUID,
+        fileData,
+        validate_mapping
+      );
       if (response.status == 200) {
         dispatch(assignmentsSuccess(response.data.data));
         return { ...response.data, success: true };
