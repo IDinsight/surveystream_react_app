@@ -35,6 +35,7 @@ import {
   clearModuleQuestionnaire,
 } from "../../redux/surveyConfig/surveyConfigSlice";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
+import { performGetUserProfile } from "../../redux/auth/authActions";
 
 export interface IStepIndex {
   sidebar: number;
@@ -300,6 +301,10 @@ function NewSurveyConfig() {
 
         window.history.replaceState(null, "", newURL);
         setSurveyUid(newSurveyUid);
+
+        // After saving the basic information, we need to update user profile
+        // because it contains the list of surveys the user has created as survey admin
+        dispatch(performGetUserProfile());
 
         if (stepIndex["sidebar"] < 1) {
           setStepIndex((prev: IStepIndex) => ({

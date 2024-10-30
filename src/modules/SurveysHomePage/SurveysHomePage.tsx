@@ -26,13 +26,7 @@ function SurveysHomePage() {
 
   const showError = useAppSelector((state: RootState) => state.surveys.error);
   const fetchData = async () => {
-    let { user_uid } = userProfile;
-
-    if (!user_uid) {
-      const profile = await dispatch(performGetUserProfile());
-      user_uid = profile.payload.user_uid;
-    }
-
+    await dispatch(performGetUserProfile());
     await dispatch(fetchSurveys());
   };
 
@@ -123,7 +117,7 @@ function SurveysHomePage() {
                             </NewSurveyCard>
                           </StyledLink>
                         ) : null}
-                        {draftSurveys.map((survey, index: number) => (
+                        {draftSurveys.map((survey) => (
                           <div key={survey.survey_uid}>
                             <SurveyCard
                               title={survey.survey_name}
