@@ -32,6 +32,12 @@ export const ResetButton = styled(Button)`
   }
 `;
 
+export const DeleteButton = styled(Button)`
+  &:hover {
+    color: red !important;
+  }
+`;
+
 export const MappingTable = styled(Table)`
   overflow: auto;
   margin-top: 15px;

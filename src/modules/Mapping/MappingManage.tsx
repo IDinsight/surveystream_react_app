@@ -6,7 +6,7 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Col, Row, Select, Tooltip } from "antd";
+import { Col, Row, Select, Tag, Tooltip } from "antd";
 import { properCase, userHasPermission } from "../../utils/helper";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./Mapping.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
@@ -102,8 +102,17 @@ function MappingManage() {
             {!form_uid ? (
               <>
                 <p>
-                  Map {properCase(mapping_name || "")}s to Supervisors based on:{" "}
-                  {criteria?.join(", ")}
+                  Map {mapping_name}s to supervisors based on{" "}
+                  <Tooltip title="As per mapping criteria selected under module questionnaire">
+                    <QuestionCircleOutlined />
+                  </Tooltip>{" "}
+                  :{" "}
+                  {
+                    // Display in tag format
+                    criteria.map((c) => (
+                      <Tag key={c}>{properCase(c)}</Tag>
+                    ))
+                  }
                 </p>
                 <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
                   <Col span={5}>
