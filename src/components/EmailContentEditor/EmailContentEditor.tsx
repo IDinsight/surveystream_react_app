@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import ReactQuill from "react-quill";
+import { debounce } from "lodash";
 import "react-quill/dist/quill.snow.css";
 
 interface EmailContentEditorProps {
@@ -38,6 +39,16 @@ function EmailContentEditor({
     }
   };
 
+  // Debounced function to set the form field value
+  const debouncedSetFieldsValue = useCallback(
+    debounce((pathArr, val) => {
+      form.setFieldsValue({
+        [pathArr.join(".")]: val,
+      });
+    }, 750),
+    []
+  );
+
   // Setting the field value on content change in editor
   useEffect(() => {
     const pathArr = standalone
@@ -46,14 +57,9 @@ function EmailContentEditor({
 
     const currentValue = form.getFieldValue(pathArr);
     if (currentValue !== val) {
-      form.setFields([
-        {
-          name: pathArr,
-          value: val,
-        },
-      ]);
+      debouncedSetFieldsValue(pathArr, val);
     }
-  }, [val, form, formIndex]);
+  }, [val, form, formIndex, standalone, debouncedSetFieldsValue]);
 
   // Setting the value if passed by pros
   useEffect(() => {
