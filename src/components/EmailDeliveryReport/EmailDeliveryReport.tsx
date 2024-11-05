@@ -1,5 +1,6 @@
-import { Table, Tag, Button, Row, Col } from "antd";
-import React, { useState, Key } from "react";
+import { Tag, Button, Row, Col } from "antd";
+import { useState, Key } from "react";
+import { StyledTable, StyledTag } from "./EmailDeliveryReport.styled";
 
 import { ColumnType } from "antd/es/table";
 
@@ -86,9 +87,7 @@ const combineSlotDateTime = (slot_date: string, slot_time: string) => {
   const combinedDateTime = new Date(
     `${cleanedSlotDate} ${slot_time}`
   ).toLocaleString();
-  return isNaN(new Date(combinedDateTime).getTime())
-    ? "Invalid Date"
-    : combinedDateTime;
+  return combinedDateTime;
 };
 
 function EmailDeliveryReport({
@@ -107,18 +106,17 @@ function EmailDeliveryReport({
     setTableKey((prevKey) => prevKey + 1);
   };
   return (
-    <div style={{ fontFamily: "Lato" }}>
+    <div style={{ fontFamily: "Lato", display: "grid" }}>
       <h2> Email Delivery Report</h2>
 
       {slot_type === "trigger" ? (
-        <Row style={{ marginTop: "30px", display: "flex", float: "left" }}>
+        <Row>
           <span style={{ display: "flex", float: "left", fontSize: "14px" }}>
-            Delivery Time: {"   "} {"\t"}
+            Delivery Time: {"   "} {"\t\t"}
             <select
               onChange={(e) => {
                 setSelectedReportUID(e.target.value);
               }}
-              style={{ marginLeft: "10px", fontSize: "14px" }}
             >
               {deliveryReportData.map((report: any, index: number) => (
                 <option
@@ -132,17 +130,8 @@ function EmailDeliveryReport({
           </span>
         </Row>
       ) : (
-        <Row
-          style={{ display: "flex", alignItems: "center", marginTop: "30px" }}
-        >
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: "14px",
-              marginRight: "20px",
-            }}
-          >
+        <Row>
+          <Col span={6}>
             Schedule Time: {"   "} {"\t"}
             <select
               onChange={(e) => {
@@ -159,40 +148,23 @@ function EmailDeliveryReport({
                 </option>
               ))}
             </select>
-          </span>
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: "14px",
-            }}
-          >
-            Delivery Time:{" "}
+          </Col>
+          <Col span={6}>
+            Delivery Time: {"\t"}
             {formatDateTime(
               deliveryReportData.find(
                 (report: any) =>
                   report.email_delivery_report_uid == selectedReportUID
               )?.delivery_time
             )}
-          </span>
+          </Col>
         </Row>
       )}
       {selectedReportUID && (
         <>
-          <Row
-            style={{
-              fontSize: "14px",
-              marginTop: "10px",
-            }}
-          >
+          <Row style={{ marginTop: "20px", fontSize: "20px" }}>
             <Col span={8}>
-              <Tag
-                color="green"
-                style={{
-                  fontSize: "14px",
-                  marginTop: "10px",
-                }}
-              >
+              <StyledTag color="green">
                 Total Enumerators with emails Sent:{" "}
                 {
                   deliveryReportData
@@ -204,17 +176,10 @@ function EmailDeliveryReport({
                       (status: EnumeratorStatus) => status.status === "sent"
                     ).length
                 }
-              </Tag>
+              </StyledTag>
             </Col>
             <Col span={8}>
-              <Tag
-                color="red"
-                style={{
-                  marginLeft: "10px",
-                  fontSize: "14px",
-                  marginTop: "10px",
-                }}
-              >
+              <StyledTag color="red">
                 Total Enumerators with emails Failed:{" "}
                 {
                   deliveryReportData
@@ -226,18 +191,16 @@ function EmailDeliveryReport({
                       (status: EnumeratorStatus) => status.status === "failed"
                     ).length
                 }
-              </Tag>
+              </StyledTag>
             </Col>
             <Col span={4} offset={4}>
-              <Button onClick={resetTable} style={{ fontSize: "14px" }}>
-                Clear Sort and Filters
-              </Button>
+              <Button onClick={resetTable}>Clear Sort and Filters</Button>
             </Col>
           </Row>
           <span style={{ width: "100%" }}>
-            <Table
+            <StyledTable
               key={tableKey}
-              columns={columns}
+              columns={columns as any}
               dataSource={
                 deliveryReportData.find(
                   (report: any) =>

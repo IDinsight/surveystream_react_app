@@ -265,14 +265,10 @@ const SurveyConfiguration: React.FC = () => {
     return userHasPermission(userProfile, survey_uid, permission_name);
   };
 
-  const renderSection = (
-    sectionTitle: string,
-    sectionConfig: any,
-    index: number
-  ) => {
+  const renderSection = (sectionTitle: string, sectionConfig: any) => {
     if (Array.isArray(sectionConfig) && sectionConfig.length > 0) {
       return (
-        <div key={index}>
+        <>
           {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
             <SectionTitle>{`${sectionTitle}`}</SectionTitle>
           )}
@@ -310,7 +306,7 @@ const SurveyConfiguration: React.FC = () => {
               ) : null;
             })}
           </div>
-        </div>
+        </>
       );
     } else if (
       !Array.isArray(sectionConfig) &&
@@ -319,7 +315,7 @@ const SurveyConfiguration: React.FC = () => {
       const hasPermission = checkPermissions(sectionTitle);
 
       return hasPermission ? (
-        <div key={index}>
+        <>
           <SectionTitle>{`${sectionTitle}`}</SectionTitle>
 
           <Link
@@ -348,11 +344,10 @@ const SurveyConfiguration: React.FC = () => {
               {renderStatus(sectionConfig.status)}
             </StyledCard>
           </Link>
-        </div>
+        </>
       ) : null;
     } else {
       <Result
-        key={index}
         title={"Reload Configuration"}
         subTitle={"Failed to load configuration, kindly reload"}
         extra={
@@ -401,7 +396,9 @@ const SurveyConfiguration: React.FC = () => {
           <MainWrapper>
             {Object.entries(surveyConfigs).map(
               ([sectionTitle, sectionConfig], index) => (
-                <>{renderSection(sectionTitle, sectionConfig, index)}</>
+                <div key={index}>
+                  {renderSection(sectionTitle, sectionConfig)}
+                </div>
               )
             )}
           </MainWrapper>
