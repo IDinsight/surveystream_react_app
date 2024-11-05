@@ -104,7 +104,10 @@ const EmailTemplateForm = ({
           templatePayload.push({
             language: template.language,
             subject: template.subject,
-            content: template.content,
+            content: template.content.replace(
+              /<span class="pattern-blot"[^>]*>(.*?)<\/span>/g,
+              "$1"
+            ),
             variable_list: formStates[i].insertedVariables,
             table_list: formStates[i].tableList,
           });

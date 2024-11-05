@@ -121,7 +121,10 @@ function EmailTemplateEditing({
       const emailTemplatePayload = {
         email_config_uid: email_config_uid,
         subject: fieldValues.subject,
-        content: fieldValues.content,
+        content: fieldValues.content.replace(
+          /<span class="pattern-blot"[^>]*>(.*?)<\/span>/g,
+          "$1"
+        ),
         language: fieldValues.language,
         variable_list: insertedVariables,
         table_list: tableList,

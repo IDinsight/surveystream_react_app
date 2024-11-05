@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import "./PatternBlot";
+import "./PatternBlot.css";
 
 interface EmailContentEditorProps {
   form: any;
@@ -61,6 +63,16 @@ function EmailContentEditor({
       setVal(value);
     }
   }, [value]);
+
+  useEffect(() => {
+    const quill = quillRef.current.getEditor();
+    const text = quill.getText();
+    const pattern = /\{\{.*?\}\}/g;
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      quill.formatText(match.index, match[0].length, "pattern", match[0]);
+    }
+  }, [val]);
 
   return (
     <>
