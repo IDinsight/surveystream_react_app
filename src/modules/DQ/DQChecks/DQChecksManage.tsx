@@ -239,7 +239,7 @@ function DQChecksManage() {
                           <FormItemLabel>
                             <span style={{ color: "red" }}>*</span> Select
                             survey status values{" "}
-                            <Tooltip title="Dropdown contains all the survey status values configured in the SurveyCTO form. By default, the ones with completed flag 'true' are selected.">
+                            <Tooltip title="Checks will run only on submissions with the selected survey status values. Dropdown contains all the survey status values configured under Target status mapping module and by default, the ones with completed flag 'true' are selected.">
                               <QuestionCircleOutlined />
                             </Tooltip>{" "}
                             :
