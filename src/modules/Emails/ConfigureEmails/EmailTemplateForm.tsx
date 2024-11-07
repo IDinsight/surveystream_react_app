@@ -21,6 +21,7 @@ import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
+import { has } from "lodash";
 
 const { Option } = Select;
 
@@ -61,6 +62,8 @@ const EmailTemplateForm = ({
     aggregation: null,
   });
 
+  const [validVariables, setValidVariables] = useState<any>([]);
+
   const [currentFormIndex, setCurrentFormIndex] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [insertTableModelOpen, setInsertTableModelOpen] = useState(false);
@@ -95,22 +98,36 @@ const EmailTemplateForm = ({
       const { templates } = form.getFieldsValue();
       if (templates) {
         const templatePayload = [];
+
+        let hasInvalidVariable = false;
         for (let i = 0; i < templates.length; i++) {
           if (disabledIndices.includes(i)) {
             continue;
           }
           const template = templates[i];
 
+          if (template.content.includes("invalid-variable-blot")) {
+            hasInvalidVariable = true;
+          }
+
           templatePayload.push({
             language: template.language,
             subject: template.subject,
             content: template.content.replace(
-              /<span class="pattern-blot"[^>]*>(.*?)<\/span>/g,
+              /<span class="valid-variable-blot"[^>]*>(.*?)<\/span>/g,
               "$1"
             ),
             variable_list: formStates[i].insertedVariables,
             table_list: formStates[i].tableList,
           });
+        }
+
+        if (hasInvalidVariable) {
+          message.error(
+            "Please remove invalid variables from the content before continuing"
+          );
+          setLoading(false);
+          return;
         }
 
         const res = await dispatch(
@@ -282,6 +299,23 @@ const EmailTemplateForm = ({
     }
   }, [emailConfigUID]);
 
+  useEffect(() => {
+    const listArr: any = [];
+    formStates.forEach((formState: any) => {
+      const list: string[] = [];
+      formState.insertedVariables?.forEach((variable: any) => {
+        list.push(variable.variable_name);
+      });
+
+      formState.tableList.forEach((table: any) => {
+        list.push(table.variable_name);
+      });
+
+      listArr.push(list);
+    });
+    setValidVariables(listArr);
+  }, [formStates]);
+
   const [activeKey, setActiveKey] = useState<string | string[]>(["0"]);
 
   return (
@@ -402,6 +436,7 @@ const EmailTemplateForm = ({
                               "content",
                             ])}
                             disableEdit={disabledIndices.includes(formIndex)}
+                            validVariables={validVariables[formIndex]}
                           />
                         </Form.Item>
                         <EmailTableCard

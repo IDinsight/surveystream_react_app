@@ -4,6 +4,7 @@ import { debounce } from "lodash";
 import "react-quill/dist/quill.snow.css";
 import "./PatternBlot";
 import "./PatternBlot.css";
+import { is } from "cypress/types/bluebird";
 
 interface EmailContentEditorProps {
   form: any;
@@ -13,6 +14,7 @@ interface EmailContentEditorProps {
   value?: string;
   standalone?: boolean;
   disableEdit?: boolean;
+  validVariables: string[] | undefined;
 }
 
 function EmailContentEditor({
@@ -23,6 +25,7 @@ function EmailContentEditor({
   value,
   standalone = false,
   disableEdit = false,
+  validVariables,
 }: EmailContentEditorProps) {
   const [val, setVal] = useState(value || "");
 
@@ -74,11 +77,36 @@ function EmailContentEditor({
     const quill = quillRef.current.getEditor();
     const text = quill.getText();
     const pattern = /\{\{.*?\}\}/g;
-    let match;
+
+    // Clear all previous variable formatting
+    quill.formatText(0, text.length, "valid-variable", false);
+    quill.formatText(0, text.length, "invalid-variable", false);
+
+    let match: any;
     while ((match = pattern.exec(text)) !== null) {
-      quill.formatText(match.index, match[0].length, "pattern", match[0]);
+      if (validVariables && validVariables.length > 0) {
+        const isInclude = validVariables.some((variable) =>
+          match[0].includes(variable)
+        );
+
+        if (isInclude) {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "valid-variable",
+            match[0]
+          );
+        } else {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "invalid-variable",
+            match[0]
+          );
+        }
+      }
     }
-  }, [val]);
+  }, [val, validVariables]);
 
   return (
     <>
