@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import Container from "../../components/Layout/Container";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import Container from "../../../components/Layout/Container";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,
   DescriptionText,
   FormItemLabel,
 } from "./DQForm.styled";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { RootState } from "../../redux/store";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { RootState } from "../../../redux/store";
 import { Button, Col, Row, Select, Tooltip, message } from "antd";
-import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
-import { getSurveyLocationGeoLevels } from "../../redux/surveyLocations/surveyLocationsActions";
-import { userHasPermission } from "../../utils/helper";
+import { getCTOFormQuestions } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
+import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
+import { userHasPermission } from "../../../utils/helper";
 import {
   createSCTOFormMapping,
   getSCTOFormMapping,
   updateSCTOFormMapping,
-} from "../../redux/dqForm/dqFormActions";
+} from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 
 function DQFormSCTOQuestion() {

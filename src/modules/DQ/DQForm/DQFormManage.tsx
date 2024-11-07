@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import Container from "../../components/Layout/Container";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import Container from "../../../components/Layout/Container";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./DQForm.styled";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { RootState } from "../../redux/store";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { RootState } from "../../../redux/store";
 import { Button, Col, Input, Row, Select, message } from "antd";
 import {
   createDQForm,
   getDQForm,
   updateDQForm,
-} from "../../redux/dqForm/dqFormActions";
-import { userHasPermission } from "../../utils/helper";
+} from "../../../redux/dqForm/dqFormActions";
+import { userHasPermission } from "../../../utils/helper";
 
 function DQFormManage() {
   const navigate = useNavigate();
