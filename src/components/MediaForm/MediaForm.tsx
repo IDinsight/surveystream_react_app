@@ -74,6 +74,7 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
             label: (
               <Link
                 to={`https://docs.google.com/spreadsheets/d/${data.google_sheet_key}`}
+                target="_blank"
               >
                 Main Audit Google Sheet
               </Link>
@@ -88,6 +89,7 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
             label: (
               <Link
                 to={`https://docs.google.com/spreadsheets/d/${data.mapping_google_sheet_key}`}
+                target="_blank"
               >
                 Master Mapping Google Sheet
               </Link>
