@@ -1,17 +1,27 @@
-import { Button, Col, Modal, Row, Select, message } from "antd";
+import {
+  Button,
+  Col,
+  Dropdown,
+  MenuProps,
+  Modal,
+  Row,
+  Select,
+  message,
+} from "antd";
 import { FormItemLabel } from "../../modules/MediaAudits/MediaAudits.styled";
 import {
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import { useAppDispatch } from "../../redux/hooks";
 import {
   deleteMediaAuditConfig,
   getMediaAuditsConfigs,
 } from "../../redux/mediaAudits/mediaAuditsActions";
-import { useNavigate } from "react-router-dom";
-import { DeleteBtn } from "./MediaForm.styled";
+import { Link, useNavigate } from "react-router-dom";
+import { DeleteBtn, OutputsBtn } from "./MediaForm.styled";
 
 interface MediaFormProps {
   data: any;
@@ -55,6 +65,47 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
       });
     }
   };
+
+  const addUserOptions: MenuProps["items"] = [
+    ...(data.google_sheet_key
+      ? [
+          {
+            key: "1",
+            label: (
+              <Link
+                to={`https://docs.google.com/spreadsheets/d/${data.google_sheet_key}`}
+              >
+                Main Audit Google Sheet
+              </Link>
+            ),
+          },
+        ]
+      : []),
+    ...(data.mapping_criteria && data.mapping_google_sheet_key
+      ? [
+          {
+            key: "2",
+            label: (
+              <Link
+                to={`https://docs.google.com/spreadsheets/d/${data.mapping_google_sheet_key}`}
+              >
+                Master Mapping Google Sheet
+              </Link>
+            ),
+          },
+        ]
+      : []),
+    ...(!data.google_sheet_key && !data.mapping_google_sheet_key
+      ? [
+          {
+            key: "3",
+            label:
+              "Output links will be available here once the google sheets are created. This can take a few minutes. If it has been more than 15 minutes, please contact the SurveyStream team.",
+            disabled: true,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
@@ -116,6 +167,15 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           >
             Delete
           </DeleteBtn>
+          <Dropdown
+            menu={{ items: addUserOptions }}
+            placement="bottomLeft"
+            arrow
+          >
+            <OutputsBtn size="small" icon={<DownOutlined />} iconPosition="end">
+              Outputs
+            </OutputsBtn>
+          </Dropdown>
         </Row>
         {contextHolder}
       </div>

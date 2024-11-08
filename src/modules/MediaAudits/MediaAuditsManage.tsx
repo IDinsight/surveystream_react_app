@@ -193,6 +193,31 @@ function MediaAuditsManage() {
             <Title>Media Audit Config</Title>
           </HeaderContainer>
           <BodyContainer>
+            {mediaConfigUID ? (
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
+                  Edit the media audit configuration below. Kindly note that any
+                  changes made will take a few minutes to reflect on the output
+                  Google Sheets.
+                </p>
+              </div>
+            ) : (
+              <div style={{ marginBottom: 30 }}>
+                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
+                  Please provide all the details below to create a media audit
+                  configuration for generating Google Sheets with links to media
+                  files from SurveyCTO or Exotel.
+                </p>{" "}
+                <span style={{ display: "inline-block" }}></span>
+                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
+                  Links to the Google Sheet outputs will be available on the
+                  home page as soon as they are created. Survey Admins will also
+                  receive an email notification granting them access to the
+                  Google Drive folder containing the sheets.
+                </p>
+              </div>
+            )}
+
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
@@ -317,7 +342,7 @@ function MediaAuditsManage() {
                 <FormItemLabel>
                   <span style={{ color: "red" }}>*</span> Select mapping
                   criteria{" "}
-                  <Tooltip title="Mapping criteria will be used to create multiple Google Sheets - one per prime geo location or language as per the mapping criteria selected. If location/language level Google Sheets are not required, kindly select 'Not required'.">
+                  <Tooltip title="Mapping criteria will be used to create multiple Google Sheets - one per prime geo location or language as per selection. If location/language level Google Sheets are not required, kindly select 'Not required'. This option is not available for admin forms. ">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
                   :
@@ -328,7 +353,13 @@ function MediaAuditsManage() {
                   style={{ width: "100%" }}
                   placeholder="Location / Language"
                   value={formFieldsData?.mapping_criteria}
-                  disabled={!canUserWrite}
+                  disabled={
+                    !canUserWrite ||
+                    // Disable if form_uid is in adminForms. Admin forms are not allowed to have mapping criteria since mapping is done using target location and language details.
+                    adminForms.some(
+                      (form: any) => form.form_uid === formFieldsData?.form_uid
+                    )
+                  }
                   onSelect={(val) =>
                     setFormFieldsData((prev: any) => ({
                       ...prev,
