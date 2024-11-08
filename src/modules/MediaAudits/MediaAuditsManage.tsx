@@ -340,8 +340,7 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select mapping
-                  criteria{" "}
+                  Select mapping criteria{" "}
                   <Tooltip title="Mapping criteria will be used to create multiple Google Sheets - one per prime geo location or language as per selection. If location/language level Google Sheets are not required, kindly select 'Not required'. This option is not available for admin forms. ">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
