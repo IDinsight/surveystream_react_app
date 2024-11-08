@@ -8,10 +8,12 @@ import {
   Row,
   Col,
   Popconfirm,
+  Tooltip,
 } from "antd";
 import {
   fetchTargetsMappingConfig,
   updateTargetsMappingConfig,
+  deleteTargetsMappingConfig,
   resetTargetsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
@@ -21,10 +23,15 @@ import {
 } from "../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { CustomBtn, MappingTable, ResetButton } from "./Mapping.styled";
+import {
+  CustomBtn,
+  MappingTable,
+  DeleteButton,
+  ResetButton,
+} from "./Mapping.styled";
 import { useAppDispatch } from "./../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../redux/mapping/mappingSlice";
-
+import { DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
 interface TargetMappingProps {
@@ -137,6 +144,31 @@ const TargetMapping = ({
       render: (status: any) => (
         <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
       ),
+    },
+    {
+      title: (
+        <Tooltip title="Delete action is enabled for rows with manually mapped mapping criteria values">
+          Action
+        </Tooltip>
+      ),
+      key: "action",
+      render: (_: any, record: any) =>
+        // show delete icon if the mapping columns don't match
+        record.targetLocation !== record.supervisorLocation ||
+        record.targetLanguage !== record.supervisorLanguage ||
+        record.targetGender !== record.supervisorGender ? (
+          <Popconfirm
+            title="Delete"
+            description="Are you sure you want to delete this mapping config?"
+            onConfirm={() => handleConfigDelete(record.config_uid)}
+            okText="Delete"
+            cancelText="No"
+          >
+            <DeleteButton type="link">
+              <DeleteOutlined />
+            </DeleteButton>
+          </Popconfirm>
+        ) : null,
     },
   ];
 
@@ -298,6 +330,7 @@ const TargetMapping = ({
         config.supervisor_mapping_criteria_values.criteria?.Gender,
       supervisorCount: config.supervisor_count,
       status: config.mapping_status,
+      config_uid: config.config_uid,
     };
   });
 
@@ -398,6 +431,27 @@ const TargetMapping = ({
     } else if (type === "Gender") {
       setSelectedGenders(updateState);
     }
+  };
+
+  const handleConfigDelete = (configUID: string) => {
+    setLoading(true);
+    deleteTargetsMappingConfig(formUID, configUID).then((res: any) => {
+      if (res?.data?.success) {
+        message.success("Mapping deleted successfully");
+        setLoading(true);
+        fetchTargetsMappingConfig(formUID).then((res: any) => {
+          if (res?.data?.success) {
+            setMappingConfig(res?.data?.data);
+          } else {
+            message.error("Failed to fetch mapping config");
+          }
+          setLoading(false);
+        });
+      } else {
+        message.error("Failed to delete mapping");
+      }
+      setLoading(false);
+    });
   };
 
   const handleConfigSave = () => {
@@ -1039,7 +1093,7 @@ const TargetMapping = ({
             <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
             <Popconfirm
               title="Delete"
-              description="Are you sure to delete mapping config?"
+              description="Are you sure you want to delete all mapping config?"
               onConfirm={resetMappingConfig}
               okText="Delete"
               cancelText="No"
