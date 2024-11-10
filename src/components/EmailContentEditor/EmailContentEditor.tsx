@@ -4,7 +4,6 @@ import { debounce } from "lodash";
 import "react-quill/dist/quill.snow.css";
 import "./PatternBlot";
 import "./PatternBlot.css";
-import { is } from "cypress/types/bluebird";
 
 interface EmailContentEditorProps {
   form: any;
@@ -76,7 +75,20 @@ function EmailContentEditor({
   useEffect(() => {
     const quill = quillRef.current.getEditor();
     const text = quill.getText();
-    const pattern = /\{\{.*?\}\}/g;
+
+    /* eslint-disable no-useless-escape */
+    const pattern =
+      /\{\{(?:\s*([^\}\r\n]+)\s*\(([^\}\r\n]+)\)|([^\}\r\n]+))\}\}/g;
+    const aggregationFunctions = [
+      "SUM",
+      "COUNT",
+      "AVG",
+      "MIN",
+      "MAX",
+      "UPPER",
+      "LOWER",
+      "TITLE",
+    ];
 
     // Clear all previous variable formatting
     quill.formatText(0, text.length, "valid-variable", false);
@@ -84,12 +96,31 @@ function EmailContentEditor({
 
     let match: any;
     while ((match = pattern.exec(text)) !== null) {
-      if (validVariables && validVariables.length > 0) {
-        const isInclude = validVariables.some((variable) =>
-          match[0].includes(variable)
-        );
+      const aggregationFunction = match[1];
+      const variableName = match[2] || match[3];
 
-        if (isInclude) {
+      if (aggregationFunction) {
+        if (
+          aggregationFunctions.includes(aggregationFunction) &&
+          validVariables &&
+          validVariables.includes(variableName)
+        ) {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "valid-variable",
+            match[0]
+          );
+        } else {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "invalid-variable",
+            match[0]
+          );
+        }
+      } else {
+        if (validVariables && validVariables.includes(variableName)) {
           quill.formatText(
             match.index,
             match[0].length,
