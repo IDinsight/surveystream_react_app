@@ -3,7 +3,6 @@ import { AssignmentsTable } from "./AssignmentsTab.styled";
 import { buildColumnDefinition } from "../utils";
 import { Tag } from "antd";
 import { TablePaginationConfig, FilterValue } from "antd/lib/table/interface";
-import { Pagination } from "antd";
 import { IAssignmentsTabProps } from "../types";
 
 type TableOnChangeType = (
