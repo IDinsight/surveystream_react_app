@@ -2,6 +2,8 @@ import { useEffect, useCallback, useState } from "react";
 import ReactQuill from "react-quill";
 import { debounce } from "lodash";
 import "react-quill/dist/quill.snow.css";
+import "./PatternBlot";
+import "./PatternBlot.css";
 
 interface EmailContentEditorProps {
   form: any;
@@ -11,6 +13,7 @@ interface EmailContentEditorProps {
   value?: string;
   standalone?: boolean;
   disableEdit?: boolean;
+  validVariables: string[] | undefined;
 }
 
 function EmailContentEditor({
@@ -21,6 +24,7 @@ function EmailContentEditor({
   value,
   standalone = false,
   disableEdit = false,
+  validVariables,
 }: EmailContentEditorProps) {
   const [val, setVal] = useState(value || "");
 
@@ -67,6 +71,73 @@ function EmailContentEditor({
       setVal(value);
     }
   }, [value]);
+
+  useEffect(() => {
+    const quill = quillRef.current.getEditor();
+    const text = quill.getText();
+
+    /* eslint-disable no-useless-escape */
+    const pattern =
+      /\{\{(?:\s*([^\}\r\n]+)\s*\(([^\}\r\n]+)\)|([^\}\r\n]+))\}\}/g;
+    const aggregationFunctions = [
+      "SUM",
+      "COUNT",
+      "AVG",
+      "MIN",
+      "MAX",
+      "UPPER",
+      "LOWER",
+      "TITLE",
+    ];
+
+    // Clear all previous variable formatting
+    quill.formatText(0, text.length, "valid-variable", false);
+    quill.formatText(0, text.length, "invalid-variable", false);
+
+    let match: any;
+    while ((match = pattern.exec(text)) !== null) {
+      const aggregationFunction = match[1];
+      const variableName = match[2] || match[3];
+
+      if (aggregationFunction) {
+        if (
+          aggregationFunctions.includes(aggregationFunction) &&
+          validVariables &&
+          validVariables.includes(variableName)
+        ) {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "valid-variable",
+            match[0]
+          );
+        } else {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "invalid-variable",
+            match[0]
+          );
+        }
+      } else {
+        if (validVariables && validVariables.includes(variableName)) {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "valid-variable",
+            match[0]
+          );
+        } else {
+          quill.formatText(
+            match.index,
+            match[0].length,
+            "invalid-variable",
+            match[0]
+          );
+        }
+      }
+    }
+  }, [val, validVariables]);
 
   return (
     <>
