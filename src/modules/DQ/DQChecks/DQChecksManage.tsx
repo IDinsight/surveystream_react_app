@@ -65,6 +65,8 @@ function DQChecksManage() {
     dqConfig: dqConfig,
   } = useAppSelector((state: RootState) => state.dqChecks);
 
+  const [isDQChecksLoading, setIsDQChecksLoading] = useState<boolean>(false);
+
   const [formSurveyStatusData, setFormSurveyStatusData] = useState<any>({
     form_uid: form_uid,
     survey_status_filter: [],
@@ -107,28 +109,32 @@ function DQChecksManage() {
   }, [targetStatusMapping, dqConfig]);
 
   useEffect(() => {
+    setIsDQChecksLoading(true);
     if (checkTypes.length > 0) {
-      setDQChecksTableData(
-        checkTypes.map((item: any) => {
-          // find the number of checks configured for this type
-          const numConfigured = dqConfig?.dq_checks?.filter(
-            (check: any) => check.type_id === item.type_id
-          )?.num_configured;
+      const dqChecksTableData = checkTypes.map((item: any) => {
+        // find the number of checks configured for this type
+        const numConfigured = dqConfig?.dq_checks?.filter(
+          (check: any) => check.type_id === item.type_id
+        )?.num_configured;
 
-          // find the number of active checks for this type
-          const numActive = dqConfig?.dq_checks?.filter(
-            (check: any) => check.type_id === item.type_id
-          )?.num_active;
+        // find the number of active checks for this type
+        const numActive = dqConfig?.dq_checks?.filter(
+          (check: any) => check.type_id === item.type_id
+        )?.num_active;
 
-          return {
-            type_id: item.type_id,
-            type_name: item.name,
-            num_configured: numConfigured ?? 0,
-            num_active: numActive ?? 0,
-          };
-        })
-      );
+        return {
+          type_id: item.type_id,
+          type_name: item.name,
+          num_configured: numConfigured ?? 0,
+          num_active: numActive ?? 0,
+        };
+      });
+
+      setDQChecksTableData(dqChecksTableData);
+    } else {
+      setDQChecksTableData([]);
     }
+    setIsDQChecksLoading(false);
   }, [checkTypes, dqConfig]);
 
   const handleSave = () => {
@@ -201,7 +207,10 @@ function DQChecksManage() {
   };
 
   const isLoading =
-    isSurveyCTOFormLoading || isMappingLoading || isDQConfigLoading;
+    isSurveyCTOFormLoading ||
+    isMappingLoading ||
+    isDQConfigLoading ||
+    isDQChecksLoading;
 
   return (
     <>

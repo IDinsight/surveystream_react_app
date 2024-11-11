@@ -52,7 +52,6 @@ function SideMenu() {
       key: "dqChecks",
     },
   ];
-  const [current, setCurrent] = useState("mail");
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const onClick: MenuProps["onClick"] = (e) => {
@@ -66,6 +65,7 @@ function SideMenu() {
 
     return "dqForms";
   };
+  const [current, setCurrent] = useState<string>(getPossibleKey());
 
   useEffect(() => {
     const key: string = getPossibleKey();
