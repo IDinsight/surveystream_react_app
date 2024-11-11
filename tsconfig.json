@@ -40,6 +40,9 @@
       "@/utils/*": [
         "utils/*"
       ],
+      "@/hooks/*": [
+        "hooks/*"
+      ],
     }
   },
   "include": ["src", "e2e", "cypress"],
