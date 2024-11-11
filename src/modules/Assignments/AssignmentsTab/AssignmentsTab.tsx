@@ -67,8 +67,7 @@ function AssignmentsTab({
               groupItem,
               mainData,
               filter,
-              mainTableSpecialAttrs,
-              configItem.group_label
+              mainTableSpecialAttrs
             );
           }),
         };

@@ -41,8 +41,7 @@ function SurveyorsTab({
               groupItem,
               mainData,
               filter,
-              specialAttributes,
-              configItem.group_label
+              specialAttributes
             );
           }),
         };

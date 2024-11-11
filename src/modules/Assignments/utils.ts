@@ -160,8 +160,7 @@ export const buildColumnDefinition = (
   columnItem: IColumnItem,
   dataSource: any,
   dataFilter: any,
-  specialAttribute?: any,
-  groupLabel?: string
+  specialAttribute?: any
 ) => {
   const colKey = columnItem.column_key;
 
@@ -179,10 +178,7 @@ export const buildColumnDefinition = (
 
   const keyArray = toPath(colKey);
   if (keyArray.length > 1) {
-    const isCCColumn = groupLabel?.includes("CC");
-    const isRCColumn = groupLabel?.includes("RC");
-
-    if (isCCColumn || isRCColumn) {
+    if (keyArray[0] === "supervisors") {
       columnDefinition = {
         ...columnDefinition,
         dataIndex: "supervisors",
@@ -190,17 +186,17 @@ export const buildColumnDefinition = (
         onFilter: (value: string | number, record: any) =>
           _.get(record, keyArray) === value,
         render: (val: any, record: any) => {
-          const ccName = _.get(record, [
+          const supervisorName = _.get(record, [
             ...keyArray.slice(0, 2),
             "supervisor_name",
           ]);
 
-          const ccEmail = _.get(record, [
+          const supervisorEmail = _.get(record, [
             ...keyArray.slice(0, 2),
             "supervisor_email",
           ]);
 
-          if (!ccName && !ccEmail) {
+          if (!supervisorName && !supervisorEmail) {
             if (colKey.includes("supervisor_name")) {
               return {
                 children: "*",
@@ -219,15 +215,18 @@ export const buildColumnDefinition = (
             }
           }
 
-          return colKey.includes("supervisor_name") ? ccName : ccEmail;
+          return colKey.includes("supervisor_name")
+            ? supervisorName
+            : supervisorEmail;
         },
         sorter: defaultSorter(keyArray),
       };
-    } else if (
+    }
+
+    if (
       keyArray[0] === "target_locations" ||
       keyArray[0] === "surveyor_locations" ||
-      keyArray[0] === "form_productivity" ||
-      keyArray[0] === "supervisors"
+      keyArray[0] === "form_productivity"
     ) {
       columnDefinition = {
         ...columnDefinition,

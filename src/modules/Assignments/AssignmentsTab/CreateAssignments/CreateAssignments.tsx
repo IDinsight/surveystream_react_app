@@ -115,8 +115,7 @@ function CreateAssignments() {
               groupItem,
               assignableSurveyors,
               surveyorsFilter,
-              surveyorsTableSpecialAttrs,
-              configItem.group_label
+              surveyorsTableSpecialAttrs
             );
           }),
         };
@@ -204,8 +203,7 @@ function CreateAssignments() {
               groupItem,
               targetAssignments,
               null,
-              reviewTableSpecialAttrs,
-              configItem.group_label
+              reviewTableSpecialAttrs
             );
           }),
         };
