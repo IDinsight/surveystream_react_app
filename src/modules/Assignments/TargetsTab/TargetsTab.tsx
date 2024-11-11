@@ -19,7 +19,13 @@ function TargetsTab({
         return {
           title: configItem.group_label,
           children: configItem.columns.map((groupItem: any, i: any) => {
-            return buildColumnDefinition(groupItem, mainData, filter, null);
+            return buildColumnDefinition(
+              groupItem,
+              mainData,
+              filter,
+              null,
+              configItem.group_label
+            );
           }),
         };
       } else {

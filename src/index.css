@@ -24,3 +24,7 @@ body {
 .ant-table table {
     font-family: "Lato", sans-serif;
 }
+
+.ant-table-footer {
+padding: 12px !important;
+}

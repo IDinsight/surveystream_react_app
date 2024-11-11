@@ -41,7 +41,8 @@ function SurveyorsTab({
               groupItem,
               mainData,
               filter,
-              specialAttributes
+              specialAttributes,
+              configItem.group_label
             );
           }),
         };
@@ -78,6 +79,15 @@ function SurveyorsTab({
           showQuickJumper: true,
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
         }}
+        footer={() => (
+          <p style={{ margin: 0 }}>
+            <span style={{ color: "red" }}>*</span> red background color in
+            supervisor columns indicate either the surveyor is not mapped to a
+            supervisor (if value is missing in lowest level supervisor column)
+            or the user hierarchy for a supervisor is incomplete. This could
+            mean that this surveyor is not visible to the required supervisors.
+          </p>
+        )}
       />
     </>
   );

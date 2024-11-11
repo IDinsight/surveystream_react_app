@@ -3,6 +3,7 @@ import { AssignmentsTable } from "./AssignmentsTab.styled";
 import { buildColumnDefinition } from "../utils";
 import { Tag } from "antd";
 import { TablePaginationConfig, FilterValue } from "antd/lib/table/interface";
+import { Pagination } from "antd";
 import { IAssignmentsTabProps } from "../types";
 
 type TableOnChangeType = (
@@ -67,7 +68,8 @@ function AssignmentsTab({
               groupItem,
               mainData,
               filter,
-              mainTableSpecialAttrs
+              mainTableSpecialAttrs,
+              configItem.group_label
             );
           }),
         };
@@ -108,6 +110,15 @@ function AssignmentsTab({
           showQuickJumper: true,
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
         }}
+        footer={() => (
+          <p style={{ margin: 0 }}>
+            <span style={{ color: "red" }}>*</span> red background color in
+            supervisor columns indicate either the target is not mapped to a
+            supervisor (if value is missing in lowest level supervisor column)
+            or the user hierarchy for a supervisor is incomplete. This could
+            mean that this target is not visible to the required supervisors.
+          </p>
+        )}
       />
     </>
   );
