@@ -1,18 +1,15 @@
 import { useLocation, useParams } from "react-router-dom";
 import {
   ApartmentOutlined,
-  CalendarOutlined,
   CompassOutlined,
-  FormOutlined,
   NumberOutlined,
   PlusSquareOutlined,
   ProfileOutlined,
-  SelectOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
   UploadOutlined,
-  UserOutlined,
-  UsergroupAddOutlined,
+  ProductOutlined,
+  ReconciliationOutlined,
 } from "@ant-design/icons";
 import {
   SideMenuWrapper,
@@ -179,6 +176,40 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyTargets",
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/targets/config/${survey_uid}/${formUID}`
+              )}
+              to={`/survey-information/targets/config/${survey_uid}/${formUID}`}
+            >
+              <IconWrapper>
+                <ReconciliationOutlined />
+              </IconWrapper>
+              Target Configuration
+            </MenuItem>
+          ),
+          key: "targetsConfig",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/targets/scto_map/${survey_uid}/${formUID}`
+              )}
+              to={`/survey-information/targets/scto_map/${survey_uid}/${formUID}`}
+            >
+              <IconWrapper>
+                <ProductOutlined />
+              </IconWrapper>
+              Target Mapping
+            </MenuItem>
+          ),
+          key: "targetsColumnMapping",
+        },
+      ],
     },
     {
       label: (

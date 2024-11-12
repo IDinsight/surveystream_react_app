@@ -328,6 +328,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           const customFields: any = column_mapping[key];
 
           const fieldsConfig = Object.keys(customFields).map((customKey) => {
+            const columnName = column_mapping[key][customKey]["column_name"];
+
             const bulk = checkboxValues?.[`${customKey}_bulk`]
               ? checkboxValues?.[`${customKey}_bulk`]
               : true;
@@ -337,9 +339,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
             return {
               bulk_editable: bulk,
-              column_name: customKey,
+              column_name: columnName,
               column_type: "custom_field",
               contains_pii: pii,
+              column_source: columnName,
             };
           });
         }
@@ -361,6 +364,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
               ? "location"
               : "custom_field",
           contains_pii: true, //TODO: fix
+          column_source: column_mapping[key],
         };
       }
     });

@@ -162,6 +162,134 @@ export const updateTargetsColumnConfig = async (
   }
 };
 
+export const getTargetConfig = async (form_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets/config?form_uid=${form_uid}`;
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const postTargetConfig = async (
+  form_uid: string,
+  target_source: string,
+  scto_input_type: string,
+  scto_input_id: string,
+  scto_encryption_flag: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets/config`;
+
+    const res = await axios.post(
+      url,
+      {
+        form_uid: form_uid,
+        target_source,
+        scto_input_type,
+        scto_input_id,
+        scto_encryption_flag,
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const putTargetConfig = async (
+  form_uid: string,
+  target_source: string,
+  scto_input_type: string,
+  scto_input_id: string,
+  scto_encryption_flag: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets/config`;
+
+    const res = await axios.put(
+      url,
+      {
+        form_uid: form_uid,
+        target_source,
+        scto_input_type,
+        scto_input_id,
+        scto_encryption_flag,
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getTargetSCTOColumns = async (form_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets/config/scto-columns?form_uid=${form_uid}`;
+    const res = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateTargetSCTOColumns = async (form_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets/config/scto-columns?form_uid=${form_uid}`;
+    const res = await axios.put(
+      url,
+      {},
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   uploadTargetsMapping,
   bulkUpdateTargets,
@@ -170,4 +298,9 @@ export const api = {
   updateTarget,
   updateTargetsColumnConfig,
   fetchTargetsColumnConfig,
+  getTargetConfig,
+  postTargetConfig,
+  putTargetConfig,
+  getTargetSCTOColumns,
+  updateTargetSCTOColumns,
 };

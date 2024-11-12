@@ -1,0 +1,248 @@
+import SideMenu from "../../SideMenu";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+
+import { GlobalStyle } from "../../../../shared/Global.styled";
+import HandleBackButton from "../../../../components/HandleBackButton";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import { RootState } from "../../../../redux/store";
+import { Form, Radio, Space } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
+import {
+  ContinueButton,
+  FooterWrapper,
+  SaveButton,
+} from "../../../../shared/FooterBar.styled";
+import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
+import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { setTargetsCSVColumns } from "../../../../redux/targets/targetSlice";
+import {
+  postTargetConfig,
+  updateTargetSCTOColumns,
+  getTargetConfig,
+  putTargetConfig,
+} from "../../../../redux/targets/targetActions";
+import { set } from "lodash";
+
+function TargetsConfig() {
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.surveys.activeSurvey
+  );
+  const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const isLoading = useAppSelector((state: RootState) => state.emails.loading);
+
+  const [loading, setLoading] = useState(false);
+  const [sourceType, setSourceType] = useState("");
+  const handleSourceChange = (e: any) => {
+    setSourceType(e.target.value);
+  };
+  const { survey_uid } = useParams<{ survey_uid: string }>() ?? {
+    survey_uid: "",
+  };
+  const { form_uid } = useParams<{ form_uid: string }>() ?? {
+    form_uid: "",
+  };
+  const [targetConfig, setTargetConfig] = useState<any>();
+
+  const fetchTargetConfig = async () => {
+    setLoading(true);
+    const response = await dispatch(getTargetConfig({ form_uid: form_uid! }));
+    if (response.payload.success) {
+      handleSourceChange({
+        target: { value: response.payload.data.data.target_source },
+      });
+      const configData = response.payload.data.data;
+      const { form_uid, ...restConfig } = configData;
+      setTargetConfig(restConfig);
+      handleSourceChange({
+        target: { value: configData.target_source },
+      });
+      form.setFieldsValue(restConfig);
+    }
+    setLoading(false);
+  };
+
+  const handleFormUID = async () => {
+    try {
+      setLoading(true);
+      const sctoForm = await dispatch(
+        getSurveyCTOForm({ survey_uid: survey_uid })
+      );
+      if (sctoForm?.payload[0]?.form_uid) {
+        navigate(
+          `/survey-information/targets/config/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
+        );
+      } else {
+        navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
+      handleFormUID();
+    } else {
+      fetchTargetConfig();
+    }
+  }, [form_uid]);
+
+  const handleContinue = async () => {
+    setLoading(true);
+    try {
+      const values = form.getFieldsValue();
+      values.form_uid = form_uid;
+
+      const response = targetConfig
+        ? await dispatch(putTargetConfig(values))
+        : await dispatch(postTargetConfig(values));
+
+      if (response.payload) {
+        if (sourceType === "csv") {
+          navigate(
+            `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+          );
+        } else {
+          const refresh_scto_columns = await dispatch(
+            updateTargetSCTOColumns({ form_uid: form_uid! })
+          );
+          console.log(refresh_scto_columns);
+
+          navigate(
+            `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+          );
+        }
+      } else {
+        console.log("Error in postTargetConfig");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
+  return (
+    <>
+      <GlobalStyle />
+
+      <NavWrapper>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
+
+        <Title>
+          {(() => {
+            const activeSurveyData = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
+              ""
+            );
+          })()}
+        </Title>
+      </NavWrapper>
+      {loading ? (
+        <FullScreenLoader />
+      ) : (
+        <div style={{ display: "flex" }}>
+          <SideMenu />
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: "#f5f5f5",
+              paddingLeft: "80px",
+              paddingTop: "23px",
+              fontFamily: "Lato",
+            }}
+          >
+            <div style={{ display: "flex" }}>
+              <Title>Targets: Configuration</Title>
+            </div>
+            <Form
+              form={form}
+              layout="horizontal"
+              style={{
+                paddingTop: "23px",
+                fontFamily: "Lato",
+                fontSize: "16px",
+              }}
+            >
+              <StyledFormItem
+                name="target_source"
+                label="Select the source of Targets"
+                labelCol={{ span: 24 }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select the source of Targets",
+                  },
+                ]}
+              >
+                <Radio.Group>
+                  <Space direction="vertical" onChange={handleSourceChange}>
+                    <Radio value="csv">Upload CSV</Radio>
+                    <Radio value="scto">
+                      Connect to a SurveyCTO Dataset/Form
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+              </StyledFormItem>
+              {sourceType === "scto" && (
+                <>
+                  <StyledFormItem
+                    name="scto_input_type"
+                    label="Select Type of SurveyCTO Input"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please Select Type of SurveyCTO Input",
+                      },
+                    ]}
+                  >
+                    <Radio.Group>
+                      <Space direction="horizontal">
+                        <Radio value="dataset">Dataset</Radio>
+                        <Radio value="form">Form</Radio>
+                      </Space>
+                    </Radio.Group>
+                  </StyledFormItem>
+                  <StyledFormItem
+                    name="scto_input_id"
+                    label="Enter the SurveyCTO Input ID"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please Enter the SurveyCTO Dataset/Form ID",
+                      },
+                    ]}
+                  >
+                    <input style={{ width: "25%", height: "100%" }} />
+                  </StyledFormItem>
+                  <StyledFormItem
+                    name="scto_encryption_flag"
+                    valuePropName="checked"
+                  >
+                    <CheckboxSCTO>
+                      If SCTO Form is encypted,Please share the SCTO key with{" "}
+                      <a href="mail:surveystream.devs@idinsight.org">
+                        surveystream.devs@idinsight.org
+                      </a>{" "}
+                      via FlowCrypt/Dashlane.
+                    </CheckboxSCTO>
+                  </StyledFormItem>
+                </>
+              )}
+            </Form>
+          </div>
+        </div>
+      )}
+      <FooterWrapper>
+        <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
+      </FooterWrapper>
+    </>
+  );
+}
+export default TargetsConfig;

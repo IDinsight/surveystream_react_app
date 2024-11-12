@@ -25,7 +25,10 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { getTargets } from "../../../../redux/targets/targetActions";
+import {
+  getTargets,
+  getTargetConfig,
+} from "../../../../redux/targets/targetActions";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
@@ -169,16 +172,32 @@ function TargetsHome() {
   };
   const getTargetsList = async (form_uid: string) => {
     const targetRes = await dispatch(getTargets({ formUID: form_uid }));
+    const targetConfig = await dispatch(
+      getTargetConfig({ form_uid: form_uid })
+    );
     if (targetRes.payload.status == 200) {
       message.success("Targets loaded successfully.");
       //create rowbox data
       const originalData = targetRes.payload.data.data;
       setTargetsCount(originalData.length);
+      console.log("targetConfig", targetConfig);
 
       if (originalData.length == 0) {
-        navigate(
-          `/survey-information/targets/upload/${survey_uid}/${form_uid}`
-        );
+        if (targetConfig.payload.success) {
+          if (targetConfig.payload.data?.target_source === "csv") {
+            navigate(
+              `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+            );
+          } else {
+            navigate(
+              `/survey-information/targets/config/${survey_uid}/${form_uid}`
+            );
+          }
+        } else {
+          navigate(
+            `/survey-information/targets/config/${survey_uid}/${form_uid}`
+          );
+        }
         return;
       }
 

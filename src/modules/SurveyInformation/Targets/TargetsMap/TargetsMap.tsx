@@ -105,6 +105,7 @@ function TargetsMap() {
   const csvHeaders = useAppSelector(
     (state: RootState) => state.targets.csvColumnNames
   );
+  console.log("csvHeaders", csvHeaders);
 
   const csvRows = useAppSelector((state: RootState) => state.targets.csvRows);
 
@@ -154,7 +155,10 @@ function TargetsMap() {
     },
   ];
 
+  console.log("csvHeaders", csvHeaders);
+
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
+    console.log("item", item);
     return { label: item, value: item };
   });
 
@@ -331,6 +335,7 @@ function TargetsMap() {
               column_name: columnName,
               column_type: "custom_fields",
               contains_pii: pii,
+              column_source: columnName,
             };
           });
         }
@@ -352,6 +357,7 @@ function TargetsMap() {
               ? "location"
               : "custom_fields",
           contains_pii: true, // TODO: fix
+          column_source: column_mapping[key],
         };
       }
     });
@@ -460,6 +466,8 @@ function TargetsMap() {
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
+    console.log("csvHeaders", csvHeaders);
+
     if (csvHeaders.length < 1) {
       message.error("csvHeaders not found kindly reupload csv file");
       navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);

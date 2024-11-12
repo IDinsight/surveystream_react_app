@@ -20,6 +20,8 @@ import NotFound from "../components/NotFound";
 import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
+import TargetsConfig from "../modules/SurveyInformation/Targets/TargetsConfig";
+import TargetsSctoMap from "../modules/SurveyInformation/Targets/TargetsSctoMap";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
 import CompleteRegistration from "../modules/Users/CompleteRegistration";
 import AddUser from "../modules/Users/AddUser";
@@ -230,6 +232,14 @@ const AppRoutes = () => {
         <Route
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
+        />
+        <Route
+          path="/survey-information/targets/config/:survey_uid?/:form_uid?"
+          element={<TargetsConfig />}
+        />
+        <Route
+          path="/survey-information/targets/scto_map/:survey_uid?/:form_uid?"
+          element={<TargetsSctoMap />}
         />
       </Route>
       <Route
