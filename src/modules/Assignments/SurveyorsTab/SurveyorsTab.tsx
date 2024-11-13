@@ -79,7 +79,7 @@ function SurveyorsTab({
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
         }}
         footer={() => (
-          <p style={{ margin: 0 }}>
+          <p style={{ margin: 0, color: "#8c8c8c", fontStyle: "italic" }}>
             <span style={{ color: "red" }}>*</span> red background color in
             supervisor columns indicate either the surveyor is not mapped to a
             supervisor (if value is missing in lowest level supervisor column)
