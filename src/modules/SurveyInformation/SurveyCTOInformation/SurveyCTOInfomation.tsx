@@ -169,7 +169,7 @@ function SurveyCTOInfomation() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>SurveyCTO information</Title>
 

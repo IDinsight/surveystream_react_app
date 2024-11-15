@@ -51,7 +51,7 @@ function DQFormHome() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Data quality forms</Title>
           </HeaderContainer>

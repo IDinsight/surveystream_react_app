@@ -18,6 +18,8 @@ import {
   SectionTitle,
 } from "./SurveyConfiguration.styled";
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
+import { fetchSurveys } from "../../redux/surveyList/surveysActions";
+import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
 import { Result, Button, Tag, Progress } from "antd";
@@ -118,7 +120,7 @@ const SurveyConfiguration: React.FC = () => {
   );
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
+    navigate("/surveys"); // Navigate to the surveys page
   };
 
   const surveyConfigs = useAppSelector(
@@ -135,6 +137,7 @@ const SurveyConfiguration: React.FC = () => {
       getSurveyConfig({ survey_uid: survey_uid })
     );
   };
+
   const renderStatus = (status: string) => {
     const colors: { [key: string]: string } = {
       Done: "green",
@@ -373,6 +376,24 @@ const SurveyConfiguration: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+  }, [survey_uid]);
+
+  useEffect(() => {
+    if (survey_uid && !activeSurvey) {
+      // fetch survey list
+      dispatch(fetchSurveys()).then((surveyList) => {
+        if (surveyList.payload?.length > 0) {
+          const surveyInfo = surveyList.payload.find(
+            (survey: any) => survey.survey_uid === parseInt(survey_uid)
+          );
+
+          // set the active survey
+          dispatch(
+            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+          );
+        }
+      });
+    }
   }, [survey_uid]);
 
   const { height } = useWindowDimensions();

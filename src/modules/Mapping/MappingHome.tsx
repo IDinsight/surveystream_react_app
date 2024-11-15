@@ -17,7 +17,7 @@ function MappingHome() {
 
   return (
     <>
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Mapping</Title>
       </HeaderContainer>

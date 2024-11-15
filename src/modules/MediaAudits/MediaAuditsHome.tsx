@@ -51,7 +51,7 @@ function MediaAuditsHome() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Media Audits Config</Title>
           </HeaderContainer>

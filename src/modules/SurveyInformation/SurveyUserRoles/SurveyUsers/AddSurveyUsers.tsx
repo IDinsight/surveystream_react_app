@@ -590,6 +590,7 @@ function AddSurveyUsers() {
                       <Select
                         showSearch={true}
                         allowClear={true}
+                        optionFilterProp="children"
                         placeholder="Select role"
                         onChange={(value) => {
                           //check if value has reporting role
@@ -688,6 +689,7 @@ function AddSurveyUsers() {
                         <Select
                           showSearch={true}
                           allowClear={true}
+                          optionFilterProp="children"
                           placeholder="Select supervisor"
                           onChange={(value) => {
                             setUserDetails((prev: any) => ({
