@@ -190,6 +190,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         column_mapping: column_mapping,
         file: csvBase64Data,
         mode: "merge",
+        load_from_scto: true,
       };
 
       if (form_uid !== undefined) {

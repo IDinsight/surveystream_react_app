@@ -1,12 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -47,7 +42,6 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
-import { it } from "mocha";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
@@ -187,6 +181,7 @@ function TargetsMap() {
         column_mapping: column_mapping,
         file: csvBase64Data,
         mode: "overwrite",
+        load_from_scto: true,
       };
 
       if (form_uid !== undefined) {
