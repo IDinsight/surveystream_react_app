@@ -21,6 +21,9 @@ import {
   putSurveyPrimeGeoLevelRequest,
   putSurveyPrimeGeoLevelRequestSuccess,
   putSurveyPrimeGeoLevelRequestFailure,
+  updateLocationFailure,
+  updateLocationRequest,
+  updateLocationSuccess,
 } from "./surveyLocationsSlice";
 import { putSurveyBasicInformationFailure } from "../surveyConfig/surveyConfigSlice";
 
@@ -231,10 +234,43 @@ export const getSurveyLocationsLong = createAsyncThunk(
   }
 );
 
+export const updateLocation = createAsyncThunk(
+  "surveyLocations/updateLocation",
+  async (
+    { formData, locationUid }: { formData: any; locationUid: string },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateLocationRequest());
+      const response: any = await api.updateLocation(formData, locationUid);
+
+      if (response.status == 200) {
+        dispatch(updateLocationSuccess(response.data));
+        return { ...response.data, success: true };
+      }
+
+      const error = {
+        message: response.message
+          ? response.message
+          : "Failed to update location",
+        success: false,
+      };
+
+      dispatch(updateLocationFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update location";
+      dispatch(updateLocationFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const fieldSupervisorRolesActions = {
   getSurveyLocationGeoLevels,
   getSurveyLocations,
   postSurveyLocationGeoLevels,
   postSurveyLocations,
   updateSurveyPrimeGeoLocation,
+  updateLocation,
 };

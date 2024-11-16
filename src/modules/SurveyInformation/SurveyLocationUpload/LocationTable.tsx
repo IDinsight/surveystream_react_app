@@ -20,8 +20,8 @@ const LocationsTable = styled(Table)`
 `;
 
 interface LocationTableProps {
-  transformedColumns: any[];
-  transformedData: any[];
+  transformedColumns: { title: string; dataIndex: string; key: string }[];
+  transformedData: { [key: string]: string | number | boolean }[];
 }
 
 const LocationTable: React.FC<LocationTableProps> = ({
@@ -33,7 +33,10 @@ const LocationTable: React.FC<LocationTableProps> = ({
   return (
     <>
       <LocationsTable
-        columns={transformedColumns}
+        columns={transformedColumns.map((col) => ({
+          ...col,
+          sorter: (a, b) => (a[col.dataIndex] > b[col.dataIndex] ? 1 : -1),
+        }))}
         dataSource={transformedData}
         pagination={{
           pageSize: paginationPageSize,
@@ -42,7 +45,6 @@ const LocationTable: React.FC<LocationTableProps> = ({
           showQuickJumper: true,
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
         }}
-        style={{ marginRight: "80px", marginTop: "18px" }}
       />
     </>
   );

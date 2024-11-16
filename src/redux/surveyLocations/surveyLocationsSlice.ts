@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GeoLevel, SurveyLocationLong } from "./types";
+import { updateLocation } from "./apiService";
 
 interface SurveyLocationsState {
   loading: boolean;
@@ -127,6 +128,18 @@ const surveyLocationsSlice = createSlice({
     resetSurveyLocations: () => {
       return initialState;
     },
+    updateLocationRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateLocationSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    updateLocationFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -152,6 +165,9 @@ export const {
   putSurveyPrimeGeoLevelRequest,
   putSurveyPrimeGeoLevelRequestFailure,
   putSurveyPrimeGeoLevelRequestSuccess,
+  updateLocationRequest,
+  updateLocationSuccess,
+  updateLocationFailure,
 } = surveyLocationsSlice.actions;
 
 export default surveyLocationsSlice.reducer;
