@@ -1,8 +1,9 @@
 import React from "react";
-import { Button, Drawer, Form, Input, Select } from "antd";
+import { Button, Drawer, Form, Input, Modal, Select } from "antd";
 import styled from "styled-components";
 import { updateLocation } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { useAppDispatch } from "../../../redux/hooks";
+import { StyledFormItem } from "../SurveyInformation.styled";
 
 const LocationsDrawer = styled(Drawer)`
   margin-top: 15px;
@@ -68,6 +69,8 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
         )
       );
 
+      onClose();
+
       const results = await Promise.all(updatePromises);
 
       const failedUpdates = results.filter(
@@ -76,9 +79,9 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
 
       if (failedUpdates.length > 0) {
         alert("Some locations failed to update.");
-      } else {
-        onClose();
       }
+      // Reload the page to reflect the changes
+      window.location.reload();
     } catch (error) {
       console.error("Failed to update locations", error);
     }
@@ -101,9 +104,12 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
         <Form form={form} layout="horizontal">
           {geoLevels.map((geoLevel: any, index: any) => (
             <React.Fragment key={index}>
-              <Form.Item
+              <StyledFormItem
                 label={`${geoLevel.geo_level_name} ID`}
                 name={`${geoLevel.geo_level_name}_uid`}
+                labelAlign="left"
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 16 }}
                 initialValue={
                   dataTable.find(
                     (data: any) =>
@@ -141,26 +147,48 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                       </Select.Option>
                     ))}
                 </Select>
-              </Form.Item>
-              <Form.Item
+              </StyledFormItem>
+              <StyledFormItem
                 label={`${geoLevel.geo_level_name} Name`}
                 name={`${geoLevel.geo_level_name}_name`}
+                labelAlign="left"
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 16 }}
                 initialValue={
                   selectedRecord[
                     `${geoLevel.geo_level_name.toLowerCase()} name`
                   ]
                 }
+                style={{ textAlign: "left" }}
               >
                 <Input />
-              </Form.Item>
+              </StyledFormItem>
             </React.Fragment>
           ))}
         </Form>
-        <Form.Item>
-          <Button type="primary" onClick={handleLocationsUpdate}>
+        <StyledFormItem>
+          <Button
+            type="primary"
+            onClick={() => {
+              Modal.confirm({
+                title: "Save Location Changes",
+                content: (
+                  <p>
+                    Updating the location name here will update the location
+                    name in User, Enumerator, Target records too.
+                    <br />
+                    Confirm that you want this action to happen.
+                  </p>
+                ),
+                onOk: handleLocationsUpdate,
+                okText: "Yes",
+                cancelText: "No",
+              });
+            }}
+          >
             Save
           </Button>
-        </Form.Item>
+        </StyledFormItem>
       </LocationsDrawer>
     </>
   );

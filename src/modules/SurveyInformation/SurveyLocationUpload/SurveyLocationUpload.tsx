@@ -1,4 +1,16 @@
-import { Alert, Col, Form, Row, Select, message, Input } from "antd";
+import {
+  Alert,
+  Col,
+  Form,
+  Row,
+  Select,
+  message,
+  Button,
+  Modal,
+  Radio,
+  Space,
+  Divider,
+} from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
@@ -14,6 +26,7 @@ import {
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
 import {
+  CloudUploadOutlined,
   CloudDownloadOutlined,
   LinkOutlined,
   EditTwoTone,
@@ -27,6 +40,7 @@ import {
   getSurveyLocationGeoLevels,
   getSurveyLocations,
   postSurveyLocations,
+  puturveyLocations,
   getSurveyLocationsLong,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
@@ -34,14 +48,11 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import HandleBackButton from "../../../components/HandleBackButton";
 import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
 import { LocationEditDrawer } from "./LocationEditDrawer";
-import { set } from "lodash";
 
 function SurveyLocationUpload() {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [form] = Form.useForm();
@@ -63,9 +74,6 @@ function SurveyLocationUpload() {
   const [longformedData, setLongformedData] = useState<any>([]);
   const { CSVDownloader, Type } = useCSVDownloader();
 
-  const activeSurvey = useAppSelector(
-    (state: RootState) => state.surveys.activeSurvey
-  );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
@@ -77,6 +85,21 @@ function SurveyLocationUpload() {
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
   );
+
+  const [addLocationsModal, setAddLocationsModal] = useState(false);
+  const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
+
+  const handlerAddLocationButton = () => {
+    setAddLocationsModal(true);
+  };
+
+  const handleLocationsAddMode = () => {
+    // Change this to reupload screen and set the locationsAddMode as a state variable
+    setAddLocationsModal(false);
+    setFileUploaded(false);
+    setColumnMatch(false);
+    setHasError(false);
+  };
 
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
@@ -119,8 +142,8 @@ function SurveyLocationUpload() {
       setFileUploaded(true);
 
       const columns = [
-        "edit_location",
         ...(surveyLocations?.ordered_columns ?? []),
+        "edit_location",
       ];
       const data = surveyLocations?.records;
 
@@ -131,6 +154,7 @@ function SurveyLocationUpload() {
               title: "Edit",
               dataIndex: "edit",
               key: "edit",
+              width: "12px",
               render: (_: any, record: any) => (
                 <EditTwoTone
                   onClick={() => {
@@ -145,6 +169,10 @@ function SurveyLocationUpload() {
               title: label,
               dataIndex: label.toLocaleLowerCase(),
               key: label.toLocaleLowerCase(),
+              sorter: (a: any, b: any) =>
+                a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
+                  ? 1
+                  : -1,
             };
           }
         })
@@ -195,7 +223,7 @@ function SurveyLocationUpload() {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
 
-  const closeDrawer = () => {
+  const closeDrawer = async () => {
     setDrawerVisible(false);
     setSelectedRecord(null);
   };
@@ -328,10 +356,6 @@ function SurveyLocationUpload() {
   };
 
   const handleUploadContinue = () => {
-    if (surveyLocations?.records?.length > 0 && !hasError) {
-      navigate(`/survey-configuration/${survey_uid}`);
-      return;
-    }
     form
       .validateFields()
       .then(async () => {
@@ -365,13 +389,22 @@ function SurveyLocationUpload() {
         };
 
         if (survey_uid !== undefined) {
-          const mappingsRes = await dispatch(
-            postSurveyLocations({
-              getLevelMappingData: requestData.geo_level_mapping,
-              csvFile: requestData.file,
-              surveyUid: survey_uid,
-            })
-          );
+          const mappingsRes =
+            locationsAddMode === "overwrite"
+              ? await dispatch(
+                  postSurveyLocations({
+                    getLevelMappingData: requestData.geo_level_mapping,
+                    csvFile: requestData.file,
+                    surveyUid: survey_uid,
+                  })
+                )
+              : await dispatch(
+                  puturveyLocations({
+                    getLevelMappingData: requestData.geo_level_mapping,
+                    csvFile: requestData.file,
+                    surveyUid: survey_uid,
+                  })
+                );
 
           if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
@@ -388,6 +421,7 @@ function SurveyLocationUpload() {
           setHasError(false);
           setColumnMatch(true);
           setFileUploaded(true);
+          setLocationsAddMode("overwrite");
         } else {
           message.error(
             "Kindly check that survey_uid is provided in the url to proceed."
@@ -424,6 +458,14 @@ function SurveyLocationUpload() {
                 marginRight: "80px",
               }}
             >
+              <Button
+                type="primary"
+                onClick={handlerAddLocationButton}
+                icon={<CloudUploadOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              >
+                Add locations
+              </Button>
               <CSVDownloader
                 data={transformedData}
                 filename={"locations.csv"}
@@ -520,6 +562,35 @@ function SurveyLocationUpload() {
                 </>
               )}
             </SurveyLocationUploadFormWrapper>
+            <Modal
+              title="Add enumerators"
+              open={addLocationsModal}
+              okText="Continue"
+              onOk={handleLocationsAddMode}
+              onCancel={() => setAddLocationsModal(false)}
+            >
+              <Divider />
+              <p>Please select how you want to proceed:</p>
+              <Radio.Group
+                style={{ marginBottom: 20 }}
+                onChange={(e) => setLocationsAddMode(e.target.value)}
+                value={locationsAddMode}
+              >
+                <Space direction="vertical">
+                  <Radio value="overwrite">
+                    I want to start fresh (Locations uploaded previously will be
+                    deleted)
+                  </Radio>
+                  <Radio value="append">
+                    I want to append new locations to the existing locations
+                    data
+                  </Radio>
+                </Space>
+              </Radio.Group>
+              <span>
+                Kindly Reupload enumerators, targets csv with new location data.
+              </span>
+            </Modal>
           </div>
           {selectedRecord && (
             <LocationEditDrawer

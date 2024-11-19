@@ -24,6 +24,9 @@ import {
   updateLocationFailure,
   updateLocationRequest,
   updateLocationSuccess,
+  putSurveyLocationsFailure,
+  putSurveyLocationsRequest,
+  putSurveyLocationsSuccess,
 } from "./surveyLocationsSlice";
 import { putSurveyBasicInformationFailure } from "../surveyConfig/surveyConfigSlice";
 
@@ -33,14 +36,20 @@ export const postSurveyLocationGeoLevels = createAsyncThunk(
     {
       geoLevelsData,
       surveyUid,
-    }: { geoLevelsData: GeoLevel[]; surveyUid: string },
+      validateHierarchy,
+    }: {
+      geoLevelsData: GeoLevel[];
+      surveyUid: string;
+      validateHierarchy: boolean;
+    },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(postSurveyLocationGeoLevelsRequest());
       const response: any = await api.updateSurveyLocationGeoLevels(
         geoLevelsData,
-        surveyUid
+        surveyUid,
+        validateHierarchy
       );
       if (response.status == 200) {
         dispatch(postSurveyLocationGeoLevelsSuccess(response.data));
@@ -128,6 +137,49 @@ export const postSurveyLocations = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to update survey locations.";
       dispatch(postSurveyLocationsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const puturveyLocations = createAsyncThunk(
+  "surveyLocations/putSurveyLocations",
+  async (
+    {
+      getLevelMappingData,
+      csvFile,
+      surveyUid,
+    }: {
+      getLevelMappingData: GeoLevelMapping[];
+      csvFile: any;
+      surveyUid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putSurveyLocationsRequest());
+      const response: any = await api.appendSurveyLocations(
+        getLevelMappingData,
+        csvFile,
+        surveyUid
+      );
+      if (response.status == 200) {
+        dispatch(putSurveyLocationsSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to update survey locations.",
+        success: false,
+      };
+      dispatch(putSurveyLocationsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update survey locations.";
+      dispatch(putSurveyLocationsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }

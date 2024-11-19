@@ -125,6 +125,18 @@ const surveyLocationsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    putSurveyLocationsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putSurveyLocationsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    putSurveyLocationsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     resetSurveyLocations: () => {
       return initialState;
     },
@@ -168,6 +180,9 @@ export const {
   updateLocationRequest,
   updateLocationSuccess,
   updateLocationFailure,
+  putSurveyLocationsFailure,
+  putSurveyLocationsRequest,
+  putSurveyLocationsSuccess,
 } = surveyLocationsSlice.actions;
 
 export default surveyLocationsSlice.reducer;

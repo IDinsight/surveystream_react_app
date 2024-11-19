@@ -5,6 +5,7 @@ import styled from "styled-components";
 const LocationsTable = styled(Table)`
   margin-top: 15px;
   margin-bottom: 68px;
+  margin-right: 30px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
@@ -33,10 +34,8 @@ const LocationTable: React.FC<LocationTableProps> = ({
   return (
     <>
       <LocationsTable
-        columns={transformedColumns.map((col) => ({
-          ...col,
-          sorter: (a, b) => (a[col.dataIndex] > b[col.dataIndex] ? 1 : -1),
-        }))}
+        columns={transformedColumns}
+        tableLayout="auto"
         dataSource={transformedData}
         pagination={{
           pageSize: paginationPageSize,
