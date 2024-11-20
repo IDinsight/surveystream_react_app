@@ -18,7 +18,7 @@ import {
 } from "../../../../shared/Nav.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 import {
   getSupervisorRoles,
   getUserHierarchy,

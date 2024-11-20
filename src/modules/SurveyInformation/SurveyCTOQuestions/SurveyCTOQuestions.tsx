@@ -3,7 +3,6 @@ import {
   MainWrapper,
   HeaderContainer,
 } from "../../../shared/Nav.styled";
-
 import { Form, Select, message, Alert } from "antd";
 import {
   FooterWrapper,
@@ -16,6 +15,7 @@ import {
   SCTOQuestionsButton,
   SCTOLoadErrorArea,
 } from "./SurveyCTOQuestions.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -208,8 +208,8 @@ function SurveyCTOQuestions() {
           message.error(formRes.payload.message);
           return;
         } else {
-          message.success("surveyCTOForm mapping updated successfully");
-          navigate(`/survey-configuration/${survey_uid}`);
+          message.success("SurveyCTO question mapping updated successfully");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
       } else {
         message.error(
@@ -566,7 +566,7 @@ function SurveyCTOQuestions() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title> SurveyCTO Questions</Title>
 
@@ -607,13 +607,17 @@ function SurveyCTOQuestions() {
             </DescriptionText>
           </DescriptionWrap>
           {renderQuestionsSelectArea()}
+          {isLoading ? (
+            " "
+          ) : (
+            <div>
+              <CustomBtn style={{ marginTop: 24 }} onClick={handleContinue}>
+                Save
+              </CustomBtn>
+            </div>
+          )}
         </MainWrapper>
       </div>
-      <FooterWrapper>
-        <ContinueButton loading={loading} onClick={handleContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

@@ -20,17 +20,17 @@ import {
   fetchUserLocations,
   fetchTargetsMapping,
   updateTargetsMapping,
-} from "../../redux/mapping/apiService";
+} from "../../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import {
   CustomBtn,
   MappingTable,
   DeleteButton,
   ResetButton,
 } from "./Mapping.styled";
-import { useAppDispatch } from "./../../redux/hooks";
-import { updateMappingStatsSuccess } from "./../../redux/mapping/mappingSlice";
+import { useAppDispatch } from "./../../../redux/hooks";
+import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
@@ -1124,7 +1124,7 @@ const TargetMapping = ({
               />
             </>
           )}
-          <div style={{ marginTop: "20px" }}>
+          <div style={{ marginTop: "0px", marginBottom: "40px" }}>
             <CustomBtn
               type="primary"
               style={{ marginRight: "10px" }}

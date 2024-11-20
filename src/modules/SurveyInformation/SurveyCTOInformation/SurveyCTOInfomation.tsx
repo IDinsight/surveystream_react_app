@@ -17,6 +17,7 @@ import {
   StyledTooltip,
   TwoColumnForm,
 } from "./SurveyCTOInformation.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { DescriptionText } from "../SurveyInformation.styled";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
@@ -346,13 +347,15 @@ function SurveyCTOInfomation() {
                   </StyledFormItem>
                 </div>
               </Form>
+              <CustomBtn
+                onClick={handleContinue}
+                loading={loading}
+                style={{ marginTop: 24 }}
+              >
+                Save
+              </CustomBtn>
             </SCTOInformationFormWrapper>
           </div>
-          <FooterWrapper>
-            <ContinueButton onClick={handleContinue} loading={loading}>
-              Continue
-            </ContinueButton>
-          </FooterWrapper>
         </>
       )}
     </>

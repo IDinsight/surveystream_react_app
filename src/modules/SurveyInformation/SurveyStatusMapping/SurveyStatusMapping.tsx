@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-
+import SideMenu from "../SideMenu";
 import {
   Button,
   Col,
@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
 import {
+  TargetStatusFormWrapper,
   BodyContainer,
   CustomBtn,
   EditingModel,
@@ -297,7 +298,7 @@ function SurveyStatusMapping() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Target status mapping</Title>
             {isFormConfirmed ? (
@@ -333,256 +334,287 @@ function SurveyStatusMapping() {
               </BodyContainer>
             ) : null}
           </HeaderContainer>
-          <div style={{ marginLeft: 56, marginRight: 56 }}>
-            {isFormConfirmed ? (
-              <>
-                <p>{formIdName}</p>
-                <TargetMappingTable
-                  columns={tableColumns}
-                  dataSource={tableDataSources}
-                  rowSelection={rowSelection}
-                  bordered
-                />
-              </>
-            ) : (
-              <>
-                <Form
-                  form={form}
-                  wrapperCol={{ span: 6 }}
-                  style={{ marginTop: 48 }}
-                >
-                  <Form.Item
-                    label="SCTO form ID"
-                    name="scto-form-id"
-                    required
-                    tooltip="Select the form ID of the main SCTO form. Ex: agrifieldnet_main_form"
-                    rules={[
-                      { required: true, message: "Please select the form id!" },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Select SCTO form ID"
-                      onSelect={(e) => setFormIdName(e)}
-                    >
-                      {sctoForm && Object.keys(sctoForm).length > 0 ? (
-                        <Select.Option value={sctoForm.scto_form_id}>
-                          {sctoForm.scto_form_id}
-                        </Select.Option>
-                      ) : null}
-                    </Select>
-                  </Form.Item>
+          <div style={{ display: "flex" }}>
+            <SideMenu />
 
-                  {formIdName != "" ? (
-                    <>
-                      <Form.Item
-                        label="Survey modality"
-                        name="survey-modality"
-                        required
-                        tooltip="The survey method can help determine how other parts of SurveyStream will be setup for your survey."
-                      >
-                        <Input
-                          defaultValue={basicInfo.surveying_method}
-                          disabled
-                        />
-                      </Form.Item>
-                      <Form.Item shouldUpdate>
-                        <CustomBtn type="primary" onClick={onConfirmClick}>
-                          Confirm
-                        </CustomBtn>
-                      </Form.Item>
-                    </>
-                  ) : null}
-                </Form>
-              </>
-            )}
-          </div>
-          {editingMode ? (
-            <EditingModel>
-              <p
-                style={{
-                  color: "#262626",
-                  fontSize: 24,
-                  lineHeight: "32px",
-                  fontWeight: 500,
-                }}
-              >
-                {editingMode === "add" ? "Add mapping" : "Edit mapping"}
-              </p>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Survey status:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Input
-                    type="number"
-                    defaultValue={editingData.survey_status || ""}
-                    disabled={editingMode === "edit"}
-                    onChange={(e) => {
-                      setEditingData((prev: any) => {
-                        return {
-                          ...prev,
-                          survey_status: e.target.value,
-                        };
-                      });
+            <TargetStatusFormWrapper>
+              {isFormConfirmed ? (
+                <>
+                  <p
+                    style={{
+                      color: "#8C8C8C",
+                      fontSize: 14,
+                      marginBottom: 20,
+                      marginRight: 80,
                     }}
+                  >
+                    Add or edit possible survey status values for the selected
+                    form. If nothing is configured, the default values as per
+                    survey modality is shown below. This mapping will be used to
+                    determine the status (completed, refused or pending) of a
+                    target for productivity calculations and assignments.
+                  </p>
+                  <p> {formIdName} </p>
+                  <TargetMappingTable
+                    columns={tableColumns}
+                    dataSource={tableDataSources}
+                    rowSelection={rowSelection}
+                    bordered
                   />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Survey status label:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Input
-                    defaultValue={editingData.survey_status_label}
-                    onChange={(e) => {
-                      setEditingData((prev: any) => {
-                        return {
-                          ...prev,
-                          survey_status_label: e.target.value,
-                        };
-                      });
+                </>
+              ) : (
+                <>
+                  <p
+                    style={{
+                      color: "#8C8C8C",
+                      fontSize: 14,
+                      marginBottom: 20,
                     }}
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Completed flag:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Select
-                    defaultValue={editingData.completed_flag ?? true}
-                    style={{ width: 120 }}
-                    options={[
-                      { value: true, label: "TRUE" },
-                      { value: false, label: "FALSE" },
-                    ]}
-                    onChange={(val) => {
-                      setEditingData((prev: any) => {
-                        return {
-                          ...prev,
-                          completed_flag: val,
-                        };
-                      });
-                    }}
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Refusal flag:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Select
-                    defaultValue={editingData.refusal_flag ?? false}
-                    style={{ width: 120 }}
-                    options={[
-                      { value: true, label: "TRUE" },
-                      { value: false, label: "FALSE" },
-                    ]}
-                    onChange={(val) => {
-                      setEditingData((prev: any) => {
-                        return {
-                          ...prev,
-                          refusal_flag: val,
-                        };
-                      });
-                    }}
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Target assignable:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Select
-                    defaultValue={editingData.target_assignable ?? false}
-                    style={{ width: 120 }}
-                    options={[
-                      { value: true, label: "TRUE" },
-                      { value: false, label: "FALSE" },
-                    ]}
-                    onChange={(val) => {
-                      setEditingData((prev: any) => {
-                        return {
-                          ...prev,
-                          target_assignable: val,
-                        };
-                      });
-                    }}
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Web-app tag:
-                  </FormItemLabel>
-                </Col>
-                <Col span={16}>
-                  <Row align="middle">
-                    <Col span={16}>
+                  >
+                    Kindly select the SCTO form ID to proceed
+                  </p>
+                  <Form form={form} wrapperCol={{ span: 6 }}>
+                    <Form.Item
+                      label="SCTO form ID"
+                      name="scto-form-id"
+                      required
+                      tooltip="Select the SurveyCTO main form"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select the form id!",
+                        },
+                      ]}
+                    >
                       <Select
-                        defaultValue={editingData.webapp_tag_color}
-                        style={{ width: 120 }}
-                        options={webAppTagColors.map((color) => {
-                          return { value: color, label: color };
-                        })}
-                        onChange={(val) => {
+                        placeholder="Select SCTO form ID"
+                        onSelect={(e) => setFormIdName(e)}
+                      >
+                        {sctoForm && Object.keys(sctoForm).length > 0 ? (
+                          <Select.Option value={sctoForm.scto_form_id}>
+                            {sctoForm.scto_form_id}
+                          </Select.Option>
+                        ) : null}
+                      </Select>
+                    </Form.Item>
+
+                    {formIdName != "" ? (
+                      <>
+                        <Form.Item
+                          label="Survey modality"
+                          name="survey-modality"
+                          required
+                          tooltip="Configured in the Basic Information module"
+                        >
+                          <Input
+                            defaultValue={basicInfo.surveying_method}
+                            disabled
+                          />
+                        </Form.Item>
+                        <Form.Item shouldUpdate>
+                          <CustomBtn type="primary" onClick={onConfirmClick}>
+                            Confirm
+                          </CustomBtn>
+                        </Form.Item>
+                      </>
+                    ) : null}
+                  </Form>
+                </>
+              )}
+
+              {editingMode ? (
+                <EditingModel>
+                  <p
+                    style={{
+                      color: "#262626",
+                      fontSize: 24,
+                      lineHeight: "32px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {editingMode === "add" ? "Add mapping" : "Edit mapping"}
+                  </p>
+                  <Row align="middle" style={{ marginBottom: 12 }}>
+                    <Col span={8}>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Survey status:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Input
+                        type="number"
+                        defaultValue={editingData.survey_status || ""}
+                        disabled={editingMode === "edit"}
+                        onChange={(e) => {
                           setEditingData((prev: any) => {
                             return {
                               ...prev,
-                              webapp_tag_color: val,
+                              survey_status: e.target.value,
                             };
                           });
                         }}
                       />
                     </Col>
+                  </Row>
+                  <Row align="middle" style={{ marginBottom: 12 }}>
                     <Col span={8}>
-                      <Tag
-                        color={editingData.webapp_tag_color}
-                        style={{ marginLeft: 16 }}
-                      >
-                        {editingData.webapp_tag_color}
-                      </Tag>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Survey status
+                        label:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Input
+                        defaultValue={editingData.survey_status_label}
+                        onChange={(e) => {
+                          setEditingData((prev: any) => {
+                            return {
+                              ...prev,
+                              survey_status_label: e.target.value,
+                            };
+                          });
+                        }}
+                      />
                     </Col>
                   </Row>
-                </Col>
-              </Row>
-              <Button
-                type="default"
-                style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
-                onClick={() => setEditingMode(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                style={{
-                  marginTop: 24,
-                  marginLeft: 24,
-                  backgroundColor: "#2f54eb",
-                  color: "white",
-                  borderRadius: 2,
-                }}
-                onClick={editingMode === "add" ? onAddMapping : onEditMapping}
-              >
-                {editingMode === "add" ? "Add" : "Edit"}
-              </Button>
-            </EditingModel>
-          ) : null}
+                  <Row align="middle" style={{ marginBottom: 12 }}>
+                    <Col span={8}>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Completed flag:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Select
+                        defaultValue={editingData.completed_flag ?? true}
+                        style={{ width: 120 }}
+                        options={[
+                          { value: true, label: "TRUE" },
+                          { value: false, label: "FALSE" },
+                        ]}
+                        onChange={(val) => {
+                          setEditingData((prev: any) => {
+                            return {
+                              ...prev,
+                              completed_flag: val,
+                            };
+                          });
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                  <Row align="middle" style={{ marginBottom: 12 }}>
+                    <Col span={8}>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Refusal flag:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Select
+                        defaultValue={editingData.refusal_flag ?? false}
+                        style={{ width: 120 }}
+                        options={[
+                          { value: true, label: "TRUE" },
+                          { value: false, label: "FALSE" },
+                        ]}
+                        onChange={(val) => {
+                          setEditingData((prev: any) => {
+                            return {
+                              ...prev,
+                              refusal_flag: val,
+                            };
+                          });
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                  <Row align="middle" style={{ marginBottom: 12 }}>
+                    <Col span={8}>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Target
+                        assignable:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Select
+                        defaultValue={editingData.target_assignable ?? false}
+                        style={{ width: 120 }}
+                        options={[
+                          { value: true, label: "TRUE" },
+                          { value: false, label: "FALSE" },
+                        ]}
+                        onChange={(val) => {
+                          setEditingData((prev: any) => {
+                            return {
+                              ...prev,
+                              target_assignable: val,
+                            };
+                          });
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                  <Row align="middle" style={{ marginBottom: 12 }}>
+                    <Col span={8}>
+                      <FormItemLabel>
+                        <span style={{ color: "red" }}>*</span> Web-app tag:
+                      </FormItemLabel>
+                    </Col>
+                    <Col span={16}>
+                      <Row align="middle">
+                        <Col span={16}>
+                          <Select
+                            defaultValue={editingData.webapp_tag_color}
+                            style={{ width: 120 }}
+                            options={webAppTagColors.map((color) => {
+                              return { value: color, label: color };
+                            })}
+                            onChange={(val) => {
+                              setEditingData((prev: any) => {
+                                return {
+                                  ...prev,
+                                  webapp_tag_color: val,
+                                };
+                              });
+                            }}
+                          />
+                        </Col>
+                        <Col span={8}>
+                          <Tag
+                            color={editingData.webapp_tag_color}
+                            style={{ marginLeft: 16 }}
+                          >
+                            {editingData.webapp_tag_color}
+                          </Tag>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                  <Button
+                    type="default"
+                    style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
+                    onClick={() => setEditingMode(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="primary"
+                    style={{
+                      marginTop: 24,
+                      marginLeft: 24,
+                      backgroundColor: "#2f54eb",
+                      color: "white",
+                      borderRadius: 2,
+                    }}
+                    onClick={
+                      editingMode === "add" ? onAddMapping : onEditMapping
+                    }
+                  >
+                    {editingMode === "add" ? "Add" : "Edit"}
+                  </Button>
+                </EditingModel>
+              ) : null}
+            </TargetStatusFormWrapper>
+          </div>
         </>
       )}
     </>

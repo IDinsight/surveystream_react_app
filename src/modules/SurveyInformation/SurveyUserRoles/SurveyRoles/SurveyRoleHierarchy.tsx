@@ -14,7 +14,7 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../../../shared/FooterBar.styled";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 import {
   CustomBtn,
   SurveyRoleHierarchyDescriptionText,

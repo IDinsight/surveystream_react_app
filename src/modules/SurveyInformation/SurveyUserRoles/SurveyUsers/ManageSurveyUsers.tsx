@@ -23,7 +23,7 @@ import {
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 
 import Column from "antd/lib/table/Column";
 import {

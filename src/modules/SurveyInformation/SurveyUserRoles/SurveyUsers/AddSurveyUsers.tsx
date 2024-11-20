@@ -27,7 +27,7 @@ import {
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
 
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 import { RootState } from "../../../../redux/store";
 import {
   deleteUserHierarchy,

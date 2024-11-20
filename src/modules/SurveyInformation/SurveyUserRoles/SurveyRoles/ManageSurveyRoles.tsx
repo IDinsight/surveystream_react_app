@@ -20,7 +20,7 @@ import {
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 import { GlobalStyle } from "../../../../shared/Global.styled";

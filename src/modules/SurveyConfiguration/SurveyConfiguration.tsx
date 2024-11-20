@@ -96,7 +96,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Enumerators: "enumerators",
     Targets: "targets",
     "Target status mapping": "survey/status-mapping",
-    Mapping: "mapping",
+    Mapping: "mapping/surveyor",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
