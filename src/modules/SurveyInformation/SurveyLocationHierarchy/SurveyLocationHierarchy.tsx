@@ -1,10 +1,17 @@
-import { Form, Select, message } from "antd";
+import { Form, Radio, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Title, HeaderContainer } from "../../../shared/Nav.styled";
+import {
+  NavWrapper,
+  BackLink,
+  BackArrow,
+  Title,
+  HeaderContainer,
+} from "../../../shared/Nav.styled";
 
 import {
   FooterWrapper,
+  SaveButton,
   ContinueButton,
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
@@ -12,7 +19,7 @@ import {
   DescriptionText,
   SurveyLocationHierarchyFormWrapper,
 } from "./SurveyLocationHierarchy.styled";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RootState } from "../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
@@ -20,7 +27,7 @@ import {
   postSurveyLocationGeoLevels,
   updateSurveyPrimeGeoLocation,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
-import { StyledFormItem } from "../SurveyInformation.styled";
+import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
 import {
   resetSurveyLocations,
   setSurveyLocationGeoLevels,
@@ -31,6 +38,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 
 function SurveyLocationHierarchy() {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -42,23 +50,22 @@ function SurveyLocationHierarchy() {
   const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
     useState<any>("no_location");
 
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(`/survey-configuration/${survey_uid}`);
+    }
+  };
+  const activeSurvey = useAppSelector(
+    (state: RootState) => state.surveys.activeSurvey
+  );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
   );
-
-  // Initialize geoLevelOrder
-  const [geoLevelOrder, setGeoLevelOrder] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (surveyLocationGeoLevels.length > 0) {
-      setGeoLevelOrder(
-        surveyLocationGeoLevels.map((level) => level.geo_level_name)
-      );
-    }
-  }, [surveyLocationGeoLevels]);
 
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
@@ -73,6 +80,10 @@ function SurveyLocationHierarchy() {
     if (surveyBasicInformationRes?.payload) {
       setSurveyBasicInformation(surveyBasicInformationRes.payload);
       if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
+        console.log(
+          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
+          surveyBasicInformationRes.payload?.prime_geo_level_uid
+        );
         setSurveyPrimeGeoLocation(
           surveyBasicInformationRes.payload?.prime_geo_level_uid
         );
@@ -99,6 +110,8 @@ function SurveyLocationHierarchy() {
       })
     );
 
+    console.log("updateRes", updateRes);
+
     if (updateRes?.payload?.success) {
       message.success("Updated the survey prime geo location");
     } else {
@@ -117,88 +130,108 @@ function SurveyLocationHierarchy() {
       } = surveyLocationGeoLevels[index];
 
       return (
-        <React.Fragment key={index}>
-          <div
-            key={index}
-            style={{
-              backgroundColor: "#f0f2f5",
-              padding: "10px 15px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              cursor: "move",
-              maxWidth: "40%",
-            }}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={(e) => handleDrop(e, index)}
+        <StyledFormItem
+          key={index}
+          required
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 10 }}
+          labelAlign="left"
+          name={`geo_level_${index}`}
+          label={geoLevel.geo_level_name ? geoLevel?.geo_level_name : ""}
+          initialValue={
+            geoLevel?.parent_geo_level_uid
+              ? geoLevel?.parent_geo_level_uid
+              : null
+          }
+          rules={[
+            {
+              validator: (_: any, value: string | undefined) => {
+                const hierarchyMap: { [key: string]: string[] } =
+                  surveyLocationGeoLevels.reduce((map, item) => {
+                    const { parent_geo_level_uid, geo_level_uid } = item;
+                    if (parent_geo_level_uid !== null) {
+                      if (!map[parent_geo_level_uid]) {
+                        map[parent_geo_level_uid] = [];
+                      }
+                      map[parent_geo_level_uid].push(geo_level_uid);
+                    }
+                    return map;
+                  }, {} as { [key: string]: string[] });
+
+                const hasCycle = (node: string, visited: string[] = []) => {
+                  visited.push(node);
+
+                  const children = hierarchyMap[node] || [];
+
+                  for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+
+                    if (visited.includes(child)) {
+                      return true; // Cycle detected
+                    }
+
+                    if (hasCycle(child, [...visited])) {
+                      return true; // Cycle detected in child subtree
+                    }
+                  }
+
+                  return false; // No cycle detected
+                };
+
+                if (geoLevel) {
+                  const { geo_level_uid } = geoLevel;
+
+                  if (
+                    value &&
+                    surveyLocationGeoLevels.some(
+                      (g) => g.parent_geo_level_uid === value && g !== geoLevel
+                    )
+                  ) {
+                    return Promise.reject("Please select a unique hierarchy!");
+                  }
+                  if (value && value === geoLevel.geo_level_uid) {
+                    return Promise.reject("Location hierarchy invalid!");
+                  }
+                  if (geo_level_uid && hasCycle(geo_level_uid)) {
+                    return Promise.reject("Location hierarchy cycle detected!");
+                  }
+                }
+
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          <Select
+            showSearch={true}
+            allowClear={true}
+            placeholder="Choose hierarchy"
+            style={{ width: "100%" }}
+            onChange={(value) => handleSelectChange(value, index)}
           >
-            <span style={{ fontWeight: "500" }}>
-              {geoLevel.geo_level_name
-                ? geoLevel.geo_level_name
-                : "Unnamed Level"}
-            </span>
-            <span style={{ color: "#999" }}>
-              {index === 0 ? "Highest Geo Level" : `Level ${index + 1}`}
-            </span>
-          </div>
-          {index < numGeoLevels - 1 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                maxWidth: "40%",
-              }}
-            >
-              <span style={{ fontSize: "24px", color: "#999" }}>↓</span>
-            </div>
-          )}
-        </React.Fragment>
+            <Select.Option value={null}>Highest hierarchy level</Select.Option>
+            {surveyLocationGeoLevels.map((g, i) => (
+              <Select.Option key={i} value={g.geo_level_uid}>
+                {g.geo_level_name}
+              </Select.Option>
+            ))}
+          </Select>
+        </StyledFormItem>
       );
     });
 
     return fields;
   };
 
-  const handleDragStart = (
-    e: React.DragEvent<HTMLDivElement>,
-    index: number
-  ) => {
-    e.dataTransfer.setData("text/plain", index.toString());
-  };
+  const handleSelectChange = (value: string, index: number) => {
+    const updatedLevels = [...surveyLocationGeoLevels];
 
-  const handleDragOver = (
-    e: React.DragEvent<HTMLDivElement>,
-    index: number
-  ) => {
-    e.preventDefault();
-  };
+    updatedLevels[index] = {
+      ...updatedLevels[index],
+      parent_geo_level_uid: value,
+    };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    const draggedIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    if (draggedIndex !== index) {
-      const updatedLevels = [...surveyLocationGeoLevels];
-      const [draggedItem] = updatedLevels.splice(draggedIndex, 1);
-      updatedLevels.splice(index, 0, draggedItem);
-      dispatch(setSurveyLocationGeoLevels(updatedLevels));
-
-      // Update geoLevelOrder
-      const updatedOrder = [...geoLevelOrder];
-      updatedOrder.splice(index, 0, updatedOrder.splice(draggedIndex, 1)[0]);
-      setGeoLevelOrder(
-        updatedOrder.map(
-          (level) =>
-            updatedLevels.find((l) => l.geo_level_name === level)
-              ?.geo_level_name || level
-        )
-      );
-    }
+    dispatch(setSurveyLocationGeoLevels(updatedLevels));
   };
 
   const handlePrimeSelectChange = (value: any) => {
@@ -210,24 +243,19 @@ function SurveyLocationHierarchy() {
       if (survey_uid != undefined) {
         setLoading(true);
 
-        // Order surveyGeoLevelsData based on geoLevelOrder
-        const orderedSurveyGeoLevelsData = surveyLocationGeoLevels.map(
-          (level, index) => ({
-            ...level,
-            parent_geo_level_uid:
-              index === 0
-                ? null
-                : surveyLocationGeoLevels[index - 1].geo_level_uid,
-          })
-        );
+        await form.validateFields();
+
+        const surveyGeoLevelsData = surveyLocationGeoLevels;
 
         const geoLevelsRes = await dispatch(
           postSurveyLocationGeoLevels({
-            geoLevelsData: orderedSurveyGeoLevelsData,
+            geoLevelsData: surveyGeoLevelsData,
             surveyUid: survey_uid,
             validateHierarchy: true,
           })
         );
+
+        console.log("geoLevelsRes", geoLevelsRes);
 
         if (geoLevelsRes.payload.status === false) {
           message.error(geoLevelsRes.payload.message);
@@ -285,34 +313,31 @@ function SurveyLocationHierarchy() {
           <SideMenu />
           <SurveyLocationHierarchyFormWrapper>
             <DescriptionText>
-              Update Location hierarchy for this survey - You can drag and drop
-              location levels to reorder them
+              Update or add location hierarchy for this survey
             </DescriptionText>
             <div style={{ marginTop: "30px" }}>
-              {renderHierarchyGeoLevelsField()}
+              <DynamicItemsForm form={form}>
+                {renderHierarchyGeoLevelsField()}
+              </DynamicItemsForm>
             </div>
             <div style={{ marginTop: "20px" }}>
               <DescriptionText>Select the prime geo location</DescriptionText>
-              <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
-                <StyledFormItem
-                  name={`prime_geo_level`}
-                  style={{ width: "40%" }}
+              <StyledFormItem name={`prime_geo_level`} style={{ width: "40%" }}>
+                <Select
+                  defaultValue={surveyPrimeGeoLocation}
+                  value={surveyPrimeGeoLocation}
+                  onChange={handlePrimeSelectChange}
                 >
-                  <Select
-                    value={surveyPrimeGeoLocation}
-                    onChange={handlePrimeSelectChange}
-                  >
-                    <Select.Option value="no_location">
-                      No location mapping
+                  <Select.Option value="no_location">
+                    No location mapping
+                  </Select.Option>
+                  {surveyLocationGeoLevels.map((g, i) => (
+                    <Select.Option key={i} value={g.geo_level_uid}>
+                      {g.geo_level_name}
                     </Select.Option>
-                    {surveyLocationGeoLevels.map((g, i) => (
-                      <Select.Option key={i} value={g.geo_level_uid}>
-                        {g.geo_level_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </StyledFormItem>
-              </Form>
+                  ))}
+                </Select>
+              </StyledFormItem>
             </div>
           </SurveyLocationHierarchyFormWrapper>
         </div>

@@ -169,11 +169,12 @@ function SurveyLocationAdd() {
               title="Are you sure you want to delete this location level?"
               description={
                 <span>
-                  Deleting this location level will also delete location,
-                  enumerator and target mappings.
+                  Deleting location level will delete existing location data.
+                  Enumerators and targets are mapped to locations using existing
+                  location levels, and they will be deleted.
                   <br />
-                  Kindly reupload locations, enumerators and targets after
-                  deleting this location level.
+                  Please re-upload locations, enumerators, and targets after
+                  adding a new location level.
                 </span>
               }
               onConfirm={() => handleDeleteGeoLevel(index)}
@@ -306,11 +307,12 @@ function SurveyLocationAdd() {
               title="Are you sure you want to add another location level?"
               description={
                 <span>
-                  Adding another location level will require you to reupload
-                  locations, enumerators and targets.
-                  <br></br>
-                  Kindly reupload locations, enumerators and targets after
-                  adding another location level.
+                  Adding another location level will delete existing location
+                  data. Enumerators and targets are mapped to locations using
+                  existing location levels, and they will be deleted.
+                  <br />
+                  Please re-upload locations, enumerators, and targets after
+                  adding a new location level.
                 </span>
               }
               okText="Yes"
@@ -358,7 +360,7 @@ function SurveyLocationAdd() {
           loading={loading}
           disabled={surveyLocationGeoLevels.length === 0}
         >
-          Continue
+          Save
         </ContinueButton>
       </FooterWrapper>
     </>
