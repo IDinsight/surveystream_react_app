@@ -220,7 +220,7 @@ function SideMenu() {
               `/survey-information/survey-cto-information/${survey_uid}`
             ) ||
             isActive(
-              `/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`
+              `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
             )
           }`}
           to={`/survey-information/survey-cto-information/${survey_uid}`}
@@ -253,9 +253,9 @@ function SideMenu() {
           label: (
             <MenuItem
               className={isActive(
-                `/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`
+                `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
               )}
-              to={`/survey-information/survey-cto-questions/${survey_uid}/${form_uid}`}
+              to={`/survey-information/survey-cto-questions/${survey_uid}/${formUID}`}
             >
               <IconWrapper>
                 <ShareAltOutlined />
@@ -272,16 +272,14 @@ function SideMenu() {
         <MenuItem
           className={`${
             isActive(
-              `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
+              `/survey-information/enumerators/upload/${survey_uid}/${formUID}`
             ) ||
             isActive(
-              `/survey-information/enumerators/map/${survey_uid}/${form_uid}`
+              `/survey-information/enumerators/map/${survey_uid}/${formUID}`
             ) ||
-            isActive(
-              `/survey-information/enumerators/${survey_uid}/${form_uid}`
-            )
+            isActive(`/survey-information/enumerators/${survey_uid}/${formUID}`)
           }`}
-          to={`/survey-information/enumerators/${survey_uid}/${form_uid}`}
+          to={`/survey-information/enumerators/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <InsertRowRightOutlined />
@@ -296,14 +294,14 @@ function SideMenu() {
         <MenuItem
           className={`${
             isActive(
-              `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+              `/survey-information/targets/upload/${survey_uid}/${formUID}`
             ) ||
             isActive(
-              `/survey-information/targets/map/${survey_uid}/${form_uid}`
+              `/survey-information/targets/map/${survey_uid}/${formUID}`
             ) ||
-            isActive(`/survey-information/targets/${survey_uid}/${form_uid}`)
+            isActive(`/survey-information/targets/${survey_uid}/${formUID}`)
           }`}
-          to={`/survey-information/targets/${survey_uid}/${form_uid}`}
+          to={`/survey-information/targets/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
             <HomeOutlined />
