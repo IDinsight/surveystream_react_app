@@ -91,7 +91,7 @@ function SurveyLocationUpload() {
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
 
   const resetFilters = async () => {
-    console.log("Resetting filters");
+    fetchSurveyLocations();
   };
 
   const handlerAddLocationButton = () => {
@@ -195,8 +195,6 @@ function SurveyLocationUpload() {
                 value: string | number,
                 record: Record<string, string | number>
               ) => {
-                console.log("Value:", value);
-                console.log("Record:", record);
                 return record[label.toLocaleLowerCase()] === value;
               },
             };
@@ -523,7 +521,7 @@ function SurveyLocationUpload() {
                   fontSize: "14px",
                 }}
               >
-                Clear Filters and Sort (Not working)
+                Clear Filters and Sort
               </Button>
             </div>
           ) : null}
