@@ -341,7 +341,7 @@ function SideMenu() {
               <IconWrapper>
                 <UsergroupAddOutlined />
               </IconWrapper>
-              Surveyors &gt; Supervisors
+              Surveyors &lt;&gt; Supervisors
             </MenuItem>
           ),
           key: "surveyorSupervisor",
@@ -357,7 +357,7 @@ function SideMenu() {
               <IconWrapper>
                 <NumberOutlined />
               </IconWrapper>
-              Targets &gt; Supervisors
+              Targets &lt;&gt; Supervisors
             </MenuItem>
           ),
           key: "targetSupervisor",
