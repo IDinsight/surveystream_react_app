@@ -184,12 +184,13 @@ const SurveyConfiguration: React.FC = () => {
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Module selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
-      case "SurveyCTO information":
-        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "User and role management":
-        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+
       case "Survey locations":
         return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
+      case "User and role management":
+        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+      case "SurveyCTO information":
+        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Enumerators":
         return (
           <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
@@ -229,14 +230,14 @@ const SurveyConfiguration: React.FC = () => {
       case "Module selection":
         permission_name = "Survey Admin";
         break;
-      case "SurveyCTO information":
-        permission_name = "Survey Admin";
+      case "Survey locations":
+        permission_name = "READ Survey Locations";
         break;
       case "User and role management":
         permission_name = "Survey Admin";
         break;
-      case "Survey locations":
-        permission_name = "READ Survey Locations";
+      case "SurveyCTO information":
+        permission_name = "Survey Admin";
         break;
       case "Enumerators":
         permission_name = "READ Enumerators";

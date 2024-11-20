@@ -14,6 +14,7 @@ import {
   FooterWrapper,
   SaveButton,
 } from "../../../../shared/FooterBar.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
 import {
   DescriptionContainer,
   DescriptionText,
@@ -682,6 +683,12 @@ function EnumeratorsMap() {
                     )}
                   </div>
                 </Form>
+                <CustomBtn
+                  onClick={handleEnumeratorUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
+                  Continue
+                </CustomBtn>
               </>
             ) : (
               <>
@@ -766,12 +773,6 @@ function EnumeratorsMap() {
           </EnumeratorsMapFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton onClick={handleEnumeratorUploadMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

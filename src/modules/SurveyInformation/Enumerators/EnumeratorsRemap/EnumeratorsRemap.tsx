@@ -14,6 +14,7 @@ import {
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
@@ -663,9 +664,12 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     )}
                   </div>
                 </Form>
-                <ContinueButton onClick={handleEnumeratorUploadMapping}>
+                <CustomBtn
+                  onClick={handleEnumeratorUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               </>
             ) : (
               <>
