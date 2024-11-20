@@ -414,6 +414,8 @@ function SideMenu() {
       } catch (error) {
         console.log("Error fetching sctoForm:", error);
       }
+    } else {
+      setFormUID(form_uid);
     }
   };
 
