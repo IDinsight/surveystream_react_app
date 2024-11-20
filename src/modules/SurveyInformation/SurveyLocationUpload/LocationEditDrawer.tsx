@@ -6,7 +6,6 @@ import { useAppDispatch } from "../../../redux/hooks";
 import { StyledFormItem } from "../SurveyInformation.styled";
 
 const LocationsDrawer = styled(Drawer)`
-  margin-top: 15px;
   margin-bottom: 68px;
   font-family: "Lato", sans-serif;
 `;
@@ -108,7 +107,7 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                 label={`${geoLevel.geo_level_name} ID`}
                 name={`${geoLevel.geo_level_name}_uid`}
                 labelAlign="left"
-                labelCol={{ span: 4 }}
+                labelCol={{ span: 5 }}
                 wrapperCol={{ span: 16 }}
                 initialValue={
                   dataTable.find(
@@ -152,7 +151,7 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                 label={`${geoLevel.geo_level_name} Name`}
                 name={`${geoLevel.geo_level_name}_name`}
                 labelAlign="left"
-                labelCol={{ span: 4 }}
+                labelCol={{ span: 5 }}
                 wrapperCol={{ span: 16 }}
                 initialValue={
                   selectedRecord[

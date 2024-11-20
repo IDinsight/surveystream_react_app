@@ -35,7 +35,6 @@ const LocationTable: React.FC<LocationTableProps> = ({
     <>
       <LocationsTable
         columns={transformedColumns}
-        tableLayout="auto"
         dataSource={transformedData}
         pagination={{
           pageSize: paginationPageSize,

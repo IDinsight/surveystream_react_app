@@ -30,6 +30,7 @@ import {
   CloudDownloadOutlined,
   LinkOutlined,
   EditTwoTone,
+  ClearOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
@@ -88,6 +89,10 @@ function SurveyLocationUpload() {
 
   const [addLocationsModal, setAddLocationsModal] = useState(false);
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
+
+  const resetFilters = async () => {
+    console.log("Resetting filters");
+  };
 
   const handlerAddLocationButton = () => {
     setAddLocationsModal(true);
@@ -169,10 +174,31 @@ function SurveyLocationUpload() {
               title: label,
               dataIndex: label.toLocaleLowerCase(),
               key: label.toLocaleLowerCase(),
-              sorter: (a: any, b: any) =>
+              filters: [
+                ...new Set(
+                  surveyLocations.records.map(
+                    (record: Record<string, string | number>) => record[label]
+                  )
+                ),
+              ].map((value: any) => ({
+                text: value.toString(),
+                value: value.toString(),
+              })),
+              sorter: (
+                a: Record<string, string | number>,
+                b: Record<string, string | number>
+              ) =>
                 a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
-                  ? 1
-                  : -1,
+                  ? -1
+                  : 1,
+              onFilter: (
+                value: string | number,
+                record: Record<string, string | number>
+              ) => {
+                console.log("Value:", value);
+                console.log("Record:", record);
+                return record[label.toLocaleLowerCase()] === value;
+              },
             };
           }
         })
@@ -484,6 +510,21 @@ function SurveyLocationUpload() {
                 <CloudDownloadOutlined style={{ marginRight: "8px" }} />
                 Download CSV
               </CSVDownloader>
+              <Button
+                type="primary"
+                onClick={resetFilters}
+                icon={<ClearOutlined />}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: 15,
+                  backgroundColor: "#2f54eB",
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                }}
+              >
+                Clear Filters and Sort (Not working)
+              </Button>
             </div>
           ) : null}
         </div>
