@@ -165,6 +165,21 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     return { label: item, value: item };
   });
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
+
   const handleTargetsUploadMapping = async () => {
     try {
       //start with an empty error count
@@ -541,7 +556,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     { title: "Update targets" },
                   ]}
                 />
-                <Form form={targetMappingForm}>
+                <Form
+                  form={targetMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns

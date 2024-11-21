@@ -149,7 +149,20 @@ function TargetsMap() {
     },
   ];
 
-  console.log("csvHeaders", csvHeaders);
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     console.log("item", item);
@@ -506,7 +519,10 @@ function TargetsMap() {
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
                 </div>
-                <Form form={targetMappingForm}>
+                <Form
+                  form={targetMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Col, Row, Select, Form, message } from "antd";
+import { Button, Col, Row, Select, Form, message, Tag } from "antd";
 
 import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
@@ -500,6 +500,20 @@ function TargetsSctoMap() {
     setLoading(false);
   };
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
   useEffect(() => {
     // fetch csv headers
     if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
@@ -545,7 +559,10 @@ function TargetsSctoMap() {
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
                 </div>
-                <Form form={targetMappingForm}>
+                <Form
+                  form={targetMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns
