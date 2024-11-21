@@ -99,7 +99,6 @@ function TargetsMap() {
   const csvHeaders = useAppSelector(
     (state: RootState) => state.targets.csvColumnNames
   );
-  console.log("csvHeaders", csvHeaders);
 
   const csvRows = useAppSelector((state: RootState) => state.targets.csvRows);
 
@@ -165,7 +164,6 @@ function TargetsMap() {
   );
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
-    console.log("item", item);
     return { label: item, value: item };
   });
 
@@ -474,7 +472,6 @@ function TargetsMap() {
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
-    console.log("csvHeaders", csvHeaders);
 
     if (csvHeaders.length < 1) {
       message.error("csvHeaders not found kindly reupload csv file");

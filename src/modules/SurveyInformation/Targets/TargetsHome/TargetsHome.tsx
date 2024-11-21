@@ -180,7 +180,6 @@ function TargetsHome() {
       //create rowbox data
       const originalData = targetRes.payload.data.data;
       setTargetsCount(originalData.length);
-      console.log("targetConfig", targetConfig);
 
       if (originalData.length == 0) {
         if (targetConfig.payload.success) {
