@@ -1,10 +1,8 @@
-import { Divider } from "antd";
 import styled from "styled-components";
 
 export const TargetsCountBoxContainer = styled.div`
   display: flex;
   justify-content: space-around;
-  padding: 8px 16px;
   border-radius: 4px;
   background-color: #fff;
   width: 136px;

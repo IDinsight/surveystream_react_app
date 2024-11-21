@@ -426,7 +426,6 @@ function TargetsHome() {
           {screenMode === "manage" ? (
             <>
               <TargetsHomeFormWrapper>
-                <br />
                 <TargetsCountBox total={targetsCount} />
                 <TargetsTable
                   rowSelection={editMode ? rowSelection : undefined}
