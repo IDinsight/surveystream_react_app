@@ -186,7 +186,7 @@ function AddSurveyRoles() {
       <GlobalStyle />
 
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title>
           {(() => {

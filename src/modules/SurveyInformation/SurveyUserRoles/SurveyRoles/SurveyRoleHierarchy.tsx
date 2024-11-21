@@ -256,7 +256,7 @@ function SurveyRoleHierarchy() {
       <GlobalStyle />
 
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

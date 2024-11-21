@@ -263,7 +263,7 @@ function DQFormSCTOQuestion() {
   return (
     <>
       <>
-        <Container />
+        <Container surveyPage={true} />
         <HeaderContainer>
           <Title>DQ forms - SurveyCTO Questions</Title>
           <CustomBtn

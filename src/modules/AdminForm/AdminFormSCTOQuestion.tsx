@@ -24,6 +24,7 @@ import {
   updateSCTOFormMapping,
 } from "../../redux/adminForm/adminFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Breadcrumb } from "antd";
 
 function AdminFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -355,9 +356,26 @@ function AdminFormSCTOQuestion() {
   return (
     <>
       <>
-        <Container />
+        <Container surveyPage={true} />
         <HeaderContainer>
-          <Title>Admin forms - SurveyCTO Questions</Title>
+          {/* <Title>Admin forms - SurveyCTO Questions</Title> */}
+          <Breadcrumb
+            separator=">"
+            style={{ fontSize: "16px", color: "#000" }}
+            items={[
+              {
+                title: "Admin forms",
+                href: `/module-configuration/admin-forms/${survey_uid}`,
+              },
+              {
+                title: "Form details",
+                href: `/module-configuration/admin-forms/${survey_uid}/manage?admin_form_uid=${admin_form_uid}`,
+              },
+              {
+                title: "SurveyCTO Questions",
+              },
+            ]}
+          />
           <CustomBtn
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}

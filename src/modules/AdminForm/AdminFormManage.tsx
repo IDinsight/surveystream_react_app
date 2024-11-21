@@ -15,6 +15,7 @@ import {
   updateAdminForm,
 } from "../../redux/adminForm/adminFormActions";
 import { userHasPermission } from "../../utils/helper";
+import { Breadcrumb } from "antd";
 
 const { Option } = Select;
 
@@ -163,9 +164,22 @@ function AdminFormManage() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Admin forms</Title>
+            {/* <Title>Admin forms</Title> */}
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: "Admin forms",
+                  href: `/module-configuration/admin-forms/${survey_uid}`,
+                },
+                {
+                  title: "Form details",
+                },
+              ]}
+            />
           </HeaderContainer>
           <BodyContainer>
             <p style={{ color: "#8C8C8C", fontSize: 14 }}>

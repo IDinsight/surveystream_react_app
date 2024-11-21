@@ -88,7 +88,7 @@ function MappingManage() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container surveyPage={!form_uid ? true : false} />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>
               Mapping -{" "}
