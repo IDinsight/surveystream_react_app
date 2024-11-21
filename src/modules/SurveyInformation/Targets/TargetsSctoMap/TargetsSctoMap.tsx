@@ -43,7 +43,7 @@ import { useState, useEffect } from "react";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
-import { set } from "lodash";
+import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
 
 interface CSVError {
   type: string;
@@ -200,6 +200,7 @@ function TargetsSctoMap() {
       updateTargetsColumnConfig({
         formUID: formUID,
         columnConfig: filteredCustomConfig,
+        filters: inputFilterList,
       })
     );
     if (update_response?.payload?.data?.status === "success") {
@@ -210,6 +211,9 @@ function TargetsSctoMap() {
       message.error("Error updating column configuration");
     }
   };
+
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [inputFilterList, setInputFilterList] = useState<any[]>([]);
 
   const csvRows = useAppSelector((state: RootState) => state.targets.csvRows);
 
@@ -225,7 +229,6 @@ function TargetsSctoMap() {
     try {
       //start with an empty error count
       setErrorCount(0);
-      console.log("column_mapping", column_mapping);
       if (customHeaderSelection) {
         column_mapping.custom_fields = [];
         for (const [column_name, shouldInclude] of Object.entries(
@@ -488,7 +491,6 @@ function TargetsSctoMap() {
     const response = await dispatch(getTargetConfig({ form_uid: form_uid! }));
     if (response.payload.success) {
       const configData = response.payload.data.data;
-      console.log("configData", configData);
       if (configData.target_source === "csv") {
         navigate(
           `/survey-information/targets/upload/${survey_uid}/${form_uid}`
@@ -676,49 +678,42 @@ function TargetsSctoMap() {
                       </>
                     ) : null}
 
-                    {customHeader ? (
-                      <Form.Item
-                        label="Custom columns"
-                        name="custom_columns"
-                        labelCol={{ span: 5 }}
-                        labelAlign="left"
-                      >
-                        <Select
-                          mode="multiple"
-                          showSearch={true}
-                          allowClear={true}
-                          style={{ width: "70%", maxHeight: "10%" }}
-                          placeholder="Select custom columns"
-                          options={csvHeaderOptions}
-                          maxTagCount={15}
-                          onChange={(selectedItems) => {
-                            const temp: any = {};
-                            selectedItems.forEach((item: string) => {
-                              temp[item] = true;
-                            });
-                            setCustomHeaderSelection(temp);
-                          }}
-                        />
-                      </Form.Item>
-                    ) : (
-                      <>
-                        <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
-                        </HeadingText>
-                        <Button
-                          type="primary"
-                          icon={<SelectOutlined />}
-                          style={{ backgroundColor: "#2f54eB" }}
-                          onClick={() => {
-                            setCustomHeader(true);
-                          }}
-                        >
-                          Map custom columns
-                        </Button>
-                      </>
-                    )}
+                    <Form.Item
+                      label="Custom columns"
+                      name="custom_columns"
+                      labelCol={{ span: 5 }}
+                      labelAlign="left"
+                    >
+                      <Select
+                        mode="multiple"
+                        showSearch={true}
+                        allowClear={true}
+                        style={{ width: "70%", maxHeight: "10%" }}
+                        placeholder="Select custom columns"
+                        options={csvHeaderOptions}
+                        maxTagCount={15}
+                        onChange={(selectedItems) => {
+                          const temp: any = {};
+                          selectedItems.forEach((item: string) => {
+                            temp[item] = true;
+                          });
+                          setCustomHeaderSelection(temp);
+                        }}
+                      />
+                    </Form.Item>
+
+                    <Button onClick={() => setOpenModal(true)}>
+                      Add Filters
+                    </Button>
+                    <DynamicTargetFilter
+                      open={openModal}
+                      setOpen={setOpenModal}
+                      columnList={csvHeaders}
+                      inputFilterList={inputFilterList}
+                      setInputFilterList={(value: any) => {
+                        setInputFilterList(value);
+                      }}
+                    />
                   </div>
                 </Form>
               </>

@@ -272,9 +272,11 @@ export const updateTargetsColumnConfig = createAsyncThunk(
     {
       formUID,
       columnConfig,
+      filters = [],
     }: {
       formUID: string;
-      columnConfig: any;
+      columnConfig?: any;
+      filters?: any;
     },
     { dispatch, rejectWithValue }
   ) => {
@@ -282,7 +284,8 @@ export const updateTargetsColumnConfig = createAsyncThunk(
       dispatch(updateTargetColumnConfigRequest());
       const response: any = await api.updateTargetsColumnConfig(
         formUID,
-        columnConfig
+        columnConfig,
+        filters
       );
       if (response.status == 200) {
         dispatch(updateTargetColumnConfigSuccess(response.data));

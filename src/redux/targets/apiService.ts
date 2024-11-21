@@ -138,7 +138,8 @@ export const fetchTargetsColumnConfig = async (formUID: string) => {
 
 export const updateTargetsColumnConfig = async (
   formUID: string,
-  columnConfig: any
+  columnConfig: any,
+  filters: any
 ) => {
   try {
     await getCSRFToken();
@@ -147,7 +148,7 @@ export const updateTargetsColumnConfig = async (
 
     const res = await axios.put(
       url,
-      { form_uid: formUID, column_config: columnConfig },
+      { form_uid: formUID, column_config: columnConfig, filters: filters },
       {
         headers: {
           "X-CSRF-Token": csrfToken,

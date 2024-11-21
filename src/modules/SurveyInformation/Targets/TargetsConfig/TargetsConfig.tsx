@@ -5,25 +5,22 @@ import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { Form, Radio, Space } from "antd";
+import { Form, message, Radio, Space } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
 import {
   ContinueButton,
   FooterWrapper,
-  SaveButton,
 } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { setTargetsCSVColumns } from "../../../../redux/targets/targetSlice";
 import {
   postTargetConfig,
   updateTargetSCTOColumns,
   getTargetConfig,
   putTargetConfig,
 } from "../../../../redux/targets/targetActions";
-import { set } from "lodash";
 
 function TargetsConfig() {
   const activeSurvey = useAppSelector(
@@ -32,7 +29,6 @@ function TargetsConfig() {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const isLoading = useAppSelector((state: RootState) => state.emails.loading);
 
   const [loading, setLoading] = useState(false);
   const [sourceType, setSourceType] = useState("");
@@ -111,11 +107,13 @@ function TargetsConfig() {
           const refresh_scto_columns = await dispatch(
             updateTargetSCTOColumns({ form_uid: form_uid! })
           );
-          console.log(refresh_scto_columns);
-
-          navigate(
-            `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
-          );
+          if (refresh_scto_columns) {
+            navigate(
+              `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+            );
+          } else {
+            message.error("Error in fetching data from SurveyCTO");
+          }
         }
       } else {
         console.log("Error in postTargetConfig");
