@@ -479,8 +479,12 @@ function TargetsSctoMap() {
             columnMapping[config.column_name] = config.column_source;
           }
         });
-
         targetMappingForm.setFieldsValue(columnMapping);
+
+        const filter_list =
+          response?.payload?.data?.data.target_scto_filter_list;
+        setInputFilterList(filter_list);
+        console.log(inputFilterList);
       } catch (error) {
         console.log("Error fetching input headers:", error);
       }
