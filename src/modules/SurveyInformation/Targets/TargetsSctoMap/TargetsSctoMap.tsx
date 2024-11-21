@@ -426,7 +426,10 @@ function TargetsSctoMap() {
           getSurveyCTOForm({ survey_uid: survey_uid })
         );
         if (sctoForm?.payload[0]?.form_uid) {
-          fetchTargetConfig(form_uid);
+          const form_uid = sctoForm?.payload[0]?.form_uid;
+          navigate(
+            `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+          );
         } else {
           message.error("Kindly configure SCTO Form to proceed");
           navigate(`/survey-information/survey-cto-information/${survey_uid}`);
@@ -496,6 +499,8 @@ function TargetsSctoMap() {
           `/survey-information/targets/upload/${survey_uid}/${form_uid}`
         );
       }
+    } else {
+      navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
     }
     setLoading(false);
   };
@@ -515,26 +520,32 @@ function TargetsSctoMap() {
     </>
   );
   useEffect(() => {
-    // fetch csv headers
-    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
-      handleFormUID();
-    }
-    fetchCSVHeaders();
+    const fetchData = async () => {
+      // fetch csv headers
+      if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
+        handleFormUID();
+      } else {
+        fetchTargetConfig(form_uid);
+        fetchCSVHeaders();
 
-    const keysToExclude = [
-      ...mandatoryDetailsField.map((item: { key: any }) => item.key),
-      ...locationDetailsField.map((item: { key: any }) => item.key),
-    ];
+        const keysToExclude = [
+          ...mandatoryDetailsField.map((item: { key: any }) => item.key),
+          ...locationDetailsField.map((item: { key: any }) => item.key),
+        ];
 
-    const extraHeaders = csvHeaders.filter(
-      (item: string) => !keysToExclude.includes(item)
-    );
+        const extraHeaders = csvHeaders.filter(
+          (item: string) => !keysToExclude.includes(item)
+        );
 
-    setExtraCSVHeader(extraHeaders);
+        setExtraCSVHeader(extraHeaders);
 
-    fetchSurveyModuleQuestionnaire();
-    fetchTargetColumnConfig();
-  }, []);
+        fetchSurveyModuleQuestionnaire();
+        fetchTargetColumnConfig();
+      }
+    };
+
+    fetchData();
+  }, [form_uid]);
 
   return (
     <>
