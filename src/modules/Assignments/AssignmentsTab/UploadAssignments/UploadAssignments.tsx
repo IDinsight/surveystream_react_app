@@ -237,7 +237,7 @@ function UploadAssignments() {
           <FullScreenLoader />
         ) : (
           <>
-            <Container />
+            <Container surveyPage={true} />
             <HeaderContainer>
               <Title>Upload assignments</Title>
             </HeaderContainer>
@@ -349,7 +349,7 @@ function UploadAssignments() {
                         <Button
                           type="default"
                           style={{ marginTop: 20 }}
-                          onClick={() => navigate(0)}
+                          onClick={() => navigate(-1)}
                         >
                           Cancel
                         </Button>
