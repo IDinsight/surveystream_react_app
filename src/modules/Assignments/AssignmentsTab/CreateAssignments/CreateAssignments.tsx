@@ -828,12 +828,13 @@ function CreateAssignments() {
           ) : null}
 
           <div>
+            <Button onClick={handleDismiss}>Dismiss</Button>
             <Button
               type="primary"
               style={{
                 backgroundColor: "#597EF7",
                 color: "white",
-                marginRight: 10,
+                marginLeft: 20,
               }}
               loading={stepLoading}
               disabled={stepIndex === 0 && !hasSurveyorSelected}
@@ -841,7 +842,6 @@ function CreateAssignments() {
             >
               {stepIndex !== 2 ? "Continue" : "Done"}
             </Button>
-            <Button onClick={handleDismiss}>Dismiss</Button>
           </div>
         </div>
       </div>

@@ -1174,9 +1174,19 @@ const SurveyorMapping = ({
             </>
           )}
           <div style={{ marginTop: "0px", marginBottom: "40px" }}>
+            <Button
+              onClick={() =>
+                navigate(`/survey-information/mapping/surveyor/${SurveyUID}`)
+              }
+            >
+              Cancel
+            </Button>
+            <Button style={{ marginLeft: "20px" }} onClick={handleContinue}>
+              Continue
+            </Button>
             <CustomBtn
               type="primary"
-              style={{ marginRight: "10px" }}
+              style={{ marginLeft: "20px" }}
               onClick={handleConfigSave}
               disabled={
                 criteria.includes("Manual") || !(unmappedPairData?.length > 0)
@@ -1184,10 +1194,6 @@ const SurveyorMapping = ({
             >
               Save
             </CustomBtn>
-            <Button onClick={handleContinue}>Continue</Button>
-            <Button style={{ marginLeft: "10px" }} onClick={() => navigate(0)}>
-              Cancel
-            </Button>
           </div>
         </div>
       ) : (
@@ -1265,11 +1271,13 @@ const SurveyorMapping = ({
                 </Col>
               </Row>
               <div style={{ marginTop: 16 }}>
-                <Button type="primary" onClick={handleSurveyorMappingSave}>
+                <Button onClick={onDrawerClose}>Cancel</Button>
+                <Button
+                  style={{ marginLeft: 16 }}
+                  type="primary"
+                  onClick={handleSurveyorMappingSave}
+                >
                   Save
-                </Button>
-                <Button style={{ marginLeft: 16 }} onClick={onDrawerClose}>
-                  Cancel
                 </Button>
               </div>
             </Drawer>

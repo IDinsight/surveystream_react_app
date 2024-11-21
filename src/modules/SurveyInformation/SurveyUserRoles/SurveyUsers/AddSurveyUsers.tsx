@@ -467,21 +467,20 @@ function AddSurveyUsers() {
                     </Form.Item>
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
-                        type="primary"
-                        htmlType="submit"
-                        style={{ backgroundColor: "#2F54EB" }}
-                      >
-                        Check for user
-                      </Button>
-                      <Button
                         onClick={() =>
                           navigate(
                             `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
-                        style={{ marginLeft: 20 }}
                       >
                         Dismiss
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
+                      >
+                        Check for user
                       </Button>
                     </Form.Item>
                   </Form>
@@ -845,23 +844,22 @@ function AddSurveyUsers() {
                       )}
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
-                        loading={loading}
-                        type="primary"
-                        htmlType="submit"
-                        style={{ backgroundColor: "#2F54EB" }}
-                      >
-                        {isExistingUser && <>Update User</>}
-                        {!isExistingUser && <>Add User</>}
-                      </Button>
-                      <Button
                         onClick={() =>
                           navigate(
                             `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
-                        style={{ marginLeft: 20 }}
                       >
                         Dismiss
+                      </Button>
+                      <Button
+                        loading={loading}
+                        type="primary"
+                        htmlType="submit"
+                        style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
+                      >
+                        {isExistingUser && <>Update User</>}
+                        {!isExistingUser && <>Add User</>}
                       </Button>
                     </Form.Item>
                   </Form>

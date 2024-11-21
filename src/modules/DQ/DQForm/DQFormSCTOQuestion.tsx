@@ -425,21 +425,20 @@ function DQFormSCTOQuestion() {
                   </Row>
                 ))
               : null}
-            <CustomBtn
-              style={{ marginTop: 24 }}
-              onClick={handleFormSubmit}
-              disabled={!canUserWrite}
-            >
-              Submit
-            </CustomBtn>
             <Button
-              style={{ marginLeft: 24 }}
               onClick={() =>
                 navigate(`/module-configuration/dq-forms/${survey_uid}`)
               }
             >
               Cancel
             </Button>
+            <CustomBtn
+              style={{ marginTop: 24, marginLeft: 20 }}
+              onClick={handleFormSubmit}
+              disabled={!canUserWrite}
+            >
+              Save
+            </CustomBtn>
           </BodyContainer>
         )}
       </>

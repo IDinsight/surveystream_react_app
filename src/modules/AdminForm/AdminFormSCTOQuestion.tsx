@@ -332,21 +332,21 @@ function AdminFormSCTOQuestion() {
               />
             </Col>
           </Row>
-          <CustomBtn
-            style={{ marginTop: 24 }}
-            onClick={handleFormSubmit}
-            disabled={!canUserWrite}
-          >
-            Submit
-          </CustomBtn>
           <Button
-            style={{ marginLeft: 24 }}
+            style={{}}
             onClick={() =>
               navigate(`/module-configuration/admin-forms/${survey_uid}`)
             }
           >
             Cancel
           </Button>
+          <CustomBtn
+            style={{ marginLeft: 20, marginTop: 24 }}
+            onClick={handleFormSubmit}
+            disabled={!canUserWrite}
+          >
+            Save
+          </CustomBtn>
         </div>
       );
     }

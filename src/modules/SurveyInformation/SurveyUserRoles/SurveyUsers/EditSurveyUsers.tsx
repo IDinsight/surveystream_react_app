@@ -773,22 +773,21 @@ function EditSurveyUsers() {
                     )}
                   <Form.Item style={{ marginTop: 20 }}>
                     <Button
-                      loading={loading}
-                      type="primary"
-                      htmlType="submit"
-                      style={{ backgroundColor: "#2F54EB" }}
-                    >
-                      Update user
-                    </Button>
-                    <Button
                       onClick={() =>
                         navigate(
                           `/survey-information/survey-users/users/${survey_uid}`
                         )
                       }
-                      style={{ marginLeft: 20 }}
                     >
                       Dismiss
+                    </Button>
+                    <Button
+                      loading={loading}
+                      type="primary"
+                      htmlType="submit"
+                      style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
+                    >
+                      Update user
                     </Button>
                   </Form.Item>
                 </Form>

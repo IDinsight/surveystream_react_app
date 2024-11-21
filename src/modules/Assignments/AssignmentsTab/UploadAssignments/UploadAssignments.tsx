@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { uploadCSVAssignments } from "../../../../redux/assignments/assignmentsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { GlobalStyle, CustomBtn } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import FileUpload from "./FileUpload";
@@ -347,18 +347,18 @@ function UploadAssignments() {
                           upload them?
                         </DescriptionContainer>
                         <Button
-                          type="primary"
-                          onClick={() => handleUploadBtnClick(true)}
-                        >
-                          Upload assignments
-                        </Button>
-                        <Button
                           type="default"
+                          style={{ marginTop: 20 }}
                           onClick={() => navigate(0)}
-                          style={{ marginLeft: 24 }}
                         >
                           Cancel
                         </Button>
+                        <CustomBtn
+                          style={{ marginLeft: 20, marginTop: 20 }}
+                          onClick={() => handleUploadBtnClick(true)}
+                        >
+                          Upload assignments
+                        </CustomBtn>
                       </>
                     ) : (
                       <div style={{ marginTop: "32px" }}>

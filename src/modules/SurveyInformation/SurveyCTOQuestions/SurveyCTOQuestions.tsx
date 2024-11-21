@@ -3,7 +3,7 @@ import {
   MainWrapper,
   HeaderContainer,
 } from "../../../shared/Nav.styled";
-import { Form, Select, message, Alert } from "antd";
+import { Form, Select, message, Alert, Button } from "antd";
 import {
   FooterWrapper,
   ContinueButton,
@@ -611,7 +611,19 @@ function SurveyCTOQuestions() {
             " "
           ) : (
             <div>
-              <CustomBtn style={{ marginTop: 24 }} onClick={handleContinue}>
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/survey-information/survey-cto-information/${survey_uid}`
+                  )
+                }
+              >
+                Cancel
+              </Button>
+              <CustomBtn
+                style={{ marginTop: 24, marginLeft: 20 }}
+                onClick={handleContinue}
+              >
                 Save
               </CustomBtn>
             </div>
