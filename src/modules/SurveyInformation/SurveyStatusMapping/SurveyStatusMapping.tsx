@@ -413,7 +413,7 @@ function SurveyStatusMapping() {
                         </Form.Item>
                         <Form.Item shouldUpdate>
                           <CustomBtn type="primary" onClick={onConfirmClick}>
-                            Confirm
+                            Load
                           </CustomBtn>
                         </Form.Item>
                       </>

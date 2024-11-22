@@ -270,19 +270,22 @@ function EmailSchedule({
               </Form.Item>
             </Form>
             <div style={{ marginTop: 12 }}>
-              <Button type="primary" onClick={onScheduleEmail}>
-                Schedule
-              </Button>
               <Button
                 type="default"
-                style={{ marginLeft: 24 }}
                 onClick={() =>
                   navigate(
                     `/module-configuration/assignments/${surveyUID}/${formUID}`
                   )
                 }
               >
-                Dismiss
+                Cancel
+              </Button>
+              <Button
+                style={{ marginLeft: 20 }}
+                type="primary"
+                onClick={onScheduleEmail}
+              >
+                Schedule
               </Button>
             </div>
           </div>

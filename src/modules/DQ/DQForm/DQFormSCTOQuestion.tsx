@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,
@@ -23,6 +23,7 @@ import {
   updateSCTOFormMapping,
 } from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Breadcrumb } from "antd";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -265,7 +266,23 @@ function DQFormSCTOQuestion() {
       <>
         <Container surveyPage={true} />
         <HeaderContainer>
-          <Title>DQ forms - SurveyCTO Questions</Title>
+          <Breadcrumb
+            separator=">"
+            style={{ fontSize: "16px", color: "#000" }}
+            items={[
+              {
+                title: "Data quality forms",
+                href: `/module-configuration/dq-forms/${survey_uid}`,
+              },
+              {
+                title: "Form details",
+                href: `/module-configuration/dq-forms/${survey_uid}/manage?dq_form_uid=${dq_form_uid}`,
+              },
+              {
+                title: "SurveyCTO Questions",
+              },
+            ]}
+          />
           <CustomBtn
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}

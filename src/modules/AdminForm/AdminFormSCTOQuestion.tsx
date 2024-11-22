@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,

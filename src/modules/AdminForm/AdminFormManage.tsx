@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./AdminForm.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
@@ -166,7 +166,6 @@ function AdminFormManage() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            {/* <Title>Admin forms</Title> */}
             <Breadcrumb
               separator=">"
               style={{ fontSize: "16px", color: "#000" }}

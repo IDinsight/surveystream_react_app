@@ -473,7 +473,7 @@ function AddSurveyUsers() {
                           )
                         }
                       >
-                        Dismiss
+                        Cancel
                       </Button>
                       <Button
                         type="primary"
@@ -850,7 +850,7 @@ function AddSurveyUsers() {
                           )
                         }
                       >
-                        Dismiss
+                        Cancel
                       </Button>
                       <Button
                         loading={loading}

@@ -828,7 +828,7 @@ function CreateAssignments() {
           ) : null}
 
           <div>
-            <Button onClick={handleDismiss}>Dismiss</Button>
+            <Button onClick={handleDismiss}>Cancel</Button>
             <Button
               type="primary"
               style={{

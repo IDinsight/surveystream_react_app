@@ -1179,7 +1179,7 @@ const SurveyorMapping = ({
                 navigate(`/survey-information/mapping/surveyor/${SurveyUID}`)
               }
             >
-              Back
+              Cancel
             </Button>
             <Button style={{ marginLeft: "20px" }} onClick={handleContinue}>
               Continue
