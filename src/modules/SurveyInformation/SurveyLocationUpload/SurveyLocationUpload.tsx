@@ -483,7 +483,7 @@ function SurveyLocationUpload() {
         <Title>Survey locations upload</Title>
 
         <div style={{ display: "flex", marginLeft: "auto" }}>
-          {!hasError && fileUploaded ? (
+          {!hasError && fileUploaded && columnMatch ? (
             <div
               style={{
                 display: "flex",
@@ -607,7 +607,7 @@ function SurveyLocationUpload() {
               )}
             </SurveyLocationUploadFormWrapper>
             <Modal
-              title="Add enumerators"
+              title="Add locations"
               open={addLocationsModal}
               okText="Continue"
               onOk={handleLocationsAddMode}
