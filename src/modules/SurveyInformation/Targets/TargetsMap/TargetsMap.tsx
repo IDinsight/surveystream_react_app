@@ -192,7 +192,7 @@ function TargetsMap() {
         column_mapping: column_mapping,
         file: csvBase64Data,
         mode: "overwrite",
-        load_from_scto: true,
+        load_from_scto: false,
       };
 
       if (form_uid !== undefined) {
