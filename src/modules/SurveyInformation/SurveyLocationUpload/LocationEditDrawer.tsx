@@ -173,10 +173,10 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                 title: "Save Location Changes",
                 content: (
                   <p>
-                    Updating the location name here will update the location
-                    name in User, Enumerator, Target records too.
+                    This action will update the location details in User,
+                    Enumerator, and Target records.
                     <br />
-                    Confirm that you want this action to happen.
+                    Are you sure you want to proceed?
                   </p>
                 ),
                 onOk: handleLocationsUpdate,

@@ -169,12 +169,11 @@ function SurveyLocationAdd() {
               title="Are you sure you want to delete this location level?"
               description={
                 <span>
-                  Deleting location level will delete existing location data.
-                  Enumerators and targets are mapped to locations using existing
-                  location levels, and they will be deleted.
+                  Deleting this location level will remove all associated data,
+                  including location mapped to enumerators, targets, users.
                   <br />
-                  Please re-upload locations, enumerators, and targets after
-                  adding a new location level.
+                  You will need to re-upload locations, enumerators, and targets
+                  after deletion.
                 </span>
               }
               onConfirm={() => handleDeleteGeoLevel(index)}
@@ -307,12 +306,12 @@ function SurveyLocationAdd() {
               title="Are you sure you want to add another location level?"
               description={
                 <span>
-                  Adding another location level will delete existing location
-                  data. Enumerators and targets are mapped to locations using
-                  existing location levels, and they will be deleted.
+                  Adding a new location level will remove existing location
+                  data, including enumerators and targets mapped to current
+                  locations.
                   <br />
-                  Please re-upload locations, enumerators, and targets after
-                  adding a new location level.
+                  You will need to re-upload locations, enumerators, and targets
+                  after adding the new location level.
                 </span>
               }
               okText="Yes"
