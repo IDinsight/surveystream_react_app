@@ -322,7 +322,7 @@ function SurveyLocationAdd() {
               overlayStyle={{ width: "30%" }}
             >
               <AddAnotherButton type="dashed" style={{ width: "100%" }}>
-                <FileAddOutlined /> Add another location level
+                <FileAddOutlined /> Add location level
               </AddAnotherButton>
             </Popconfirm>
           ) : (
@@ -331,7 +331,7 @@ function SurveyLocationAdd() {
               style={{ width: "100%" }}
               onClick={handleAddGeoLevel}
             >
-              <FileAddOutlined /> Add another location level
+              <FileAddOutlined /> Add location level
             </AddAnotherButton>
           )}
         </div>
@@ -358,7 +358,7 @@ function SurveyLocationAdd() {
         <ContinueButton
           onClick={handleLocationAddContinue}
           loading={loading}
-          disabled={surveyLocationGeoLevels.length === 0}
+          disabled={numLocationFields === 0}
         >
           Save
         </ContinueButton>

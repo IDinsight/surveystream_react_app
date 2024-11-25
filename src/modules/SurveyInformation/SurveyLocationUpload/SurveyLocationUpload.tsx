@@ -55,6 +55,7 @@ import { LocationEditDrawer } from "./LocationEditDrawer";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [form] = Form.useForm();
 
@@ -380,6 +381,15 @@ function SurveyLocationUpload() {
   };
 
   const handleUploadContinue = () => {
+    if (
+      surveyLocations?.records?.length > 0 &&
+      !hasError &&
+      fileUploaded &&
+      columnMatch
+    ) {
+      navigate(`/survey-configuration/${survey_uid}`);
+      return;
+    }
     form
       .validateFields()
       .then(async () => {
@@ -473,13 +483,12 @@ function SurveyLocationUpload() {
         <Title>Survey locations upload</Title>
 
         <div style={{ display: "flex", marginLeft: "auto" }}>
-          {!hasError ? (
+          {!hasError && fileUploaded ? (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginRight: "80px",
               }}
             >
               <Button
@@ -509,20 +518,16 @@ function SurveyLocationUpload() {
                 Download CSV
               </CSVDownloader>
               <Button
-                type="primary"
                 onClick={resetFilters}
                 icon={<ClearOutlined />}
                 style={{
                   cursor: "pointer",
                   marginLeft: 15,
-                  backgroundColor: "#2f54eB",
                   padding: "8px 16px",
                   borderRadius: "5px",
                   fontSize: "14px",
                 }}
-              >
-                Clear Filters and Sort
-              </Button>
+              ></Button>
             </div>
           ) : null}
         </div>
