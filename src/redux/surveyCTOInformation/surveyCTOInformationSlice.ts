@@ -12,7 +12,7 @@ const initialState: SurveyCTOInformationState = {
   loading: false,
   error: null,
   surveyCTOForm: {
-    last_ingested_at: "",
+    last_ingested_at: null,
     form_uid: "",
     survey_uid: "",
     scto_form_id: "",
