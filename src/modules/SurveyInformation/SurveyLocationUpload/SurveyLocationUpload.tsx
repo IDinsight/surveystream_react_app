@@ -532,7 +532,7 @@ function SurveyLocationUpload() {
           ) : null}
         </div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -644,6 +644,8 @@ function SurveyLocationUpload() {
               dataTable={longformedData}
               geoLevels={surveyLocationGeoLevels}
               surveyUID={survey_uid!}
+              loading={loading}
+              setLoading={setLoading}
             />
           )}
         </>

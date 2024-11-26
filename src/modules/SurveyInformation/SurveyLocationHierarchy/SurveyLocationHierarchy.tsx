@@ -298,7 +298,7 @@ function SurveyLocationHierarchy() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Drawer, Form, Input, Modal, Select } from "antd";
+import { Button, Drawer, Form, Input, message, Modal, Select } from "antd";
 import styled from "styled-components";
 import { updateLocation } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { useAppDispatch } from "../../../redux/hooks";
@@ -17,6 +17,8 @@ interface LocationEditDrawerProps {
   selectedRecord: any;
   geoLevels: any;
   surveyUID: string;
+  loading: any;
+  setLoading: any;
 }
 
 export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
@@ -26,6 +28,8 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
   selectedRecord,
   geoLevels,
   surveyUID,
+  loading,
+  setLoading,
 }) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
@@ -33,6 +37,8 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
   const handleLocationsUpdate = async () => {
     try {
       await form.validateFields();
+      setLoading(true);
+
       const payload = geoLevels.map((geoLevel: any) => ({
         location_name: form.getFieldValue(`${geoLevel.geo_level_name}_name`),
         location_uid: form.getFieldValue(`${geoLevel.geo_level_name}_uid`),
@@ -59,6 +65,9 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
           };
         }
       });
+
+      onClose();
+
       const updatePromises = updatedPayload.map((location: any) =>
         dispatch(
           updateLocation({
@@ -67,9 +76,6 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
           })
         )
       );
-
-      onClose();
-
       const results = await Promise.all(updatePromises);
 
       const failedUpdates = results.filter(
@@ -81,8 +87,9 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
       }
       // Reload the page to reflect the changes
       window.location.reload();
-    } catch (error) {
-      console.error("Failed to update locations", error);
+      setLoading(false);
+    } catch (error: any) {
+      message.error("Failed to update locations: " + error.toString());
     }
   };
 
