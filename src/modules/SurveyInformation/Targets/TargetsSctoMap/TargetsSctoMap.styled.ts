@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { Table, Button } from "antd";
 import styled from "styled-components";
 
 export const TargetsSctoMapFormWrapper = styled.div`
@@ -93,5 +93,17 @@ export const WarningTable = styled(Table)`
   }
   & td {
     font-family: "Lato", sans-serif;
+  }
+`;
+
+export const SCTOQuestionsButton = styled(Button)`
+  margin-top: 20px;
+  background-color: #2f54eb;
+  color: #fff;
+  font-family: "Lato", sans-serif;
+  &:hover {
+    border: 1px solid #2f54eb;
+    background-color: #fff;
+    color: #2f54eb;
   }
 `;

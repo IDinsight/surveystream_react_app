@@ -18,12 +18,9 @@ import {
   HeadingText,
   WarningTable,
   TargetsSctoMapFormWrapper,
+  SCTOQuestionsButton,
 } from "./TargetsSctoMap.styled";
-import {
-  SelectOutlined,
-  CloudDownloadOutlined,
-  CloudUploadOutlined,
-} from "@ant-design/icons";
+import { CloudDownloadOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { CSVLink } from "react-csv";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -37,6 +34,7 @@ import {
   getTargetsColumnConfig,
   getTargetConfig,
   postTargetsMapping,
+  updateTargetSCTOColumns,
 } from "../../../../redux/targets/targetActions";
 import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { useState, useEffect } from "react";
@@ -44,7 +42,6 @@ import { useState, useEffect } from "react";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
-
 interface CSVError {
   type: string;
   count: number;
@@ -216,13 +213,39 @@ function TargetsSctoMap() {
   const [inputFilterList, setInputFilterList] = useState<any[]>([]);
 
   const csvRows = useAppSelector((state: RootState) => state.targets.csvRows);
-
+  const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
+    string[]
+  >([]);
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
 
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [hasWarning, setHasWarning] = useState<boolean>(false);
   const [warningList, setWarningList] = useState<CSVError[]>([]);
+
+  const loadFormQuestions = async () => {
+    setLoading(true);
+    const errorMessages: string[] = [];
+    if (form_uid != undefined) {
+      const questionsRes = await dispatch(
+        updateTargetSCTOColumns({ form_uid })
+      );
+      if (questionsRes?.payload?.data?.success === true) {
+        fetchCSVHeaders();
+        message.success("Questions loaded successfully");
+      } else {
+        message.error("SurveyCTO Error: Failed to load questions");
+      }
+    } else {
+      message.error(
+        "Kindly check if the form_uid is provided on the url to proceed."
+      );
+    }
+    if (errorMessages.length > 0) {
+      message.error(errorMessages);
+    }
+    setLoading(false);
+  };
 
   const handleTargetsUploadMapping = async (column_mapping: any) => {
     setLoading(true);
@@ -558,6 +581,23 @@ function TargetsSctoMap() {
         <HandleBackButton></HandleBackButton>
 
         <Title> {activeSurvey?.survey_name} </Title>
+        {!(isLoading || quesLoading || locLoading) ? (
+          <div
+            style={{
+              display: "flex",
+              marginLeft: "auto",
+              marginBottom: "15px",
+            }}
+          >
+            <SCTOQuestionsButton
+              type="dashed"
+              onClick={() => loadFormQuestions()}
+              disabled={form_uid == undefined}
+            >
+              Load questions from SCTO form
+            </SCTOQuestionsButton>
+          </div>
+        ) : null}
       </NavWrapper>
       {isLoading || quesLoading || locLoading ? (
         <FullScreenLoader />

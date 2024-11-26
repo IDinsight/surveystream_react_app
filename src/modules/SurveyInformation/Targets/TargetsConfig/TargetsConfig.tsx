@@ -89,8 +89,9 @@ function TargetsConfig() {
   }, [form_uid]);
 
   const handleContinue = async () => {
-    setLoading(true);
     try {
+      await form.validateFields(); // Validate all fields before submission
+      setLoading(true);
       const values = form.getFieldsValue();
       values.form_uid = form_uid;
 
@@ -124,6 +125,7 @@ function TargetsConfig() {
 
     setLoading(false);
   };
+
   return (
     <>
       <GlobalStyle />
@@ -224,7 +226,7 @@ function TargetsConfig() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      If SCTO Form is encypted,Please share the SCTO key with{" "}
+                      If SCTO Form is encrypted, please share the SCTO key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
