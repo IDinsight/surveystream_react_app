@@ -27,7 +27,7 @@ import {
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
 
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 import { RootState } from "../../../../redux/store";
 import {
   deleteUserHierarchy,
@@ -413,7 +413,7 @@ function AddSurveyUsers() {
       <GlobalStyle />
 
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title>
           {(() => {
@@ -467,21 +467,20 @@ function AddSurveyUsers() {
                     </Form.Item>
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
-                        type="primary"
-                        htmlType="submit"
-                        style={{ backgroundColor: "#2F54EB" }}
-                      >
-                        Check for user
-                      </Button>
-                      <Button
                         onClick={() =>
                           navigate(
                             `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
-                        style={{ marginLeft: 20 }}
                       >
-                        Dismiss
+                        Cancel
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
+                      >
+                        Check for user
                       </Button>
                     </Form.Item>
                   </Form>
@@ -590,6 +589,7 @@ function AddSurveyUsers() {
                       <Select
                         showSearch={true}
                         allowClear={true}
+                        optionFilterProp="children"
                         placeholder="Select role"
                         onChange={(value) => {
                           //check if value has reporting role
@@ -688,6 +688,7 @@ function AddSurveyUsers() {
                         <Select
                           showSearch={true}
                           allowClear={true}
+                          optionFilterProp="children"
                           placeholder="Select supervisor"
                           onChange={(value) => {
                             setUserDetails((prev: any) => ({
@@ -843,23 +844,22 @@ function AddSurveyUsers() {
                       )}
                     <Form.Item style={{ marginTop: 20 }}>
                       <Button
-                        loading={loading}
-                        type="primary"
-                        htmlType="submit"
-                        style={{ backgroundColor: "#2F54EB" }}
-                      >
-                        {isExistingUser && <>Update User</>}
-                        {!isExistingUser && <>Add User</>}
-                      </Button>
-                      <Button
                         onClick={() =>
                           navigate(
                             `/survey-information/survey-users/users/${survey_uid}`
                           )
                         }
-                        style={{ marginLeft: 20 }}
                       >
-                        Dismiss
+                        Cancel
+                      </Button>
+                      <Button
+                        loading={loading}
+                        type="primary"
+                        htmlType="submit"
+                        style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
+                      >
+                        {isExistingUser && <>Update User</>}
+                        {!isExistingUser && <>Add User</>}
                       </Button>
                     </Form.Item>
                   </Form>

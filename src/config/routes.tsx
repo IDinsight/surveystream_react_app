@@ -47,8 +47,7 @@ import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 import AdminFormHome from "../modules/AdminForm";
 import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
-import MappingHome from "../modules/Mapping";
-import MappingManage from "../modules/Mapping/MappingManage";
+import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -370,11 +369,7 @@ const AppRoutes = () => {
         element={<ProtectedPermissionRoute permission_name="READ Mapping" />}
       >
         <Route
-          path="/survey-information/mapping/:survey_uid?"
-          element={<MappingHome />}
-        />
-        <Route
-          path="/survey-information/mapping/:survey_uid?/:mapping_name?"
+          path="/survey-information/mapping/:mapping_name?/:survey_uid?"
           element={<MappingManage />}
         />
       </Route>

@@ -50,7 +50,7 @@ function AdminFormHome() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Admin forms</Title>
           </HeaderContainer>
