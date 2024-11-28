@@ -464,12 +464,15 @@ function TargetsHome() {
                   value={newTargetMode}
                 >
                   <Space direction="vertical">
-                    <Radio value="overwrite" disabled={isTargetInUse}>
-                      I want to start afresh (targets uploaded previously will
-                      be deleted)
-                    </Radio>
                     <Radio value="merge">
                       I want to add new targets / columns
+                    </Radio>
+                    <Radio value="overwrite" disabled={isTargetInUse}>
+                      I want to start afresh with new targets.
+                      <span style={{ color: "red" }}>
+                        ( Targets uploaded previously will be removed. Existing
+                        Assignments data will be deleted. )
+                      </span>
                     </Radio>
                   </Space>
                 </Radio.Group>

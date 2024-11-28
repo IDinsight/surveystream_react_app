@@ -122,13 +122,7 @@ function DynamicTargetFilter({
   };
 
   const handleSubmit = () => {
-    // 1. Check if any filter group is added
-    if (filterList.length === 0) {
-      message.error("Please add a filter group.");
-      return;
-    }
-
-    // 2. Check if all filters in filter groups are valid
+    // 1. Check if all filters in filter groups are valid
     for (const group of filterList) {
       for (const filter of group.filter_group) {
         if (!filter.column || !filter.type) {

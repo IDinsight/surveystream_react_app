@@ -200,12 +200,11 @@ function TargetsSctoMap() {
         filters: inputFilterList,
       })
     );
-    if (update_response?.payload?.data?.status === "success") {
-      navigate(
-        `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
-      );
+    console.log("update_response", update_response);
+    if (update_response?.payload?.data?.success === true) {
+      message.success("Column configuration updated successfully");
     } else {
-      message.error("Error updating column configuration");
+      message.error("Error updating scto column configuration");
     }
   };
 
@@ -244,6 +243,15 @@ function TargetsSctoMap() {
     if (errorMessages.length > 0) {
       message.error(errorMessages);
     }
+    setLoading(false);
+  };
+
+  const handleSCTOMappingSubmit = async () => {
+    await targetMappingForm.validateFields();
+    const column_mapping = targetMappingForm.getFieldsValue();
+    setLoading(true);
+    handleTargetColumnConfig(form_uid, column_mapping);
+    handleTargetsUploadMapping(column_mapping);
     setLoading(false);
   };
 
@@ -350,10 +358,6 @@ function TargetsSctoMap() {
         }
 
         if (mappingsRes.payload.success) {
-          message.success("Targets uploaded and mapped successfully.");
-
-          handleTargetColumnConfig(form_uid, column_mapping);
-
           setHasError(false);
           //route to manage
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
@@ -909,11 +913,7 @@ function TargetsSctoMap() {
         <SaveButton disabled>Save</SaveButton>
         <ContinueButton
           onClick={() => {
-            handleTargetColumnConfig(
-              form_uid,
-              targetMappingForm.getFieldsValue()
-            );
-            handleTargetsUploadMapping(targetMappingForm.getFieldsValue());
+            handleSCTOMappingSubmit();
           }}
         >
           Continue
