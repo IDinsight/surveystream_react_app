@@ -25,7 +25,8 @@ export const getSurveyLocationGeoLevels = async (survey_uid: string) => {
 
 export const updateSurveyLocationGeoLevels = async (
   formData: GeoLevel[],
-  survey_uid: string
+  survey_uid: string,
+  validateHierarchy: boolean
 ) => {
   try {
     await getCSRFToken();
@@ -34,7 +35,7 @@ export const updateSurveyLocationGeoLevels = async (
 
     const res = await axios.put(
       url,
-      { geo_levels: formData, validate_hierarchy: false },
+      { geo_levels: formData, validate_hierarchy: validateHierarchy },
       {
         headers: {
           "X-CSRF-Token": csrfToken,
@@ -102,6 +103,33 @@ export const updateSurveyLocations = async (
   }
 };
 
+export const appendSurveyLocations = async (
+  formData: GeoLevelMapping[],
+  file: any,
+  survey_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/locations?survey_uid=${survey_uid}`;
+
+    const res = await axios.put(
+      url,
+      { geo_level_mapping: formData, file: file },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getSurveyLocations = async (survey_uid: string) => {
   try {
     await getCSRFToken();
@@ -143,10 +171,35 @@ export const getSurveyLocationsLong = async (
   }
 };
 
+export const updateLocation = async (formData: any, location_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/locations/${location_uid}`;
+
+    const res = await axios.put(
+      url,
+      { ...formData },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   getSurveyLocationGeoLevels,
   updateSurveyLocationGeoLevels,
   getSurveyLocations,
   updateSurveyLocations,
   getSurveyLocationsLong,
+  updateLocation,
+  appendSurveyLocations,
 };

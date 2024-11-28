@@ -90,7 +90,7 @@ function SideMenu() {
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Add location types
+              Add/Edit Location Levels
             </MenuItem>
           ),
           key: "surveyLocationAdd",

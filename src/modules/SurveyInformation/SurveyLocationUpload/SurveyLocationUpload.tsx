@@ -1,17 +1,21 @@
-import { Alert, Col, Form, Row, Select, message } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
-
 import {
-  NavWrapper,
-  BackLink,
-  BackArrow,
-  Title,
-  HeaderContainer,
-} from "../../../shared/Nav.styled";
+  Alert,
+  Col,
+  Form,
+  Row,
+  Select,
+  message,
+  Button,
+  Modal,
+  Radio,
+  Space,
+  Divider,
+} from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
 import {
   FooterWrapper,
-  SaveButton,
   ContinueButton,
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
@@ -21,7 +25,13 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import { CloudDownloadOutlined, LinkOutlined } from "@ant-design/icons";
+import {
+  CloudUploadOutlined,
+  CloudDownloadOutlined,
+  LinkOutlined,
+  EditTwoTone,
+  ClearOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -31,19 +41,21 @@ import {
   getSurveyLocationGeoLevels,
   getSurveyLocations,
   postSurveyLocations,
+  puturveyLocations,
+  getSurveyLocationsLong,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import HandleBackButton from "../../../components/HandleBackButton";
 import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
+import { LocationEditDrawer } from "./LocationEditDrawer";
 
 function SurveyLocationUpload() {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [form] = Form.useForm();
 
@@ -61,11 +73,9 @@ function SurveyLocationUpload() {
   const [mappedColumnNames, setMappedColumnNames] = useState<any>({});
   const [transformedData, setTransformedData] = useState<any>([]);
   const [transformedColumns, setTransformedColumns] = useState<any>([]);
+  const [longformedData, setLongformedData] = useState<any>([]);
   const { CSVDownloader, Type } = useCSVDownloader();
 
-  const activeSurvey = useAppSelector(
-    (state: RootState) => state.surveys.activeSurvey
-  );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
@@ -77,6 +87,25 @@ function SurveyLocationUpload() {
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
   );
+
+  const [addLocationsModal, setAddLocationsModal] = useState(false);
+  const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
+
+  const resetFilters = async () => {
+    fetchSurveyLocations();
+  };
+
+  const handlerAddLocationButton = () => {
+    setAddLocationsModal(true);
+  };
+
+  const handleLocationsAddMode = () => {
+    // Change this to reupload screen and set the locationsAddMode as a state variable
+    setAddLocationsModal(false);
+    setFileUploaded(false);
+    setColumnMatch(false);
+    setHasError(false);
+  };
 
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
@@ -96,6 +125,21 @@ function SurveyLocationUpload() {
       }
     }
   };
+  const fetchSurveyLocationsLong = async () => {
+    if (survey_uid != undefined) {
+      const geoLevels = surveyLocationGeoLevels.map(async (geoLevel) => {
+        const longLocation = await dispatch(
+          getSurveyLocationsLong({
+            survey_uid: survey_uid,
+            geo_level_uid: geoLevel.geo_level_uid,
+          })
+        );
+        return longLocation.payload;
+      });
+      const allGeoLevelData = await Promise.all(geoLevels);
+      setLongformedData(allGeoLevelData.flat());
+    }
+  };
 
   useEffect(() => {
     if (surveyLocations?.records?.length > 0) {
@@ -103,16 +147,59 @@ function SurveyLocationUpload() {
       setColumnMatch(true);
       setFileUploaded(true);
 
-      const columns = surveyLocations?.ordered_columns;
+      const columns = [
+        ...(surveyLocations?.ordered_columns ?? []),
+        "edit_location",
+      ];
       const data = surveyLocations?.records;
 
       setTransformedColumns(() =>
         columns.map((label: string) => {
-          return {
-            title: label,
-            dataIndex: label.toLocaleLowerCase(),
-            key: label.toLocaleLowerCase(),
-          };
+          if (label === "edit_location") {
+            return {
+              title: "Edit",
+              dataIndex: "edit",
+              key: "edit",
+              width: "12px",
+              render: (_: any, record: any) => (
+                <EditTwoTone
+                  onClick={() => {
+                    setDrawerVisible(true);
+                    setSelectedRecord(record); // Set the selected record
+                  }}
+                />
+              ),
+            };
+          } else {
+            return {
+              title: label,
+              dataIndex: label.toLocaleLowerCase(),
+              key: label.toLocaleLowerCase(),
+              filters: [
+                ...new Set(
+                  surveyLocations.records.map(
+                    (record: Record<string, string | number>) => record[label]
+                  )
+                ),
+              ].map((value: any) => ({
+                text: value.toString(),
+                value: value.toString(),
+              })),
+              sorter: (
+                a: Record<string, string | number>,
+                b: Record<string, string | number>
+              ) =>
+                a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
+                  ? -1
+                  : 1,
+              onFilter: (
+                value: string | number,
+                record: Record<string, string | number>
+              ) => {
+                return record[label.toLocaleLowerCase()] === value;
+              },
+            };
+          }
         })
       );
 
@@ -126,6 +213,7 @@ function SurveyLocationUpload() {
           return transformedRecord;
         })
       );
+      fetchSurveyLocationsLong();
     }
   }, [dispatch, surveyLocations]);
 
@@ -155,6 +243,14 @@ function SurveyLocationUpload() {
       updatedColumnNames[itemName] = value;
       return updatedColumnNames;
     });
+  };
+
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
+
+  const closeDrawer = async () => {
+    setDrawerVisible(false);
+    setSelectedRecord(null);
   };
 
   const renderLocationMappingSelect = () => {
@@ -285,7 +381,12 @@ function SurveyLocationUpload() {
   };
 
   const handleUploadContinue = () => {
-    if (surveyLocations?.records?.length > 0 && !hasError) {
+    if (
+      surveyLocations?.records?.length > 0 &&
+      !hasError &&
+      fileUploaded &&
+      columnMatch
+    ) {
       navigate(`/survey-configuration/${survey_uid}`);
       return;
     }
@@ -322,13 +423,22 @@ function SurveyLocationUpload() {
         };
 
         if (survey_uid !== undefined) {
-          const mappingsRes = await dispatch(
-            postSurveyLocations({
-              getLevelMappingData: requestData.geo_level_mapping,
-              csvFile: requestData.file,
-              surveyUid: survey_uid,
-            })
-          );
+          const mappingsRes =
+            locationsAddMode === "overwrite"
+              ? await dispatch(
+                  postSurveyLocations({
+                    getLevelMappingData: requestData.geo_level_mapping,
+                    csvFile: requestData.file,
+                    surveyUid: survey_uid,
+                  })
+                )
+              : await dispatch(
+                  puturveyLocations({
+                    getLevelMappingData: requestData.geo_level_mapping,
+                    csvFile: requestData.file,
+                    surveyUid: survey_uid,
+                  })
+                );
 
           if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
@@ -345,6 +455,7 @@ function SurveyLocationUpload() {
           setHasError(false);
           setColumnMatch(true);
           setFileUploaded(true);
+          setLocationsAddMode("overwrite");
         } else {
           message.error(
             "Kindly check that survey_uid is provided in the url to proceed."
@@ -372,15 +483,22 @@ function SurveyLocationUpload() {
         <Title>Survey locations upload</Title>
 
         <div style={{ display: "flex", marginLeft: "auto" }}>
-          {!hasError ? (
+          {!hasError && fileUploaded && columnMatch ? (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginRight: "80px",
               }}
             >
+              <Button
+                type="primary"
+                onClick={handlerAddLocationButton}
+                icon={<CloudUploadOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              >
+                Add locations
+              </Button>
               <CSVDownloader
                 data={transformedData}
                 filename={"locations.csv"}
@@ -399,84 +517,138 @@ function SurveyLocationUpload() {
                 <CloudDownloadOutlined style={{ marginRight: "8px" }} />
                 Download CSV
               </CSVDownloader>
+              <Button
+                onClick={resetFilters}
+                icon={<ClearOutlined />}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: 15,
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                }}
+              ></Button>
             </div>
           ) : null}
         </div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ display: "flex" }}>
-          <SideMenu />
+        <>
+          <div style={{ display: "flex" }}>
+            <SideMenu />
 
-          <SurveyLocationUploadFormWrapper>
-            {!fileUploaded || !columnMatch || hasError ? (
-              <>
-                <DescriptionText>Upload locations CSV sheet</DescriptionText>
-              </>
-            ) : null}
-            {!fileUploaded ? (
-              <>
-                <a
-                  href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
-                  target="__blank"
-                  style={{ textDecoration: "none", color: "#2f54eb" }}
-                >
-                  <LinkOutlined style={{ fontSize: "14px" }} />
-                  <IconText>Download template</IconText>
-                </a>
-                <div style={{ marginTop: "40px" }}>
-                  <Form layout="horizontal">
-                    <Row>
-                      <Col span={22}>
-                        <FileUpload
-                          style={{ height: "250px" }}
-                          setUploadStatus={setFileUploaded}
-                          onFileUpload={handleFileUpload}
-                        />
-                      </Col>
-                    </Row>
-                  </Form>
-                </div>
-              </>
-            ) : (
-              <>
-                {!columnMatch ? (
-                  <>
-                    <Form form={form}>
-                      <p
-                        style={{
-                          fontFamily: "Lato",
-                          fontWeight: 500,
-                          color: "#262626",
-                          marginTop: "24px",
-                        }}
-                      >
-                        Match location table columns with locations created in
-                        “Add location” step
-                      </p>
-
-                      {renderLocationMappingSelect()}
+            <SurveyLocationUploadFormWrapper>
+              {!fileUploaded || !columnMatch || hasError ? (
+                <>
+                  <DescriptionText>Upload locations CSV sheet</DescriptionText>
+                </>
+              ) : null}
+              {!fileUploaded ? (
+                <>
+                  <a
+                    href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
+                    target="__blank"
+                    style={{ textDecoration: "none", color: "#2f54eb" }}
+                  >
+                    <LinkOutlined style={{ fontSize: "14px" }} />
+                    <IconText>Download template</IconText>
+                  </a>
+                  <div style={{ marginTop: "40px" }}>
+                    <Form layout="horizontal">
+                      <Row>
+                        <Col span={22}>
+                          <FileUpload
+                            style={{ height: "250px" }}
+                            setUploadStatus={setFileUploaded}
+                            onFileUpload={handleFileUpload}
+                          />
+                        </Col>
+                      </Row>
                     </Form>
-                  </>
-                ) : (
-                  <>
-                    {!hasError ? (
-                      <>
-                        <LocationTable
-                          transformedColumns={transformedColumns}
-                          transformedData={transformedData}
-                        />
-                      </>
-                    ) : (
-                      <>{renderLocationUploadErrors()}</>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </SurveyLocationUploadFormWrapper>
-        </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {!columnMatch ? (
+                    <>
+                      <Form form={form}>
+                        <p
+                          style={{
+                            fontFamily: "Lato",
+                            fontWeight: 500,
+                            color: "#262626",
+                            marginTop: "24px",
+                          }}
+                        >
+                          Match location table columns with locations created in
+                          “Add location” step
+                        </p>
+
+                        {renderLocationMappingSelect()}
+                      </Form>
+                    </>
+                  ) : (
+                    <>
+                      {!hasError ? (
+                        <>
+                          <LocationTable
+                            transformedColumns={transformedColumns}
+                            transformedData={transformedData}
+                          />
+                        </>
+                      ) : (
+                        <>{renderLocationUploadErrors()}</>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </SurveyLocationUploadFormWrapper>
+            <Modal
+              title="Add locations"
+              open={addLocationsModal}
+              okText="Continue"
+              onOk={handleLocationsAddMode}
+              onCancel={() => setAddLocationsModal(false)}
+            >
+              <Divider />
+              <p>Please select how you want to proceed:</p>
+              <Radio.Group
+                style={{ marginBottom: 20 }}
+                onChange={(e) => setLocationsAddMode(e.target.value)}
+                value={locationsAddMode}
+              >
+                <Space direction="vertical">
+                  <Radio value="overwrite">
+                    I want to start fresh (Locations uploaded previously will be
+                    deleted)
+                  </Radio>
+                  <Radio value="append">
+                    I want to append new locations to the existing locations
+                    data
+                  </Radio>
+                </Space>
+              </Radio.Group>
+              <span>
+                Kindly Reupload enumerators, targets csv with new location data.
+              </span>
+            </Modal>
+          </div>
+          {selectedRecord && (
+            <LocationEditDrawer
+              visible={drawerVisible}
+              onClose={closeDrawer}
+              selectedRecord={selectedRecord}
+              dataTable={longformedData}
+              geoLevels={surveyLocationGeoLevels}
+              surveyUID={survey_uid!}
+              loading={loading}
+              setLoading={setLoading}
+            />
+          )}
+        </>
       )}
       <FooterWrapper>
         <ContinueButton
