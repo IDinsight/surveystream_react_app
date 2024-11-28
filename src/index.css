@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    font-family: "Lato", sans-serif !important;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -15,4 +19,12 @@ body {
 
 .disabled-row .ant-checkbox-wrapper {
     display: none;
+}
+
+.ant-table table {
+    font-family: "Lato", sans-serif;
+}
+
+.ant-table-footer {
+padding: 12px !important;
 }

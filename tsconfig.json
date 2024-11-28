@@ -16,6 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "downlevelIteration": true,
     "baseUrl": "./src/",
     "paths": {
       "@/assets/*": [
@@ -38,6 +39,9 @@
       ],
       "@/utils/*": [
         "utils/*"
+      ],
+      "@/hooks/*": [
+        "hooks/*"
       ],
     }
   },

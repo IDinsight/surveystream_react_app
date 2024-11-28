@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./AdminForm.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
@@ -15,6 +15,7 @@ import {
   updateAdminForm,
 } from "../../redux/adminForm/adminFormActions";
 import { userHasPermission } from "../../utils/helper";
+import { Breadcrumb } from "antd";
 
 const { Option } = Select;
 
@@ -163,9 +164,21 @@ function AdminFormManage() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Admin forms</Title>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: "Admin forms",
+                  href: `/module-configuration/admin-forms/${survey_uid}`,
+                },
+                {
+                  title: "Form details",
+                },
+              ]}
+            />
           </HeaderContainer>
           <BodyContainer>
             <p style={{ color: "#8C8C8C", fontSize: 14 }}>

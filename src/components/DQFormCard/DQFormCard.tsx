@@ -8,7 +8,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 import { DeleteBtn } from "./DQFormCard.styled";
 import { deleteDQForm, getDQForms } from "../../redux/dqForm/dqFormActions";
-import { FormItemLabel } from "../../modules/DQForm/DQForm.styled";
+import { FormItemLabel } from "../../modules/DQ/DQForm/DQForm.styled";
 
 interface DQFormCardProps {
   data: any;

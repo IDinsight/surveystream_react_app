@@ -85,7 +85,7 @@ export const DynamicItemsForm = styled(Form)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 50%;
+  width: 75%;
 
   label {
     flex: 1;

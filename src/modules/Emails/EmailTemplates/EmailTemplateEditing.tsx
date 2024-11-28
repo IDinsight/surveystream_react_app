@@ -47,6 +47,8 @@ function EmailTemplateEditing({
     aggregation: null,
   });
 
+  const [validVariables, setValidVariables] = useState<string[]>([]);
+
   const [insertTableModelOpen, setInsertTableModelOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -118,10 +120,19 @@ function EmailTemplateEditing({
 
       const { email_template_uid, email_config_uid } = emailTemplateConfig;
 
+      if (fieldValues.content.includes("invalid-variable-blot")) {
+        message.error("Please remove invalid variables");
+        setLoading(false);
+        return;
+      }
+
       const emailTemplatePayload = {
         email_config_uid: email_config_uid,
         subject: fieldValues.subject,
-        content: fieldValues.content,
+        content: fieldValues.content.replace(
+          /<span class="valid-variable-blot"[^>]*>(.*?)<\/span>/g,
+          "$1"
+        ),
         language: fieldValues.language,
         variable_list: insertedVariables,
         table_list: tableList,
@@ -199,6 +210,20 @@ function EmailTemplateEditing({
       setAvailableVariables(d[0].email_source_columns);
     }
   }, [templatesData]);
+
+  useEffect(() => {
+    const list: string[] = [];
+
+    insertedVariables.forEach((variable: any) => {
+      list.push(variable.variable_name);
+    });
+
+    tableList.forEach((table: any) => {
+      list.push(table.variable_name);
+    });
+
+    setValidVariables(list);
+  }, [insertedVariables, tableList]);
 
   if (loading) {
     return <FullScreenLoader />;
@@ -320,6 +345,7 @@ function EmailTemplateEditing({
               formIndex={0}
               setCursorPosition={setCursorPosition}
               standalone={true}
+              validVariables={validVariables}
             />
           </Form.Item>
         </Col>
@@ -328,6 +354,9 @@ function EmailTemplateEditing({
         <Col span={24}>
           <EmailTableCard
             tableList={tableList}
+            setTableList={(value: any) => {
+              setTableList(value);
+            }}
             handleEditTable={(index: number) => {
               setEditingIndex(index);
               setInsertTableModelOpen(true);

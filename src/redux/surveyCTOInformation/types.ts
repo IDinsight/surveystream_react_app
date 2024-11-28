@@ -1,5 +1,5 @@
 export type SurveyCTOForm = {
-  last_ingested_at?: string;
+  last_ingested_at?: Date | null;
   form_uid?: string;
   survey_uid?: string;
   scto_form_id: string;

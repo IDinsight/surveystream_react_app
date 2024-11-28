@@ -18,9 +18,11 @@ import {
   SectionTitle,
 } from "./SurveyConfiguration.styled";
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
+import { fetchSurveys } from "../../redux/surveyList/surveysActions";
+import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
-import { Result, Button } from "antd";
+import { Result, Button, Tag, Progress } from "antd";
 import {
   InfoCircleFilled,
   LayoutFilled,
@@ -40,9 +42,14 @@ import {
   SoundOutlined,
   PictureOutlined,
   FormOutlined,
+  CheckCircleOutlined,
+  SyncOutlined,
+  CloseCircleOutlined,
+  HourglassOutlined,
 } from "@ant-design/icons";
 import { userHasPermission } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 
 interface CheckboxProps {
   checked: boolean;
@@ -89,6 +96,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Enumerators: "enumerators",
     Targets: "targets",
     "Target status mapping": "survey/status-mapping",
+    Mapping: "mapping/surveyor",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
@@ -112,7 +120,7 @@ const SurveyConfiguration: React.FC = () => {
   );
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
+    navigate("/surveys"); // Navigate to the surveys page
   };
 
   const surveyConfigs = useAppSelector(
@@ -131,21 +139,24 @@ const SurveyConfiguration: React.FC = () => {
   };
 
   const renderStatus = (status: string) => {
-    let color;
-    if (status === "Done") {
-      color = "#389E0D";
-    } else if (status === "In Progress") {
-      color = "#D48806";
-    } else if (status === "Error") {
-      color = "#F5222D";
-    } else {
-      color = "#8C8C8C";
-    }
+    const colors: { [key: string]: string } = {
+      Done: "green",
+      "In Progress": "orange",
+      Error: "red",
+    };
+    const color = colors[status];
+    const icons: { [key: string]: any } = {
+      Done: CheckCircleOutlined,
+      "In Progress": SyncOutlined,
+      Error: CloseCircleOutlined,
+    };
+    const IconComponent = icons[status] || HourglassOutlined;
 
     return (
       <StatusWrapper>
-        <CustomCheckbox checked={true} color={color} />
-        <StatusText>{status}</StatusText>
+        <Tag icon={<IconComponent />} color={color}>
+          {status}
+        </Tag>
       </StatusWrapper>
     );
   };
@@ -173,12 +184,13 @@ const SurveyConfiguration: React.FC = () => {
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Module selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
-      case "SurveyCTO information":
-        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "User and role management":
-        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+
       case "Survey locations":
         return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
+      case "User and role management":
+        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+      case "SurveyCTO information":
+        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Enumerators":
         return (
           <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
@@ -218,20 +230,23 @@ const SurveyConfiguration: React.FC = () => {
       case "Module selection":
         permission_name = "Survey Admin";
         break;
-      case "SurveyCTO information":
-        permission_name = "Survey Admin";
+      case "Survey locations":
+        permission_name = "READ Survey Locations";
         break;
       case "User and role management":
         permission_name = "Survey Admin";
         break;
-      case "Survey locations":
-        permission_name = "READ Survey Locations";
+      case "SurveyCTO information":
+        permission_name = "Survey Admin";
         break;
       case "Enumerators":
         permission_name = "READ Enumerators";
         break;
       case "Targets":
         permission_name = "READ Targets";
+        break;
+      case "Mapping":
+        permission_name = "READ Mapping";
         break;
       case "Target status mapping":
         permission_name = "READ Target Status Mapping";
@@ -261,14 +276,10 @@ const SurveyConfiguration: React.FC = () => {
     return userHasPermission(userProfile, survey_uid, permission_name);
   };
 
-  const renderSection = (
-    sectionTitle: string,
-    sectionConfig: any,
-    index: number
-  ) => {
+  const renderSection = (sectionTitle: string, sectionConfig: any) => {
     if (Array.isArray(sectionConfig) && sectionConfig.length > 0) {
       return (
-        <div key={index}>
+        <>
           {sectionConfig.some((item: any) => checkPermissions(item?.name)) && (
             <SectionTitle>{`${sectionTitle}`}</SectionTitle>
           )}
@@ -306,7 +317,7 @@ const SurveyConfiguration: React.FC = () => {
               ) : null;
             })}
           </div>
-        </div>
+        </>
       );
     } else if (
       !Array.isArray(sectionConfig) &&
@@ -315,7 +326,7 @@ const SurveyConfiguration: React.FC = () => {
       const hasPermission = checkPermissions(sectionTitle);
 
       return hasPermission ? (
-        <div key={index}>
+        <>
           <SectionTitle>{`${sectionTitle}`}</SectionTitle>
 
           <Link
@@ -344,11 +355,10 @@ const SurveyConfiguration: React.FC = () => {
               {renderStatus(sectionConfig.status)}
             </StyledCard>
           </Link>
-        </div>
+        </>
       ) : null;
     } else {
       <Result
-        key={index}
         title={"Reload Configuration"}
         subTitle={"Failed to load configuration, kindly reload"}
         extra={
@@ -368,6 +378,26 @@ const SurveyConfiguration: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [survey_uid]);
+
+  useEffect(() => {
+    if (survey_uid && !activeSurvey) {
+      // fetch survey list
+      dispatch(fetchSurveys()).then((surveyList) => {
+        if (surveyList.payload?.length > 0) {
+          const surveyInfo = surveyList.payload.find(
+            (survey: any) => survey.survey_uid === parseInt(survey_uid)
+          );
+
+          // set the active survey
+          dispatch(
+            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+          );
+        }
+      });
+    }
+  }, [survey_uid]);
+
+  const { height } = useWindowDimensions();
 
   return (
     <>
@@ -393,11 +423,13 @@ const SurveyConfiguration: React.FC = () => {
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
-          <SideMenu surveyProgress={surveyConfigs} />
-          <MainWrapper>
+          <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
+          <MainWrapper windowHeight={height}>
             {Object.entries(surveyConfigs).map(
               ([sectionTitle, sectionConfig], index) => (
-                <>{renderSection(sectionTitle, sectionConfig, index)}</>
+                <div key={index}>
+                  {renderSection(sectionTitle, sectionConfig)}
+                </div>
               )
             )}
           </MainWrapper>

@@ -1,7 +1,7 @@
 export type GeoLevel = {
   geo_level_uid: string;
   geo_level_name: string;
-  parent_geo_level_uid: string;
+  parent_geo_level_uid: string | null;
 };
 
 export type GeoLevelMapping = {
@@ -18,4 +18,4 @@ export type SurveyLocationLong = {
   location_id: string;
   location_name: string;
   parent_location_uid: string;
-}
+};

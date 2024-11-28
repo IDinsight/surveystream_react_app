@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,
@@ -24,6 +24,7 @@ import {
   updateSCTOFormMapping,
 } from "../../redux/adminForm/adminFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Breadcrumb } from "antd";
 
 function AdminFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -332,21 +333,21 @@ function AdminFormSCTOQuestion() {
               />
             </Col>
           </Row>
-          <CustomBtn
-            style={{ marginTop: 24 }}
-            onClick={handleFormSubmit}
-            disabled={!canUserWrite}
-          >
-            Submit
-          </CustomBtn>
           <Button
-            style={{ marginLeft: 24 }}
+            style={{}}
             onClick={() =>
               navigate(`/module-configuration/admin-forms/${survey_uid}`)
             }
           >
             Cancel
           </Button>
+          <CustomBtn
+            style={{ marginLeft: 20, marginTop: 24 }}
+            onClick={handleFormSubmit}
+            disabled={!canUserWrite}
+          >
+            Save
+          </CustomBtn>
         </div>
       );
     }
@@ -355,9 +356,26 @@ function AdminFormSCTOQuestion() {
   return (
     <>
       <>
-        <Container />
+        <Container surveyPage={true} />
         <HeaderContainer>
-          <Title>Admin forms - SurveyCTO Questions</Title>
+          {/* <Title>Admin forms - SurveyCTO Questions</Title> */}
+          <Breadcrumb
+            separator=">"
+            style={{ fontSize: "16px", color: "#000" }}
+            items={[
+              {
+                title: "Admin forms",
+                href: `/module-configuration/admin-forms/${survey_uid}`,
+              },
+              {
+                title: "Form details",
+                href: `/module-configuration/admin-forms/${survey_uid}/manage?admin_form_uid=${admin_form_uid}`,
+              },
+              {
+                title: "SurveyCTO Questions",
+              },
+            ]}
+          />
           <CustomBtn
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}

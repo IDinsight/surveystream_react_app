@@ -1,28 +1,29 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import Container from "../../components/Layout/Container";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import Container from "../../../components/Layout/Container";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,
   DescriptionText,
   FormItemLabel,
 } from "./DQForm.styled";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { RootState } from "../../redux/store";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { RootState } from "../../../redux/store";
 import { Button, Col, Row, Select, Tooltip, message } from "antd";
-import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
-import { getSurveyLocationGeoLevels } from "../../redux/surveyLocations/surveyLocationsActions";
-import { userHasPermission } from "../../utils/helper";
+import { getCTOFormQuestions } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
+import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
+import { userHasPermission } from "../../../utils/helper";
 import {
   createSCTOFormMapping,
   getSCTOFormMapping,
   updateSCTOFormMapping,
-} from "../../redux/dqForm/dqFormActions";
+} from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Breadcrumb } from "antd";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -263,9 +264,25 @@ function DQFormSCTOQuestion() {
   return (
     <>
       <>
-        <Container />
+        <Container surveyPage={true} />
         <HeaderContainer>
-          <Title>DQ forms - SurveyCTO Questions</Title>
+          <Breadcrumb
+            separator=">"
+            style={{ fontSize: "16px", color: "#000" }}
+            items={[
+              {
+                title: "Data quality forms",
+                href: `/module-configuration/dq-forms/${survey_uid}`,
+              },
+              {
+                title: "Form details",
+                href: `/module-configuration/dq-forms/${survey_uid}/manage?dq_form_uid=${dq_form_uid}`,
+              },
+              {
+                title: "SurveyCTO Questions",
+              },
+            ]}
+          />
           <CustomBtn
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}
@@ -425,21 +442,20 @@ function DQFormSCTOQuestion() {
                   </Row>
                 ))
               : null}
-            <CustomBtn
-              style={{ marginTop: 24 }}
-              onClick={handleFormSubmit}
-              disabled={!canUserWrite}
-            >
-              Submit
-            </CustomBtn>
             <Button
-              style={{ marginLeft: 24 }}
               onClick={() =>
                 navigate(`/module-configuration/dq-forms/${survey_uid}`)
               }
             >
               Cancel
             </Button>
+            <CustomBtn
+              style={{ marginTop: 24, marginLeft: 20 }}
+              onClick={handleFormSubmit}
+              disabled={!canUserWrite}
+            >
+              Save
+            </CustomBtn>
           </BodyContainer>
         )}
       </>

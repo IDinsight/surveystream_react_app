@@ -13,7 +13,7 @@ function SideMenu() {
           <IconWrapper>
             <ListIcon />
           </IconWrapper>
-          Module Selection
+          Module selection
         </MenuItem>
       </SideMenuWrapper>
     </div>

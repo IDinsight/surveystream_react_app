@@ -137,7 +137,7 @@ function ConfigureEmails() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <MailOutlined
           style={{ fontSize: 24, marginRight: 5, color: "#BFBFBF" }}

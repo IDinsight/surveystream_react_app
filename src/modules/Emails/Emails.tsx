@@ -1,5 +1,5 @@
 import { MailOutlined } from "@ant-design/icons";
-import { Form, Button, message, Drawer } from "antd";
+import { Form, Button, message, Drawer, Layout } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
@@ -21,7 +21,9 @@ import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
 import EmailTemplates from "./EmailTemplates/EmailTemplates";
+import { config } from "cypress/types/bluebird";
 
+const { Content } = Layout;
 function Emails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -116,6 +118,7 @@ function Emails() {
               (trigger: any, index: number) => {
                 return {
                   key: trigger.manual_email_trigger_uid,
+                  email_config_uid: triggersTable.email_config_uid,
                   config_name: triggersTable.config_name,
                   manual_email_trigger_uid: trigger.manual_email_trigger_uid,
                   date: trigger.date,
@@ -250,30 +253,32 @@ function Emails() {
       {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ display: "flex" }}>
+        <Layout>
           <SideMenu></SideMenu>
-          <BodyWrapper>
-            {tabId === "manual" ? (
-              <ManualTriggers
-                data={manualTriggersData}
-                surveyEnumerators={surveyEnumerators}
-                emailConfigData={emailConfigData}
-                fetchManualTriggers={fetchManualTriggers}
-              />
-            ) : tabId === "templates" ? (
-              <EmailTemplates
-                templatesData={templatesData}
-                fetchEmailTemplates={fetchEmailTemplates}
-              />
-            ) : (
-              <EmailSchedules
-                data={schedulesData}
-                fetchEmailSchedules={fetchEmailSchedules}
-                sctoForms={sctoForms}
-              />
-            )}
-          </BodyWrapper>
-        </div>
+          <Content>
+            <BodyWrapper>
+              {tabId === "manual" ? (
+                <ManualTriggers
+                  data={manualTriggersData}
+                  surveyEnumerators={surveyEnumerators}
+                  emailConfigData={emailConfigData}
+                  fetchManualTriggers={fetchManualTriggers}
+                />
+              ) : tabId === "templates" ? (
+                <EmailTemplates
+                  templatesData={templatesData}
+                  fetchEmailTemplates={fetchEmailTemplates}
+                />
+              ) : (
+                <EmailSchedules
+                  data={schedulesData}
+                  fetchEmailSchedules={fetchEmailSchedules}
+                  sctoForms={sctoForms}
+                />
+              )}
+            </BodyWrapper>
+          </Content>
+        </Layout>
       )}
 
       <Drawer

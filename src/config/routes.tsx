@@ -38,15 +38,18 @@ import PermissionDenied from "../components/PermissionDenied";
 import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
 import MediaAuditsHome from "../modules/MediaAudits";
 import MediaAuditsManage from "../modules/MediaAudits/MediaAuditsManage";
-import DQFormHome from "../modules/DQForm";
-import DQFormManage from "../modules/DQForm/DQFormManage";
-import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
+import DQFormHome from "../modules/DQ/DQForm";
+import DQFormManage from "../modules/DQ/DQForm/DQFormManage";
+import DQFormSCTOQuestion from "../modules/DQ/DQForm/DQFormSCTOQuestion";
+import DQChecksHome from "../modules/DQ/DQChecks";
+import DQChecksManage from "../modules/DQ/DQChecks/DQChecksManage";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 import AdminFormHome from "../modules/AdminForm";
 import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
+import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -342,6 +345,20 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
+          <ProtectedPermissionRoute permission_name="READ Data Quality" />
+        }
+      >
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid?"
+          element={<DQChecksHome />}
+        />
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid/manage"
+          element={<DQChecksManage />}
+        />
+      </Route>
+      <Route
+        element={
           <ProtectedPermissionRoute permission_name="READ Admin Forms" />
         }
       >
@@ -356,6 +373,14 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/admin-forms/:survey_uid/scto-questions/:admin_form_uid"
           element={<AdminFormSCTOQuestion />}
+        />
+      </Route>
+      <Route
+        element={<ProtectedPermissionRoute permission_name="READ Mapping" />}
+      >
+        <Route
+          path="/survey-information/mapping/:mapping_name?/:survey_uid?"
+          element={<MappingManage />}
         />
       </Route>
       <Route path="*" element={<NotFound />} />

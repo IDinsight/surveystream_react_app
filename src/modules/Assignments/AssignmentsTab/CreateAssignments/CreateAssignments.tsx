@@ -12,6 +12,7 @@ import {
   Form,
   Alert,
 } from "antd";
+import { WarningOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { AssignmentsSteps } from "./CreateAssignments.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -28,6 +29,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { useForm } from "antd/es/form/Form";
+import {
+  fetchSurveyorsMapping,
+  fetchTargetsMapping,
+} from "../../../../redux/mapping/apiService";
 
 function CreateAssignments() {
   const location = useLocation();
@@ -59,6 +64,13 @@ function CreateAssignments() {
   const [surveyorsFilter, setSurveyorsFilter] = useState(null);
   const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
   const [nextEmailDate, setNextEmailDate] = useState<string>();
+  const [surveyorMapping, setSurveyorMapping] = useState<any[]>([]);
+  const [targetMapping, setTargetMapping] = useState<any[]>([]);
+  const [surveyorMappingLoading, setSurveyorMappingLoading] =
+    useState<boolean>(false);
+  const [targetMappingLoading, setTargetMappingLoading] =
+    useState<boolean>(false);
+  const [showWarnings, setShowWarnings] = useState<boolean>(false);
 
   // Fetch the data from the store
   const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
@@ -180,6 +192,7 @@ function CreateAssignments() {
       },
     },
   };
+
   const reviewAssignmentTableColumn = tableConfig?.assignments_review?.map(
     (configItem: any, i: any) => {
       if (configItem.group_label) {
@@ -346,6 +359,7 @@ function CreateAssignments() {
   useEffect(() => {
     const finalObjects: any = [];
     const requestPayload: any = [];
+    setShowWarnings(false);
     if (selectedAssignmentRows?.length > 0 && selectedSurveyorRows.length > 0) {
       let sIndex = 0;
       selectedAssignmentRows.forEach((item: any, index: number) => {
@@ -355,10 +369,34 @@ function CreateAssignments() {
         const mIndex = selectedSurveyorRows.length > index ? index : sIndex;
 
         if (selectedSurveyorRows && selectedSurveyorRows[mIndex]) {
+          // Check if mapping rules are followed
+          const surveyorSupervisorMapping = surveyorMapping.find(
+            (mapping) =>
+              mapping.enumerator_uid ===
+              selectedSurveyorRows[mIndex].enumerator_uid
+          );
+          const targetSupervisorMapping = targetMapping.find(
+            (mapping) => mapping.target_uid === item.target_uid
+          );
+
+          let warning = "";
+          if (
+            surveyorSupervisorMapping?.supervisor_uid === null ||
+            targetSupervisorMapping?.supervisor_uid === null ||
+            surveyorSupervisorMapping?.supervisor_uid !==
+              targetSupervisorMapping?.supervisor_uid
+          ) {
+            warning =
+              "Selected surveyors/targets are either not mapped or are not mapped to the same supervisor";
+            message.warning(warning);
+            setShowWarnings(true);
+          }
+
           const assignedObjects = {
             ...item,
             assigned_enumerator_name: selectedSurveyorRows[mIndex].name,
             prev_assigned_to: item.assigned_enumerator_name,
+            warning: warning,
           };
           const reqObj = {
             target_uid: item.target_uid,
@@ -386,6 +424,29 @@ function CreateAssignments() {
   }, []);
 
   useEffect(() => {
+    setSurveyorMappingLoading(true);
+    setTargetMappingLoading(true);
+
+    fetchSurveyorsMapping(formID).then((res: any) => {
+      if (res?.data?.success) {
+        setSurveyorMapping(res?.data?.data);
+      } else {
+        message.error("Failed to fetch surveyor mapping");
+      }
+      setSurveyorMappingLoading(false);
+    });
+
+    fetchTargetsMapping(formID).then((res: any) => {
+      if (res?.data?.success) {
+        setTargetMapping(res?.data?.data);
+      } else {
+        message.error("Failed to fetch surveyor mapping");
+      }
+      setTargetMappingLoading(false);
+    });
+  }, [formID]);
+
+  useEffect(() => {
     setAssignableSurveyorsLoading(true);
     if (surveyorsData.length > 0) {
       const surveyors = surveyorsData.filter((surveyor: any) => {
@@ -400,7 +461,13 @@ function CreateAssignments() {
     setAssignableSurveyorsLoading(false);
   }, [surveyorsData]);
 
-  if (surveyorsLoading || tableConfigLoading || assignableSurveyorsLoading) {
+  if (
+    surveyorsLoading ||
+    tableConfigLoading ||
+    assignableSurveyorsLoading ||
+    surveyorMappingLoading ||
+    targetMappingLoading
+  ) {
     return <FullScreenLoader />;
   }
 
@@ -527,7 +594,32 @@ function CreateAssignments() {
               </p>
               <Table
                 rowKey={(record: any) => record.target_uid}
-                columns={reviewAssignmentTableColumn}
+                columns={
+                  // Add column for warnings if present
+                  showWarnings
+                    ? reviewAssignmentTableColumn.concat({
+                        title: (
+                          <div>
+                            <span style={{ marginRight: "10px" }}>
+                              Warnings
+                            </span>
+                            <WarningOutlined
+                              style={{
+                                color: "#FAAD14",
+                                display: "inline-block",
+                              }}
+                            />
+                          </div>
+                        ),
+                        dataIndex: "warning",
+                        key: "warning",
+                        width: 200,
+                        render: (text: any) => {
+                          return <p>{text}</p>;
+                        },
+                      })
+                    : reviewAssignmentTableColumn
+                }
                 dataSource={targetAssignments}
                 pagination={false}
                 style={{ marginBottom: 20 }}
@@ -736,12 +828,13 @@ function CreateAssignments() {
           ) : null}
 
           <div>
+            <Button onClick={handleDismiss}>Cancel</Button>
             <Button
               type="primary"
               style={{
                 backgroundColor: "#597EF7",
                 color: "white",
-                marginRight: 10,
+                marginLeft: 20,
               }}
               loading={stepLoading}
               disabled={stepIndex === 0 && !hasSurveyorSelected}
@@ -749,7 +842,6 @@ function CreateAssignments() {
             >
               {stepIndex !== 2 ? "Continue" : "Done"}
             </Button>
-            <Button onClick={handleDismiss}>Dismiss</Button>
           </div>
         </div>
       </div>
