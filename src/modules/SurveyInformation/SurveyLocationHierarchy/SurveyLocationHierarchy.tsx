@@ -290,7 +290,7 @@ function SurveyLocationHierarchy() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Survey locations hierarchy</Title>
 

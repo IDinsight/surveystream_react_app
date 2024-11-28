@@ -188,7 +188,7 @@ function MediaAuditsManage() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Media Audit Config</Title>
           </HeaderContainer>

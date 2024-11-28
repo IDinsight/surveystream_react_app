@@ -478,7 +478,7 @@ function SurveyLocationUpload() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Survey locations upload</Title>
 

@@ -295,7 +295,7 @@ function SurveyLocationAdd() {
   return (
     <>
       <GlobalStyle />
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Survey location types</Title>
         <div

@@ -18,6 +18,8 @@ import {
   SectionTitle,
 } from "./SurveyConfiguration.styled";
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
+import { fetchSurveys } from "../../redux/surveyList/surveysActions";
+import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Link } from "react-router-dom";
 import { Result, Button, Tag, Progress } from "antd";
@@ -94,7 +96,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Enumerators: "enumerators",
     Targets: "targets",
     "Target status mapping": "survey/status-mapping",
-    Mapping: "mapping",
+    Mapping: "mapping/surveyor",
   },
   "Module configuration": {
     "Assign targets to surveyors": "assignments",
@@ -118,7 +120,7 @@ const SurveyConfiguration: React.FC = () => {
   );
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back one step in the history stack
+    navigate("/surveys"); // Navigate to the surveys page
   };
 
   const surveyConfigs = useAppSelector(
@@ -135,6 +137,7 @@ const SurveyConfiguration: React.FC = () => {
       getSurveyConfig({ survey_uid: survey_uid })
     );
   };
+
   const renderStatus = (status: string) => {
     const colors: { [key: string]: string } = {
       Done: "green",
@@ -181,12 +184,13 @@ const SurveyConfiguration: React.FC = () => {
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Module selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
-      case "SurveyCTO information":
-        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "User and role management":
-        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+
       case "Survey locations":
         return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
+      case "User and role management":
+        return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
+      case "SurveyCTO information":
+        return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Enumerators":
         return (
           <InsertRowRightOutlined style={{ color: "#C41D7F", ...iconProps }} />
@@ -226,14 +230,14 @@ const SurveyConfiguration: React.FC = () => {
       case "Module selection":
         permission_name = "Survey Admin";
         break;
-      case "SurveyCTO information":
-        permission_name = "Survey Admin";
+      case "Survey locations":
+        permission_name = "READ Survey Locations";
         break;
       case "User and role management":
         permission_name = "Survey Admin";
         break;
-      case "Survey locations":
-        permission_name = "READ Survey Locations";
+      case "SurveyCTO information":
+        permission_name = "Survey Admin";
         break;
       case "Enumerators":
         permission_name = "READ Enumerators";
@@ -373,6 +377,24 @@ const SurveyConfiguration: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+  }, [survey_uid]);
+
+  useEffect(() => {
+    if (survey_uid && !activeSurvey) {
+      // fetch survey list
+      dispatch(fetchSurveys()).then((surveyList) => {
+        if (surveyList.payload?.length > 0) {
+          const surveyInfo = surveyList.payload.find(
+            (survey: any) => survey.survey_uid === parseInt(survey_uid)
+          );
+
+          // set the active survey
+          dispatch(
+            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+          );
+        }
+      });
+    }
   }, [survey_uid]);
 
   const { height } = useWindowDimensions();

@@ -9,7 +9,6 @@ export const BasicInformationFormWrapper = styled.div`
   padding-right: 20px;
   padding-top: 10px;
   padding-bottom: 10px;
-  display: flex;
   margin-left: 30px;
   flex-direction: column;
   color: #434343;
