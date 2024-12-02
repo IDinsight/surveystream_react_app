@@ -149,6 +149,52 @@ export const putDQChecks = async (dq_check_uid: number, formData: any) => {
   }
 };
 
+export const activateDQChecks = async (formData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/dq/checks/activate`;
+
+    const res = await axios.put(
+      url,
+      { ...formData },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deactivateDQChecks = async (formData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/dq/checks/deactivate`;
+
+    const res = await axios.put(
+      url,
+      { ...formData },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const deleteDQChecks = async (formData: any) => {
   try {
     await getCSRFToken();

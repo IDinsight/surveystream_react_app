@@ -17,6 +17,8 @@ import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  activateDQChecks,
+  deactivateDQChecks,
   deleteDQChecks,
   fetchModuleName,
   getDQChecks,
@@ -156,25 +158,22 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
   };
 
   const handleMarkActive = () => {
-    const selectedCheck = selectedVariableRows[0];
+    const selectedCheck = selectedVariableRows.map(
+      (row: any) => row.dqCheckUID
+    );
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
-      all_questions: selectedCheck.allQuestions,
-      module_name: selectedCheck.moduleName,
-      question_name: selectedCheck.questionName,
-      flag_description: selectedCheck.flagDescription,
-      filters: selectedCheck.filters,
-      active: true,
-      check_components: { value: selectedCheck.value },
+      check_uids: selectedCheck,
     };
 
     setLoading(true);
-    putDQChecks(dqCheckData[0].dq_check_uid, formData).then((res: any) => {
+    activateDQChecks(formData).then((res: any) => {
+      console.log(res);
       setLoading(false);
       if (res?.data?.success) {
-        message.success("DQ Check activated", 1, () => {
+        message.success("DQ Check deactivated", 1, () => {
           navigate(0);
         });
       }
@@ -182,22 +181,19 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
   };
 
   const handleMarkInactive = () => {
-    const selectedCheck = selectedVariableRows[0];
+    const selectedCheck = selectedVariableRows.map(
+      (row: any) => row.dqCheckUID
+    );
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
-      all_questions: selectedCheck.allQuestions,
-      module_name: selectedCheck.moduleName,
-      question_name: selectedCheck.questionName,
-      flag_description: selectedCheck.flagDescription,
-      filters: selectedCheck.filters,
-      active: false,
-      check_components: { value: selectedCheck.value },
+      check_uids: selectedCheck,
     };
 
     setLoading(true);
-    putDQChecks(dqCheckData[0].dq_check_uid, formData).then((res: any) => {
+    deactivateDQChecks(formData).then((res: any) => {
+      console.log(res);
       setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
