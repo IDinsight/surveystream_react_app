@@ -349,7 +349,7 @@ const AppRoutes = () => {
           element={<DQChecksManage />}
         />
         <Route
-          path="/module-configuration/dq-checks/:survey_uid/manage/edit"
+          path="/module-configuration/dq-checks/:survey_uid/:form_uid/edit/:type_id"
           element={<DQChecksEdit />}
         />
       </Route>

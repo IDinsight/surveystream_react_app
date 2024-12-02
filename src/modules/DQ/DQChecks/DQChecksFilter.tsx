@@ -1,46 +1,34 @@
 import { Col, Row, Select, Tag, DatePicker, Input, Button } from "antd";
-import { DeleteFilled, PlusSquareFilled } from "@ant-design/icons";
+import {
+  DeleteFilled,
+  PlusCircleFilled,
+  PlusSquareFilled,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const { Option } = Select;
 
-function DQChecksFilter() {
-  const filterList: any[] = [
-    {
-      filter_group: [
-        {
-          table_name: "test_table",
-          filter_variable: "test_column",
-          filter_operator: "Is",
-          filter_value: "test_value",
-        },
-        {
-          table_name: "test_table",
-          filter_variable: "test_column2",
-          filter_operator: "Is",
-          filter_value: "test_value2",
-        },
-      ],
-    },
-    {
-      filter_group: [
-        {
-          table_name: "test_table",
-          filter_variable: "test_column",
-          filter_operator: "Is",
-          filter_value: "test_value",
-        },
-        {
-          table_name: "test_table",
-          filter_variable: "test_column2",
-          filter_operator: "Is not",
-          filter_value: "test_value2",
-        },
-      ],
-    },
+interface IDQCheckFilterProps {
+  filters: any[];
+  setFilterList: any;
+  questions: any[];
+}
+
+function DQChecksFilter({
+  filters,
+  setFilterList,
+  questions,
+}: IDQCheckFilterProps) {
+  const validateOperator: any[] = [
+    "Is",
+    "Is not",
+    "Contains",
+    "Does not contain",
+    "Is empty",
+    "Is not empty",
+    "Greather than",
+    "Smaller than",
   ];
-  const availableColumns: any[] = [];
-  const validateOperator: any[] = [];
 
   const handleFilterFieldChange = (
     groupIndex: number,
@@ -48,26 +36,76 @@ function DQChecksFilter() {
     field: string,
     value: any
   ) => {
-    // Implement the function
+    setFilterList((prev: any) =>
+      prev.map((group: any, i: number) =>
+        i === groupIndex
+          ? {
+              ...group,
+              filter_group: group.filter_group.map((filter: any, j: any) =>
+                j === filterIndex ? { ...filter, [field]: value } : filter
+              ),
+            }
+          : group
+      )
+    );
   };
 
   const handleRemoveFilter = (groupIndex: number, filterIndex: number) => {
-    // Implement the function
+    setFilterList((prev: any) =>
+      prev
+        .map((group: any, i: number) => {
+          if (i === groupIndex) {
+            const updatedFilterGroup = group.filter_group.filter(
+              (_: any, j: any) => j !== filterIndex
+            );
+            return updatedFilterGroup.length > 0
+              ? { ...group, filter_group: updatedFilterGroup }
+              : null;
+          }
+          return group;
+        })
+        .filter((group: any) => group !== null)
+    );
   };
 
   const handleAddCondition = (groupIndex: number) => {
-    // Implement the function
+    setFilterList((prev: any) => {
+      const newFilters = [...prev];
+      newFilters[groupIndex].filter_group.push({
+        question_name: null,
+        filter_operator: null,
+        filter_value: null,
+      });
+      return newFilters;
+    });
   };
 
   const handleRemoveFilterGroup = (groupIndex: number) => {
-    // Implement the function
+    setFilterList((prev: any) =>
+      prev.filter((_: any, index: number) => index !== groupIndex)
+    );
+  };
+
+  const handleAddFilterGroup = () => {
+    setFilterList((prev: any) => [
+      ...prev,
+      {
+        filter_group: [
+          {
+            question_name: null,
+            filter_operator: null,
+            filter_value: null,
+          },
+        ],
+      },
+    ]);
   };
 
   return (
     <>
-      {filterList.map((item: any, groupIndex: number) => (
+      {filters.map((item: any, groupIndex: number) => (
         <>
-          {groupIndex !== 0 && groupIndex !== filterList.length ? (
+          {groupIndex !== 0 && groupIndex !== filters.length ? (
             <Row
               gutter={16}
               justify="center"
@@ -109,21 +147,22 @@ function DQChecksFilter() {
                 <Row gutter={16} style={{ marginBottom: 6 }}>
                   <Col span={6}>
                     <Select
-                      placeholder="Choose column"
+                      showSearch
+                      placeholder="Choose question"
                       style={{ width: "100%" }}
-                      value={filter.column}
+                      value={filter.question_name}
                       onChange={(val) =>
                         handleFilterFieldChange(
                           groupIndex,
                           filterIndex,
-                          "column",
+                          "question_name",
                           val
                         )
                       }
                     >
-                      {availableColumns.map((col: any) => (
-                        <Option key={col.column_name} value={col.column_name}>
-                          {col.column_name}
+                      {questions.map((col: any, i: number) => (
+                        <Option key={`${i}-${col.name}`} value={col.name}>
+                          {col.label}
                         </Option>
                       ))}
                     </Select>
@@ -132,12 +171,12 @@ function DQChecksFilter() {
                     <Select
                       placeholder="Filter type"
                       style={{ width: "100%" }}
-                      value={filter.type}
+                      value={filter.filter_operator}
                       onChange={(val) =>
                         handleFilterFieldChange(
                           groupIndex,
                           filterIndex,
-                          "type",
+                          "filter_operator",
                           val
                         )
                       }
@@ -150,12 +189,12 @@ function DQChecksFilter() {
                     </Select>
                   </Col>
                   <Col span={6}>
-                    {filter.type === "Date: In Date Range" ? (
+                    {filter.filter_operator === "Date: In Date Range" ? (
                       <DatePicker.RangePicker
                         style={{ width: "100%" }}
                         value={
-                          filter.value
-                            ? filter.value
+                          filter.filter_value
+                            ? filter.filter_value
                                 .split(",")
                                 .map((d: string) => dayjs(d))
                             : null
@@ -164,7 +203,7 @@ function DQChecksFilter() {
                           handleFilterFieldChange(
                             groupIndex,
                             filterIndex,
-                            "value",
+                            "filter_value",
                             dateStrings.join(",")
                           )
                         }
@@ -173,12 +212,12 @@ function DQChecksFilter() {
                       <Input
                         placeholder="Filter value"
                         style={{ width: "100%" }}
-                        value={filter.value}
+                        value={filter.filter_value}
                         onChange={(e: any) =>
                           handleFilterFieldChange(
                             groupIndex,
                             filterIndex,
-                            "value",
+                            "filter_value",
                             e.target.value
                           )
                         }
@@ -212,6 +251,14 @@ function DQChecksFilter() {
           </div>
         </>
       ))}
+      <Button
+        type="dashed"
+        style={{ marginBottom: 16 }}
+        icon={<PlusCircleFilled />}
+        onClick={handleAddFilterGroup}
+      >
+        Add filter group
+      </Button>
     </>
   );
 }

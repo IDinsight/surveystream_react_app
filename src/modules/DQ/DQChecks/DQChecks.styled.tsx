@@ -1,4 +1,4 @@
-import { Button, Table } from "antd";
+import { Button, Switch, Table } from "antd";
 import styled from "styled-components";
 
 export const DQFormWrapper = styled.div`
@@ -76,5 +76,11 @@ export const ChecksTable = styled(Table)`
   }
   & td {
     font-family: "Lato", sans-serif;
+  }
+`;
+
+export const ChecksSwitch = styled(Switch)`
+  &&.ant-switch-checked {
+    background-color: #237804 !important;
   }
 `;

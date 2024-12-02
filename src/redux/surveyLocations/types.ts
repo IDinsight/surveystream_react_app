@@ -18,4 +18,4 @@ export type SurveyLocationLong = {
   location_id: string;
   location_name: string;
   parent_location_uid: string;
-}
+};
