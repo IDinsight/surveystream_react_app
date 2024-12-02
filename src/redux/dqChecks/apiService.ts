@@ -149,6 +149,26 @@ export const putDQChecks = async (dq_check_uid: number, formData: any) => {
   }
 };
 
+export const deleteDQChecks = async (formData: any) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/dq/checks`;
+
+    const res = await axios.delete(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      data: { ...formData },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   fetchDQCheckTypes,
   fetchDQConfig,
@@ -156,4 +176,5 @@ export const api = {
   fetchModuleName,
   getDQChecks,
   postDQChecks,
+  deleteDQChecks,
 };

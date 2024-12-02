@@ -10,12 +10,14 @@ import {
   RadioChangeEvent,
   Select,
   message,
+  Popconfirm,
 } from "antd";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  deleteDQChecks,
   fetchModuleName,
   getDQChecks,
   postDQChecks,
@@ -199,6 +201,26 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
       setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
+          navigate(0);
+        });
+      }
+    });
+  };
+
+  const handleDeleteCheck = () => {
+    const selectedCheck = selectedVariableRows[0];
+
+    const formData = {
+      form_uid: formUID,
+      type_id: typeID,
+      check_uids: [selectedCheck.dqCheckUID],
+    };
+
+    setLoading(true);
+    deleteDQChecks(formData).then((res: any) => {
+      setLoading(false);
+      if (res?.data?.success) {
+        message.success("DQ Checks deleted", 1, () => {
           navigate(0);
         });
       }
@@ -534,11 +556,16 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
                   </Tag>
                 </div>
                 <div style={{ marginLeft: "auto", display: "flex" }}>
-                  <Button style={{ marginLeft: 16 }} onClick={handleAddCheck}>
+                  <Button
+                    type="primary"
+                    style={{ marginLeft: 16 }}
+                    onClick={handleAddCheck}
+                  >
                     Add
                   </Button>
                   {selectedVariableRows.length === 1 && (
                     <Button
+                      type="primary"
                       style={{ marginLeft: 16 }}
                       onClick={handleEditCheck}
                     >
@@ -559,6 +586,24 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
                       >
                         Mark inactive
                       </Button>
+                      <Popconfirm
+                        title="Are you sure you want to delete checks?"
+                        onConfirm={(e: any) => {
+                          e?.stopPropagation();
+                          handleDeleteCheck();
+                        }}
+                        onCancel={(e: any) => e?.stopPropagation()}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button
+                          type="primary"
+                          style={{ marginLeft: 16 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Delete
+                        </Button>
+                      </Popconfirm>
                     </>
                   )}
                 </div>
