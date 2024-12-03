@@ -20,7 +20,6 @@ import {
 } from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
-  DescriptionText,
   IconText,
   SelectItem,
   SurveyLocationUploadFormWrapper,
@@ -52,6 +51,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
 import { LocationEditDrawer } from "./LocationEditDrawer";
+import { DescriptionText } from "../../../shared/Global.styled";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -540,13 +540,9 @@ function SurveyLocationUpload() {
             <SideMenu />
 
             <SurveyLocationUploadFormWrapper>
-              {!fileUploaded || !columnMatch || hasError ? (
-                <>
-                  <DescriptionText>Upload locations CSV sheet</DescriptionText>
-                </>
-              ) : null}
               {!fileUploaded ? (
                 <>
+                  <DescriptionText>Upload locations CSV sheet</DescriptionText>
                   <a
                     href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
                     target="__blank"
@@ -574,17 +570,10 @@ function SurveyLocationUpload() {
                   {!columnMatch ? (
                     <>
                       <Form form={form}>
-                        <p
-                          style={{
-                            fontFamily: "Lato",
-                            fontWeight: 500,
-                            color: "#262626",
-                            marginTop: "24px",
-                          }}
-                        >
+                        <DescriptionText>
                           Match location table columns with locations created in
                           “Add location” step
-                        </p>
+                        </DescriptionText>
 
                         {renderLocationMappingSelect()}
                       </Form>
@@ -605,6 +594,16 @@ function SurveyLocationUpload() {
                   )}
                 </>
               )}
+              {fileUploaded && !columnMatch ? (
+                <ContinueButton
+                  loading={loading}
+                  onClick={handleUploadContinue}
+                  disabled={!fileUploaded}
+                  style={{ marginTop: 24 }}
+                >
+                  Continue
+                </ContinueButton>
+              ) : null}
             </SurveyLocationUploadFormWrapper>
             <Modal
               title="Add locations"
@@ -650,15 +649,6 @@ function SurveyLocationUpload() {
           )}
         </>
       )}
-      <FooterWrapper>
-        <ContinueButton
-          loading={loading}
-          onClick={handleUploadContinue}
-          disabled={!fileUploaded}
-        >
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }
