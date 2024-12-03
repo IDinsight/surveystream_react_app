@@ -11,6 +11,7 @@ import {
   Select,
   message,
   Popconfirm,
+  Tooltip,
 } from "antd";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
@@ -27,7 +28,6 @@ import {
 } from "../../../redux/dqChecks/apiService";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
-import { filter } from "lodash";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -35,7 +35,7 @@ interface IDQCheckGroup1Props {
   typeID: string;
 }
 
-function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
+function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
 
   const [searchParam] = useSearchParams();
@@ -44,20 +44,23 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
   const [loading, setLoading] = useState<boolean>(false);
   const [mode, setMode] = useState<string>("all");
 
-  const [moduleName, setModuleName] = useState<string>("");
   const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
     []
   );
 
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
 
-  // DQ Check data
+  // Whole DQ Check data
   const [dqCheckData, setDQCheckData] = useState<any>(null);
-  const [isActive, setIsActive] = useState<boolean>(false);
+
+  // Individual DQ Check state for mode all
+  const [isActive, setIsActive] = useState<boolean>(true);
   const [checkValues, setCheckValues] = useState<string[]>([]);
   const [flagDescription, setFlagDescription] = useState<string>("");
   const [filterData, setFilterData] = useState<any[]>([]);
+  const [moduleName, setModuleName] = useState<string>("");
 
+  // Drawer state and functiion
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
@@ -70,6 +73,7 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
     setIsAddManualDrawerVisible(false);
   };
 
+  // Table columns for mode selected
   const columns = [
     {
       title: "Variable name",
@@ -89,9 +93,13 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
       key: "flagDescription",
     },
     {
-      title: "Constraint",
-      dataIndex: "constraint",
-      key: "constraint",
+      title: (
+        <Tooltip title="Click on edit to see the filter applied">
+          Filter data
+        </Tooltip>
+      ),
+      dataIndex: "filterData",
+      key: "filterData",
     },
     {
       title: "Value",
@@ -115,7 +123,7 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
     questionName: check.question_name,
     moduleName: check.module_name,
     flagDescription: check.flag_description,
-    constraint: check.filters.length,
+    filterData: check.filters.length > 0 ? "Yes" : "-",
     value: check.check_components.value,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
@@ -123,20 +131,6 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
 
   const handleModeChange = (e: RadioChangeEvent) => {
     const newMode = e.target.value;
-
-    if (newMode === "selected") {
-      // Clear table data when switching to "selected" mode
-      const filteredData =
-        dqCheckData?.filter((check: any) => !check.all_questions) || [];
-      setDQCheckData(filteredData);
-    } else if (newMode === "all") {
-      // Reset data for "all" mode
-      const allData =
-        dqCheckData?.filter((check: any) => check.all_questions) || [];
-      setDQCheckData(allData);
-    }
-
-    setMode(newMode);
     navigate(`?mode=${newMode}`);
   };
 
@@ -147,6 +141,7 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
     }
   };
 
+  // Handlers to save, add, edit, mark active, mark inactive, delete checks
   const handleAddCheck = () => {
     showAddManualDrawer();
     setDrawerData(null);
@@ -158,58 +153,62 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
   };
 
   const handleMarkActive = () => {
-    const selectedCheck = selectedVariableRows.map(
+    const selectedChecks = selectedVariableRows.map(
       (row: any) => row.dqCheckUID
     );
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
-      check_uids: selectedCheck,
+      check_uids: selectedChecks,
     };
 
     setLoading(true);
     activateDQChecks(formData).then((res: any) => {
-      console.log(res);
       setLoading(false);
       if (res?.data?.success) {
-        message.success("DQ Check deactivated", 1, () => {
+        message.success("DQ Check activated", 1, () => {
           navigate(0);
         });
+      } else {
+        message.error("Failed to activate DQ Checks");
       }
     });
   };
 
   const handleMarkInactive = () => {
-    const selectedCheck = selectedVariableRows.map(
+    const selectedChecks = selectedVariableRows.map(
       (row: any) => row.dqCheckUID
     );
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
-      check_uids: selectedCheck,
+      check_uids: selectedChecks,
     };
 
     setLoading(true);
     deactivateDQChecks(formData).then((res: any) => {
-      console.log(res);
       setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
           navigate(0);
         });
+      } else {
+        message.error("Failed to deactivate DQ Checks");
       }
     });
   };
 
   const handleDeleteCheck = () => {
-    const selectedCheck = selectedVariableRows[0];
+    const selectedChecks = selectedVariableRows.map(
+      (row: any) => row.dqCheckUID
+    );
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
-      check_uids: [selectedCheck.dqCheckUID],
+      check_uids: selectedChecks,
     };
 
     setLoading(true);
@@ -219,12 +218,41 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
         message.success("DQ Checks deleted", 1, () => {
           navigate(0);
         });
+      } else {
+        message.error("Failed to delete DQ Checks");
       }
     });
   };
 
   const handleAllSave = () => {
     if (!formUID || !typeID) return;
+
+    // Validate data
+    if (!moduleName) {
+      message.error("Please input module name");
+      return;
+    }
+
+    if (!flagDescription) {
+      message.error("Please input flag description");
+      return;
+    }
+
+    if (checkValues.length === 0) {
+      message.error("Please input at least one check value");
+      return;
+    }
+
+    if (filterData.length > 0) {
+      const isFilterValid = filterData.every((filter) => {
+        return filter.question_name && filter.filter_operator;
+      });
+
+      if (!isFilterValid) {
+        message.error("Please input all filter conditions");
+        return;
+      }
+    }
 
     if (dqCheckData === null) {
       const formData = {
@@ -246,36 +274,42 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
           message.success("DQ Check saved successfully", 1, () => {
             navigate(0);
           });
+        } else {
+          message.error("Failed to save DQ Check");
         }
       });
     } else {
-      if (!(dqCheckData.length > 0) || !dqCheckData[0].dq_check_uid) {
+      if (
+        dqCheckData.length > 0 &&
+        dqCheckData[0].all_questions === true &&
+        dqCheckData[0].dq_check_uid
+      ) {
+        // Update existing DQ Check
+        const formData = {
+          form_uid: formUID,
+          type_id: typeID,
+          all_questions: mode === "all" ? true : false,
+          module_name: moduleName,
+          question_name: null,
+          flag_description: flagDescription,
+          filters: filterData,
+          active: isActive,
+          check_components: { value: checkValues },
+        };
+
+        setLoading(true);
+        putDQChecks(dqCheckData[0].dq_check_uid, formData).then((res: any) => {
+          setLoading(false);
+          if (res?.data?.success) {
+            message.success("DQ Check updated successfully", 1, () => {
+              navigate(0);
+            });
+          }
+        });
+      } else {
         message.error("DQ Check not found to update it.");
         return;
       }
-
-      // Update existing DQ Check
-      const formData = {
-        form_uid: formUID,
-        type_id: typeID,
-        all_questions: mode === "all" ? true : false,
-        module_name: moduleName,
-        question_name: null,
-        flag_description: flagDescription,
-        filters: filterData,
-        active: isActive,
-        check_components: { value: checkValues },
-      };
-
-      setLoading(true);
-      putDQChecks(dqCheckData[0].dq_check_uid, formData).then((res: any) => {
-        setLoading(false);
-        if (res?.data?.success) {
-          message.success("DQ Check updated successfully", 1, () => {
-            navigate(0);
-          });
-        }
-      });
     }
   };
 
@@ -305,6 +339,8 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
           message.success("DQ Check updated successfully", 1, () => {
             navigate(0);
           });
+        } else {
+          message.error("Failed to update DQ Check");
         }
       });
     } else {
@@ -316,6 +352,8 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
           message.success("DQ added successfully", 1, () => {
             navigate(0);
           });
+        } else {
+          message.error("Failed to add DQ Check");
         }
       });
     }
@@ -422,9 +460,12 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
       ) : (
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            Checks that certain variables have no missing values. By default,
-            the following are considered missing: ‘ ’, NA, NAN, NULL (case
-            insensitive)
+            {typeID === "4" &&
+              "Checks that certain variables have no missing values. By default, the following are considered missing: ‘ ’, NA, NAN, NULL (caseinsensitive)"}
+            {typeID === "5" &&
+              "Checks that certain variables have been marked as don’t know. By default, -888 is considered as don’t know."}
+            {typeID === "6" &&
+              "Checks that certain variables have a high number of refusal values. By default, -999 is considered as refusal."}
           </p>
           <Radio.Group
             value={mode}
@@ -447,12 +488,22 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
               </div>
               <Row>
                 <Col span={4}>
-                  <Form.Item label="Value is missing if value is:" />
+                  <Form.Item
+                    label={`Value is ${
+                      typeID === "4"
+                        ? "missing"
+                        : typeID === "5"
+                        ? "don't knows"
+                        : "refusal"
+                    } if value is:`}
+                    tooltip="Value that is considered for checks"
+                  />
                 </Col>
                 <Col span={6}>
                   <Select
                     mode="tags"
                     style={{ width: "100%" }}
+                    placeholder="‘’, NA, NAN, NULL"
                     value={checkValues}
                     options={checkValues?.map((option: any) => ({
                       value: option,
@@ -470,7 +521,10 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
               </Row>
               <Row>
                 <Col span={4}>
-                  <Form.Item label="Flag description:" />
+                  <Form.Item
+                    label="Flag description:"
+                    tooltip="Short description of the flag."
+                  />
                 </Col>
                 <Col span={6}>
                   <Input
@@ -481,7 +535,10 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
                 </Col>
               </Row>
               <div>
-                <Form.Item label="Filter data before applying this check:" />
+                <Form.Item
+                  label="Filter data before applying this check:"
+                  tooltip="Conditions to filter out the data before applying a check. Example: age < 30"
+                />
                 <DQChecksFilter
                   filters={filterData}
                   setFilterList={setFilterData}
@@ -502,9 +559,9 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
                   <Col span={6}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder="Select or input an option"
+                      placeholder="Select or input an mode name"
                       showSearch
-                      value={moduleName}
+                      value={moduleName || null}
                       options={availableModuleNames?.map((option: any) => {
                         return { value: option, label: option };
                       })}
@@ -525,7 +582,16 @@ function DQCheckGroup1({ formUID, typeID }: IDQCheckGroup1Props) {
               </div>
               <div>
                 <CustomBtn onClick={handleAllSave}>Save</CustomBtn>
-                <Button style={{ marginLeft: 32 }}>Cancel</Button>
+                <Button
+                  style={{ marginLeft: 32 }}
+                  onClick={() =>
+                    navigate(
+                      `/module-configuration/dq-checks/${surveyUID}/manage?form_uid=${formUID}`
+                    )
+                  }
+                >
+                  Cancel
+                </Button>
               </div>
             </>
           )}

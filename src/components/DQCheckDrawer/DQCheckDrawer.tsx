@@ -70,14 +70,13 @@ function DQCheckDrawer({
   };
 
   useEffect(() => {
-    console.log(data);
     if (data) {
       setLocalData({
         dq_check_id: data.dqCheckUID,
         variable_name: data.questionName,
         check_values: data.value,
         flag_description: data.flagDescription,
-        is_active: data.status === "ACTIVE",
+        is_active: data.status === "Active",
         module_name: data.moduleName,
       });
 
@@ -113,7 +112,10 @@ function DQCheckDrawer({
 
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
-            <Form.Item label="Select variable" />
+            <Form.Item
+              label="Select variable"
+              tooltip="Choose variable from SCTO question list"
+            />
           </Col>
           <Col span={12}>
             <Select
@@ -130,7 +132,10 @@ function DQCheckDrawer({
         </Row>
         <Row>
           <Col span={8}>
-            <Form.Item label="Value is missing if value is:" />
+            <Form.Item
+              label="Check values:"
+              tooltip="Value that is considered for checks"
+            />
           </Col>
           <Col span={12}>
             <Select
@@ -153,7 +158,10 @@ function DQCheckDrawer({
         </Row>
         <Row>
           <Col span={8}>
-            <Form.Item label="Flag description:" />
+            <Form.Item
+              label="Flag description:"
+              tooltip="Short description of the flag."
+            />
           </Col>
           <Col span={12}>
             <Input
@@ -166,7 +174,10 @@ function DQCheckDrawer({
           </Col>
         </Row>
         <div>
-          <Form.Item label="Filter before applying this check:" />
+          <Form.Item
+            label="Filter before applying this check:"
+            tooltip="Conditions to filter out the data before applying a check. Example: age < 30"
+          />
           <DQChecksFilter
             filters={filter}
             setFilterList={setFilter}
