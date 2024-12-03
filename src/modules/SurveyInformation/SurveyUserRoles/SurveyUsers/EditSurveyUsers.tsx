@@ -555,6 +555,7 @@ function EditSurveyUsers() {
                             ...prev,
                             is_survey_admin: false,
                           }));
+                          setNewRole(role?.role_uid);
 
                           if (role?.has_reporting_role) {
                             setHasReportingRole(true);
