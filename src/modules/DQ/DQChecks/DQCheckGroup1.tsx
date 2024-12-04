@@ -13,6 +13,7 @@ import {
   Popconfirm,
   Tooltip,
 } from "antd";
+import { isEqual } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
@@ -64,6 +65,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
+  const [variablesValues, setVariablesValues] = useState<string[]>([]);
 
   const showAddManualDrawer = () => {
     setIsAddManualDrawerVisible(true);
@@ -79,13 +81,13 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       title: "Variable name",
       dataIndex: "questionName",
       key: "questionName",
-      sorter: true,
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
     {
       title: "Module name",
       dataIndex: "moduleName",
       key: "moduleName",
-      sorter: true,
+      sorter: (a: any, b: any) => a.moduleName.localeCompare(b.moduleName),
     },
     {
       title: "Flag description",
@@ -105,11 +107,18 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       title: "Value",
       dataIndex: "value",
       key: "value",
+      render: (value: any) => value.join(", "),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      sorter: (a: any, b: any) => a.status.localeCompare(b.status),
+      filters: [
+        { text: "Active", value: "Active" },
+        { text: "Inactive", value: "Inactive" },
+      ],
+      onFilter: (value: any, record: any) => record.status.indexOf(value) === 0,
       render: (status: any) => (
         <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
       ),
@@ -451,6 +460,20 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     }
   }, []);
 
+  useEffect(() => {
+    if (selectVariableData && selectVariableData.length > 0) {
+      const variablesVals: string[] = [];
+      selectVariableData.map((variable: any) => {
+        if (variable?.value && Array.isArray(variable.value)) {
+          variablesVals.push(...variable.value);
+        }
+      });
+      if (!isEqual(variablesVals, variablesValues)) {
+        setVariablesValues(variablesVals);
+      }
+    }
+  }, [selectVariableData]);
+
   const isLoading = loading;
 
   return (
@@ -503,7 +526,13 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   <Select
                     mode="tags"
                     style={{ width: "100%" }}
-                    placeholder="‘’, NA, NAN, NULL"
+                    placeholder={
+                      typeID === "4"
+                        ? "‘’, NA, NAN, NULL"
+                        : typeID === "5"
+                        ? "-888"
+                        : "-999"
+                    }
                     value={checkValues}
                     options={checkValues?.map((option: any) => ({
                       value: option,
@@ -554,6 +583,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     <Form.Item
                       label="Module Name:"
                       style={{ marginLeft: 32 }}
+                      tooltip="This column will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
                     />
                   </Col>
                   <Col span={6}>
@@ -682,6 +712,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 questions={availableQuestions}
                 moduleNames={availableModuleNames}
                 data={drawerData}
+                variablesValues={variablesValues}
                 onSave={handleOnDrawerSave}
                 onClose={closeAddManualDrawer}
               />

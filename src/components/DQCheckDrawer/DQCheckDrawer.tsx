@@ -10,6 +10,7 @@ interface IDQCheckDrawerProps {
   data: any;
   questions: any[];
   moduleNames: any[];
+  variablesValues: string[];
 }
 
 function DQCheckDrawer({
@@ -19,6 +20,7 @@ function DQCheckDrawer({
   onSave,
   questions,
   moduleNames,
+  variablesValues,
 }: IDQCheckDrawerProps) {
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
   const [filter, setFilter] = useState<any>([]);
@@ -142,7 +144,7 @@ function DQCheckDrawer({
               mode="tags"
               style={{ width: "100%" }}
               value={localData.check_values}
-              options={data?.check_values?.map((option: any) => ({
+              options={variablesValues?.map((option: any) => ({
                 value: option,
                 label: option === "''" ? "(empty)" : option,
               }))}
@@ -190,7 +192,11 @@ function DQCheckDrawer({
           </Row>
           <Row>
             <Col span={6}>
-              <Form.Item label="Module Name:" style={{ marginLeft: 32 }} />
+              <Form.Item
+                label="Module Name:"
+                style={{ marginLeft: 32 }}
+                tooltip="This column will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+              />
             </Col>
             <Col span={10}>
               <Select
