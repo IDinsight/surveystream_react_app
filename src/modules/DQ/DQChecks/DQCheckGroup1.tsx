@@ -12,6 +12,7 @@ import {
   message,
   Popconfirm,
   Tooltip,
+  Modal,
 } from "antd";
 import { isEqual } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
@@ -43,7 +44,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const modeParam = searchParam.get("mode");
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [mode, setMode] = useState<string>("all");
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
+  const [mode, setMode] = useState<string | null>(null);
 
   const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
     []
@@ -73,6 +75,12 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const closeAddManualDrawer = () => {
     setIsAddManualDrawerVisible(false);
+  };
+
+  const defaultValues = {
+    "4": ["''", "NA", "NAN", "NULL"],
+    "5": ["-888"],
+    "6": ["-999"],
   };
 
   // Table columns for mode selected
@@ -140,7 +148,17 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const handleModeChange = (e: RadioChangeEvent) => {
     const newMode = e.target.value;
-    navigate(`?mode=${newMode}`);
+    if (newMode === mode) return;
+
+    Modal.confirm({
+      title: "Are you sure?",
+      content: `This action will delete the ${mode} variable checks and cannot be undone. Do you want to proceed?`,
+      okText: "Yes",
+      cancelText: "No",
+      onOk: () => {
+        navigate(`?mode=${newMode}`);
+      },
+    });
   };
 
   const handleModeNameChange = (val: string) => {
@@ -237,16 +255,6 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (!formUID || !typeID) return;
 
     // Validate data
-    if (!moduleName) {
-      message.error("Please input module name");
-      return;
-    }
-
-    if (!flagDescription) {
-      message.error("Please input flag description");
-      return;
-    }
-
     if (checkValues.length === 0) {
       message.error("Please input at least one check value");
       return;
@@ -263,14 +271,14 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       }
     }
 
-    if (dqCheckData === null) {
+    if (dqCheckData === null || dqCheckData.length === 0) {
       const formData = {
         form_uid: formUID,
         type_id: typeID,
         all_questions: mode === "all" ? true : false,
-        module_name: moduleName,
+        module_name: moduleName || "",
         question_name: null,
-        flag_description: flagDescription,
+        flag_description: flagDescription || "",
         filters: filterData,
         active: isActive,
         check_components: { value: checkValues },
@@ -331,9 +339,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       form_uid: formUID,
       type_id: typeID,
       all_questions: false,
-      module_name: data.module_name,
+      module_name: data.module_name || "",
       question_name: data.variable_name,
-      flag_description: data.flag_description,
+      flag_description: data.flag_description || "",
       filters: data.filters,
       active: data.is_active,
       check_components: { value: data.check_values },
@@ -397,46 +405,68 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
       if (typeID) {
         setLoading(true);
-        getDQChecks(formUID, typeID).then((res: any) => {
-          setLoading(false);
-          if (res?.data?.success) {
-            const checkAllData = res.data.data;
+        getDQChecks(formUID, typeID)
+          .then((res: any) => {
+            if (res?.data?.success) {
+              const checkAllData = res.data.data;
 
-            if (
-              checkAllData.length === 1 &&
-              checkAllData[0].all_questions === true
-            ) {
-              // Mode is "all"
-              if (mode === "all") {
-                setIsActive(checkAllData[0].active);
-                setModuleName(checkAllData[0].module_name);
-                setFlagDescription(checkAllData[0].flag_description);
-                setCheckValues(checkAllData[0].check_components.value);
-                setFilterData(checkAllData[0].filters);
-                setDQCheckData([checkAllData[0]]);
-              } else if (modeParam === "selected") {
-                // Clear data for "selected" mode when all_questions is true
-                setDQCheckData([]);
+              if (
+                checkAllData.length === 1 &&
+                checkAllData[0].all_questions === true
+              ) {
+                if (!modeParam && !mode) {
+                  navigate(`?mode=all`);
+                }
+
+                // Mode is "all"
+                if (mode === "all") {
+                  setIsActive(checkAllData[0].active);
+                  setModuleName(checkAllData[0].module_name);
+                  setFlagDescription(checkAllData[0].flag_description);
+                  setCheckValues(checkAllData[0].check_components.value);
+                  setFilterData(checkAllData[0].filters);
+                  setDQCheckData([checkAllData[0]]);
+                  setDataLoading(false);
+                } else if (modeParam === "selected") {
+                  // Clear data for "selected" mode when all_questions is true
+                  setDQCheckData([]);
+                  setDataLoading(false);
+                }
+              } else {
+                if (!modeParam && !mode) {
+                  navigate(`?mode=selected`);
+                }
+
+                // Mode is "selected"
+                if (mode === "selected") {
+                  const selectedData = checkAllData.filter(
+                    (check: any) => !check.all_questions
+                  );
+                  setDQCheckData(selectedData);
+                  setDataLoading(false);
+                } else if (modeParam === "all") {
+                  // Fallback for "all" mode
+                  setDQCheckData(
+                    checkAllData.filter((check: any) => check.all_questions)
+                  );
+                  setDataLoading(false);
+                }
               }
             } else {
-              // Mode is "selected"
-              if (mode === "selected") {
-                const selectedData = checkAllData.filter(
-                  (check: any) => !check.all_questions
-                );
-                setDQCheckData(selectedData);
-              } else if (modeParam === "all") {
-                // Fallback for "all" mode
-                setDQCheckData(
-                  checkAllData.filter((check: any) => check.all_questions)
-                );
+              // In case of no data from API, set the mode to "all"
+              const checkAllData = res?.response?.data?.data;
+              if (checkAllData === null && !modeParam) {
+                navigate(`?mode=all`);
               }
+              setDataLoading(false);
             }
-          }
-        });
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       }
     }
-  }, [formUID, typeID, mode]);
+  }, [formUID, typeID, mode, modeParam]);
 
   // Fetch form definition for questions
   useEffect(() => {
@@ -534,7 +564,12 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                         : "-999"
                     }
                     value={checkValues}
-                    options={checkValues?.map((option: any) => ({
+                    options={[
+                      ...new Set([
+                        ...defaultValues[typeID as keyof typeof defaultValues],
+                        ...checkValues,
+                      ]),
+                    ].map((option: any) => ({
                       value: option,
                       label: option === "''" ? "(empty)" : option,
                     }))}
@@ -633,18 +668,16 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     color="#F6FFED"
                     style={{ color: "#52C41A", borderColor: "#B7EB8F" }}
                   >
-                    {
-                      selectVariableData?.filter(
-                        (variable: any) => variable.status === "Active"
-                      ).length
-                    }{" "}
+                    {selectVariableData?.filter(
+                      (variable: any) => variable.status === "Active"
+                    ).length || 0}{" "}
                     active checks
                   </Tag>
                   <Tag
                     color="#FFF7E6"
                     style={{ color: "#FA8C16", borderColor: "#FA8C16" }}
                   >
-                    {selectVariableData?.length} checks configured
+                    {selectVariableData?.length || 0} checks configured
                   </Tag>
                 </div>
                 <div style={{ marginLeft: "auto", display: "flex" }}>
@@ -706,13 +739,19 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 dataSource={selectVariableData}
                 pagination={{ pageSize: 5 }}
                 rowSelection={rowSelection}
+                loading={dataLoading}
               />
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}
                 questions={availableQuestions}
                 moduleNames={availableModuleNames}
                 data={drawerData}
-                variablesValues={variablesValues}
+                variablesValues={[
+                  ...new Set([
+                    ...defaultValues[typeID as keyof typeof defaultValues],
+                    ...variablesValues,
+                  ]),
+                ]}
                 onSave={handleOnDrawerSave}
                 onClose={closeAddManualDrawer}
               />

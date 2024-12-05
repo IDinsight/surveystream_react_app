@@ -55,16 +55,6 @@ function DQCheckDrawer({
       return;
     }
 
-    if (!localData.flag_description) {
-      message.error("Please input flag description");
-      return;
-    }
-
-    if (!localData.module_name) {
-      message.error("Please input module name");
-      return;
-    }
-
     onSave({
       ...localData,
       filters: filter,
@@ -98,7 +88,7 @@ function DQCheckDrawer({
   return (
     <Drawer
       title={data ? "Edit DQ Check" : "Add New DQ Check"}
-      width={650}
+      width={800}
       onClose={onClose}
       open={visible}
       style={{ paddingBottom: 80, fontFamily: "Lato" }}
@@ -122,6 +112,7 @@ function DQCheckDrawer({
           <Col span={12}>
             <Select
               style={{ width: "100%" }}
+              showSearch
               placeholder="Select variable"
               value={localData.variable_name}
               options={questions.map((question: any) => ({
