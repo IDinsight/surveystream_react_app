@@ -150,6 +150,11 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     const newMode = e.target.value;
     if (newMode === mode) return;
 
+    if (dqCheckData === null) {
+      navigate(`?mode=${newMode}`);
+      return;
+    }
+
     Modal.confirm({
       title: "Are you sure?",
       content: `This action will delete the ${mode} variable checks and cannot be undone. Do you want to proceed?`,
