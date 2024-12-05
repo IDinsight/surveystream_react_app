@@ -41,6 +41,7 @@ import DQFormManage from "../modules/DQ/DQForm/DQFormManage";
 import DQFormSCTOQuestion from "../modules/DQ/DQForm/DQFormSCTOQuestion";
 import DQChecksHome from "../modules/DQ/DQChecks";
 import DQChecksManage from "../modules/DQ/DQChecks/DQChecksManage";
+import DQChecksEdit from "../modules/DQ/DQChecks/DQChecksEdit";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
@@ -345,6 +346,10 @@ const AppRoutes = () => {
         <Route
           path="/module-configuration/dq-checks/:survey_uid/manage"
           element={<DQChecksManage />}
+        />
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid/:form_uid/edit/:type_id"
+          element={<DQChecksEdit />}
         />
       </Route>
       <Route
