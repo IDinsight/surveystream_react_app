@@ -4,7 +4,7 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
 import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
-import { Button, TabsProps } from "antd";
+import { Button, TabsProps, Tooltip } from "antd";
 import {
   ArrowUpOutlined,
   ClearOutlined,
@@ -475,14 +475,17 @@ function Assignments() {
                 disabled={mainData?.length === 0}
                 tabItemIndex={tabItemIndex}
                 data={getTabData()}
+                hoverText="Download CSV"
                 filterData={mainData}
               />
-              <Button
-                disabled={searchValue === "" && !dataFilter}
-                icon={<ClearOutlined />}
-                style={{ marginLeft: "16px" }}
-                onClick={onClear}
-              ></Button>
+              <Tooltip title="Clear search and filters">
+                <Button
+                  disabled={searchValue === "" && !dataFilter}
+                  icon={<ClearOutlined />}
+                  style={{ marginLeft: "16px" }}
+                  onClick={onClear}
+                ></Button>
+              </Tooltip>
             </HeaderContainer>
 
             {getTabData().length > 0 ? (

@@ -49,6 +49,7 @@ const authSlice = createSlice({
     assignmentsFailure(state, action: PayloadAction<any>) {
       state.assignments.loading = false;
       state.assignments.err = action.payload;
+      state.assignments.data = [];
     },
     assignmentEnumeratorsRequest(state) {
       state.assignmentEnumerators.loading = true;
@@ -60,6 +61,7 @@ const authSlice = createSlice({
     assignmentEnumeratorsFailure(state, action: PayloadAction<any>) {
       state.assignmentEnumerators.loading = false;
       state.assignmentEnumerators.err = action.payload;
+      state.assignmentEnumerators.data = [];
     },
     assignmentTargetsRequest(state) {
       state.assignmentTargets.loading = true;
@@ -71,6 +73,7 @@ const authSlice = createSlice({
     assignmentTargetsFailure(state, action: PayloadAction<any>) {
       state.assignmentTargets.loading = false;
       state.assignmentTargets.err = action.payload;
+      state.assignmentTargets.data = [];
     },
   },
 });

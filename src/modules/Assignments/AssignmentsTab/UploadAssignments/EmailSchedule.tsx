@@ -187,11 +187,11 @@ function EmailSchedule({
               marginTop: 30,
             }}
           >
-            The emails for this survey have not been scheduled yet. Do you wish
-            to send emails to the surveyors whose assignments have been changed?
-            Please be aware that the emails will only be sent to those surveyors
-            whose assignments have changed. If you would like to setup email
-            schedules, please visit the email configuration module.
+            There are no upcoming assignment email schedules for this form. Do
+            you wish to send emails to the surveyors whose assignments have been
+            changed? Please be aware that the emails will only be sent to those
+            surveyors whose assignments have changed. If you would like to setup
+            email schedules, please visit the email configuration module.
           </p>
 
           <Radio.Group

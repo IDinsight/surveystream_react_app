@@ -466,14 +466,15 @@ function UploadAssignments() {
                       </div>
                     </div>
                     <DescriptionContainer>
+                      Upload assignments data in csv format.
                       <ul style={{ marginBottom: 24 }}>
                         <li>
-                          Upload assignments data in csv format. Please go
-                          through the template and filled csv sheet before
-                          uploading.
+                          Please go through the template and filled csv sheet
+                          before uploading
                         </li>
                         <li>
-                          Mandatory csv fields: Target ID and Enumerator ID
+                          Mandatory csv columns are: <b>target_id</b> and{" "}
+                          <b>enumerator_id</b>
                         </li>
                       </ul>
                     </DescriptionContainer>
@@ -485,6 +486,13 @@ function UploadAssignments() {
                       setHasError={setHasError}
                       setErrorList={setErrorList}
                     />
+                    <Button
+                      type="default"
+                      style={{ marginTop: 20 }}
+                      onClick={() => navigate(-1)}
+                    >
+                      Cancel
+                    </Button>
                     {hasError ? (
                       <div style={{ marginTop: "32px" }}>
                         <p
