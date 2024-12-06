@@ -243,7 +243,7 @@ function SurveyLocationAdd() {
         });
 
         if (updatedGeoLevels.length === 0) {
-          message.error("Please fill in at least one location location level!");
+          message.error("Please fill in at least one location level!");
         } else {
           dispatch(setSurveyLocationGeoLevels(updatedGeoLevels));
         }
@@ -293,7 +293,7 @@ function SurveyLocationAdd() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey location types</Title>
+        <Title>Survey location levels</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >

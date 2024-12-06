@@ -243,7 +243,7 @@ function SurveyLocationHierarchy() {
           message.error(geoLevelsRes.payload.message);
           return;
         } else {
-          message.success("Location type hierarchy updated successfully.");
+          message.success("Location level hierarchy updated successfully.");
           if (
             surveyPrimeGeoLocation !== null &&
             surveyPrimeGeoLocation !== "no_location"
