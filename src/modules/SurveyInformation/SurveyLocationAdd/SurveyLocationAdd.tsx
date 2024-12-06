@@ -16,22 +16,16 @@ import {
   resetSurveyLocations,
   setSurveyLocationGeoLevels,
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
-import {
-  DescriptionText,
-  SurveyLocationFormWrapper,
-} from "./SurveyLocationAdd.styled";
+import { SurveyLocationFormWrapper } from "./SurveyLocationAdd.styled";
 import {
   AddAnotherButton,
   DynamicItemsForm,
   StyledFormItem,
 } from "../SurveyInformation.styled";
-import {
-  ContinueButton,
-  FooterWrapper,
-} from "../../../shared/FooterBar.styled";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
@@ -125,7 +119,7 @@ function SurveyLocationAdd() {
             rules={[
               {
                 required: true,
-                message: "Please enter a geo level name!",
+                message: "Please enter a location level name!",
               },
               {
                 validator: (_: any, value: any) => {
@@ -138,7 +132,9 @@ function SurveyLocationAdd() {
                       }) => r.geo_level_name === value
                     ).length > 1
                   ) {
-                    return Promise.reject("Please use unique geo level name!");
+                    return Promise.reject(
+                      "Please use unique location level name!"
+                    );
                   }
                   return Promise.resolve();
                 },
@@ -247,7 +243,7 @@ function SurveyLocationAdd() {
         });
 
         if (updatedGeoLevels.length === 0) {
-          message.error("Please fill in at least one location geo level!");
+          message.error("Please fill in at least one location level!");
         } else {
           dispatch(setSurveyLocationGeoLevels(updatedGeoLevels));
         }
@@ -268,7 +264,7 @@ function SurveyLocationAdd() {
           message.error(geoLevelsRes.payload.message);
           return;
         } else {
-          message.success("Survey GeoLevels updated successfully.");
+          message.success("Location levels updated successfully.");
         }
 
         navigate(`/survey-information/location/hierarchy/${survey_uid}`);
@@ -297,7 +293,7 @@ function SurveyLocationAdd() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey location types</Title>
+        <Title>Survey location levels</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
@@ -342,26 +338,25 @@ function SurveyLocationAdd() {
           <SideMenu />
           <SurveyLocationFormWrapper>
             <DescriptionText>
-              Please create the locations for your survey. Examples of
-              locations: state, district, and block
+              Please add the relevant location levels for your survey. Example:
+              state, district, and block
             </DescriptionText>
             <div style={{ marginTop: "40px" }}>
               <DynamicItemsForm form={form}>
                 {renderLocationFields()}
               </DynamicItemsForm>
             </div>
+            <CustomBtn
+              onClick={handleLocationAddContinue}
+              loading={loading}
+              disabled={numLocationFields === 0}
+              style={{ marginTop: 24 }}
+            >
+              Save
+            </CustomBtn>
           </SurveyLocationFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <ContinueButton
-          onClick={handleLocationAddContinue}
-          loading={loading}
-          disabled={numLocationFields === 0}
-        >
-          Save
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }
