@@ -19,6 +19,8 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { RootState } from "../../../redux/store";
 import {
   activateDQChecks,
   deactivateDQChecks,
@@ -28,6 +30,7 @@ import {
   postDQChecks,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
+import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
 
@@ -39,6 +42,7 @@ interface IDQCheckGroup1Props {
 
 function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [searchParam] = useSearchParams();
   const modeParam = searchParam.get("mode");
@@ -62,6 +66,10 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [flagDescription, setFlagDescription] = useState<string>("");
   const [filterData, setFilterData] = useState<any[]>([]);
   const [moduleName, setModuleName] = useState<string>("");
+
+  const { dqConfig: dqConfig } = useAppSelector(
+    (state: RootState) => state.dqChecks
+  );
 
   // Drawer state and functiion
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
@@ -91,12 +99,17 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
-    {
-      title: "Module name",
-      dataIndex: "moduleName",
-      key: "moduleName",
-      sorter: (a: any, b: any) => a.moduleName.localeCompare(b.moduleName),
-    },
+    ...(dqConfig.group_by_module_name
+      ? [
+          {
+            title: "Module name",
+            dataIndex: "moduleName",
+            key: "moduleName",
+            sorter: (a: any, b: any) =>
+              a.moduleName.localeCompare(b.moduleName),
+          },
+        ]
+      : []),
     {
       title: "Flag description",
       dataIndex: "flagDescription",
@@ -509,6 +522,12 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     }
   }, [selectVariableData]);
 
+  useEffect(() => {
+    if (formUID) {
+      dispatch(getDQConfig({ form_uid: formUID }));
+    }
+  }, [dispatch, formUID]);
+
   const isLoading = loading;
 
   return (
@@ -614,46 +633,50 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   questions={availableQuestions}
                 />
               </div>
-              <div>
-                <Row>
-                  <Form.Item label="Group variables in the output data using:" />
-                </Row>
-                <Row>
-                  <Col span={4}>
+              {dqConfig.group_by_module_name ? (
+                <div>
+                  <Row>
                     <Form.Item
-                      label="Module Name:"
-                      style={{ marginLeft: 32 }}
-                      tooltip="This column will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                      label="Group variables in the output data using:"
+                      tooltip="This input is enabled as per selection in - Step 1: Global configuration."
                     />
-                  </Col>
-                  <Col span={6}>
-                    <Select
-                      style={{ width: "100%" }}
-                      placeholder="Select or input an mode name"
-                      showSearch
-                      value={moduleName || null}
-                      options={availableModuleNames?.map((option: any) => {
-                        return { value: option, label: option };
-                      })}
-                      onChange={(newValue) => setModuleName(newValue)}
-                      onBlur={(e: any) => {
-                        const inputValue = e.target.value;
-                        handleModeNameChange(inputValue);
-                      }}
-                      onKeyDown={(e: any) => {
-                        if (e.key === "Enter") {
+                  </Row>
+                  <Row>
+                    <Col span={4}>
+                      <Form.Item
+                        label="Module Name:"
+                        style={{ marginLeft: 32 }}
+                        tooltip="Will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Select
+                        style={{ width: "100%" }}
+                        placeholder="Select or input an mode name"
+                        showSearch
+                        value={moduleName || null}
+                        options={availableModuleNames?.map((option: any) => {
+                          return { value: option, label: option };
+                        })}
+                        onChange={(newValue) => setModuleName(newValue)}
+                        onBlur={(e: any) => {
                           const inputValue = e.target.value;
                           handleModeNameChange(inputValue);
-                        }
-                      }}
-                    />
-                  </Col>
-                </Row>
-              </div>
+                        }}
+                        onKeyDown={(e: any) => {
+                          if (e.key === "Enter") {
+                            const inputValue = e.target.value;
+                            handleModeNameChange(inputValue);
+                          }
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ) : null}
               <div>
-                <CustomBtn onClick={handleAllSave}>Save</CustomBtn>
                 <Button
-                  style={{ marginLeft: 32 }}
+                  style={{ marginTop: 20 }}
                   onClick={() =>
                     navigate(
                       `/module-configuration/dq-checks/${surveyUID}/manage?form_uid=${formUID}`
@@ -662,6 +685,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 >
                   Cancel
                 </Button>
+                <CustomBtn style={{ marginLeft: 20 }} onClick={handleAllSave}>
+                  Save
+                </CustomBtn>
               </div>
             </>
           )}
@@ -749,6 +775,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}
                 questions={availableQuestions}
+                showModuleName={dqConfig.group_by_module_name}
                 moduleNames={availableModuleNames}
                 data={drawerData}
                 variablesValues={[

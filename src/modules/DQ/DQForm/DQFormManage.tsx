@@ -5,7 +5,7 @@ import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer } from "../../../shared/Nav.styled";
-import { BodyContainer, CustomBtn, FormItemLabel } from "./DQForm.styled";
+import { CustomBtn, DQFormWrapper, FormItemLabel } from "./DQForm.styled";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
 import { Button, Col, Input, Row, Select, message } from "antd";
@@ -16,6 +16,7 @@ import {
 } from "../../../redux/dqForm/dqFormActions";
 import { userHasPermission } from "../../../utils/helper";
 import { Breadcrumb } from "antd";
+import SideMenu from "./../SideMenu";
 
 function DQFormManage() {
   const navigate = useNavigate();
@@ -180,120 +181,124 @@ function DQFormManage() {
               ]}
             />
           </HeaderContainer>
-          <BodyContainer>
-            <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-              Please fill out the SurveyCTO form details for a data quality
-              form.
-            </p>
-            <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-              Kindly note that it is assumed that the SurveyCTO server name and
-              timezone for the data quality form matches that of the
-              corresponding main form
-            </p>
-            <Row align="middle" style={{ marginBottom: 6, marginTop: 24 }}>
-              <Col span={6}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select main SCTO form:
-                </FormItemLabel>
-              </Col>
-              <Col span={8}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="SCTO Form"
-                  value={formFieldsData?.parent_form_uid}
-                  disabled={!canUserWrite}
-                  onSelect={(val) => {
-                    setFormFieldsData((prev: any) => ({
-                      ...prev,
-                      parent_form_uid: val as string,
-                    }));
-                  }}
+          <div style={{ display: "flex" }}>
+            <SideMenu></SideMenu>
+            <DQFormWrapper>
+              <p style={{ color: "#8C8C8C", fontSize: 14 }}>
+                Please fill out the SurveyCTO form details for a data quality
+                form.
+              </p>
+              <p style={{ color: "#8C8C8C", fontSize: 14 }}>
+                Kindly note that it is assumed that the SurveyCTO server name
+                and timezone for the data quality form matches that of the
+                corresponding main form
+              </p>
+              <Row align="middle" style={{ marginBottom: 6, marginTop: 24 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Select main SCTO
+                    form:
+                  </FormItemLabel>
+                </Col>
+                <Col span={8}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="SCTO Form"
+                    value={formFieldsData?.parent_form_uid}
+                    disabled={!canUserWrite}
+                    onSelect={(val) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        parent_form_uid: val as string,
+                      }));
+                    }}
+                  >
+                    {surveyCTOForm?.scto_form_id && (
+                      <Select.Option value={surveyCTOForm?.form_uid}>
+                        {surveyCTOForm?.scto_form_id}
+                      </Select.Option>
+                    )}
+                  </Select>
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 6 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Select DQ form type:
+                  </FormItemLabel>
+                </Col>
+                <Col span={8}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="audioaudit / backcheck/ spotcheck"
+                    value={formFieldsData?.dq_form_type}
+                    disabled={!canUserWrite}
+                    onSelect={(val: any) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        dq_form_type: val,
+                      }));
+                    }}
+                  >
+                    <Select.Option value="audioaudit">audioaudit</Select.Option>
+                    <Select.Option value="backcheck">backcheck</Select.Option>
+                    <Select.Option value="spotcheck">spotcheck</Select.Option>
+                  </Select>
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 6 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> DQ form ID:
+                  </FormItemLabel>
+                </Col>
+                <Col span={8}>
+                  <Input
+                    value={formFieldsData?.scto_form_id}
+                    onChange={(e) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        scto_form_id: e.target.value,
+                      }));
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 6 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> DQ form name:
+                  </FormItemLabel>
+                </Col>
+                <Col span={8} style={{ display: "flex" }}>
+                  <Input
+                    value={formFieldsData?.form_name}
+                    onChange={(e) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        form_name: e.target.value,
+                      }));
+                    }}
+                  />
+                </Col>
+              </Row>
+              <div>
+                <Button
+                  style={{ marginTop: 24, marginRight: 24 }}
+                  onClick={handleCancel}
                 >
-                  {surveyCTOForm?.scto_form_id && (
-                    <Select.Option value={surveyCTOForm?.form_uid}>
-                      {surveyCTOForm?.scto_form_id}
-                    </Select.Option>
-                  )}
-                </Select>
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6 }}>
-              <Col span={6}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select DQ form type:
-                </FormItemLabel>
-              </Col>
-              <Col span={8}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="audioaudit / backcheck/ spotcheck"
-                  value={formFieldsData?.dq_form_type}
+                  Cancel
+                </Button>
+                <CustomBtn
+                  style={{ marginTop: 24 }}
                   disabled={!canUserWrite}
-                  onSelect={(val: any) => {
-                    setFormFieldsData((prev: any) => ({
-                      ...prev,
-                      dq_form_type: val,
-                    }));
-                  }}
+                  onClick={handleSave}
                 >
-                  <Select.Option value="audioaudit">audioaudit</Select.Option>
-                  <Select.Option value="backcheck">backcheck</Select.Option>
-                  <Select.Option value="spotcheck">spotcheck</Select.Option>
-                </Select>
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6 }}>
-              <Col span={6}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> DQ form ID:
-                </FormItemLabel>
-              </Col>
-              <Col span={8}>
-                <Input
-                  value={formFieldsData?.scto_form_id}
-                  onChange={(e) => {
-                    setFormFieldsData((prev: any) => ({
-                      ...prev,
-                      scto_form_id: e.target.value,
-                    }));
-                  }}
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6 }}>
-              <Col span={6}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> DQ form name:
-                </FormItemLabel>
-              </Col>
-              <Col span={8} style={{ display: "flex" }}>
-                <Input
-                  value={formFieldsData?.form_name}
-                  onChange={(e) => {
-                    setFormFieldsData((prev: any) => ({
-                      ...prev,
-                      form_name: e.target.value,
-                    }));
-                  }}
-                />
-              </Col>
-            </Row>
-            <div>
-              <Button
-                style={{ marginTop: 24, marginRight: 24 }}
-                onClick={handleCancel}
-              >
-                Cancel
-              </Button>
-              <CustomBtn
-                style={{ marginTop: 24 }}
-                disabled={!canUserWrite}
-                onClick={handleSave}
-              >
-                Save
-              </CustomBtn>
-            </div>
-          </BodyContainer>
+                  Save
+                </CustomBtn>
+              </div>
+            </DQFormWrapper>
+          </div>
         </>
       )}
     </>

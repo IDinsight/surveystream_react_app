@@ -9,6 +9,7 @@ interface IDQCheckDrawerProps {
   onSave: any;
   data: any;
   questions: any[];
+  showModuleName: boolean;
   moduleNames: any[];
   variablesValues: string[];
 }
@@ -19,6 +20,7 @@ function DQCheckDrawer({
   data,
   onSave,
   questions,
+  showModuleName,
   moduleNames,
   variablesValues,
 }: IDQCheckDrawerProps) {
@@ -177,53 +179,60 @@ function DQCheckDrawer({
             questions={questions}
           />
         </div>
-        <div>
-          <Row>
-            <Form.Item label="Group variables in the output data using:" />
-          </Row>
-          <Row>
-            <Col span={6}>
+        {showModuleName ? (
+          <div>
+            <Row>
               <Form.Item
-                label="Module Name:"
-                style={{ marginLeft: 32 }}
-                tooltip="This column will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                label="Group variables in the output data using:"
+                tooltip="This input is enabled as per selection in - Step 1: Global configuration."
               />
-            </Col>
-            <Col span={10}>
-              <Select
-                style={{ width: "100%" }}
-                placeholder="Select or input an option"
-                showSearch
-                value={localData.module_name}
-                options={localModuleNames?.map((name: any) => ({
-                  value: name,
-                  label: name,
-                }))}
-                onChange={(value) => handleFieldChange("module_name", value)}
-                onBlur={(e: any) => {
-                  const inputValue = e.target.value;
-                  handleModeNameChange(inputValue);
-                }}
-                onKeyDown={(e: any) => {
-                  if (e.key === "Enter") {
+            </Row>
+            <Row>
+              <Col span={6}>
+                <Form.Item
+                  label="Module Name:"
+                  style={{ marginLeft: 32 }}
+                  tooltip="Will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                />
+              </Col>
+              <Col span={10}>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Select or input an option"
+                  showSearch
+                  value={localData.module_name}
+                  options={localModuleNames?.map((name: any) => ({
+                    value: name,
+                    label: name,
+                  }))}
+                  onChange={(value) => handleFieldChange("module_name", value)}
+                  onBlur={(e: any) => {
                     const inputValue = e.target.value;
                     handleModeNameChange(inputValue);
-                  }
-                }}
-              />
-            </Col>
-          </Row>
+                  }}
+                  onKeyDown={(e: any) => {
+                    if (e.key === "Enter") {
+                      const inputValue = e.target.value;
+                      handleModeNameChange(inputValue);
+                    }
+                  }}
+                />
+              </Col>
+            </Row>
+          </div>
+        ) : null}
+        <div>
+          <Button style={{ marginTop: 20 }} onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            style={{ marginLeft: 20 }}
+            type="primary"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
         </div>
-        <Row>
-          <Col span={4}>
-            <Button onClick={onClose}>Cancel</Button>
-          </Col>
-          <Col span={4}>
-            <Button type="primary" onClick={handleSave}>
-              Save
-            </Button>
-          </Col>
-        </Row>
       </Form>
     </Drawer>
   );
