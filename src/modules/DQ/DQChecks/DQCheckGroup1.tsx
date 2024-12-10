@@ -144,6 +144,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     value: check.check_components.value,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
+    isDeleted: check.note === "Question not found in form definition",
   }));
 
   const handleModeChange = (e: RadioChangeEvent) => {
@@ -184,10 +185,10 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     showAddManualDrawer();
   };
 
-  const handleMarkActive = () => {
-    const selectedChecks = selectedVariableRows.map(
-      (row: any) => row.dqCheckUID
-    );
+  const handleMarkActiveAction = () => {
+    const selectedChecks = selectedVariableRows
+      .filter((row: any) => !row.isDeleted)
+      .map((row: any) => row.dqCheckUID);
 
     const formData = {
       form_uid: formUID,
@@ -206,6 +207,27 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         message.error("Failed to activate DQ Checks");
       }
     });
+  };
+
+  const handleMarkActive = () => {
+    const isDeletedCheck = selectedVariableRows.some(
+      (row: any) => row.isDeleted
+    );
+
+    if (isDeletedCheck) {
+      Modal.confirm({
+        title: "Are you sure?",
+        content: `Your selection contains some checks that have been deleted from the form definition. This action will mark only the active checks as active. Do you want to proceed?`,
+        okText: "Yes",
+        cancelText: "No",
+        width: 600,
+        onOk: () => {
+          handleMarkActiveAction();
+        },
+      });
+    } else {
+      handleMarkActiveAction();
+    }
   };
 
   const handleMarkInactive = () => {
@@ -476,7 +498,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   // Fetch form definition for questions
   useEffect(() => {
     if (formUID) {
-      getSurveyCTOFormDefinition(formUID, false).then((res: any) => {
+      getSurveyCTOFormDefinition(formUID, false, true).then((res: any) => {
         if (res?.data?.success) {
           const formDefinition = res.data.data;
           if (formDefinition && formDefinition.questions) {
@@ -693,15 +715,16 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   >
                     Add
                   </Button>
-                  {selectedVariableRows.length === 1 && (
-                    <Button
-                      type="primary"
-                      style={{ marginLeft: 16 }}
-                      onClick={handleEditCheck}
-                    >
-                      Edit
-                    </Button>
-                  )}
+                  {selectedVariableRows.length === 1 &&
+                    !selectedVariableRows[0].isDeleted && (
+                      <Button
+                        type="primary"
+                        style={{ marginLeft: 16 }}
+                        onClick={handleEditCheck}
+                      >
+                        Edit
+                      </Button>
+                    )}
                   {selectedVariableRows.length > 0 && (
                     <>
                       <Button
@@ -745,6 +768,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 pagination={{ pageSize: 5 }}
                 rowSelection={rowSelection}
                 loading={dataLoading}
+                rowClassName={(record: any) =>
+                  record.isDeleted ? "greyed-out-row" : ""
+                }
               />
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}

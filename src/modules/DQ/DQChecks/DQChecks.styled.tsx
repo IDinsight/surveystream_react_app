@@ -77,6 +77,12 @@ export const ChecksTable = styled(Table)`
   & td {
     font-family: "Lato", sans-serif;
   }
+
+  & .greyed-out-row,
+  & .greyed-out-row .ant-table-cell-row-hover {
+    background-color: #fff1f0 !important;
+    color: red !important;
+  }
 `;
 
 export const ChecksSwitch = styled(Switch)`
