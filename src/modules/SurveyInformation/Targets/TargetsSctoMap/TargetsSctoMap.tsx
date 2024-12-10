@@ -41,6 +41,7 @@ import { useState, useEffect } from "react";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
+import { set } from "lodash";
 interface CSVError {
   type: string;
   count: number;
@@ -200,7 +201,9 @@ function TargetsSctoMap() {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [inputFilterList, setInputFilterList] = useState<any[]>([]);
 
-  const csvRows = useAppSelector((state: RootState) => state.targets.csvRows);
+  const [totalRecords, setTotalrecords] = useState<number>(0);
+  const [correctRecords, setCorrectRecords] = useState<number>(0);
+
   const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
     string[]
   >([]);
@@ -241,11 +244,8 @@ function TargetsSctoMap() {
       await targetMappingForm.validateFields();
       const column_mapping = targetMappingForm.getFieldsValue();
       setTargetLoading(true);
-      const config_success = await handleTargetColumnConfig(
-        form_uid,
-        column_mapping
-      );
-      handleTargetsUploadMapping(column_mapping);
+      await handleTargetColumnConfig(form_uid, column_mapping);
+      await handleTargetsUploadMapping(column_mapping);
     } catch (error) {
       message.error("Validation failed. Please check the form fields.");
       return;
@@ -275,6 +275,7 @@ function TargetsSctoMap() {
   };
 
   const handleTargetsUploadMapping = async (column_mapping: any) => {
+    setTargetLoading(true);
     try {
       //start with an empty error count
       setErrorCount(0);
@@ -308,6 +309,7 @@ function TargetsSctoMap() {
             formUID: form_uid,
           })
         );
+        console.log(mappingsRes.payload);
 
         //set error list
         if (mappingsRes.payload.success === false) {
@@ -318,7 +320,6 @@ function TargetsSctoMap() {
 
             for (const errorKey in mappingsRes.payload.errors) {
               let errorObj = mappingsRes.payload.errors[errorKey];
-
               if (errorKey === "record_errors") {
                 errorObj =
                   mappingsRes.payload.errors[errorKey]["summary_by_error_type"];
@@ -338,6 +339,10 @@ function TargetsSctoMap() {
                       : errorObj,
                   });
                 }
+                const summary = mappingsRes.payload.errors[errorKey]["summary"];
+                setTotalrecords(summary.total_rows);
+                setCorrectRecords(summary.total_correct_rows);
+                setErrorCount(summary.total_rows_with_errors);
               } else if (errorKey === "column_mapping") {
                 const columnErrors = mappingsRes.payload.errors[errorKey];
                 errorObj = columnErrors;
@@ -358,17 +363,6 @@ function TargetsSctoMap() {
                   rows: errorObj,
                 });
               }
-
-              setErrorCount(
-                mappingsRes.payload.errors[errorKey]["summary"]
-                  ? mappingsRes.payload.errors[errorKey]["summary"][
-                      "error_count"
-                    ]
-                  : errorCount + errorObj.length
-              );
-            }
-            if (errorCount >= csvRows.length) {
-              setErrorCount(csvRows.length - 1);
             }
             setErrorList(transformedErrors);
           }
@@ -401,6 +395,7 @@ function TargetsSctoMap() {
         }
       }
     }
+    setTargetLoading(false);
   };
 
   const findLowestGeoLevel = (locationData: any) => {
@@ -845,7 +840,7 @@ function TargetsSctoMap() {
                   </CustomBtn>
                   <CustomBtn
                     onClick={handlePreviewData}
-                    loading={isLoading}
+                    loading={targetLoading}
                     style={{ marginRight: "10%" }}
                   >
                     Preview Data
@@ -858,14 +853,10 @@ function TargetsSctoMap() {
                   <Title>Targets</Title>
                   <br />
                   <RowCountBox
-                    total={csvRows.length - 1}
-                    correct={
-                      csvRows.length - 1 - errorCount > 0
-                        ? csvRows.length - 1 - errorCount
-                        : 0
-                    }
-                    error={errorCount}
-                    warning={0}
+                    total={totalRecords}
+                    correct={correctRecords}
+                    warning={errorCount}
+                    error={0}
                   />
                   <DescriptionContainer>
                     <ol style={{ paddingLeft: "15px" }}>
