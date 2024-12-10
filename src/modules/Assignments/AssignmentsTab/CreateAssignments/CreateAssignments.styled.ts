@@ -27,3 +27,9 @@ export const AssignmentsSteps = styled(Steps)`
     color: #ffffff;
   }
 `;
+
+export const FormItemLabel = styled.p`
+  color: "#434343",
+  font-size: 14px,
+  line-height: 22px,
+`;
