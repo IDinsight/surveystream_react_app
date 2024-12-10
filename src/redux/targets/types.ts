@@ -12,4 +12,5 @@ export type TargetMapping = {
   file: string;
   mode: "overwrite" | "merge";
   load_from_scto: boolean;
+  load_successful: boolean;
 };

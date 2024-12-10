@@ -1,11 +1,15 @@
 import SideMenu from "../../SideMenu";
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  HeaderContainer,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { Form, message, Radio, Space } from "antd";
+import { Form, Input, message, Radio, Space } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
@@ -21,6 +25,8 @@ import {
   getTargetConfig,
   putTargetConfig,
 } from "../../../../redux/targets/targetActions";
+import Container from "../../../../components/Layout/Container";
+import { setuploadMode } from "../../../../redux/targets/targetSlice";
 
 function TargetsConfig() {
   const activeSurvey = useAppSelector(
@@ -42,6 +48,10 @@ function TargetsConfig() {
     form_uid: "",
   };
   const [targetConfig, setTargetConfig] = useState<any>();
+
+  const toggleUploadMode = (value: string) => {
+    dispatch(setuploadMode(value));
+  };
 
   const fetchTargetConfig = async () => {
     setLoading(true);
@@ -112,6 +122,10 @@ function TargetsConfig() {
             navigate(
               `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
             );
+
+            if (targetConfig?.target_source === "csv") {
+              toggleUploadMode("overwrite");
+            }
           } else {
             message.error("Error in fetching data from SurveyCTO");
           }
@@ -130,20 +144,10 @@ function TargetsConfig() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
-
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Targets: Configuration</Title>
+      </HeaderContainer>
       {loading ? (
         <FullScreenLoader />
       ) : (
@@ -182,7 +186,7 @@ function TargetsConfig() {
                 ]}
               >
                 <Radio.Group>
-                  <Space direction="vertical" onChange={handleSourceChange}>
+                  <Space direction="horizontal" onChange={handleSourceChange}>
                     <Radio value="csv">Upload CSV</Radio>
                     <Radio value="scto">
                       Connect to a SurveyCTO Dataset/Form
@@ -190,11 +194,13 @@ function TargetsConfig() {
                   </Space>
                 </Radio.Group>
               </StyledFormItem>
+
               {sourceType === "scto" && (
                 <>
                   <StyledFormItem
                     name="scto_input_type"
                     label="Select Type of SurveyCTO Input"
+                    labelCol={{ span: 24 }}
                     rules={[
                       {
                         required: true,
@@ -211,6 +217,7 @@ function TargetsConfig() {
                   </StyledFormItem>
                   <StyledFormItem
                     name="scto_input_id"
+                    labelCol={{ span: 24 }}
                     label="Enter the SurveyCTO Input ID"
                     rules={[
                       {
@@ -219,7 +226,7 @@ function TargetsConfig() {
                       },
                     ]}
                   >
-                    <input style={{ width: "25%", height: "100%" }} />
+                    <Input style={{ width: "25%" }} />
                   </StyledFormItem>
                   <StyledFormItem
                     name="scto_encryption_flag"
@@ -234,6 +241,19 @@ function TargetsConfig() {
                     </CheckboxSCTO>
                   </StyledFormItem>
                 </>
+              )}
+
+              {targetConfig && targetConfig.target_source !== sourceType && (
+                <div
+                  style={{
+                    color: "red",
+                    marginBottom: "16px",
+                    fontSize: "14px",
+                  }}
+                >
+                  Warning: Changing the source will delete already uploaded
+                  targets.
+                </div>
               )}
             </Form>
           </div>

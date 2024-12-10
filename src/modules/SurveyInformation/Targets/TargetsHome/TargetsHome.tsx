@@ -1,19 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  HeaderContainer,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import { TargetsHomeFormWrapper, TargetsTable } from "./TargetsHome.styled";
 import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
   EditOutlined,
+  ProductOutlined,
+  ReconciliationOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
@@ -92,6 +88,8 @@ function TargetsHome() {
 
     setSelectedRows(selectedTargetData);
   };
+
+  const [targetDataSource, setTargetDataSource] = useState<string>("");
 
   const rowSelection = {
     selectedRows,
@@ -175,6 +173,10 @@ function TargetsHome() {
     const targetConfig = await dispatch(
       getTargetConfig({ form_uid: form_uid })
     );
+    if (targetConfig.payload.success) {
+      setTargetDataSource(targetConfig.payload.data.data.target_source);
+    }
+
     if (targetRes.payload.status == 200) {
       message.success("Targets loaded successfully.");
       //create rowbox data
@@ -370,6 +372,32 @@ function TargetsHome() {
               color: "#2F54EB",
             }}
           >
+            <Button
+              type="primary"
+              icon={<ProductOutlined />}
+              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              onClick={() =>
+                navigate(
+                  `/survey-information/targets/config/${survey_uid}/${form_uid}`
+                )
+              }
+            >
+              Change Target Configuration
+            </Button>
+            {targetDataSource === "scto" && (
+              <Button
+                type="primary"
+                icon={<ReconciliationOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                onClick={() =>
+                  navigate(
+                    `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+                  )
+                }
+              >
+                Edit SCTO Column Mapping
+              </Button>
+            )}
             {editMode ? (
               <>
                 <Button

@@ -206,6 +206,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         file: csvBase64Data,
         mode: "merge",
         load_from_scto: false,
+        load_successful: false,
       };
 
       if (form_uid !== undefined) {

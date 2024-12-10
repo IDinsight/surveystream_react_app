@@ -193,6 +193,7 @@ function TargetsMap() {
         file: csvBase64Data,
         mode: "overwrite",
         load_from_scto: false,
+        load_successful: false,
       };
 
       if (form_uid !== undefined) {

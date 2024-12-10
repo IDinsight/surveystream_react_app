@@ -1,26 +1,26 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Col, Row, Select, Form, message, Tag } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import { Title, HeaderContainer } from "../../../../shared/Nav.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
+
 import SideMenu from "../../SideMenu";
 import { TargetMapping } from "../../../../redux/targets/types";
 import RowCountBox from "../../../../components/RowCountBox";
-
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+import Container from "../../../../components/Layout/Container";
 import {
   DescriptionContainer,
   DescriptionText,
-  ErrorTable,
   HeadingText,
   WarningTable,
   TargetsSctoMapFormWrapper,
   SCTOQuestionsButton,
 } from "./TargetsSctoMap.styled";
-import { CloudDownloadOutlined, CloudUploadOutlined } from "@ant-design/icons";
+import {
+  CloudDownloadOutlined,
+  ProductOutlined,
+  ReconciliationOutlined,
+} from "@ant-design/icons";
 import { CSVLink } from "react-csv";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -40,7 +40,6 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 import { useState, useEffect } from "react";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
 import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
 interface CSVError {
   type: string;
@@ -82,10 +81,15 @@ function TargetsSctoMap() {
     (state: RootState) => state.surveyConfig.loading
   );
 
+  const uploadMode = useAppSelector(
+    (state: RootState) => state.targets.uploadMode as "overwrite" | "merge"
+  );
+
   const locLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const [targetLoading, setTargetLoading] = useState<boolean>(false);
   const [csvHeaders, setCSVHeaders] = useState<any>([]);
 
   const moduleQuestionnaire = useAppSelector(
@@ -93,23 +97,6 @@ function TargetsSctoMap() {
   );
 
   const [csvHeaderOptions, setCSVHeadersOptions] = useState<any>([]);
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with error",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const warningTableColumn = [
     {
@@ -129,8 +116,8 @@ function TargetsSctoMap() {
     },
   ];
 
-  const moveToMapping = () => {
-    navigate(`/survey-information/targets/scto_map/${survey_uid}/${form_uid}`);
+  const moveToModulePage = () => {
+    navigate(`/survey-configuration/${survey_uid}`);
   };
 
   const handleTargetColumnConfig = async (
@@ -200,11 +187,13 @@ function TargetsSctoMap() {
         filters: inputFilterList,
       })
     );
-    console.log("update_response", update_response);
+
     if (update_response?.payload?.data?.success === true) {
       message.success("Column configuration updated successfully");
+      return true;
     } else {
       message.error("Error updating scto column configuration");
+      return false;
     }
   };
 
@@ -246,17 +235,46 @@ function TargetsSctoMap() {
     setLoading(false);
   };
 
-  const handleSCTOMappingSubmit = async () => {
-    await targetMappingForm.validateFields();
-    const column_mapping = targetMappingForm.getFieldsValue();
+  const handlePreviewData = async () => {
     setLoading(true);
-    handleTargetColumnConfig(form_uid, column_mapping);
-    handleTargetsUploadMapping(column_mapping);
+    try {
+      await targetMappingForm.validateFields();
+      const column_mapping = targetMappingForm.getFieldsValue();
+      setTargetLoading(true);
+      const config_success = await handleTargetColumnConfig(
+        form_uid,
+        column_mapping
+      );
+      handleTargetsUploadMapping(column_mapping);
+    } catch (error) {
+      message.error("Validation failed. Please check the form fields.");
+      return;
+    }
+    setTargetLoading(false);
+    setLoading(false);
+  };
+
+  const handleSaveConfig = async () => {
+    setLoading(true);
+    try {
+      await targetMappingForm.validateFields();
+      const column_mapping = targetMappingForm.getFieldsValue();
+      const config_success = await handleTargetColumnConfig(
+        form_uid,
+        column_mapping
+      );
+      setLoading(false);
+      if (config_success) {
+        moveToModulePage();
+      }
+    } catch (error) {
+      message.error("Validation failed. Please check the form fields.");
+      return;
+    }
     setLoading(false);
   };
 
   const handleTargetsUploadMapping = async (column_mapping: any) => {
-    setLoading(true);
     try {
       //start with an empty error count
       setErrorCount(0);
@@ -278,8 +296,9 @@ function TargetsSctoMap() {
       const requestData: TargetMapping = {
         column_mapping: column_mapping,
         file: "   ",
-        mode: "overwrite",
+        mode: uploadMode,
         load_from_scto: true,
+        load_successful: true,
       };
 
       if (form_uid !== undefined) {
@@ -382,7 +401,6 @@ function TargetsSctoMap() {
         }
       }
     }
-    setLoading(false);
   };
 
   const findLowestGeoLevel = (locationData: any) => {
@@ -563,9 +581,9 @@ function TargetsSctoMap() {
           ...locationDetailsField.map((item: { key: any }) => item.key),
         ];
 
-        const extraHeaders = csvHeaders.filter(
-          (item: string) => !keysToExclude.includes(item)
-        );
+        const extraHeaders = csvHeaders?.length
+          ? csvHeaders.filter((item: string) => !keysToExclude.includes(item))
+          : [];
 
         setExtraCSVHeader(extraHeaders);
 
@@ -580,30 +598,53 @@ function TargetsSctoMap() {
   return (
     <>
       <GlobalStyle />
-
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
-
-        <Title> {activeSurvey?.survey_name} </Title>
-        {!(isLoading || quesLoading || locLoading) ? (
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Targets: SCTO Mapping</Title>
+        {!(isLoading || quesLoading || locLoading || targetLoading) ? (
           <div
             style={{
               display: "flex",
+              alignItems: "center",
               marginLeft: "auto",
-              marginBottom: "15px",
+              color: "#2F54EB",
             }}
           >
-            <SCTOQuestionsButton
-              type="dashed"
-              onClick={() => loadFormQuestions()}
-              disabled={form_uid == undefined}
+            <Button
+              type="primary"
+              icon={<ProductOutlined />}
+              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              onClick={() =>
+                navigate(
+                  `/survey-information/targets/config/${survey_uid}/${form_uid}`
+                )
+              }
             >
-              Load questions from SCTO form
-            </SCTOQuestionsButton>
+              Change Target Configuration
+            </Button>
+            {!hasError && !hasWarning ? (
+              <SCTOQuestionsButton
+                onClick={() => loadFormQuestions()}
+                disabled={form_uid == undefined}
+              >
+                Load questions from SCTO form
+              </SCTOQuestionsButton>
+            ) : (
+              <Button
+                type="primary"
+                icon={<ReconciliationOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                onClick={() => window.location.reload()}
+              >
+                Edit SCTO Column Mapping
+              </Button>
+            )}
           </div>
         ) : null}
-      </NavWrapper>
-      {isLoading || quesLoading || locLoading ? (
+      </HeaderContainer>
+      {targetLoading ? (
+        <FullScreenLoader loadScreenText="Kindly wait while we fetch targets from surveycto" />
+      ) : isLoading || quesLoading || locLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -791,6 +832,25 @@ function TargetsSctoMap() {
                     />
                   </div>
                 </Form>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: 32,
+                  }}
+                >
+                  <CustomBtn onClick={handleSaveConfig} loading={isLoading}>
+                    Save Config
+                  </CustomBtn>
+                  <CustomBtn
+                    onClick={handlePreviewData}
+                    loading={isLoading}
+                    style={{ marginRight: "10%" }}
+                  >
+                    Preview Data
+                  </CustomBtn>
+                </div>
               </>
             ) : (
               <>
@@ -823,10 +883,10 @@ function TargetsSctoMap() {
                       </li>
                       <li>
                         <span style={{ fontWeight: 700 }}>
-                          Correct and upload
+                          Correct and Re-Submit
                         </span>
-                        : Once you are done with corrections, upload the csv
-                        again.
+                        : Once you are done with changes on SCTO Data, resubmit
+                        the configuration
                       </li>
                       <li>
                         <span style={{ fontWeight: 700 }}>Manage</span>: The
@@ -836,31 +896,8 @@ function TargetsSctoMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {hasError ? (
+                {hasError || hasWarning ? (
                   <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Errors table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <ErrorTable
-                          dataSource={errorList}
-                          columns={errorTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
-                {hasWarning ? (
-                  <div>
                     <p
                       style={{
                         fontFamily: "Lato",
@@ -874,7 +911,7 @@ function TargetsSctoMap() {
                     <Row>
                       <Col span={23}>
                         <WarningTable
-                          dataSource={warningList}
+                          dataSource={[...errorList, ...warningList]}
                           columns={warningTableColumn}
                           pagination={false}
                         />
@@ -895,30 +932,12 @@ function TargetsSctoMap() {
                       Download errors and warnings
                     </Button>
                   </CSVLink>
-                  <Button
-                    onClick={moveToMapping}
-                    type="primary"
-                    icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
-                  >
-                    Upload corrected CSV
-                  </Button>
                 </div>
               </>
             )}
           </TargetsSctoMapFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton
-          onClick={() => {
-            handleSCTOMappingSubmit();
-          }}
-        >
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

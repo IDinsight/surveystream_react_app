@@ -97,7 +97,6 @@ export const WarningTable = styled(Table)`
 `;
 
 export const SCTOQuestionsButton = styled(Button)`
-  margin-top: 20px;
   background-color: #2f54eb;
   color: #fff;
   font-family: "Lato", sans-serif;

@@ -22,6 +22,7 @@ interface TargetsState {
   mappingErrorCount: number;
   targetDetails: any;
   targetConfig: any;
+  uploadMode: string;
 }
 
 const initialState: TargetsState = {
@@ -39,6 +40,7 @@ const initialState: TargetsState = {
   mappingErrorList: null,
   mappingErrorCount: 0,
   targetConfig: [],
+  uploadMode: "merge",
 };
 
 const targetsSlice = createSlice({
@@ -86,7 +88,9 @@ const targetsSlice = createSlice({
     setMappingErrorCount: (state, action: PayloadAction<any>) => {
       state.mappingErrorCount = action.payload;
     },
-
+    setuploadMode: (state, action: PayloadAction<any>) => {
+      state.uploadMode = action.payload;
+    },
     getTargetsRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -283,6 +287,7 @@ export const {
   updateTargetSCTOColumnsRequest,
   updateTargetSCTOColumnsSuccess,
   updateTargetSCTOColumnsFailure,
+  setuploadMode,
 } = targetsSlice.actions;
 
 export default targetsSlice.reducer;

@@ -3,8 +3,6 @@ import {
   ApartmentOutlined,
   NumberOutlined,
   PlusSquareOutlined,
-  ProductOutlined,
-  ReconciliationOutlined,
   PushpinOutlined,
   MobileOutlined,
   ShareAltOutlined,
@@ -305,40 +303,6 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "surveyTargets",
-      children: [
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/targets/config/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/targets/config/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <ReconciliationOutlined />
-              </IconWrapper>
-              Target Configuration
-            </MenuItem>
-          ),
-          key: "targetsConfig",
-        },
-        {
-          label: (
-            <MenuItem
-              className={isActive(
-                `/survey-information/targets/scto_map/${survey_uid}/${formUID}`
-              )}
-              to={`/survey-information/targets/scto_map/${survey_uid}/${formUID}`}
-            >
-              <IconWrapper>
-                <ProductOutlined />
-              </IconWrapper>
-              Target Mapping
-            </MenuItem>
-          ),
-          key: "targetsColumnMapping",
-        },
-      ],
     },
     {
       label: (
