@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { uploadCSVAssignments } from "../../../../redux/assignments/assignmentsActions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { GlobalStyle, CustomBtn } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import FileUpload from "./FileUpload";
@@ -20,8 +20,10 @@ import { Alert, Button, Col, message, Row } from "antd";
 import EmailSchedule from "./EmailSchedule";
 import { CSVLink } from "react-csv";
 import { ProfileOutlined } from "@ant-design/icons";
+import { WarningOutlined, CloseOutlined } from "@ant-design/icons";
 
 interface CSVError {
+  error_or_warning: string;
   type: string;
   count: number;
   message: string[];
@@ -78,10 +80,14 @@ function UploadAssignments() {
     setBase64Data(base64Data);
   };
 
-  const handleUploadBtnClick = () => {
+  const handleUploadBtnClick = (validate_mapping: boolean) => {
     if (form_uid && base64Data) {
       dispatch(
-        uploadCSVAssignments({ formUID: form_uid, fileData: base64Data })
+        uploadCSVAssignments({
+          formUID: form_uid,
+          fileData: base64Data,
+          validate_mapping: validate_mapping,
+        })
       ).then((response) => {
         if (response.payload.success) {
           message.success("Assignments uploaded successfully.");
@@ -115,6 +121,9 @@ function UploadAssignments() {
                   const summaryError: any = errorObj[i];
 
                   transformedErrors.push({
+                    error_or_warning: summaryError["can_be_ignored"]
+                      ? "warning"
+                      : "error",
                     type: summaryError["error_type"]
                       ? summaryError["error_type"]
                       : errorKey,
@@ -128,6 +137,9 @@ function UploadAssignments() {
                 }
               } else {
                 transformedErrors.push({
+                  error_or_warning: errorObj["can_be_ignored"]
+                    ? "warning"
+                    : "error",
                   type: errorObj["error_type"]
                     ? errorObj["error_type"]
                     : errorKey,
@@ -149,7 +161,34 @@ function UploadAssignments() {
 
   const errorTableColumn = [
     {
-      title: "Error type",
+      title: "Error/ Warning",
+      dataIndex: "error_or_warning",
+      key: "error_or_warning",
+      render: (error_or_warning: string) =>
+        error_or_warning === "warning" ? (
+          <div>
+            <WarningOutlined
+              style={{
+                color: "#FAAD14",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ marginLeft: "10px" }}>Warning</span>
+          </div>
+        ) : (
+          <div>
+            <CloseOutlined
+              style={{
+                color: "#F5222D",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ marginLeft: "10px" }}>Error</span>
+          </div>
+        ),
+    },
+    {
+      title: "Type",
       dataIndex: "type",
       key: "type",
     },
@@ -159,7 +198,7 @@ function UploadAssignments() {
       key: "count",
     },
     {
-      title: "Error message",
+      title: "Details",
       dataIndex: "message",
       key: "message",
       render: (message: any) => (
@@ -178,12 +217,12 @@ function UploadAssignments() {
     if (errorList.length > 0) {
       const errors = errorList.map((error) => {
         return {
+          error_or_warning: error.error_or_warning,
           type: error.type,
           count: error.count,
           rows: error.message,
         };
       });
-      console.log(errors);
       setCsvErrorData(errors);
     }
   }, [errorList]);
@@ -198,7 +237,7 @@ function UploadAssignments() {
           <FullScreenLoader />
         ) : (
           <>
-            <Container />
+            <Container surveyPage={true} />
             <HeaderContainer>
               <Title>Upload assignments</Title>
             </HeaderContainer>
@@ -307,16 +346,19 @@ function UploadAssignments() {
                           {rowsCount} assignments found in CSV. Are you sure to
                           upload them?
                         </DescriptionContainer>
-                        <Button type="primary" onClick={handleUploadBtnClick}>
-                          Upload assignments
-                        </Button>
                         <Button
                           type="default"
-                          onClick={() => navigate(0)}
-                          style={{ marginLeft: 24 }}
+                          style={{ marginTop: 20 }}
+                          onClick={() => navigate(-1)}
                         >
                           Cancel
                         </Button>
+                        <CustomBtn
+                          style={{ marginLeft: 20, marginTop: 20 }}
+                          onClick={() => handleUploadBtnClick(true)}
+                        >
+                          Upload assignments
+                        </CustomBtn>
                       </>
                     ) : (
                       <div style={{ marginTop: "32px" }}>
@@ -328,7 +370,7 @@ function UploadAssignments() {
                             lineHeight: "22px",
                           }}
                         >
-                          Errors table
+                          Errors and warnings table
                         </p>
                         <Row>
                           <Col span={23}>
@@ -347,8 +389,27 @@ function UploadAssignments() {
                             Download errors and warnings
                           </CSVLink>
                         </Button>
+                        {
+                          // Add a Continue button if there are no errors only warnings
+                          errorList.every(
+                            (error) => error.error_or_warning === "warning"
+                          ) && (
+                            <Button
+                              style={{
+                                marginRight: 16,
+                              }}
+                              onClick={() => handleUploadBtnClick(false)}
+                            >
+                              Continue upload
+                            </Button>
+                          )
+                        }
                         <Button
-                          style={{ backgroundColor: "#597EF7", color: "white" }}
+                          style={{
+                            backgroundColor: "#597EF7",
+                            color: "white",
+                            marginRight: 16,
+                          }}
                           onClick={() => navigate(0)}
                         >
                           Upload corrected CSV

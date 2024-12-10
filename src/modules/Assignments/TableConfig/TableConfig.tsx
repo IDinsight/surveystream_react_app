@@ -6,6 +6,7 @@ import Container from "../../../components/Layout/Container";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import NotFound from "../../../components/NotFound";
+import { properCase } from "../../../utils/helper";
 import {
   Alert,
   Button,
@@ -48,6 +49,7 @@ import {
 } from "./TableConfig.styled";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { fetchAvailableColumn } from "../../../redux/tableConfig/apiService";
+import { Breadcrumb } from "antd";
 
 function TableConfig() {
   const navigate = useNavigate();
@@ -575,9 +577,27 @@ function TableConfig() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container surveyPage={tableKey ? false : true} />
+          <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Assignments Column Configuration</Title>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: "Assignments Column Configuration",
+                  href: tableKey
+                    ? `/module-configuration/table-config/${survey_uid}/${form_uid}`
+                    : undefined,
+                },
+                ...(tableKey
+                  ? [
+                      {
+                        title: properCase(tableKey.replace("_", " ")),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
             <div style={{ marginLeft: "auto" }}>
               {table && previewTable === true ? (
                 <>

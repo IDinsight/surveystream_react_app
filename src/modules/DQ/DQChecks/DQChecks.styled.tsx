@@ -1,5 +1,13 @@
-import { Button, Table } from "antd";
+import { Button, Switch, Table } from "antd";
 import styled from "styled-components";
+
+export const DQFormWrapper = styled.div`
+  flex: 1;
+  background-color: #f5f5f5;
+  padding-left: 80px;
+  padding-top: 23px;
+  font-family: "Lato", sans-serif;
+`;
 
 export const BodyContainer = styled.div`
   padding: 48px;
@@ -32,17 +40,47 @@ export const ResetButton = styled(Button)`
   }
 `;
 
-export const MappingTable = styled(Table)`
-  overflow: auto;
+export const DQChecksTable = styled(Table)`
+  & th {
+    color: #434343 !important;
+    background-color: #d6e4ff !important;
+    font-family: "Lato", sans-serif;
+  }
+
+  width: 70% !important;
+`;
+
+export const CustomLinkBtn = styled(Button)`
+  color: #2f54eb;
+
+  &:hover {
+    color: #597ef7 !important;
+  }
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+`;
+
+export const ChecksTable = styled(Table)`
   margin-top: 15px;
   margin-bottom: 68px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
+    height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
   }
   & td {
+    font-family: "Lato", sans-serif;
+  }
+`;
+
+export const ChecksSwitch = styled(Switch)`
+  &&.ant-switch-checked {
+    background-color: #237804 !important;
   }
 `;

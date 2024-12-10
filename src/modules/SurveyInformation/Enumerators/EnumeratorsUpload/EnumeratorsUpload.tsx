@@ -287,12 +287,6 @@ function EnumeratorsUpload() {
           </EnumeratorsUploadFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton disabled={!fileUploaded} onClick={moveToMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

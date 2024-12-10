@@ -9,3 +9,12 @@ export const DeleteBtn = styled(Button)`
     color: red !important;
   }
 `;
+
+export const OutputsBtn = styled(Button)`
+  margin-top: 24px;
+  margin-left: 12px;
+  &:hover {
+    background-color: white !important;
+    color: green !important;
+  }
+`;

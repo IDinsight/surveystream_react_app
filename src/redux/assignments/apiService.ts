@@ -144,7 +144,11 @@ export const makeAssignments = async (
   }
 };
 
-export const uploadAssignments = async (formUID: string, fileData: any) => {
+export const uploadAssignments = async (
+  formUID: string,
+  fileData: any,
+  validate_mapping: boolean
+) => {
   try {
     await getCSRFToken();
     const csrfToken = getCookie("CSRF-TOKEN");
@@ -159,6 +163,7 @@ export const uploadAssignments = async (formUID: string, fileData: any) => {
         },
         file: fileData,
         mode: "merge",
+        validate_mapping: validate_mapping,
       },
       {
         headers: {

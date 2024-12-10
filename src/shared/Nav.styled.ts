@@ -43,7 +43,9 @@ export const MainWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
+  padding-bottom: 20px;
   font-family: "Lato", sans-serif;
+  min-height: calc(100vh - 114px);
 `;
 export const SearchBox = styled(Input.Search)`
   & button {

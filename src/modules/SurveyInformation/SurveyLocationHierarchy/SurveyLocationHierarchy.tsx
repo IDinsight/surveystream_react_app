@@ -1,19 +1,8 @@
 import { Form, Radio, Select, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
-import {
-  NavWrapper,
-  BackLink,
-  BackArrow,
-  Title,
-  HeaderContainer,
-} from "../../../shared/Nav.styled";
+import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
   DescriptionText,
@@ -36,6 +25,7 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -80,10 +70,6 @@ function SurveyLocationHierarchy() {
     if (surveyBasicInformationRes?.payload) {
       setSurveyBasicInformation(surveyBasicInformationRes.payload);
       if (surveyBasicInformationRes.payload?.prime_geo_level_uid !== null) {
-        console.log(
-          "surveyBasicInformationRes.payload?.prime_geo_level_uid",
-          surveyBasicInformationRes.payload?.prime_geo_level_uid
-        );
         setSurveyPrimeGeoLocation(
           surveyBasicInformationRes.payload?.prime_geo_level_uid
         );
@@ -110,8 +96,6 @@ function SurveyLocationHierarchy() {
       })
     );
 
-    console.log("updateRes", updateRes);
-
     if (updateRes?.payload?.success) {
       message.success("Updated the survey prime geo location");
     } else {
@@ -124,7 +108,7 @@ function SurveyLocationHierarchy() {
 
     const fields = Array.from({ length: numGeoLevels }, (_, index) => {
       const geoLevel: {
-        parent_geo_level_uid?: string;
+        parent_geo_level_uid?: string | null;
         geo_level_name?: string;
         geo_level_uid?: string;
       } = surveyLocationGeoLevels[index];
@@ -133,8 +117,9 @@ function SurveyLocationHierarchy() {
         <StyledFormItem
           key={index}
           required
-          labelCol={{ span: 11 }}
-          wrapperCol={{ span: 11 }}
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 10 }}
+          labelAlign="left"
           name={`geo_level_${index}`}
           label={geoLevel.geo_level_name ? geoLevel?.geo_level_name : ""}
           initialValue={
@@ -250,16 +235,15 @@ function SurveyLocationHierarchy() {
           postSurveyLocationGeoLevels({
             geoLevelsData: surveyGeoLevelsData,
             surveyUid: survey_uid,
+            validateHierarchy: true,
           })
         );
-
-        console.log("geoLevelsRes", geoLevelsRes);
 
         if (geoLevelsRes.payload.status === false) {
           message.error(geoLevelsRes.payload.message);
           return;
         } else {
-          message.success("Survey GeoLevels updated successfully.");
+          message.success("Location level hierarchy updated successfully.");
           if (
             surveyPrimeGeoLocation !== null &&
             surveyPrimeGeoLocation !== "no_location"
@@ -284,9 +268,15 @@ function SurveyLocationHierarchy() {
     }
   };
 
+  const fetchGeoLevelData = async () => {
+    setLoading(true);
+    await fetchSurveyBasicInformation();
+    await fetchSurveyLocationGeoLevels();
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchSurveyBasicInformation();
-    fetchSurveyLocationGeoLevels();
+    fetchGeoLevelData();
     return () => {
       dispatch(resetSurveyLocations());
     };
@@ -296,7 +286,7 @@ function SurveyLocationHierarchy() {
     <>
       <GlobalStyle />
 
-      <Container />
+      <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Survey locations hierarchy</Title>
 
@@ -304,7 +294,7 @@ function SurveyLocationHierarchy() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || loading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -319,32 +309,35 @@ function SurveyLocationHierarchy() {
               </DynamicItemsForm>
             </div>
             <div style={{ marginTop: "20px" }}>
-              <DescriptionText>Select the prime geo location</DescriptionText>
-              <StyledFormItem name={`prime_geo_level`} style={{ width: "40%" }}>
-                <Select
-                  defaultValue={surveyPrimeGeoLocation}
-                  value={surveyPrimeGeoLocation}
-                  onChange={handlePrimeSelectChange}
+              <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
+                <DescriptionText>Select the prime geo location</DescriptionText>
+                <StyledFormItem
+                  name={`prime_geo_level`}
+                  style={{ width: "40%" }}
                 >
-                  <Select.Option value="no_location">
-                    No location mapping
-                  </Select.Option>
-                  {surveyLocationGeoLevels.map((g, i) => (
-                    <Select.Option key={i} value={g.geo_level_uid}>
-                      {g.geo_level_name}
+                  <Select onChange={handlePrimeSelectChange}>
+                    <Select.Option value="no_location">
+                      No location mapping
                     </Select.Option>
-                  ))}
-                </Select>
-              </StyledFormItem>
+                    {surveyLocationGeoLevels.map((g, i) => (
+                      <Select.Option key={i} value={g.geo_level_uid}>
+                        {g.geo_level_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </StyledFormItem>
+              </Form>
             </div>
+            <CustomBtn
+              loading={loading}
+              onClick={handleHierarchyContinue}
+              style={{ marginTop: 24 }}
+            >
+              Save
+            </CustomBtn>
           </SurveyLocationHierarchyFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

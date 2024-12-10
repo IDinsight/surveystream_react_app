@@ -14,7 +14,7 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../../../shared/FooterBar.styled";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 import {
   CustomBtn,
   SurveyRoleHierarchyDescriptionText,
@@ -256,7 +256,7 @@ function SurveyRoleHierarchy() {
       <GlobalStyle />
 
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
         <Title>
           {(() => {
             const activeSurveyData = localStorage.getItem("activeSurvey");

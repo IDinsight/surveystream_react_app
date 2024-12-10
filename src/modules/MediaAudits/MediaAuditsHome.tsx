@@ -51,11 +51,15 @@ function MediaAuditsHome() {
         <FullScreenLoader />
       ) : (
         <>
-          <Container />
+          <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Media Audits Config</Title>
           </HeaderContainer>
           <BodyContainer>
+            <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
+              Please add all the media audit configurations for this survey
+              here.
+            </p>
             {mediaAuditsConfig.map((config: any) => (
               <MediaForm
                 key={config.media_files_config_uid}

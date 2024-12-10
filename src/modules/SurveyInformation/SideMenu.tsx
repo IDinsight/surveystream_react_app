@@ -8,11 +8,20 @@ import {
   PlusSquareOutlined,
   ProfileOutlined,
   SelectOutlined,
+  PushpinOutlined,
+  MobileOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
   UploadOutlined,
   UserOutlined,
   UsergroupAddOutlined,
+  SwapOutlined,
+  DatabaseOutlined,
+  TeamOutlined,
+  ControlOutlined,
+  BuildOutlined,
+  HomeOutlined,
+  InsertRowRightOutlined,
 } from "@ant-design/icons";
 import {
   SideMenuWrapper,
@@ -36,6 +45,9 @@ function SideMenu() {
   const { form_uid } = useParams<{ form_uid?: string }>() ?? {
     form_uid: "",
   };
+  const { role_uid } = useParams<{ role_uid?: string }>() ?? {
+    role_uid: "",
+  };
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
@@ -52,24 +64,6 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to={`/survey-information/survey-cto-information/${survey_uid}`}
-          className={
-            isActive(
-              `/survey-information/survey-cto-information/${survey_uid}`
-            ) || isActive("/survey-information/")
-          }
-        >
-          <IconWrapper>
-            <UnorderedListOutlined />
-          </IconWrapper>
-          SurveyCTO information
-        </MenuItem>
-      ),
-      key: "surveyInformation",
-    },
-    {
-      label: (
-        <MenuItem
           className={`${
             isActive(`/survey-information/location/add/${survey_uid}`) ||
             isActive(`/survey-information/location/hierarchy/${survey_uid}`) ||
@@ -78,9 +72,9 @@ function SideMenu() {
           to={`/survey-information/location/add/${survey_uid}`}
         >
           <IconWrapper>
-            <CompassOutlined />
+            <PushpinOutlined />
           </IconWrapper>
-          Survey location
+          Locations
         </MenuItem>
       ),
       key: "surveyLocation",
@@ -96,7 +90,7 @@ function SideMenu() {
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Add location types
+              Add/edit location levels
             </MenuItem>
           ),
           key: "surveyLocationAdd",
@@ -112,7 +106,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Location type hierarchy
+              Location level hierarchy
             </MenuItem>
           ),
           key: "surveyLocationHierarchy",
@@ -135,7 +129,144 @@ function SideMenu() {
         },
       ],
     },
-
+    {
+      label: (
+        <MenuItem
+          className={`${
+            isActive(`/survey-information/survey-roles/roles/${survey_uid}`) ||
+            isActive(`/survey-information/survey-roles/add/${survey_uid}`) ||
+            isActive(
+              `/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-roles/hierarchy/${survey_uid}`
+            ) ||
+            isActive(`/survey-information/survey-users/users/${survey_uid}`) ||
+            isActive(`/survey-information/survey-users/add/${survey_uid}`) ||
+            isActive(`/survey-information/survey-users/edit/${survey_uid}`)
+          }`}
+          to={`/survey-information/survey-roles/roles/${survey_uid}`}
+        >
+          <IconWrapper>
+            <UserOutlined />
+          </IconWrapper>
+          User and role management
+        </MenuItem>
+      ),
+      key: "surveyRolesAndUsers",
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={`${
+                isActive(
+                  `/survey-information/survey-roles/roles/${survey_uid}`
+                ) ||
+                isActive(
+                  `/survey-information/survey-roles/add/${survey_uid}`
+                ) ||
+                isActive(
+                  `/survey-information/survey-roles/edit/${survey_uid}/${role_uid}`
+                ) ||
+                isActive(
+                  `/survey-information/survey-roles/duplicate/${survey_uid}/${role_uid}`
+                ) ||
+                isActive(
+                  `/survey-information/survey-roles/hierarchy/${survey_uid}`
+                )
+              }`}
+              to={`/survey-information/survey-roles/roles/${survey_uid}`}
+            >
+              <IconWrapper>
+                <ApartmentOutlined />
+              </IconWrapper>
+              Roles
+            </MenuItem>
+          ),
+          key: "surveyRoles",
+        },
+        {
+          label: (
+            <MenuItem
+              className={`${
+                isActive(
+                  `/survey-information/survey-users/users/${survey_uid}`
+                ) ||
+                isActive(
+                  `/survey-information/survey-users/add/${survey_uid}`
+                ) ||
+                isActive(`/survey-information/survey-users/edit/${survey_uid}`)
+              }`}
+              to={`/survey-information/survey-users/users/${survey_uid}`}
+            >
+              <IconWrapper>
+                <TeamOutlined />
+              </IconWrapper>
+              Users
+            </MenuItem>
+          ),
+          key: "surveyUsers",
+        },
+      ],
+    },
+    {
+      label: (
+        <MenuItem
+          className={`${
+            isActive(
+              `/survey-information/survey-cto-information/${survey_uid}`
+            ) ||
+            isActive(
+              `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
+            )
+          }`}
+          to={`/survey-information/survey-cto-information/${survey_uid}`}
+        >
+          <IconWrapper>
+            <MobileOutlined />
+          </IconWrapper>
+          SurveyCTO information
+        </MenuItem>
+      ),
+      key: "surveyInformation",
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/survey-cto-information/${survey_uid}`
+              )}
+              to={`/survey-information/survey-cto-information/${survey_uid}`}
+            >
+              <IconWrapper>
+                <DatabaseOutlined />
+              </IconWrapper>
+              SurveyCTO main form
+            </MenuItem>
+          ),
+          key: "surveyCTOInformation",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
+              )}
+              to={`/survey-information/survey-cto-questions/${survey_uid}/${formUID}`}
+            >
+              <IconWrapper>
+                <ShareAltOutlined />
+              </IconWrapper>
+              SurveyCTO questions
+            </MenuItem>
+          ),
+          key: "surveyCTOQuestions",
+        },
+      ],
+    },
     {
       label: (
         <MenuItem
@@ -151,7 +282,7 @@ function SideMenu() {
           to={`/survey-information/enumerators/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
-            <ProfileOutlined />
+            <InsertRowRightOutlined />
           </IconWrapper>
           Enumerators
         </MenuItem>
@@ -173,7 +304,7 @@ function SideMenu() {
           to={`/survey-information/targets/${survey_uid}/${formUID}`}
         >
           <IconWrapper>
-            <NumberOutlined />
+            <HomeOutlined />
           </IconWrapper>
           Targets
         </MenuItem>
@@ -183,18 +314,71 @@ function SideMenu() {
     {
       label: (
         <MenuItem
-          to={`/survey-information/survey-cto-questions/${survey_uid}/${formUID}`}
-          className={isActive(
-            `/survey-information/survey-cto-questions/${survey_uid}/${formUID}`
-          )}
+          className={`${
+            isActive(`/survey-information/mapping/${survey_uid}`) ||
+            isActive(`/survey-information/mapping/surveyor/${survey_uid}`) ||
+            isActive(`/survey-information/mapping/target/${survey_uid}`)
+          }`}
+          to={`/survey-information/mapping/surveyor/${survey_uid}`}
         >
           <IconWrapper>
-            <ShareAltOutlined />
+            <ControlOutlined />
           </IconWrapper>
-          SurveyCTO Questions
+          Supervisor mapping
         </MenuItem>
       ),
-      key: "surveyCTOQuestions",
+      key: "supervisorMapping",
+      children: [
+        {
+          label: (
+            <MenuItem
+              className={`${
+                isActive(`/survey-information/mapping/${survey_uid}`) ||
+                isActive(`/survey-information/mapping/surveyor/${survey_uid}`)
+              }`}
+              to={`/survey-information/mapping/surveyor/${survey_uid}`}
+            >
+              <IconWrapper>
+                <UsergroupAddOutlined />
+              </IconWrapper>
+              Surveyors &lt;&gt; Supervisors
+            </MenuItem>
+          ),
+          key: "surveyorSupervisor",
+        },
+        {
+          label: (
+            <MenuItem
+              className={isActive(
+                `/survey-information/mapping/target/${survey_uid}`
+              )}
+              to={`/survey-information/mapping/target/${survey_uid}`}
+            >
+              <IconWrapper>
+                <NumberOutlined />
+              </IconWrapper>
+              Targets &lt;&gt; Supervisors
+            </MenuItem>
+          ),
+          key: "targetSupervisor",
+        },
+      ],
+    },
+    {
+      label: (
+        <MenuItem
+          className={isActive(
+            `/survey-information/survey/status-mapping/${survey_uid}`
+          )}
+          to={`/survey-information/survey/status-mapping/${survey_uid}`}
+        >
+          <IconWrapper>
+            <BuildOutlined />
+          </IconWrapper>
+          Target status mapping
+        </MenuItem>
+      ),
+      key: "targetStatusMapping",
     },
   ];
   const [current, setCurrent] = useState("mail");
@@ -209,7 +393,12 @@ function SideMenu() {
     if (path.includes("location/")) return "surveyLocation";
     if (path.includes("enumerators/")) return "surveyEnumerators";
     if (path.includes("targets/")) return "surveyTargets";
-
+    if (path.includes("survey-cto-information")) return "surveyInformation";
+    if (path.includes("survey-cto-questions")) return "surveyInformation";
+    if (path.includes("survey/status-mapping")) return "targetStatusMapping";
+    if (path.includes("survey-roles/")) return "surveyRolesAndUsers";
+    if (path.includes("survey-users/")) return "surveyRolesAndUsers";
+    if (path.includes("mapping/")) return "supervisorMapping";
     return "";
   };
 
@@ -225,6 +414,8 @@ function SideMenu() {
       } catch (error) {
         console.log("Error fetching sctoForm:", error);
       }
+    } else {
+      setFormUID(form_uid);
     }
   };
 

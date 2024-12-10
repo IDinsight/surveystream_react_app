@@ -3,17 +3,25 @@ import {
   CalendarOutlined,
   MailOutlined,
   SendOutlined,
+  RightOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
-import { Menu, MenuProps } from "antd";
+import { Menu, MenuProps, Layout, Button } from "antd";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  IconWrapper,
-  MenuItem,
-  SideMenuWrapper,
-} from "../../shared/SideMenu.styled";
+import { StyledSlider } from "./Emails.styled";
 
+const { Sider } = Layout;
 function SideMenu() {
   const location = useLocation();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [collapsed, setCollapsed] = useState(
+    searchParams.get("collapsed") === "true"
+  );
+  useEffect(() => {
+    setSearchParams({ collapsed: collapsed + "" });
+  }, [collapsed]);
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -26,87 +34,97 @@ function SideMenu() {
 
   const items: MenuProps["items"] = [
     {
+      icon: <CalendarOutlined />,
       label: (
-        <MenuItem
-          className={
+        <Link
+          className={`${isActive(
             isActive(`/module-configuration/emails/${survey_uid}/schedules`) ||
-            isActive(`/module-configuration/emails/${survey_uid}`)
-          }
-          to={`/module-configuration/emails/${survey_uid}/schedules`}
+              isActive(`/module-configuration/emails/${survey_uid}`)
+          )}`}
+          to={`/module-configuration/emails/${survey_uid}/schedules?collapsed=${collapsed}`}
         >
-          <IconWrapper>
-            <CalendarOutlined />
-          </IconWrapper>
           Email Schedules
-        </MenuItem>
+        </Link>
       ),
       key: "emailSchedules",
     },
     {
+      icon: <SendOutlined />,
       label: (
-        <MenuItem
+        <Link
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/manual`
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/manual`}
+          to={`/module-configuration/emails/${survey_uid}/manual?collapsed=${collapsed}`}
         >
-          <IconWrapper>
-            <SendOutlined />
-          </IconWrapper>
           Manual Triggers
-        </MenuItem>
+        </Link>
       ),
       key: "manualTriggers",
     },
     {
+      icon: <MailOutlined />,
       label: (
-        <MenuItem
+        <Link
           className={`${isActive(
             `/module-configuration/emails/${survey_uid}/templates`
           )}`}
-          to={`/module-configuration/emails/${survey_uid}/templates`}
+          to={`/module-configuration/emails/${survey_uid}/templates?collapsed=${collapsed}`}
         >
-          <IconWrapper>
-            <MailOutlined />
-          </IconWrapper>
           Email Templates
-        </MenuItem>
+        </Link>
       ),
       key: "emailTemplates",
     },
   ];
-  const [current, setCurrent] = useState("mail");
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [currentKey, setCurrentKey] = useState("emailSchedules");
 
   const onClick: MenuProps["onClick"] = (e) => {
-    setCurrent(e.key);
+    setCurrentKey(e.key);
   };
 
-  const getPossibleKey = () => {
+  const getCurrentKey = () => {
     const path = location.pathname;
     if (path.includes("/manual")) return "manualTriggers";
     if (path.includes("/schedules")) return "emailSchedules";
     if (path.includes("/templates")) return "emailTemplates";
 
-    return "schedules";
+    return "emailSchedules";
   };
 
   useEffect(() => {
-    const key: string = getPossibleKey();
-    setOpenKeys([key]);
-  }, [setOpenKeys]);
+    const key = getCurrentKey();
+    setCurrentKey(key);
+  }, []);
+
+  const toggle = () => {
+    setCollapsed(!collapsed);
+  };
 
   return (
-    <SideMenuWrapper>
+    <StyledSlider
+      collapsible
+      collapsed={collapsed}
+      onCollapse={(value) => setCollapsed(value)}
+      theme="light"
+      trigger={null}
+    >
+      <div className="my-sider-button-container">
+        <Button
+          type="text"
+          color="primary"
+          onClick={toggle}
+          shape="circle"
+          icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
+        />
+      </div>
       <Menu
         onClick={onClick}
-        selectedKeys={[current]}
-        openKeys={openKeys}
-        onOpenChange={(key) => setOpenKeys(key)}
+        selectedKeys={[currentKey]}
         mode="inline"
         items={items}
       />
-    </SideMenuWrapper>
+    </StyledSlider>
   );
 }
 

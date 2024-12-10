@@ -396,6 +396,31 @@ function Assignments() {
     },
   ];
 
+  const formatDate = (date: any, tz_name: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "short",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZone: "UTC", // UTC is used to get the correct date and time
+    };
+
+    // find timezone abbreviation to append to the date
+    const timeZone = Intl.DateTimeFormat(undefined, {
+      timeZone: tz_name,
+      timeZoneName: "shortGeneric",
+    }).formatToParts();
+
+    return (
+      new Date(date).toLocaleDateString("en-US", options) +
+      " " +
+      timeZone[6].value
+    );
+  };
+
   // Checking if the data is loading
   const isLoading: boolean = tableConfigLoading || assignmentsLoading;
 
@@ -473,26 +498,14 @@ function Assignments() {
                         style={{
                           display: "flex",
                           color: "#595959",
-                          marginRight: 16,
                         }}
                       >
                         <p>
-                          Last updated: {form?.last_ingested_at ?? "Unknown"}
+                          Last updated on:{" "}
+                          {form?.last_ingested_at && form?.tz_name
+                            ? formatDate(form.last_ingested_at, form.tz_name)
+                            : "NA"}
                         </p>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "#2F54EB",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => window.open("#")}
-                      >
-                        <p>Assigning criteria</p>
-                        <ArrowUpOutlined
-                          style={{ fontSize: 16, transform: "rotate(45deg)" }}
-                        />
                       </div>
                     </div>
                   }

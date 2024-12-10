@@ -14,6 +14,7 @@ import {
   FooterWrapper,
   SaveButton,
 } from "../../../../shared/FooterBar.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
 import {
   DescriptionContainer,
   DescriptionText,
@@ -682,6 +683,21 @@ function EnumeratorsMap() {
                     )}
                   </div>
                 </Form>
+                <Button
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/enumerators/${survey_uid}/${form_uid}`
+                    )
+                  }
+                >
+                  Cancel
+                </Button>
+                <CustomBtn
+                  onClick={handleEnumeratorUploadMapping}
+                  style={{ marginTop: 20, marginLeft: 20 }}
+                >
+                  Continue
+                </CustomBtn>
               </>
             ) : (
               <>
@@ -753,10 +769,19 @@ function EnumeratorsMap() {
 
                 <div style={{ display: "flex" }}>
                   <Button
+                    onClick={() =>
+                      navigate(
+                        `/survey-information/enumerators/${survey_uid}/${form_uid}`
+                      )
+                    }
+                  >
+                    Cancel
+                  </Button>
+                  <Button
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ backgroundColor: "#2f54eB" }}
+                    style={{ backgroundColor: "#2f54eB", marginLeft: 20 }}
                   >
                     Upload CSV again
                   </Button>
@@ -766,12 +791,6 @@ function EnumeratorsMap() {
           </EnumeratorsMapFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton onClick={handleEnumeratorUploadMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

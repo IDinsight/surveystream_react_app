@@ -17,6 +17,7 @@ import emailsReducer from "./emails/emailsSlice";
 import targetStatusMappingReducer from "./targetStatusMapping/targetStatusMappingSlice";
 import mediaAuditsReducer from "./mediaAudits/mediaAuditsSlice";
 import dqFormsReducer from "./dqForm/dqFormSlice";
+import dqChecksReducer from "./dqChecks/dqChecksSlice";
 import tableConfigSlice from "./tableConfig/tableConfigSlice";
 import adminFormsReducer from "./adminForm/adminFormSlice";
 import mappingReducer from ".//mapping/mappingSlice";
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
   targetStatusMapping: targetStatusMappingReducer,
   mediaAudits: mediaAuditsReducer,
   dqForms: dqFormsReducer,
+  dqChecks: dqChecksReducer,
   tableConfig: tableConfigSlice,
   adminForms: adminFormsReducer,
   mapping: mappingReducer,

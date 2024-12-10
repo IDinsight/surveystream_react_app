@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useEffect, useState } from "react";
-import { message } from "antd";
+import { message, Button } from "antd";
 
 import {
   NavWrapper,
@@ -17,6 +17,7 @@ import {
   SaveButton,
   ContinueButton,
 } from "../../shared/FooterBar.styled";
+import { CustomBtn } from "../../shared/Global.styled";
 import ModuleQuestionnaire from "./ModuleQuestionnaire";
 import { useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -35,6 +36,8 @@ import {
   clearModuleQuestionnaire,
 } from "../../redux/surveyConfig/surveyConfigSlice";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
+import { performGetUserProfile } from "../../redux/auth/authActions";
+import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 
 export interface IStepIndex {
   sidebar: number;
@@ -172,7 +175,7 @@ function NewSurveyConfig() {
           if (response.payload.success) {
             message.open({
               type: "success",
-              content: "Survey module questionnaire data updated successfully.",
+              content: "Module questionnaire responses saved successfully.",
             });
             //set active survey
             dispatch(
@@ -191,7 +194,7 @@ function NewSurveyConfig() {
             );
 
             navigate(
-              `/module-selection/${
+              `/survey-configuration/${
                 survey_uid !== undefined ? survey_uid : surveyUid
               }`
             );
@@ -283,7 +286,7 @@ function NewSurveyConfig() {
       if (response.payload.success) {
         messageApi.open({
           type: "success",
-          content: "Your draft survey has been updated successfully.",
+          content: "Survey basic information saved successfully.",
         });
 
         // TODO: Check why response.payload have two different format
@@ -300,6 +303,10 @@ function NewSurveyConfig() {
 
         window.history.replaceState(null, "", newURL);
         setSurveyUid(newSurveyUid);
+
+        // After saving the basic information, we need to update user profile
+        // because it contains the list of surveys the user has created as survey admin
+        dispatch(performGetUserProfile());
 
         if (stepIndex["sidebar"] < 1) {
           setStepIndex((prev: IStepIndex) => ({
@@ -325,6 +332,24 @@ function NewSurveyConfig() {
   };
 
   useEffect(() => {
+    if (survey_uid && !activeSurvey) {
+      // fetch survey list
+      dispatch(fetchSurveys()).then((surveyList) => {
+        if (surveyList.payload?.length > 0) {
+          const surveyInfo = surveyList.payload.find(
+            (survey: any) => survey.survey_uid === parseInt(survey_uid)
+          );
+
+          // set the active survey
+          dispatch(
+            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+          );
+        }
+      });
+    }
+  }, [survey_uid]);
+
+  useEffect(() => {
     if (survey_uid === undefined) {
       dispatch(clearBasicInfo());
       dispatch(clearModuleQuestionnaire());
@@ -341,14 +366,13 @@ function NewSurveyConfig() {
           <BackArrow />
         </BackLink>
         <Title>
-          New survey config
           {(() => {
             const activeSurveyData: any = localStorage.getItem("activeSurvey");
             const surveyName =
               (activeSurvey && activeSurvey.survey_name) ||
               (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
               "";
-            return surveyName ? ` : ${surveyName}` : "";
+            return surveyName ? `${surveyName}` : "New survey configuration";
           })()}
         </Title>
       </NavWrapper>
@@ -364,26 +388,46 @@ function NewSurveyConfig() {
               stepIndex={stepIndex["mqIndex"]}
             />
           )}
+          {isLoading ? (
+            " "
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                marginBottom: "24px",
+                marginTop: "24px",
+              }}
+            >
+              <Button
+                id="new-survey-config-save-button"
+                onClick={handleBack}
+                style={{
+                  marginLeft: 50,
+                  marginRight: 24,
+                }}
+                disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
+              >
+                Back
+              </Button>
+
+              <CustomBtn
+                id="new-survey-config-continue-button"
+                onClick={handleContinue}
+                loading={isLoading}
+                disabled={
+                  stepIndex.sidebar === 0 ? basicformData === null : false
+                }
+              >
+                {stepIndex.sidebar === 0
+                  ? "Save"
+                  : stepIndex["mqIndex"] >= 2
+                  ? "Save"
+                  : "Continue"}
+              </CustomBtn>
+            </div>
+          )}
         </MainWrapper>
       </div>
-      <FooterWrapper>
-        <SaveButton
-          id="new-survey-config-save-button"
-          onClick={handleBack}
-          disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
-        >
-          Back
-        </SaveButton>
-
-        <ContinueButton
-          id="new-survey-config-continue-button"
-          onClick={handleContinue}
-          loading={isLoading}
-          disabled={stepIndex.sidebar === 0 ? basicformData === null : false}
-        >
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

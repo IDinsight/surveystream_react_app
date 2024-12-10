@@ -15,7 +15,7 @@ export const SideMenuWrapper = styled.div`
   left: 0;
   z-index: 1;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto;
   padding-top: 20px;
   display: flex;
   flex-direction: column;
