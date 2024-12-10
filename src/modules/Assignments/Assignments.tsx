@@ -51,9 +51,11 @@ function Assignments() {
   const { loading: tableConfigLoading, data: tableConfigData } = useAppSelector(
     (state: RootState) => state.assignments.tableConfig
   );
-  const { loading: assignmentsLoading, data: assignmentsData } = useAppSelector(
-    (state: RootState) => state.assignments.assignments
-  );
+  const {
+    loading: assignmentsLoading,
+    err: assignmentsErr,
+    data: assignmentsData,
+  } = useAppSelector((state: RootState) => state.assignments.assignments);
   const { data: enumeratorData, loading: enumeratorLoading } = useAppSelector(
     (state: RootState) => state.assignments.assignmentEnumerators
   );
@@ -451,6 +453,7 @@ function Assignments() {
                 value={searchValue}
                 onSearch={(val) => debounceSearch(val)}
                 onChange={(e) => debounceSearch(e.target.value)}
+                disabled={mainData?.length === 0}
               />
               <Button
                 icon={<UserAddOutlined />}
@@ -465,6 +468,7 @@ function Assignments() {
                   icon={<UploadOutlined />}
                   style={{ marginLeft: "8px" }}
                   onClick={handleUploadAssignments}
+                  disabled={mainData?.length === 0}
                 >
                   Upload assignments
                 </Button>
@@ -529,6 +533,11 @@ function Assignments() {
                     height={220}
                     width={225}
                     alt="Empty data"
+                    style={{
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                    }}
                   />
                   <p
                     style={{
@@ -536,11 +545,26 @@ function Assignments() {
                       fontFamily: "Lato",
                       fontSize: "14px",
                       lineHeight: "22px",
+                      textAlign: "center",
                     }}
                   >
-                    {tabItemIndex.charAt(0).toUpperCase() +
-                      tabItemIndex.slice(1)}{" "}
-                    have not yet been uploaded.
+                    {assignmentsErr ? (
+                      <>{assignmentsErr}</>
+                    ) : assignmentsData.length === 0 ? (
+                      <>
+                        No assignments found. This is likely because there are
+                        no targets mapped to you.
+                      </>
+                    ) : (
+                      <>
+                        {tabItemIndex.charAt(0).toUpperCase() +
+                          tabItemIndex.slice(1)}{" "}
+                        have not yet been uploaded.
+                      </>
+                    )}
+                    <br />
+                    Please contact the survey admin if you believe this is an
+                    error.
                   </p>
                 </div>
               </div>

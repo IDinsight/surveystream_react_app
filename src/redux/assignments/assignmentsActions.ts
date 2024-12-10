@@ -77,13 +77,17 @@ export const getAssignments = createAsyncThunk(
       }
 
       const error = {
-        errors: response.response.data.errors,
+        errors: response.response.data.errors?.message
+          ? response.response.data.errors?.message
+          : response.response.data.errors?.mapping_errors
+          ? response.response.data.errors?.mapping_errors
+          : "Failed to fetch assignments.",
         message: response.message
           ? response.message
           : "Failed to fetch assignments.",
         success: false,
       };
-      dispatch(assignmentsFailure(error.message));
+      dispatch(assignmentsFailure(error.errors));
       return error;
     } catch (error: any) {
       const errorMessage = error || "Failed to fetch assignments.";
