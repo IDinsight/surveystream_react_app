@@ -3,10 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
-import {
-  FooterWrapper,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
   DescriptionText,
@@ -29,7 +25,7 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
-import { set } from "lodash";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -247,7 +243,7 @@ function SurveyLocationHierarchy() {
           message.error(geoLevelsRes.payload.message);
           return;
         } else {
-          message.success("Survey GeoLevels updated successfully.");
+          message.success("Location level hierarchy updated successfully.");
           if (
             surveyPrimeGeoLocation !== null &&
             surveyPrimeGeoLocation !== "no_location"
@@ -332,14 +328,16 @@ function SurveyLocationHierarchy() {
                 </StyledFormItem>
               </Form>
             </div>
+            <CustomBtn
+              loading={loading}
+              onClick={handleHierarchyContinue}
+              style={{ marginTop: 24 }}
+            >
+              Save
+            </CustomBtn>
           </SurveyLocationHierarchyFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <ContinueButton loading={loading} onClick={handleHierarchyContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

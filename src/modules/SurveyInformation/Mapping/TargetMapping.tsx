@@ -846,7 +846,7 @@ const TargetMapping = ({
   const mappingTableData = mappingData?.map((target: any) => {
     return {
       key: target.target_uid,
-      targetID: target.target_uid,
+      targetID: target.target_id,
       targetUID: target.target_uid,
       targetLocationID: target?.location_id,
       targetLocation: target?.location_name,

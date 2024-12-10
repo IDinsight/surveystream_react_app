@@ -5,7 +5,7 @@ import styled from "styled-components";
 const LocationsTable = styled(Table)`
   margin-top: 15px;
   margin-bottom: 68px;
-  margin-right: 30px;
+  margin-right: 50px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;

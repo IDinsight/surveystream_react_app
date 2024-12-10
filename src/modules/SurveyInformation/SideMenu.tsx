@@ -85,7 +85,7 @@ function SideMenu() {
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Add/Edit Location Levels
+              Add/edit location levels
             </MenuItem>
           ),
           key: "surveyLocationAdd",
@@ -101,7 +101,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Location type hierarchy
+              Location level hierarchy
             </MenuItem>
           ),
           key: "surveyLocationHierarchy",
