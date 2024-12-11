@@ -99,7 +99,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
-    ...(dqConfig.group_by_module_name
+    ...(dqConfig?.group_by_module_name
       ? [
           {
             title: "Module name",
@@ -633,7 +633,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   questions={availableQuestions}
                 />
               </div>
-              {dqConfig.group_by_module_name ? (
+              {dqConfig?.group_by_module_name ? (
                 <div>
                   <Row>
                     <Form.Item
@@ -775,7 +775,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}
                 questions={availableQuestions}
-                showModuleName={dqConfig.group_by_module_name}
+                showModuleName={dqConfig?.group_by_module_name}
                 moduleNames={availableModuleNames}
                 data={drawerData}
                 variablesValues={[

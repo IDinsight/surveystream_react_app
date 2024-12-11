@@ -297,7 +297,7 @@ function DQFormSCTOQuestion() {
           <FullScreenLoader />
         ) : (
           <div style={{ display: "flex" }}>
-            <SideMenu></SideMenu>
+            <SideMenu />
             <DQFormWrapper>
               <DescriptionText>
                 This step has 3 pre-requisites:
@@ -332,7 +332,7 @@ function DQFormSCTOQuestion() {
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Select"
-                    value={formFields.target_id}
+                    value={formFields?.target_id}
                     disabled={!canUserWrite}
                     options={questionList}
                     onChange={(value) =>
@@ -357,7 +357,7 @@ function DQFormSCTOQuestion() {
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Select"
-                    value={formFields.enumerator_id}
+                    value={formFields?.enumerator_id}
                     disabled={!canUserWrite}
                     options={questionList}
                     onChange={(value) =>
@@ -382,7 +382,7 @@ function DQFormSCTOQuestion() {
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Select"
-                    value={formFields.dq_enumerator_id}
+                    value={formFields?.dq_enumerator_id}
                     disabled={!canUserWrite}
                     options={questionList}
                     onChange={(value) =>
@@ -421,16 +421,16 @@ function DQFormSCTOQuestion() {
                           style={{ width: "100%" }}
                           placeholder="Select"
                           value={
-                            formFields.locations &&
-                            Object.keys(formFields.locations).length > 0
-                              ? formFields.locations["location_" + (idx + 1)]
+                            formFields?.locations &&
+                            Object.keys(formFields?.locations).length > 0
+                              ? formFields?.locations["location_" + (idx + 1)]
                               : ""
                           }
                           options={questionList}
                           disabled={!canUserWrite}
                           onChange={(value) => {
                             const updatedLocations = {
-                              ...formFields.locations,
+                              ...formFields?.locations,
                               ["location_" + (idx + 1)]: value,
                             };
                             setFormFields({

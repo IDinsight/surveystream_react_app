@@ -182,7 +182,7 @@ function DQFormManage() {
             />
           </HeaderContainer>
           <div style={{ display: "flex" }}>
-            <SideMenu></SideMenu>
+            <SideMenu />
             <DQFormWrapper>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
                 Please fill out the SurveyCTO form details for a data quality

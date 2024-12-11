@@ -232,7 +232,7 @@ function DQChecksManage() {
             <Title>Data quality checks</Title>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
-            <SideMenu></SideMenu>
+            <SideMenu />
             <DQFormWrapper>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
                 Configure data quality checks for the form with form ID:{" "}

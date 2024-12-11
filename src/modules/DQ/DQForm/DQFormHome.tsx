@@ -56,7 +56,7 @@ function DQFormHome() {
             <Title>Data quality forms</Title>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
-            <SideMenu></SideMenu>
+            <SideMenu />
             <DQFormWrapper>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
                 Please add all the data quality forms related to your survey
