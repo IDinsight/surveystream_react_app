@@ -345,6 +345,8 @@ function Assignments() {
       setKeyRefs(keys);
 
       resetData();
+    } else {
+      setMainData([]);
     }
   }, [
     tableConfigData,
