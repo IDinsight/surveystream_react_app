@@ -1,10 +1,11 @@
-import { Button, Switch, Table } from "antd";
+import { Button, Checkbox, Switch, Table } from "antd";
 import styled from "styled-components";
 
 export const DQFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
-  padding-left: 80px;
+  padding-left: 50px;
+  padding-right: 50px;
   padding-top: 23px;
   font-family: "Lato", sans-serif;
 `;
@@ -47,7 +48,7 @@ export const DQChecksTable = styled(Table)`
     font-family: "Lato", sans-serif;
   }
 
-  width: 70% !important;
+  width: 80% !important;
 `;
 
 export const CustomLinkBtn = styled(Button)`
@@ -93,5 +94,21 @@ export const ChecksTable = styled(Table)`
 export const ChecksSwitch = styled(Switch)`
   &&.ant-switch-checked {
     background-color: #237804 !important;
+  }
+`;
+
+export const CheckboxDQ = styled(Checkbox)`
+  margin-inline-start: 0 !important;
+  font-family: "Lato", sans-serif;
+  color: #434343;
+
+  & .ant-checkbox-input {
+    float: left;
+    width: auto !important;
+    display: inline-block;
+  }
+
+  & span {
+    float: left;
   }
 `;

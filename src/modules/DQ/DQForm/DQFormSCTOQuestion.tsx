@@ -6,9 +6,9 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
-  BodyContainer,
   CustomBtn,
   DescriptionText,
+  DQFormWrapper,
   FormItemLabel,
 } from "./DQForm.styled";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
@@ -24,6 +24,7 @@ import {
 } from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Breadcrumb } from "antd";
+import SideMenu from "./../SideMenu";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -295,168 +296,171 @@ function DQFormSCTOQuestion() {
         {isLoading ? (
           <FullScreenLoader />
         ) : (
-          <BodyContainer>
-            <DescriptionText>
-              This step has 3 pre-requisites:
-              <ol>
-                <li>
-                  Data Manager access to the SCTO server has been provided to
-                  surveystream.devs@idinsight.org
-                </li>
-                <li>
-                  You can see surveystream.devs@idinsight.org as an active user
-                  on SCTO
-                </li>
-                <li>
-                  The form ID shared will be the form used for data collection,
-                  the form has been deployed, and the variable names will not
-                  change.
-                </li>
-              </ol>
-            </DescriptionText>
-            <p style={{ marginTop: 36 }}>Questions to be mapped</p>
-            <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-              <Col span={4}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Target ID{" "}
-                  <Tooltip title="Select the variable that is used to track the Target ID.">
-                    <QuestionCircleOutlined />
-                  </Tooltip>{" "}
-                  :
-                </FormItemLabel>
-              </Col>
-              <Col span={5}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="Select"
-                  value={formFields.target_id}
-                  disabled={!canUserWrite}
-                  options={questionList}
-                  onChange={(value) =>
-                    setFormFields({ ...formFields, target_id: value })
-                  }
-                  showSearch
-                  allowClear
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-              <Col span={4}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
-                  <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
-                    <QuestionCircleOutlined />
-                  </Tooltip>{" "}
-                  :
-                </FormItemLabel>
-              </Col>
-              <Col span={5}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="Select"
-                  value={formFields.enumerator_id}
-                  disabled={!canUserWrite}
-                  options={questionList}
-                  onChange={(value) =>
-                    setFormFields({ ...formFields, enumerator_id: value })
-                  }
-                  showSearch
-                  allowClear
-                />
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-              <Col span={4}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
-                  <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
-                    <QuestionCircleOutlined />
-                  </Tooltip>{" "}
-                  :
-                </FormItemLabel>
-              </Col>
-              <Col span={5}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="Select"
-                  value={formFields.dq_enumerator_id}
-                  disabled={!canUserWrite}
-                  options={questionList}
-                  onChange={(value) =>
-                    setFormFields({ ...formFields, dq_enumerator_id: value })
-                  }
-                  showSearch
-                  allowClear
-                />
-              </Col>
-            </Row>
-            {surveyLocationGeoLevels && surveyLocationGeoLevels.length > 0
-              ? surveyLocationGeoLevels.map((geoLevel: any, idx) => (
-                  <Row
-                    key={idx}
-                    align="middle"
-                    style={{ marginBottom: 6, marginTop: 12 }}
-                  >
-                    <Col span={4}>
-                      <FormItemLabel>
-                        <span style={{ color: "red" }}>*</span>{" "}
-                        {geoLevel.geo_level_name} ID{" "}
-                        <Tooltip
-                          title={
-                            "Select the variable that is used to track the " +
-                            geoLevel.geo_level_name +
-                            " ID."
+          <div style={{ display: "flex" }}>
+            <SideMenu />
+            <DQFormWrapper>
+              <DescriptionText>
+                This step has 3 pre-requisites:
+                <ol>
+                  <li>
+                    Data Manager access to the SCTO server has been provided to
+                    surveystream.devs@idinsight.org
+                  </li>
+                  <li>
+                    You can see surveystream.devs@idinsight.org as an active
+                    user on SCTO
+                  </li>
+                  <li>
+                    The form ID shared will be the form used for data
+                    collection, the form has been deployed, and the variable
+                    names will not change.
+                  </li>
+                </ol>
+              </DescriptionText>
+              <p style={{ marginTop: 36 }}>Questions to be mapped</p>
+              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+                <Col span={4}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Target ID{" "}
+                    <Tooltip title="Select the variable that is used to track the Target ID.">
+                      <QuestionCircleOutlined />
+                    </Tooltip>{" "}
+                    :
+                  </FormItemLabel>
+                </Col>
+                <Col span={5}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Select"
+                    value={formFields?.target_id}
+                    disabled={!canUserWrite}
+                    options={questionList}
+                    onChange={(value) =>
+                      setFormFields({ ...formFields, target_id: value })
+                    }
+                    showSearch
+                    allowClear
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+                <Col span={4}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
+                    <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
+                      <QuestionCircleOutlined />
+                    </Tooltip>{" "}
+                    :
+                  </FormItemLabel>
+                </Col>
+                <Col span={5}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Select"
+                    value={formFields?.enumerator_id}
+                    disabled={!canUserWrite}
+                    options={questionList}
+                    onChange={(value) =>
+                      setFormFields({ ...formFields, enumerator_id: value })
+                    }
+                    showSearch
+                    allowClear
+                  />
+                </Col>
+              </Row>
+              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+                <Col span={4}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
+                    <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
+                      <QuestionCircleOutlined />
+                    </Tooltip>{" "}
+                    :
+                  </FormItemLabel>
+                </Col>
+                <Col span={5}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Select"
+                    value={formFields?.dq_enumerator_id}
+                    disabled={!canUserWrite}
+                    options={questionList}
+                    onChange={(value) =>
+                      setFormFields({ ...formFields, dq_enumerator_id: value })
+                    }
+                    showSearch
+                    allowClear
+                  />
+                </Col>
+              </Row>
+              {surveyLocationGeoLevels && surveyLocationGeoLevels.length > 0
+                ? surveyLocationGeoLevels.map((geoLevel: any, idx) => (
+                    <Row
+                      key={idx}
+                      align="middle"
+                      style={{ marginBottom: 6, marginTop: 12 }}
+                    >
+                      <Col span={4}>
+                        <FormItemLabel>
+                          <span style={{ color: "red" }}>*</span>{" "}
+                          {geoLevel.geo_level_name} ID{" "}
+                          <Tooltip
+                            title={
+                              "Select the variable that is used to track the " +
+                              geoLevel.geo_level_name +
+                              " ID."
+                            }
+                          >
+                            <QuestionCircleOutlined />
+                          </Tooltip>{" "}
+                          :
+                        </FormItemLabel>
+                      </Col>
+                      <Col span={5}>
+                        <Select
+                          style={{ width: "100%" }}
+                          placeholder="Select"
+                          value={
+                            formFields?.locations &&
+                            Object.keys(formFields?.locations).length > 0
+                              ? formFields?.locations["location_" + (idx + 1)]
+                              : ""
                           }
-                        >
-                          <QuestionCircleOutlined />
-                        </Tooltip>{" "}
-                        :
-                      </FormItemLabel>
-                    </Col>
-                    <Col span={5}>
-                      <Select
-                        style={{ width: "100%" }}
-                        placeholder="Select"
-                        value={
-                          formFields.locations &&
-                          Object.keys(formFields.locations).length > 0
-                            ? formFields.locations["location_" + (idx + 1)]
-                            : ""
-                        }
-                        options={questionList}
-                        disabled={!canUserWrite}
-                        onChange={(value) => {
-                          const updatedLocations = {
-                            ...formFields.locations,
-                            ["location_" + (idx + 1)]: value,
-                          };
-                          setFormFields({
-                            ...formFields,
-                            locations: updatedLocations,
-                          });
-                        }}
-                        showSearch
-                        allowClear
-                      />
-                    </Col>
-                  </Row>
-                ))
-              : null}
-            <Button
-              onClick={() =>
-                navigate(`/module-configuration/dq-forms/${survey_uid}`)
-              }
-            >
-              Cancel
-            </Button>
-            <CustomBtn
-              style={{ marginTop: 24, marginLeft: 20 }}
-              onClick={handleFormSubmit}
-              disabled={!canUserWrite}
-            >
-              Save
-            </CustomBtn>
-          </BodyContainer>
+                          options={questionList}
+                          disabled={!canUserWrite}
+                          onChange={(value) => {
+                            const updatedLocations = {
+                              ...formFields?.locations,
+                              ["location_" + (idx + 1)]: value,
+                            };
+                            setFormFields({
+                              ...formFields,
+                              locations: updatedLocations,
+                            });
+                          }}
+                          showSearch
+                          allowClear
+                        />
+                      </Col>
+                    </Row>
+                  ))
+                : null}
+              <Button
+                onClick={() =>
+                  navigate(`/module-configuration/dq-forms/${survey_uid}`)
+                }
+              >
+                Cancel
+              </Button>
+              <CustomBtn
+                style={{ marginTop: 24, marginLeft: 20 }}
+                onClick={handleFormSubmit}
+                disabled={!canUserWrite}
+              >
+                Save
+              </CustomBtn>
+            </DQFormWrapper>
+          </div>
         )}
       </>
     </>
