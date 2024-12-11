@@ -30,6 +30,7 @@ import {
 } from "../../../redux/dqChecks/apiService";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -90,6 +91,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      render: (questionName: any, record: any) =>
+        questionName + (record.isRepeatGroup ? "_*" : ""),
     },
     {
       title: "Module name",
@@ -127,8 +130,15 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         { text: "Inactive", value: "Inactive" },
       ],
       onFilter: (value: any, record: any) => record.status.indexOf(value) === 0,
-      render: (status: any) => (
-        <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+      render: (status: any, record: any) => (
+        <>
+          <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+          {record.isDeleted && (
+            <Tooltip title="This check is inactive because one or more of the variables used in the check are no longer in the form definition.">
+              <ExclamationCircleOutlined />
+            </Tooltip>
+          )}
+        </>
       ),
     },
   ];
@@ -144,6 +154,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     value: check.check_components.value,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
+    isDeleted: check.note === "Question not found in form definition",
+    isRepeatGroup: check.is_repeat_group,
   }));
 
   const handleModeChange = (e: RadioChangeEvent) => {
@@ -184,10 +196,10 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     showAddManualDrawer();
   };
 
-  const handleMarkActive = () => {
-    const selectedChecks = selectedVariableRows.map(
-      (row: any) => row.dqCheckUID
-    );
+  const handleMarkActiveAction = () => {
+    const selectedChecks = selectedVariableRows
+      .filter((row: any) => !row.isDeleted)
+      .map((row: any) => row.dqCheckUID);
 
     const formData = {
       form_uid: formUID,
@@ -206,6 +218,27 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         message.error("Failed to activate DQ Checks");
       }
     });
+  };
+
+  const handleMarkActive = () => {
+    const isDeletedCheck = selectedVariableRows.some(
+      (row: any) => row.isDeleted
+    );
+
+    if (isDeletedCheck) {
+      Modal.confirm({
+        title: "Are you sure?",
+        content: `Your selection contains some checks that have been deleted from the form definition. This action will mark only the active checks as active. Do you want to proceed?`,
+        okText: "Yes",
+        cancelText: "No",
+        width: 600,
+        onOk: () => {
+          handleMarkActiveAction();
+        },
+      });
+    } else {
+      handleMarkActiveAction();
+    }
   };
 
   const handleMarkInactive = () => {
@@ -267,7 +300,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     if (filterData.length > 0) {
       const isFilterValid = filterData.every((filter) => {
-        return filter.question_name && filter.filter_operator;
+        return filter.filter_group.every(
+          (group: any) => group.question_name && group.filter_operator
+        );
       });
 
       if (!isFilterValid) {
@@ -476,7 +511,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   // Fetch form definition for questions
   useEffect(() => {
     if (formUID) {
-      getSurveyCTOFormDefinition(formUID, false).then((res: any) => {
+      getSurveyCTOFormDefinition(formUID, false, true).then((res: any) => {
         if (res?.data?.success) {
           const formDefinition = res.data.data;
           if (formDefinition && formDefinition.questions) {
@@ -745,6 +780,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 pagination={{ pageSize: 5 }}
                 rowSelection={rowSelection}
                 loading={dataLoading}
+                rowClassName={(record: any) =>
+                  record.isDeleted ? "greyed-out-row" : ""
+                }
               />
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}
