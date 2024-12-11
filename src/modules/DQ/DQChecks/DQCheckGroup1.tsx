@@ -91,6 +91,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      render: (questionName: any, record: any) =>
+        questionName + (record.isRepeatGroup ? "_*" : ""),
     },
     {
       title: "Module name",
@@ -132,7 +134,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         <>
           <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
           {record.isDeleted && (
-            <Tooltip title="This check has been deleted from the form definition">
+            <Tooltip title="This check is inactive because one or more of the variables used in the check are no longer in the form definition.">
               <ExclamationCircleOutlined />
             </Tooltip>
           )}
@@ -153,6 +155,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
     isDeleted: check.note === "Question not found in form definition",
+    isRepeatGroup: check.is_repeat_group,
   }));
 
   const handleModeChange = (e: RadioChangeEvent) => {
