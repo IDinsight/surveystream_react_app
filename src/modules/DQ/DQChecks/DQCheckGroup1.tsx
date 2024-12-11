@@ -30,6 +30,7 @@ import {
 } from "../../../redux/dqChecks/apiService";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -127,8 +128,15 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         { text: "Inactive", value: "Inactive" },
       ],
       onFilter: (value: any, record: any) => record.status.indexOf(value) === 0,
-      render: (status: any) => (
-        <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+      render: (status: any, record: any) => (
+        <>
+          <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+          {record.isDeleted && (
+            <Tooltip title="This check has been deleted from the form definition">
+              <ExclamationCircleOutlined />
+            </Tooltip>
+          )}
+        </>
       ),
     },
   ];
@@ -289,7 +297,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     if (filterData.length > 0) {
       const isFilterValid = filterData.every((filter) => {
-        return filter.question_name && filter.filter_operator;
+        return filter.filter_group.every(
+          (group: any) => group.question_name && group.filter_operator
+        );
       });
 
       if (!isFilterValid) {
@@ -715,16 +725,15 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   >
                     Add
                   </Button>
-                  {selectedVariableRows.length === 1 &&
-                    !selectedVariableRows[0].isDeleted && (
-                      <Button
-                        type="primary"
-                        style={{ marginLeft: 16 }}
-                        onClick={handleEditCheck}
-                      >
-                        Edit
-                      </Button>
-                    )}
+                  {selectedVariableRows.length === 1 && (
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: 16 }}
+                      onClick={handleEditCheck}
+                    >
+                      Edit
+                    </Button>
+                  )}
                   {selectedVariableRows.length > 0 && (
                     <>
                       <Button
