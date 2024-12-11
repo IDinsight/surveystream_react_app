@@ -12,9 +12,6 @@ import {
   Form,
   Alert,
   Select,
-  Row,
-  Col,
-  Input,
 } from "antd";
 import { WarningOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -72,7 +69,6 @@ function CreateAssignments() {
   const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
 
   const [pendingEmailExists, setPendingEmailExists] = useState<boolean>(false);
-  const [nextEmailDate, setNextEmailDate] = useState<string>();
   const [surveyorMapping, setSurveyorMapping] = useState<any[]>([]);
   const [targetMapping, setTargetMapping] = useState<any[]>([]);
   const [surveyorMappingLoading, setSurveyorMappingLoading] =
@@ -337,7 +333,6 @@ function CreateAssignments() {
                 (payload) => payload.enumerator_uid
               ),
             };
-            console.log(manualTriggerPayload);
 
             await dispatch(
               postAssignmentEmail({

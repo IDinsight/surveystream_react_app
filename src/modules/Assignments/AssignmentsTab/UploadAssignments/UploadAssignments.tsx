@@ -62,6 +62,7 @@ function UploadAssignments() {
     no_changes_count: null,
   });
   const [emailSchedule, setEmailSchedule] = useState<any>(null);
+
   const [enumIds, setEnumIds] = useState<string[]>([]);
 
   const handleFileUpload = (
@@ -304,7 +305,7 @@ function UploadAssignments() {
                       style={{
                         color: "#434343",
                         fontFamily: "Lato",
-                        fontSize: "16px",
+                        fontSize: "14px",
                         lineHeight: "24px",
                         marginTop: "36px",
                         marginBottom: "36px",

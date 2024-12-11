@@ -1,4 +1,12 @@
-import { Button, DatePicker, Form, message, Radio, TimePicker } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  message,
+  Radio,
+  Select,
+  TimePicker,
+} from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +14,10 @@ import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { postAssignmentEmail } from "../../../../redux/assignments/assignmentsActions";
 import { RootState } from "../../../../redux/store";
 import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions";
+import dayjs from "dayjs";
+import { CustomBtn } from "../../../../shared/Global.styled";
+
+const { Option } = Select;
 
 interface EmailScheduleProps {
   emailSchedule: any;
@@ -28,7 +40,7 @@ function EmailSchedule({
     (state: RootState) => state.enumerators
   );
 
-  const [nextEmailDate, setNextEmailDate] = useState<string>();
+  const [pendingEmailExists, setPendingEmailExists] = useState<boolean>(false);
   const [manualTriggerData, setManualTriggerData] = useState({
     date: null,
     time: null,
@@ -50,6 +62,20 @@ function EmailSchedule({
     });
   };
 
+  const validateDate = (rule: any, value: any) => {
+    if (!value) {
+      return Promise.reject("Please select a date!");
+    }
+
+    const selectedDate = dayjs(value); // Convert value to dayjs or moment object
+    const today = dayjs(); // Get today's date
+
+    if (selectedDate.isBefore(today, "day")) {
+      return Promise.reject("Date must be in the future!");
+    }
+
+    return Promise.resolve();
+  };
   // Schedule the email on submit
   const onScheduleEmail = () => {
     manualTriggerForm
@@ -58,6 +84,7 @@ function EmailSchedule({
         const manualTriggerPayload = {
           form_uid: formUID,
           status: "queued",
+          email_config_uid: formValues.email_config_uid,
           date: formValues.date.format("YYYY-MM-DD"),
           time: formValues.time.format("HH:mm"),
           recipients: enumUIds,
@@ -90,29 +117,41 @@ function EmailSchedule({
   // Get the next formatted email date
   useEffect(() => {
     if (emailSchedule) {
-      const now = new Date();
+      // Add a nicely formatted schedule_time value for each email configuration in the response
+      emailSchedule.map((email: any) => {
+        if (!email.schedule_date || !email.time) {
+          email.schedule_time = "No pending schedules";
+        } else {
+          const parsedDate = new Date(email.schedule_date);
 
-      //get time from response.data?.time and combine dates with time
-      const datesWithTime = emailSchedule?.dates?.map((date: any) => {
-        const parsedDate = new Date(date);
-        const year = parsedDate.getFullYear();
-        const month = parsedDate.getMonth() + 1;
-        const day = parsedDate.getDate();
+          const year = parsedDate.getFullYear();
+          const month = parsedDate.getMonth() + 1;
+          const day = parsedDate.getDate();
+          const [hour, minute] = email.time.split(":");
 
-        const [hour, minute] = emailSchedule.time.split(":");
+          const nextDate = new Date(year, month - 1, day, hour, minute, 0, 0);
+          const formattedDate = `${nextDate.getFullYear()}-${(
+            nextDate.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}-${nextDate
+            .getDate()
+            .toString()
+            .padStart(2, "0")}`;
 
-        return new Date(year, month - 1, day, hour, minute, 0, 0);
+          email.schedule_time = formattedDate;
+        }
       });
-
-      // Find the date element just greater than now
-      const nextDate = datesWithTime.find((date: any) => date > now);
-      const formattedDate = `${nextDate.getFullYear()}-${(
-        nextDate.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, "0")}-${nextDate.getDate().toString().padStart(2, "0")}`;
-
-      setNextEmailDate(formattedDate);
+      if (emailSchedule.length > 0) {
+        const pendingEmails = emailSchedule.find(
+          (email: any) => email.schedule_time != "No pending schedules"
+        );
+        if (pendingEmails) {
+          setPendingEmailExists(true);
+        }
+      }
+    } else {
+      setPendingEmailExists(false);
     }
   }, [emailSchedule]);
 
@@ -136,23 +175,47 @@ function EmailSchedule({
 
   return (
     <>
-      {emailSchedule ? (
+      {pendingEmailExists ? (
         <>
           <p
             style={{
               color: "#434343",
               fontFamily: "Lato",
               fontSize: "14px",
-              lineHeight: "22px",
+              lineHeight: "24px",
               marginTop: 30,
             }}
           >
-            The emails are scheduled to be sent on {nextEmailDate} at{" "}
-            {emailSchedule?.time}. Do you want to send the emails to the
-            surveyors whose assignments have been changed before that? Please
-            note that the emails will be sent only to the surveyors whose
+            The next assignment emails for this form are scheduled to be sent
+            at:
+          </p>
+          {emailSchedule.map((email: any, index: any) => (
+            <li
+              key={index}
+              style={{
+                fontFamily: "Lato",
+                fontSize: "14px",
+              }}
+            >
+              Email configuration: <b>{email.config_name}</b>, Date:{" "}
+              <b>{email.schedule_time}</b>, Time: <b>{email.time}</b>
+            </li>
+          ))}
+          <p
+            style={{
+              color: "#434343",
+              fontFamily: "Lato",
+              fontSize: "14px",
+              lineHeight: "24px",
+              marginTop: 30,
+            }}
+          >
+            Do you want to send emails to the surveyors whose assignments have
+            been changed before the given schedule? Note that the emails set up
+            using this option will be sent only to the surveyors whose
             assignments have changed. If you want to change the existing email
-            schedule, please visit the email configuration module.
+            schedule for all surveyors, kindly visit the email configuration
+            module.
           </p>
           <Radio.Group
             onChange={(e) => setEmailMode(e.target.value)}
@@ -160,40 +223,29 @@ function EmailSchedule({
             style={{ marginBottom: 20 }}
           >
             <Radio value="email_time_yes">Yes, I want to change the time</Radio>
-            {emailMode !== "email_time_yes" ? (
-              <div style={{ marginTop: 24 }}>
-                <Button
-                  type="default"
-                  onClick={() =>
-                    navigate(
-                      `/module-configuration/assignments/${surveyUID}/${formUID}`
-                    )
-                  }
-                >
-                  I do not want to change the time
-                </Button>
-              </div>
-            ) : null}
+            <Radio value="email_time_no">
+              No, I would like to retain the existing time
+            </Radio>
           </Radio.Group>
         </>
-      ) : (
+      ) : emailSchedule ? (
         <>
           <p
             style={{
               color: "#434343",
               fontFamily: "Lato",
               fontSize: "14px",
-              lineHeight: "22px",
+              lineHeight: "24px",
               marginTop: 30,
             }}
           >
-            There are no upcoming assignment email schedules for this form. Do
-            you wish to send emails to the surveyors whose assignments have been
-            changed? Please be aware that the emails will only be sent to those
-            surveyors whose assignments have changed. If you would like to setup
-            email schedules, please visit the email configuration module.
+            There are <b> no pending assignment emails </b> scheduled for this
+            form. Do you wish to send emails to the surveyors whose assignments
+            have been changed? Note that the emails scheduled using this option
+            will be sent only to the surveyors whose assignments have changed.
+            If you want to change the existing email schedule for all surveyors,
+            kindly visit the email configuration module.
           </p>
-
           <Radio.Group
             onChange={(e) => setEmailMode(e.target.value)}
             value={emailMode}
@@ -203,20 +255,23 @@ function EmailSchedule({
               Yes, I want to schedule these emails now
             </Radio>
           </Radio.Group>
-          {emailMode !== "email_time_yes" ? (
-            <div style={{ marginTop: 12 }}>
-              <Button
-                type="default"
-                onClick={() =>
-                  navigate(
-                    `/module-configuration/assignments/${surveyUID}/${formUID}`
-                  )
-                }
-              >
-                I do not want to schedule
-              </Button>
-            </div>
-          ) : null}
+        </>
+      ) : (
+        <>
+          <p
+            style={{
+              color: "#434343",
+              fontFamily: "Lato",
+              fontSize: "14px",
+              lineHeight: "24px",
+              marginTop: 30,
+            }}
+          >
+            Assignment emails for this form have not been configured yet. If you
+            would like to send emails with assignment information to the
+            surveyors, kindly visit the emails module and set up an email
+            configuration for this form.
+          </p>
         </>
       )}
 
@@ -234,21 +289,54 @@ function EmailSchedule({
             assignment information to be sent to the surveyors:
           </p>
           <div style={{ marginBottom: 30 }}>
-            <Form form={manualTriggerForm} style={{ display: "flex" }}>
+            <Form form={manualTriggerForm} layout="inline">
               <Form.Item
-                label="Date"
-                name="date"
+                label="Email configuration"
+                name="email_config_uid"
                 style={{ marginRight: 20 }}
                 rules={[
                   {
                     required: true,
-                    message: "Please select a date!",
+                    message: "Please select an email configuration!",
                   },
                 ]}
+                tooltip="This select is enabled when there are more than one email configurations using the assignments table."
+                initialValue={
+                  emailSchedule.length === 1
+                    ? emailSchedule[0].email_config_uid
+                    : null
+                }
+              >
+                <Select
+                  style={{ width: 250 }}
+                  placeholder="Select an email configuration"
+                  disabled={emailSchedule.length > 1 ? false : true}
+                >
+                  {emailSchedule?.map(
+                    (
+                      email: {
+                        email_config_uid: any;
+                        config_name: any;
+                      },
+                      index: any
+                    ) => (
+                      <Option key={index} value={email.email_config_uid}>
+                        {email.config_name}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="Date"
+                name="date"
+                style={{ marginRight: 20 }}
+                rules={[{ validator: validateDate }]}
+                tooltip="Date on which the email will be sent."
               >
                 <DatePicker
                   size="middle"
-                  style={{ width: 300 }}
+                  style={{ width: 250 }}
                   onChange={handleDateChange}
                 />
               </Form.Item>
@@ -261,36 +349,58 @@ function EmailSchedule({
                     message: "Please select a time!",
                   },
                 ]}
+                tooltip="Time at which the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
               >
                 <TimePicker
-                  size="middle"
-                  style={{ width: 300 }}
+                  placeholder="Select Time"
+                  format="HH:mm"
+                  minuteStep={30}
+                  style={{ width: 250 }}
+                  showNow={false}
+                  needConfirm={false}
                   onChange={handleTimeChange}
                 />
               </Form.Item>
             </Form>
-            <div style={{ marginTop: 12 }}>
-              <Button
-                type="default"
-                onClick={() =>
-                  navigate(
-                    `/module-configuration/assignments/${surveyUID}/${formUID}`
-                  )
-                }
-              >
-                Cancel
-              </Button>
-              <Button
-                style={{ marginLeft: 20 }}
-                type="primary"
-                onClick={onScheduleEmail}
-              >
-                Schedule
-              </Button>
-            </div>
           </div>
         </>
       ) : null}
+      <div>
+        {emailMode === "email_time_yes" ? (
+          <>
+            <Button
+              style={{ marginTop: 20 }}
+              type="default"
+              onClick={() =>
+                navigate(
+                  `/module-configuration/assignments/${surveyUID}/${formUID}`
+                )
+              }
+            >
+              Cancel
+            </Button>
+            <CustomBtn
+              style={{ marginLeft: 20 }}
+              type="primary"
+              onClick={onScheduleEmail}
+            >
+              Save
+            </CustomBtn>
+          </>
+        ) : (
+          <CustomBtn
+            style={{ marginTop: 20 }}
+            type="primary"
+            onClick={() =>
+              navigate(
+                `/module-configuration/assignments/${surveyUID}/${formUID}`
+              )
+            }
+          >
+            Done
+          </CustomBtn>
+        )}
+      </div>
     </>
   );
 }

@@ -44,6 +44,7 @@ const authSlice = createSlice({
     },
     assignmentsSuccess(state, action: PayloadAction<any>) {
       state.assignments.loading = false;
+      state.assignments.err = null;
       state.assignments.data = action.payload;
     },
     assignmentsFailure(state, action: PayloadAction<any>) {
@@ -75,6 +76,15 @@ const authSlice = createSlice({
       state.assignmentTargets.err = action.payload;
       state.assignmentTargets.data = [];
     },
+    uploadAssignmentsRequest(state) {
+      state.assignments.loading = true;
+    },
+    uploadAssignmentsSuccess(state, action: PayloadAction<any>) {
+      state.assignments.loading = false;
+    },
+    uploadAssignmentsFailure(state, action: PayloadAction<any>) {
+      state.assignments.loading = false;
+    },
   },
 });
 
@@ -91,6 +101,9 @@ export const {
   assignmentTargetsRequest,
   assignmentTargetsSuccess,
   assignmentTargetsFailure,
+  uploadAssignmentsRequest,
+  uploadAssignmentsSuccess,
+  uploadAssignmentsFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

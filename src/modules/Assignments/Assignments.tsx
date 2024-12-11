@@ -524,48 +524,74 @@ function Assignments() {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  height: "calc(100vh - 190px)",
+                  height: "calc(100vh - 250px)",
                 }}
               >
-                <div>
+                <div style={{ display: "flex" }}>
                   <img
                     src={NotebooksImg}
                     height={220}
                     width={225}
                     alt="Empty data"
                     style={{
-                      display: "block",
                       marginLeft: "auto",
                       marginRight: "auto",
                     }}
                   />
-                  <p
+                  <div
                     style={{
-                      color: "#8C8C8C",
-                      fontFamily: "Lato",
-                      fontSize: "14px",
-                      lineHeight: "22px",
-                      textAlign: "center",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "60%",
                     }}
                   >
-                    {assignmentsErr ? (
-                      <>{assignmentsErr}</>
-                    ) : assignmentsData.length === 0 ? (
-                      <>
-                        No assignments found. This is likely because there are
-                        no targets mapped to you.
-                      </>
-                    ) : (
-                      <>
-                        {tabItemIndex.charAt(0).toUpperCase() +
-                          tabItemIndex.slice(1)}{" "}
-                        have not yet been uploaded.
-                      </>
-                    )}
-                    <br />
-                    Please contact the survey admin if you believe this is an
-                    error.
-                  </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "24px",
+                        lineHeight: "30px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      {tabItemIndex.charAt(0).toUpperCase() +
+                        tabItemIndex.slice(1)}{" "}
+                      not found
+                    </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      Reason:{" "}
+                      {assignmentsErr ? (
+                        <>{assignmentsErr}</>
+                      ) : assignmentsData.length === 0 ? (
+                        <>
+                          This is likely because there are no targets mapped to
+                          you.
+                        </>
+                      ) : (
+                        <>Failed to fetch data. </>
+                      )}
+                    </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      Please contact the survey admin if you believe this is an
+                      error.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
