@@ -24,6 +24,7 @@ function DQCheckDrawer({
   moduleNames,
   variablesValues,
 }: IDQCheckDrawerProps) {
+  console.log("data", data);
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
   const [filter, setFilter] = useState<any>([]);
   const [localData, setLocalData] = useState<any>({
@@ -36,6 +37,18 @@ function DQCheckDrawer({
   });
 
   const handleFieldChange = (field: string, value: any) => {
+    if (
+      field === "is_active" &&
+      value === true &&
+      data?.isDeleted &&
+      data?.questionName === localData.variable_name
+    ) {
+      message.error(
+        "This check's variable is deleted and cannot be activated. Please change the variable to activate this check."
+      );
+      return;
+    }
+
     setLocalData((prev: any) => ({ ...prev, [field]: value }));
   };
 
@@ -55,6 +68,19 @@ function DQCheckDrawer({
     if (localData.check_values.length === 0) {
       message.error("Please input at least one check value");
       return;
+    }
+
+    if (filter.length > 0) {
+      const isFilterValid = filter.every((f: any) => {
+        return f.filter_group.every(
+          (group: any) => group.question_name && group.filter_operator
+        );
+      });
+
+      if (!isFilterValid) {
+        message.error("Please input all filter conditions");
+        return;
+      }
     }
 
     onSave({

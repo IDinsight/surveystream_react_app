@@ -6,13 +6,18 @@ import { SurveyCTOQuestionsForm } from "./types";
 
 export const getSurveyCTOFormDefinition = async (
   form_uid: string,
-  refresh?: boolean
+  refresh?: boolean,
+  include_repeat_groups?: boolean
 ) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
     const url = `${API_BASE_URL}/forms/${form_uid}/scto-form-definition${
       refresh ? "/refresh" : ""
+    }${
+      include_repeat_groups
+        ? `?include_repeat_groups=${include_repeat_groups}`
+        : ""
     }`;
 
     if (refresh) {
