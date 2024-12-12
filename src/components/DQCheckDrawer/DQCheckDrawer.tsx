@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { ChecksSwitch } from "../..//modules/DQ/DQChecks/DQChecks.styled";
+import { ChecksSwitch } from "../../modules/DQ/DQChecks/DQChecks.styled";
 import DQChecksFilter from "../../modules/DQ/DQChecks/DQChecksFilter";
 import { Button, Col, Drawer, Form, Input, message, Row, Select } from "antd";
+import { CustomBtn } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
@@ -24,7 +25,6 @@ function DQCheckDrawer({
   moduleNames,
   variablesValues,
 }: IDQCheckDrawerProps) {
-  console.log("data", data);
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
   const [filter, setFilter] = useState<any>([]);
   const [localData, setLocalData] = useState<any>({
@@ -226,6 +226,7 @@ function DQCheckDrawer({
                   style={{ width: "100%" }}
                   placeholder="Select or input an option"
                   showSearch
+                  allowClear
                   value={localData.module_name}
                   options={localModuleNames?.map((name: any) => ({
                     value: name,
@@ -251,13 +252,9 @@ function DQCheckDrawer({
           <Button style={{ marginTop: 20 }} onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            style={{ marginLeft: 20 }}
-            type="primary"
-            onClick={handleSave}
-          >
+          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
             Save
-          </Button>
+          </CustomBtn>
         </div>
       </Form>
     </Drawer>
