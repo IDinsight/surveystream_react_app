@@ -181,7 +181,7 @@ function DQCheckDrawer({
           <Col span={8}>
             <Form.Item
               label="Flag description:"
-              tooltip="Short description of the flag."
+              tooltip="Short description of the flag that will be included in the outputs"
             />
           </Col>
           <Col span={12}>

@@ -123,8 +123,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     },
     {
       title: (
-        <Tooltip title="Click on edit to see the filter applied">
-          Filter data
+        <Tooltip title="Click on edit to view the filter conditions">
+          Filter applied
         </Tooltip>
       ),
       dataIndex: "filterData",
@@ -663,7 +663,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 <Col span={4}>
                   <Form.Item
                     label="Flag description:"
-                    tooltip="Short description of the flag."
+                    tooltip="Short description of the flag that will be included in the outputs"
                   />
                 </Col>
                 <Col span={6}>
