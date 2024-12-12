@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { isEqual } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
+import { ChecksTable, ChecksSwitch } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -34,6 +34,7 @@ import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -51,6 +52,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [loading, setLoading] = useState<boolean>(false);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [mode, setMode] = useState<string | null>(null);
+
+  const [tablePageSize, setTablePageSize] = useState(5);
 
   const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
     []
@@ -109,7 +112,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
             dataIndex: "moduleName",
             key: "moduleName",
             sorter: (a: any, b: any) =>
-              a.moduleName.localeCompare(b.moduleName),
+              (a.moduleName || "").localeCompare(b.moduleName || ""),
           },
         ]
       : []),
@@ -120,8 +123,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     },
     {
       title: (
-        <Tooltip title="Click on edit to see the filter applied">
-          Filter data
+        <Tooltip title="Click on edit to view the filter conditions">
+          Filter applied
         </Tooltip>
       ),
       dataIndex: "filterData",
@@ -207,6 +210,18 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const handleEditCheck = () => {
     setDrawerData(selectedVariableRows[0]);
     showAddManualDrawer();
+  };
+
+  const handleDuplicate = () => {
+    const selectedCheck = selectedVariableRows[0];
+    const duplicateData = {
+      ...selectedCheck,
+      questionName: "",
+      dqCheckUID: null,
+    };
+
+    showAddManualDrawer();
+    setDrawerData(duplicateData);
   };
 
   const handleMarkActiveAction = () => {
@@ -452,7 +467,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (formUID) {
       fetchModuleName(formUID).then((res: any) => {
         if (res?.data?.success) {
-          setAvailableModuleNames(res.data.data);
+          setAvailableModuleNames(
+            res.data.data.filter((name: string) => name !== "" && name)
+          );
         }
       });
 
@@ -646,7 +663,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 <Col span={4}>
                   <Form.Item
                     label="Flag description:"
-                    tooltip="Short description of the flag."
+                    tooltip="Short description of the flag that will be included in the outputs"
                   />
                 </Col>
                 <Col span={6}>
@@ -728,8 +745,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
           )}
           {mode === "selected" && (
             <>
-              <div style={{ display: "flex" }}>
-                <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", marginTop: 24 }}>
+                <div>
                   <Tag
                     color="#F6FFED"
                     style={{ color: "#52C41A", borderColor: "#B7EB8F" }}
@@ -747,63 +764,74 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   </Tag>
                 </div>
                 <div style={{ marginLeft: "auto", display: "flex" }}>
-                  <Button
-                    type="primary"
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleAddCheck}
                   >
                     Add
-                  </Button>
-                  {selectedVariableRows.length === 1 && (
-                    <Button
-                      type="primary"
+                  </CustomBtn>
+
+                  <CustomBtn
+                    style={{ marginLeft: 16 }}
+                    onClick={handleEditCheck}
+                    disabled={selectedVariableRows.length !== 1}
+                  >
+                    Edit
+                  </CustomBtn>
+                  <CustomBtn
+                    style={{ marginLeft: 16 }}
+                    onClick={handleDuplicate}
+                    disabled={selectedVariableRows.length !== 1}
+                  >
+                    Duplicate
+                  </CustomBtn>
+
+                  <>
+                    <CustomBtn
                       style={{ marginLeft: 16 }}
-                      onClick={handleEditCheck}
+                      onClick={handleMarkActive}
+                      disabled={selectedVariableRows.length === 0}
                     >
-                      Edit
+                      Mark active
+                    </CustomBtn>
+                    <Button
+                      style={{ marginLeft: 16 }}
+                      onClick={handleMarkInactive}
+                      disabled={selectedVariableRows.length === 0}
+                    >
+                      Mark inactive
                     </Button>
-                  )}
-                  {selectedVariableRows.length > 0 && (
-                    <>
+                    <Popconfirm
+                      title="Are you sure you want to delete checks?"
+                      onConfirm={(e: any) => {
+                        e?.stopPropagation();
+                        handleDeleteCheck();
+                      }}
+                      onCancel={(e: any) => e?.stopPropagation()}
+                      okText="Yes"
+                      cancelText="No"
+                    >
                       <Button
                         style={{ marginLeft: 16 }}
-                        onClick={handleMarkActive}
+                        onClick={(e) => e.stopPropagation()}
+                        disabled={selectedVariableRows.length === 0}
                       >
-                        Mark active
+                        Delete
                       </Button>
-                      <Button
-                        style={{ marginLeft: 16 }}
-                        onClick={handleMarkInactive}
-                      >
-                        Mark inactive
-                      </Button>
-                      <Popconfirm
-                        title="Are you sure you want to delete checks?"
-                        onConfirm={(e: any) => {
-                          e?.stopPropagation();
-                          handleDeleteCheck();
-                        }}
-                        onCancel={(e: any) => e?.stopPropagation()}
-                        okText="Yes"
-                        cancelText="No"
-                      >
-                        <Button
-                          type="primary"
-                          style={{ marginLeft: 16 }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Delete
-                        </Button>
-                      </Popconfirm>
-                    </>
-                  )}
+                    </Popconfirm>
+                  </>
                 </div>
               </div>
               <ChecksTable
                 style={{ marginTop: 16 }}
                 columns={columns}
                 dataSource={selectVariableData}
-                pagination={{ pageSize: 5 }}
+                pagination={{
+                  pageSize: tablePageSize,
+                  pageSizeOptions: ["5", "10", "20", "50", "100"],
+                  showSizeChanger: true,
+                  onShowSizeChange: (current, size) => setTablePageSize(size),
+                }}
                 rowSelection={rowSelection}
                 loading={dataLoading}
                 rowClassName={(record: any) =>
