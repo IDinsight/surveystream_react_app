@@ -209,6 +209,18 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     showAddManualDrawer();
   };
 
+  const handleDuplicate = () => {
+    const selectedCheck = selectedVariableRows[0];
+    const duplicateData = {
+      ...selectedCheck,
+      questionName: "",
+      dqCheckUID: null,
+    };
+
+    showAddManualDrawer();
+    setDrawerData(duplicateData);
+  };
+
   const handleMarkActiveAction = () => {
     const selectedChecks = selectedVariableRows
       .filter((row: any) => !row.isDeleted)
@@ -728,8 +740,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
           )}
           {mode === "selected" && (
             <>
-              <div style={{ display: "flex" }}>
-                <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", marginTop: 24 }}>
+                <div>
                   <Tag
                     color="#F6FFED"
                     style={{ color: "#52C41A", borderColor: "#B7EB8F" }}
@@ -755,13 +767,21 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     Add
                   </Button>
                   {selectedVariableRows.length === 1 && (
-                    <Button
-                      type="primary"
-                      style={{ marginLeft: 16 }}
-                      onClick={handleEditCheck}
-                    >
-                      Edit
-                    </Button>
+                    <>
+                      <Button
+                        type="primary"
+                        style={{ marginLeft: 16 }}
+                        onClick={handleEditCheck}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        style={{ marginLeft: 16 }}
+                        onClick={handleDuplicate}
+                      >
+                        Duplicate
+                      </Button>
+                    </>
                   )}
                   {selectedVariableRows.length > 0 && (
                     <>
