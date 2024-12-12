@@ -15,7 +15,7 @@ import {
 import { getSurveyCTOFormDefinition } from "../../redux/surveyCTOQuestions/apiService";
 import { useAppDispatch } from "../../redux/hooks";
 import { LoadingOutlined } from "@ant-design/icons";
-import { set } from "lodash";
+import { CustomBtn } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerGroup3Props {
   visible: boolean;
@@ -306,7 +306,7 @@ function DQCheckDrawerGroup3({
           <Col span={8}>
             <Form.Item
               label="Flag description:"
-              tooltip="Short description of the flag."
+              tooltip="Short description of the flag that will be included in the outputs"
             />
           </Col>
           <Col span={12}>
@@ -351,6 +351,7 @@ function DQCheckDrawerGroup3({
                   style={{ width: "100%" }}
                   placeholder="Select or input an option"
                   showSearch
+                  allowClear
                   value={localData.module_name}
                   options={localModuleNames?.map((name: any) => ({
                     value: name,
@@ -376,13 +377,9 @@ function DQCheckDrawerGroup3({
           <Button style={{ marginTop: 20 }} onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            style={{ marginLeft: 20 }}
-            type="primary"
-            onClick={handleSave}
-          >
+          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
             Save
-          </Button>
+          </CustomBtn>
         </div>
       </Form>
     </Drawer>

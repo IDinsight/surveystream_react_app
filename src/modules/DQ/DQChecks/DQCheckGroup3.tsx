@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { isEqual, set } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
+import { ChecksTable } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -35,6 +35,7 @@ import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/ap
 import DQCheckDrawerGroup3 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup3";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { getDQForms } from "../../../redux/dqForm/dqFormActions";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 interface IDQCheckGroup3Props {
   surveyUID: string;
@@ -50,6 +51,8 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
+
+  const [tablePageSize, setTablePageSize] = useState(5);
 
   const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
     []
@@ -134,7 +137,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
             dataIndex: "moduleName",
             key: "moduleName",
             sorter: (a: any, b: any) =>
-              a.moduleName.localeCompare(b.moduleName),
+              (a.moduleName || "").localeCompare(b.moduleName || ""),
           },
         ]
       : []),
@@ -145,7 +148,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     },
     {
       title: (
-        <Tooltip title="Click on edit to see the filter applied">
+        <Tooltip title="Click on edit to view the filter conditions">
           Filter applied
         </Tooltip>
       ),
@@ -460,7 +463,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       fetchModuleName(formUID).then((res: any) => {
         if (res?.data?.success) {
           setAvailableModuleNames(
-            res.data.data.filter((module: any) => module !== "" && module)
+            res.data.data.filter((name: string) => name !== "" && name)
           );
         }
       });
@@ -590,71 +593,71 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 </Tag>
               </div>
               <div style={{ marginLeft: "auto", display: "flex" }}>
-                <Button
+                <CustomBtn style={{ marginLeft: 16 }} onClick={handleAddCheck}>
+                  Add
+                </CustomBtn>
+
+                <CustomBtn
                   type="primary"
                   style={{ marginLeft: 16 }}
-                  onClick={handleAddCheck}
+                  onClick={handleEditCheck}
+                  disabled={selectedVariableRows.length !== 1}
                 >
-                  Add
+                  Edit
+                </CustomBtn>
+                <CustomBtn
+                  style={{ marginLeft: 16 }}
+                  onClick={handleDuplicate}
+                  disabled={selectedVariableRows.length !== 1}
+                >
+                  Duplicate
+                </CustomBtn>
+
+                <CustomBtn
+                  style={{ marginLeft: 16 }}
+                  onClick={handleMarkActive}
+                  disabled={selectedVariableRows.length === 0}
+                >
+                  Mark active
+                </CustomBtn>
+                <Button
+                  style={{ marginLeft: 16 }}
+                  onClick={handleMarkInactive}
+                  disabled={selectedVariableRows.length === 0}
+                >
+                  Mark inactive
                 </Button>
-                {selectedVariableRows.length === 1 && (
-                  <>
-                    <Button
-                      type="primary"
-                      style={{ marginLeft: 16 }}
-                      onClick={handleEditCheck}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 16 }}
-                      onClick={handleDuplicate}
-                    >
-                      Duplicate
-                    </Button>
-                  </>
-                )}
-                {selectedVariableRows.length > 0 && (
-                  <>
-                    <Button
-                      style={{ marginLeft: 16 }}
-                      onClick={handleMarkActive}
-                    >
-                      Mark active
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 16 }}
-                      onClick={handleMarkInactive}
-                    >
-                      Mark inactive
-                    </Button>
-                    <Popconfirm
-                      title="Are you sure you want to delete checks?"
-                      onConfirm={(e: any) => {
-                        e?.stopPropagation();
-                        handleDeleteCheck();
-                      }}
-                      onCancel={(e: any) => e?.stopPropagation()}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button
-                        type="primary"
-                        style={{ marginLeft: 16 }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Delete
-                      </Button>
-                    </Popconfirm>
-                  </>
-                )}
+                <Popconfirm
+                  title="Are you sure you want to delete checks?"
+                  onConfirm={(e: any) => {
+                    e?.stopPropagation();
+                    handleDeleteCheck();
+                  }}
+                  onCancel={(e: any) => e?.stopPropagation()}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    type="primary"
+                    style={{ marginLeft: 16 }}
+                    onClick={(e) => e.stopPropagation()}
+                    disabled={selectedVariableRows.length === 0}
+                  >
+                    Delete
+                  </Button>
+                </Popconfirm>
               </div>
             </div>
             <ChecksTable
               style={{ marginTop: 16 }}
               columns={columns}
               dataSource={selectVariableData}
-              pagination={{ pageSize: 5 }}
+              pagination={{
+                pageSize: tablePageSize,
+                pageSizeOptions: ["5", "10", "20", "50", "100"],
+                showSizeChanger: true,
+                onShowSizeChange: (current, size) => setTablePageSize(size),
+              }}
               rowSelection={rowSelection}
               loading={dataLoading}
               rowClassName={(record: any) =>
