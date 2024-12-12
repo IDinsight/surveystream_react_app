@@ -209,6 +209,18 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     showAddManualDrawer();
   };
 
+  const handleDuplicate = () => {
+    const selectedCheck = selectedVariableRows[0];
+    const duplicateData = {
+      ...selectedCheck,
+      questionName: "",
+      dqCheckUID: null,
+    };
+
+    showAddManualDrawer();
+    setDrawerData(duplicateData);
+  };
+
   const handleMarkActiveAction = () => {
     const selectedChecks = selectedVariableRows
       .filter((row: any) => !row.isDeleted)
@@ -447,7 +459,9 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     if (formUID) {
       fetchModuleName(formUID).then((res: any) => {
         if (res?.data?.success) {
-          setAvailableModuleNames(res.data.data);
+          setAvailableModuleNames(
+            res.data.data.filter((module: any) => module !== "" && module)
+          );
         }
       });
 
@@ -557,7 +571,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
               "Averages the spotcheck scores recorded in data quality forms. Multiple spotcheck question responses can be aggregated to one score using the 'Score name' input."}
           </p>
           <>
-            <div style={{ display: "flex" }}>
+            <div style={{ display: "flex", marginTop: 24 }}>
               <div style={{ marginTop: 16 }}>
                 <Tag
                   color="#F6FFED"
@@ -584,13 +598,21 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                   Add
                 </Button>
                 {selectedVariableRows.length === 1 && (
-                  <Button
-                    type="primary"
-                    style={{ marginLeft: 16 }}
-                    onClick={handleEditCheck}
-                  >
-                    Edit
-                  </Button>
+                  <>
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: 16 }}
+                      onClick={handleEditCheck}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      style={{ marginLeft: 16 }}
+                      onClick={handleDuplicate}
+                    >
+                      Duplicate
+                    </Button>
+                  </>
                 )}
                 {selectedVariableRows.length > 0 && (
                   <>
