@@ -36,6 +36,7 @@ import {
   postTargetsMapping,
   updateTargetSCTOColumns,
   deleteAllTargets,
+  getTargets,
 } from "../../../../redux/targets/targetActions";
 import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { useState, useEffect } from "react";
@@ -215,7 +216,9 @@ function TargetsSctoMap() {
   const [hasWarning, setHasWarning] = useState<boolean>(false);
   const [warningList, setWarningList] = useState<CSVError[]>([]);
 
-  const [mappingSaveMode, setMappingSaveMode] = useState<string>("save");
+  const [mappingSaveMode, setMappingSaveMode] = useState<"save" | "preview">(
+    "save"
+  );
 
   const loadFormQuestions = async () => {
     setLoading(true);
@@ -277,6 +280,10 @@ function TargetsSctoMap() {
     setLoading(false);
   };
 
+  const toggleSaveMode = async (mode: "save" | "preview") => {
+    setMappingSaveMode(mode);
+  };
+
   const handleTargetsUploadMapping = async (column_mapping: any) => {
     setTargetLoading(true);
     try {
@@ -312,8 +319,6 @@ function TargetsSctoMap() {
             formUID: form_uid,
           })
         );
-        console.log(mappingsRes.payload);
-
         //set error list
         if (mappingsRes.payload.success === false) {
           message.error(mappingsRes.payload.message);
@@ -539,12 +544,21 @@ function TargetsSctoMap() {
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
-  const handleTargetIDChange = async () => {
-    if (targetIDChanged) {
-      setModalVisible(true);
-      return;
+  const handleTargetIDChange = async (saveMode: string) => {
+    if (form_uid) {
+      const targets = await dispatch(getTargets({ formUID: form_uid! }));
+
+      if (targetIDChanged && targets.payload?.data?.data?.length > 0) {
+        setModalVisible(true);
+        return;
+      }
     }
-    handleContinue();
+    if (saveMode === "save") {
+      await handleSaveConfig();
+    }
+    if (saveMode === "preview") {
+      await handlePreviewData();
+    }
   };
 
   const handleContinue = async () => {
@@ -881,8 +895,8 @@ function TargetsSctoMap() {
                 >
                   <CustomBtn
                     onClick={async () => {
-                      await handleTargetIDChange();
-                      setMappingSaveMode("save");
+                      await toggleSaveMode("save");
+                      await handleTargetIDChange("save");
                     }}
                     loading={isLoading}
                   >
@@ -890,8 +904,8 @@ function TargetsSctoMap() {
                   </CustomBtn>
                   <CustomBtn
                     onClick={async () => {
-                      await handleTargetIDChange();
-                      setMappingSaveMode("preview");
+                      await toggleSaveMode("preview");
+                      await handleTargetIDChange("preview");
                     }}
                     loading={targetLoading}
                     style={{ marginRight: "10%" }}
