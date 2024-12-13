@@ -463,7 +463,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
             {typeID === "8" &&
               "Checks if a protocol has been violated. For all protocol questions, calculations assume that the value 1 indicates a violation, while the value 0 indicates no violation."}
             {typeID === "9" &&
-              "Averages the spotcheck scores recorded in data quality forms. Multiple spotcheck question responses can be aggregated to one score using the 'Score name' input."}
+              "Averages the spotcheck scores recorded in data quality forms. Multiple variables can be aggregated to one score using the 'Score name' input."}
           </p>
           <>
             <div style={{ display: "flex", marginTop: 24 }}>

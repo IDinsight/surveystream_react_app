@@ -592,11 +592,11 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
             {typeID === "4" &&
-              "Checks that certain variables have no missing values. By default, the following are considered missing: ‘ ’, NA, NAN, NULL (caseinsensitive)"}
+              "Checks whether certain variables have a high percentage of missing values. By default, the following are considered missing: ‘ ’, NA, NAN, NULL (caseinsensitive)"}
             {typeID === "5" &&
-              "Checks that certain variables have been marked as don’t know. By default, -888 is considered as don’t know."}
+              "Checks whether certain variables have a high percentage of don’t know values. By default, -888 is considered as don’t know."}
             {typeID === "6" &&
-              "Checks that certain variables have a high number of refusal values. By default, -999 is considered as refusal."}
+              "Checks whether certain variables have a high percentage of refusal values. By default, -999 is considered as refusal."}
           </p>
           <Radio.Group
             value={mode}
