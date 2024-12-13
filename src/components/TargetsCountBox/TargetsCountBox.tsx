@@ -1,40 +1,37 @@
 import { CheckCircleFilled } from "@ant-design/icons";
-import {
-  TargetsCountBoxContainer,
-  RowCountValue,
-  RowIconContainer,
-  RowTitle,
-} from "./TargetsCountBox.styled";
 
-interface ICountBox {
-  color: string;
-  title: string;
-  count: number;
-  Icon: React.FC<any>;
+interface TargetCountProps {
+  targetCount: number;
 }
 
-const CountBox = ({ color, title, count, Icon }: ICountBox) => {
+function TargetsCountBox({ targetCount }: TargetCountProps) {
   return (
-    <div style={{ color }}>
-      <RowTitle style={{ color }}>{title}</RowTitle>
-      <RowIconContainer>
-        <Icon style={{ fontSize: 24 }} />
-        <RowCountValue color={color}>{count}</RowCountValue>
-      </RowIconContainer>
+    <div style={{ display: "flex", gap: 16, marginLeft: 28 }}>
+      {targetCount ? (
+        <div
+          style={{
+            backgroundColor: "#F6FFED",
+            padding: "4px 12px",
+            display: "flex",
+            alignItems: "center",
+            height: 30,
+            borderRadius: 24,
+          }}
+        >
+          <CheckCircleFilled style={{ fontSize: 16, color: "#389E0D" }} />
+          <p
+            style={{
+              marginLeft: 8,
+              fontFamily: "Lato",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Total Targets: {targetCount}
+          </p>
+        </div>
+      ) : null}
     </div>
-  );
-};
-
-function TargetsCountBox({ total }: { total: number }) {
-  return (
-    <TargetsCountBoxContainer>
-      <CountBox
-        color="#389E0D"
-        title="Total target"
-        count={total}
-        Icon={CheckCircleFilled}
-      />
-    </TargetsCountBoxContainer>
   );
 }
 

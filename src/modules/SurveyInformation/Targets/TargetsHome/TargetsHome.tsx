@@ -203,11 +203,14 @@ function TargetsHome() {
       }
 
       const columnsToExclude = [
+        "form_uid",
         "target_uid",
         "target_locations",
         "completed_flag",
         "last_attempt_survey_status",
         "last_attempt_survey_status_label",
+        "final_survey_status",
+        "final_survey_status_label",
         "num_attempts",
         "refusal_flag",
         "revisit_sections",
@@ -361,6 +364,7 @@ function TargetsHome() {
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Targets</Title>
+        <TargetsCountBox targetCount={targetsCount} />
 
         <div
           style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
@@ -453,7 +457,6 @@ function TargetsHome() {
           {screenMode === "manage" ? (
             <>
               <TargetsHomeFormWrapper>
-                <TargetsCountBox total={targetsCount} />
                 <TargetsTable
                   rowSelection={editMode ? rowSelection : undefined}
                   columns={dataTableColumn}
@@ -474,6 +477,7 @@ function TargetsHome() {
                     fields={fieldData}
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
+                    visible={editData}
                   />
                 ) : null}
               </TargetsHomeFormWrapper>

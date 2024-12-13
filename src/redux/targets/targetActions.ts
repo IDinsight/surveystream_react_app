@@ -39,6 +39,9 @@ import {
   updateTargetSCTOColumnsRequest,
   updateTargetSCTOColumnsSuccess,
   updateTargetSCTOColumnsFailure,
+  deleteAllTargetsFailure,
+  deleteAllTargetsRequest,
+  deleteAllTargetsSuccess,
 } from "./targetSlice";
 
 export const postTargetsMapping = createAsyncThunk(
@@ -495,7 +498,7 @@ export const updateTargetSCTOColumns = createAsyncThunk(
       }
 
       const error = {
-        errors: response.response.data.errors,
+        errors: response.response.data.error,
         message: response.message
           ? response.message
           : "Failed to update target SCTO columns.",
@@ -506,6 +509,42 @@ export const updateTargetSCTOColumns = createAsyncThunk(
     } catch (error) {
       const errorMessage = error || "Failed to update target SCTO columns.";
       dispatch(updateTargetSCTOColumnsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const deleteAllTargets = createAsyncThunk(
+  "targets/deleteAllTargets",
+  async (
+    {
+      form_uid,
+    }: {
+      form_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      console.log("deleteAllTargets");
+      dispatch(deleteAllTargetsRequest());
+      const response: any = await api.deleteAllTargets(form_uid);
+      if (response.status == 200) {
+        dispatch(deleteAllTargetsSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to delete all targets.",
+        success: false,
+      };
+      dispatch(deleteAllTargetsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to delete all targets.";
+      dispatch(deleteAllTargetsFailure(errorMessage));
       return rejectWithValue(errorMessage);
     }
   }
@@ -524,4 +563,5 @@ export const targetActions = {
   putTargetConfig,
   getTargetSCTOColumns,
   updateTargetSCTOColumns,
+  deleteAllTargets,
 };

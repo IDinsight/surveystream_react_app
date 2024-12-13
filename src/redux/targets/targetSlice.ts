@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  deleteAllTargets,
   getTarget,
   getTargetSCTOColumns,
   postTargetConfig,
@@ -238,6 +239,18 @@ const targetsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    deleteAllTargetsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    deleteAllTargetsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    deleteAllTargetsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -288,6 +301,9 @@ export const {
   updateTargetSCTOColumnsSuccess,
   updateTargetSCTOColumnsFailure,
   setuploadMode,
+  deleteAllTargetsRequest,
+  deleteAllTargetsSuccess,
+  deleteAllTargetsFailure,
 } = targetsSlice.actions;
 
 export default targetsSlice.reducer;

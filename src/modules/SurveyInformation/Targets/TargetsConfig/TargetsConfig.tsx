@@ -4,12 +4,13 @@ import {
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
+import { SCTOLoadErrorArea } from "../../SurveyCTOQuestions/SurveyCTOQuestions.styled";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { Form, Input, message, Radio, Space } from "antd";
+import { Form, Input, message, Radio, Space, Modal, Alert } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
@@ -24,6 +25,8 @@ import {
   updateTargetSCTOColumns,
   getTargetConfig,
   putTargetConfig,
+  deleteAllTargets,
+  getTargets,
 } from "../../../../redux/targets/targetActions";
 import Container from "../../../../components/Layout/Container";
 import { setuploadMode } from "../../../../redux/targets/targetSlice";
@@ -52,6 +55,11 @@ function TargetsConfig() {
   const toggleUploadMode = (value: string) => {
     dispatch(setuploadMode(value));
   };
+  const [modalVisible, setModalVisible] = useState(false);
+  const [sctoError, setSctoError] = useState(false);
+  const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
+    string[]
+  >([]);
 
   const fetchTargetConfig = async () => {
     setLoading(true);
@@ -98,12 +106,63 @@ function TargetsConfig() {
     }
   }, [form_uid]);
 
+  const handleDeleteAllTargets = async () => {
+    try {
+      setLoading(true);
+      const deleteResponse = await dispatch(
+        deleteAllTargets({ form_uid: form_uid! })
+      );
+      if (!deleteResponse.payload.success) {
+        message.error("Delete failed");
+      }
+    } catch (error) {
+      console.log("Error deleting targets", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlConfigChanges = async (values: any) => {
+    if (targetConfig) {
+      const targets = await dispatch(getTargets({ formUID: form_uid! }));
+      if (targets.payload.data.data.length > 0) {
+        const hasChanges = Object.keys(values).some((key) => {
+          if (key === "form_uid") return false;
+          const isChanged = values[key] !== targetConfig[key];
+          return isChanged;
+        });
+
+        if (hasChanges) {
+          setModalVisible(true);
+          return;
+        }
+      }
+    }
+    await handleSaveConfig();
+  };
+
   const handleContinue = async () => {
     try {
       await form.validateFields(); // Validate all fields before submission
-      setLoading(true);
       const values = form.getFieldsValue();
       values.form_uid = form_uid;
+
+      await handlConfigChanges(values);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
+
+  const handleSaveConfig = async () => {
+    try {
+      await form.validateFields(); // Validate all fields before submission
+      const values = form.getFieldsValue();
+      values.form_uid = form_uid;
+      console.log("values", values);
+
+      setLoading(true);
 
       const response = targetConfig
         ? await dispatch(putTargetConfig(values))
@@ -118,15 +177,14 @@ function TargetsConfig() {
           const refresh_scto_columns = await dispatch(
             updateTargetSCTOColumns({ form_uid: form_uid! })
           );
-          if (refresh_scto_columns) {
+          if (refresh_scto_columns.payload.success) {
             navigate(
               `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
             );
-
-            if (targetConfig?.target_source === "csv") {
-              toggleUploadMode("overwrite");
-            }
           } else {
+            setSctoError(true);
+            setSurveyCTOErrorMessages(refresh_scto_columns.payload.errors);
+            console.log(refresh_scto_columns);
             message.error("Error in fetching data from SurveyCTO");
           }
         }
@@ -256,7 +314,40 @@ function TargetsConfig() {
                 </div>
               )}
             </Form>
+            {sctoError && (
+              <SCTOLoadErrorArea>
+                <br />
+                The SurveyCTO form definition could not be loaded due to the
+                following errors:
+                <br />
+                <br />
+                <div>
+                  <Alert message={surveyCTOErrorMessages} type="error" />
+                  <br />
+                </div>
+              </SCTOLoadErrorArea>
+            )}
           </div>
+          <Modal
+            title="Warning"
+            visible={modalVisible}
+            onOk={async () => {
+              setModalVisible(false);
+              await handleDeleteAllTargets();
+              handleSaveConfig(); // Continue after deletion
+            }}
+            onCancel={() => {
+              setModalVisible(false);
+              handleSaveConfig(); // Continue without deletion
+            }}
+            okText="Delete existing targets data"
+            cancelText="Merge with existing targets data"
+          >
+            <p>
+              We have detected changes to target config. Do you want to delete
+              existing targets data?
+            </p>
+          </Modal>
         </div>
       )}
       <FooterWrapper>

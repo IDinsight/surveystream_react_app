@@ -291,6 +291,25 @@ export const updateTargetSCTOColumns = async (form_uid: string) => {
   }
 };
 
+export const deleteAllTargets = async (form_uid: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+    const url = `${API_BASE_URL}/targets?form_uid=${form_uid}`;
+
+    const res = await axios.delete(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   uploadTargetsMapping,
   bulkUpdateTargets,
@@ -304,4 +323,5 @@ export const api = {
   putTargetConfig,
   getTargetSCTOColumns,
   updateTargetSCTOColumns,
+  deleteAllTargets,
 };

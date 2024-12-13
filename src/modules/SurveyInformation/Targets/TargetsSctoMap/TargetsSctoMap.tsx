@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Col, Row, Select, Form, message, Tag } from "antd";
+import { Button, Col, Row, Select, Form, message, Tag, Modal } from "antd";
 
 import { Title, HeaderContainer } from "../../../../shared/Nav.styled";
 import { CustomBtn } from "../../../../shared/Global.styled";
@@ -35,6 +35,7 @@ import {
   getTargetConfig,
   postTargetsMapping,
   updateTargetSCTOColumns,
+  deleteAllTargets,
 } from "../../../../redux/targets/targetActions";
 import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { useState, useEffect } from "react";
@@ -213,6 +214,8 @@ function TargetsSctoMap() {
   const [errorList, setErrorList] = useState<CSVError[]>([]);
   const [hasWarning, setHasWarning] = useState<boolean>(false);
   const [warningList, setWarningList] = useState<CSVError[]>([]);
+
+  const [mappingSaveMode, setMappingSaveMode] = useState<string>("save");
 
   const loadFormQuestions = async () => {
     setLoading(true);
@@ -532,6 +535,42 @@ function TargetsSctoMap() {
     }
   };
 
+  const [targetIDChanged, setTargetIDChanged] = useState<boolean>(false);
+
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  const handleTargetIDChange = async () => {
+    if (targetIDChanged) {
+      setModalVisible(true);
+      return;
+    }
+    handleContinue();
+  };
+
+  const handleContinue = async () => {
+    if (mappingSaveMode === "save") {
+      await handleSaveConfig();
+    } else {
+      await handlePreviewData();
+    }
+  };
+
+  const handleDeleteAllTargets = async () => {
+    try {
+      setLoading(true);
+      const deleteResponse = await dispatch(
+        deleteAllTargets({ form_uid: form_uid! })
+      );
+      if (!deleteResponse.payload.success) {
+        message.error("Delete failed");
+      }
+    } catch (error) {
+      console.log("Error deleting targets", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchTargetConfig = async (form_uid: any) => {
     setLoading(true);
     const response = await dispatch(getTargetConfig({ form_uid: form_uid! }));
@@ -711,7 +750,12 @@ function TargetsSctoMap() {
                           <Select
                             showSearch={true}
                             allowClear={true}
-                            onChange={updateCustomColumns}
+                            onChange={(value) => {
+                              updateCustomColumns(value);
+                              if (item.title === "Target ID") {
+                                setTargetIDChanged(true);
+                              }
+                            }}
                             style={{ width: 180 }}
                             filterOption={true}
                             placeholder="Choose column"
@@ -835,17 +879,46 @@ function TargetsSctoMap() {
                     marginTop: 32,
                   }}
                 >
-                  <CustomBtn onClick={handleSaveConfig} loading={isLoading}>
+                  <CustomBtn
+                    onClick={async () => {
+                      await handleTargetIDChange();
+                      setMappingSaveMode("save");
+                    }}
+                    loading={isLoading}
+                  >
                     Save Config
                   </CustomBtn>
                   <CustomBtn
-                    onClick={handlePreviewData}
+                    onClick={async () => {
+                      await handleTargetIDChange();
+                      setMappingSaveMode("preview");
+                    }}
                     loading={targetLoading}
                     style={{ marginRight: "10%" }}
                   >
                     Preview Data
                   </CustomBtn>
                 </div>
+                <Modal
+                  title="Warning"
+                  visible={modalVisible}
+                  onOk={async () => {
+                    setModalVisible(false);
+                    await handleDeleteAllTargets();
+                    handleContinue();
+                  }}
+                  onCancel={() => {
+                    setModalVisible(false);
+                    handleContinue();
+                  }}
+                  okText="Delete existing targets data"
+                  cancelText="Merge with existing targets data"
+                >
+                  <p>
+                    We have detected changes to target id. Do you want to delete
+                    existing targets data?
+                  </p>
+                </Modal>
               </>
             ) : (
               <>
