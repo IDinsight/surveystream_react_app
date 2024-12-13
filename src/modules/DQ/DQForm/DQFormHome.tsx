@@ -63,7 +63,7 @@ function DQFormHome() {
                 here. These include audio audit forms, spot check forms, and
                 back check forms.
               </p>
-              {dqForms.map((dqForm: any) => (
+              {dqForms?.map((dqForm: any) => (
                 <DQFormCard
                   key={dqForm.dq_form_uid}
                   data={dqForm}

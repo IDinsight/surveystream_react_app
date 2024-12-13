@@ -170,7 +170,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     value: check.check_components.value,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
-    isDeleted: check.note === "Question not found in form definition",
+    isDeleted:
+      check.note === "Question not found in form definition" ||
+      check.note === "Filter question not found in form definition",
     isRepeatGroup: check.is_repeat_group,
   }));
 
@@ -256,7 +258,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (isDeletedCheck) {
       Modal.confirm({
         title: "Are you sure?",
-        content: `Your selection contains some checks that have been deleted from the form definition. This action will mark only the active checks as active. Do you want to proceed?`,
+        content: `Your selection contains some checks which are inactive because one or more of the variables used in the check are no longer in the form definition. This action will mark only the remaining checks as active. Do you want to proceed?`,
         okText: "Yes",
         cancelText: "No",
         width: 600,

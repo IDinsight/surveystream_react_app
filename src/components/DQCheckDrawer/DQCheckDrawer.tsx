@@ -44,7 +44,7 @@ function DQCheckDrawer({
       data?.questionName === localData.variable_name
     ) {
       message.error(
-        "This check's variable is deleted and cannot be activated. Please change the variable to activate this check."
+        "Some variables used in the check are deleted and hence, it cannot be activated. Please change the deleted variables to activate this check."
       );
       return;
     }

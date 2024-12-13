@@ -71,7 +71,7 @@ function DQCheckDrawerGroup3({
       data?.questionName === localData.variable_name
     ) {
       message.error(
-        "This check's variable is deleted and cannot be activated. Please change the variable to activate this check."
+        "Some variables used in the check are deleted and hence, it cannot be activated. Please change the deleted variables to activate this check."
       );
       return;
     }
@@ -165,6 +165,8 @@ function DQCheckDrawerGroup3({
       } else {
         setFinalQuestions(dqFormQuestions);
       }
+    } else {
+      setFinalQuestions([]);
     }
   }, [parentFormQuestions, dqFormQuestions]);
 
@@ -174,7 +176,6 @@ function DQCheckDrawerGroup3({
         dq_check_id: data.dqCheckUID,
         dq_scto_form_uid: data.dq_scto_form_uid,
         variable_name: data.questionName,
-        check_values: data.value,
         flag_description: data.flagDescription,
         is_active: data.status === "Active",
         module_name: data.moduleName,
@@ -186,7 +187,6 @@ function DQCheckDrawerGroup3({
       setLocalData({
         dq_scto_form_uid: null,
         variable_name: "",
-        check_values: [],
         flag_description: "",
         is_active: true,
         module_name: "",
@@ -241,7 +241,7 @@ function DQCheckDrawerGroup3({
               label="Select variable"
               tooltip={`${
                 typeID === "7"
-                  ? "Select from the list of common questions in the parent and selected DQ form. Mismatch checks require the same question in both forms."
+                  ? "Select from the list of common questions in the parent and selected DQ form. Mismatch checks require the question name to be same in both forms."
                   : "Select from the list of questions in the selected DQ form."
               }`}
             />

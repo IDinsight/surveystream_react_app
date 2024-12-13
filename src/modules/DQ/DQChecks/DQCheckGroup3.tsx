@@ -1,24 +1,9 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Radio,
-  Row,
-  Tag,
-  RadioChangeEvent,
-  Select,
-  message,
-  Popconfirm,
-  Tooltip,
-  Modal,
-} from "antd";
+import { Button, Tag, message, Popconfirm, Tooltip, Modal } from "antd";
 import { isEqual, set } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable } from "./DQChecks.styled";
-import DQChecksFilter from "./DQChecksFilter";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
@@ -47,8 +32,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [searchParam] = useSearchParams();
-
   const [loading, setLoading] = useState<boolean>(false);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
 
@@ -58,18 +41,10 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     []
   );
   const [availableScoreNames, setAvailableScoreNames] = useState<string[]>([]);
-
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
 
   // Whole DQ Check data
   const [dqCheckData, setDQCheckData] = useState<any>(null);
-
-  // Individual DQ Check state for mode all
-  const [isActive, setIsActive] = useState<boolean>(true);
-  const [checkValues, setCheckValues] = useState<string[]>([]);
-  const [flagDescription, setFlagDescription] = useState<string>("");
-  const [filterData, setFilterData] = useState<any[]>([]);
-  const [moduleName, setModuleName] = useState<string>("");
 
   const { loading: isDQFormLoading, dqForms } = useAppSelector(
     (state: RootState) => state.dqForms
@@ -190,16 +165,12 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     spotcheck_score_name: check.check_components.spotcheck_score_name,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
-    isDeleted: check.note === "Question not found in form definition",
+    isDeleted:
+      check.note === "Question not found in form definition" ||
+      check.note === "Question not found in DQ form definition" ||
+      check.note === "Filter question not found in form definition",
     isRepeatGroup: check.is_repeat_group,
   }));
-
-  const handleModeNameChange = (val: string) => {
-    if (val && !availableModuleNames.includes(val)) {
-      setAvailableModuleNames((prevOptions) => [...prevOptions, val]);
-      setModuleName(val);
-    }
-  };
 
   // Handlers to save, add, edit, mark active, mark inactive, delete checks
   const handleAddCheck = () => {
@@ -256,7 +227,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     if (isDeletedCheck) {
       Modal.confirm({
         title: "Are you sure?",
-        content: `Your selection contains some checks that have been deleted from the form definition. This action will mark only the active checks as active. Do you want to proceed?`,
+        content: `Your selection contains some checks which are inactive because one or more of the variables used in the check are no longer in the form definition. This action will mark only the remaining checks as active. Do you want to proceed?`,
         okText: "Yes",
         cancelText: "No",
         width: 600,
@@ -315,85 +286,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
         message.error("Failed to delete DQ Checks");
       }
     });
-  };
-
-  const handleAllSave = () => {
-    if (!formUID || !typeID) return;
-
-    // Validate data
-    if (checkValues.length === 0) {
-      message.error("Please input at least one check value");
-      return;
-    }
-
-    if (filterData.length > 0) {
-      const isFilterValid = filterData.every((filter) => {
-        return filter.filter_group.every(
-          (group: any) => group.question_name && group.filter_operator
-        );
-      });
-
-      if (!isFilterValid) {
-        message.error("Please input all filter conditions");
-        return;
-      }
-    }
-
-    if (dqCheckData === null || dqCheckData.length === 0) {
-      const formData = {
-        form_uid: formUID,
-        type_id: typeID,
-        module_name: moduleName || "",
-        question_name: null,
-        flag_description: flagDescription || "",
-        filters: filterData,
-        active: isActive,
-        check_components: { value: checkValues },
-      };
-
-      setLoading(true);
-      postDQChecks(formUID, typeID, formData).then((res: any) => {
-        setLoading(false);
-        if (res?.data?.success) {
-          message.success("DQ Check saved successfully", 1, () => {
-            navigate(0);
-          });
-        } else {
-          message.error("Failed to save DQ Check");
-        }
-      });
-    } else {
-      if (
-        dqCheckData.length > 0 &&
-        dqCheckData[0].all_questions === true &&
-        dqCheckData[0].dq_check_uid
-      ) {
-        // Update existing DQ Check
-        const formData = {
-          form_uid: formUID,
-          type_id: typeID,
-          module_name: moduleName,
-          question_name: null,
-          flag_description: flagDescription,
-          filters: filterData,
-          active: isActive,
-          check_components: { value: checkValues },
-        };
-
-        setLoading(true);
-        putDQChecks(dqCheckData[0].dq_check_uid, formData).then((res: any) => {
-          setLoading(false);
-          if (res?.data?.success) {
-            message.success("DQ Check updated successfully", 1, () => {
-              navigate(0);
-            });
-          }
-        });
-      } else {
-        message.error("DQ Check not found to update it.");
-        return;
-      }
-    }
   };
 
   const handleOnDrawerSave = (data: any) => {
@@ -549,15 +441,15 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   useEffect(() => {
     if (dqForms.length > 0 && formUID) {
       const selectedDqForms = dqForms.filter(
-        (dqForm: any) => dqForm.parent_form_uid === formUID
+        (form: any) => form.parent_form_uid?.toString() === formUID
       );
-      setSelectedDqForms(dqForms);
+      setSelectedDqForms(selectedDqForms);
     } else {
       setSelectedDqForms([]);
     }
   }, [dqForms, formUID]);
 
-  const isLoading = loading;
+  const isLoading = loading || isDQFormLoading;
 
   return (
     <>
@@ -638,7 +530,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                   cancelText="No"
                 >
                   <Button
-                    type="primary"
                     style={{ marginLeft: 16 }}
                     onClick={(e) => e.stopPropagation()}
                     disabled={selectedVariableRows.length === 0}
