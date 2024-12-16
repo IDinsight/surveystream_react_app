@@ -300,19 +300,6 @@ function TargetsConfig() {
                   </StyledFormItem>
                 </>
               )}
-
-              {targetConfig && targetConfig.target_source !== sourceType && (
-                <div
-                  style={{
-                    color: "red",
-                    marginBottom: "16px",
-                    fontSize: "14px",
-                  }}
-                >
-                  Warning: Changing the source will delete already uploaded
-                  targets.
-                </div>
-              )}
             </Form>
             {sctoError && (
               <SCTOLoadErrorArea>
