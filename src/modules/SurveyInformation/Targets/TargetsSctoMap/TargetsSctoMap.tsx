@@ -996,7 +996,13 @@ function TargetsSctoMap() {
                     </Row>
                   </div>
                 ) : null}
-                <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: 32,
+                  }}
+                >
                   <CSVLink
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
@@ -1009,6 +1015,19 @@ function TargetsSctoMap() {
                       Download errors and warnings
                     </Button>
                   </CSVLink>
+                  {correctRecords > 0 && (
+                    <CustomBtn
+                      onClick={() =>
+                        navigate(
+                          `/survey-information/targets/${survey_uid}/${form_uid}`
+                        )
+                      }
+                      loading={targetLoading}
+                      style={{ marginRight: "10%" }}
+                    >
+                      Continue
+                    </CustomBtn>
+                  )}
                 </div>
               </>
             )}
