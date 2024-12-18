@@ -96,25 +96,25 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       dataIndex: "filterData",
       key: "filterData",
     },
-    {
-      ...(typeID === "2"
-        ? {
+    ...(typeID === "2"
+      ? [
+          {
             title: "Constraints",
             dataIndex: "constraintsData",
             render: (val: any, record: any) => {
               return [
-                record.hardMin,
-                record.softMin,
-                record.softMax,
-                record.hardMax,
+                record.hardMin ?? "-",
+                record.softMin ?? "-",
+                record.softMax ?? "-",
+                record.hardMax ?? "-",
               ].join(", ");
             },
-          }
-        : null),
-    },
-    {
-      ...(typeID === "3"
-        ? {
+          },
+        ]
+      : []),
+    ...(typeID === "3"
+      ? [
+          {
             title: "Value",
             dataIndex: "outlinerValues",
             render: (val: any, record: any) => {
@@ -129,9 +129,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 return <>&plusmn; {record.outlinerValue}th Percentile</>;
               }
             },
-          }
-        : null),
-    },
+          },
+        ]
+      : []),
     {
       title: "Status",
       dataIndex: "status",

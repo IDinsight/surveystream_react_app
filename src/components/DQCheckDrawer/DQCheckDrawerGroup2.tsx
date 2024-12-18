@@ -83,23 +83,15 @@ function DQCheckDrawer({
     }
 
     if (typeID === "2") {
-      if (localData.hard_min === null) {
-        message.error("Please input a value for Hard Min");
-        return;
-      }
-
-      if (localData.soft_min === null) {
-        message.error("Please input a value for Soft Min");
-        return;
-      }
-
-      if (localData.soft_max === null) {
-        message.error("Please input a value for Soft Max");
-        return;
-      }
-
-      if (localData.hard_max === null) {
-        message.error("Please input a value for Hard Max");
+      if (
+        localData.hard_min === null &&
+        localData.soft_min === null &&
+        localData.soft_max === null &&
+        localData.hard_max === null
+      ) {
+        message.error(
+          "Please input at least one value for Hard Min, Soft Min, Soft Max, or Hard Max"
+        );
         return;
       }
     }
