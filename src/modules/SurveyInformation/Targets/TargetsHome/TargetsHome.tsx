@@ -413,14 +413,16 @@ function TargetsHome() {
                 </Button>
               </>
             ) : null}
-            <Button
-              type="primary"
-              icon={editMode ? null : <EditOutlined />}
-              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-              onClick={() => setEditMode((prev) => !prev)}
-            >
-              {editMode ? "Done editing" : "Edit"}
-            </Button>
+            {targetDataSource !== "scto" && (
+              <Button
+                type="primary"
+                icon={editMode ? null : <EditOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                onClick={() => setEditMode((prev) => !prev)}
+              >
+                {editMode ? "Done editing" : "Edit"}
+              </Button>
+            )}
             <Button
               onClick={handlerAddTargetBtn}
               type="primary"
