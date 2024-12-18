@@ -113,7 +113,7 @@ function TargetsSctoMap() {
       key: "count",
     },
     {
-      title: "Rows (in original csv) with warning",
+      title: "Rows (in surveycto data) with warning",
       dataIndex: "rows",
       key: "rows",
     },
@@ -701,9 +701,9 @@ function TargetsSctoMap() {
             {!hasError && !hasWarning ? (
               <>
                 <div>
-                  <Title>Targets: Map CSV columns</Title>
+                  <Title>Targets: Map SCTO columns</Title>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
+                    Select corresponding column for the label on the left
                   </DescriptionText>
                 </div>
                 <Form
@@ -956,8 +956,7 @@ function TargetsSctoMap() {
                         <span style={{ fontWeight: 700 }}>View errors</span>:
                         The table below has the list of all the errors and the
                         corresponding row numbers. The original row numbers are
-                        present as a column in the csv. Use this to edit the
-                        csv.
+                        present as a column in the csv.
                       </li>
                       <li>
                         <span style={{ fontWeight: 700 }}>
