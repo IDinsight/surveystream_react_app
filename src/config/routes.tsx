@@ -5,7 +5,11 @@ import LandingPage from "../modules/LandingPage";
 import SurveysHomePage from "../modules/SurveysHomePage";
 import NewSurveyConfig from "../modules/NewSurveyConfig";
 import ModuleSelection from "../modules/ModuleSelection";
-import { getCookie, userHasPermission } from "../utils/helper";
+import {
+  getCookie,
+  userHasPermissionAdmin,
+  getErrorModules,
+} from "../utils/helper";
 import ForgotPassword from "../modules/Auth/ForgotPassword";
 import ResetPassword from "../modules/Auth/ResetPassword";
 import SurveyCTOQuestions from "../modules/SurveyInformation/SurveyCTOQuestions";
@@ -30,7 +34,7 @@ import CreateAssignments from "../modules/Assignments/AssignmentsTab/CreateAssig
 import UploadAssignments from "../modules/Assignments/AssignmentsTab/UploadAssignments/UploadAssignments";
 import SurveyRoles from "../modules/SurveyInformation/SurveyUserRoles/SurveyRoles";
 import SurveyUsers from "../modules/SurveyInformation/SurveyUserRoles/SurveyUsers";
-import { useAppSelector } from "../redux/hooks";
+import { useAppSelector, useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import PermissionDenied from "../components/PermissionDenied";
 import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
@@ -49,6 +53,7 @@ import AdminFormHome from "../modules/AdminForm";
 import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
 import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
+import React from "react";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -93,16 +98,44 @@ const SurveyCreationRoute = () => {
   return isSurveyAuthorized ? <Outlet /> : <PermissionDenied />;
 };
 
-const ProtectedPermissionRoute = (permission_name: any) => {
+const ProtectedPermissionRoute = (params: any) => {
+  const { permission_name, module_name } = params;
   const { survey_uid } = useParams<{ survey_uid?: string }>();
-  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
-  const hasPermission = userHasPermission(
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
+  const dispatch = useAppDispatch();
+
+  const { hasPermission, isAdmin } = userHasPermissionAdmin(
     userProfile,
     survey_uid || "",
     permission_name
   );
 
+  const [errorModules, setErrorModules] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    const fetchErrorModules = async () => {
+      if (survey_uid) {
+        await getErrorModules(survey_uid, dispatch).then(setErrorModules);
+      }
+    };
+    fetchErrorModules();
+  }, [survey_uid, dispatch]);
+
+  if (
+    module_name &&
+    module_name.length > 0 &&
+    errorModules.length > 0 &&
+    permission_name !== "Survey Admin" &&
+    !isAdmin &&
+    hasPermission
+  ) {
+    if (errorModules.includes(module_name)) {
+      return hasPermission ? <Outlet /> : <PermissionDenied />;
+    } else {
+      return <Navigate to={`/survey-configuration/${survey_uid}`} replace />;
+    }
+  }
   return hasPermission ? <Outlet /> : <PermissionDenied />;
 };
 
@@ -170,7 +203,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Survey Locations" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Survey Locations"
+            module_name="Survey locations"
+          />
         }
       >
         <Route
@@ -184,7 +220,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Survey Locations" />
+          <ProtectedPermissionRoute
+            permission_name="READ Survey Locations"
+            module_name="Survey locations"
+          />
         }
       >
         <Route
@@ -194,7 +233,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Enumerators" />
+          <ProtectedPermissionRoute
+            permission_name="READ Enumerators"
+            module_name="Enumerators"
+          />
         }
       >
         <Route
@@ -204,7 +246,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Enumerators" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Enumerators"
+            module_name="Enumerators"
+          />
         }
       >
         <Route
@@ -217,7 +262,12 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={<ProtectedPermissionRoute permission_name="READ Targets" />}
+        element={
+          <ProtectedPermissionRoute
+            permission_name="READ Targets"
+            module_name="Targets"
+          />
+        }
       >
         <Route
           path="/survey-information/targets/:survey_uid?/:form_uid?"
@@ -225,7 +275,12 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={<ProtectedPermissionRoute permission_name="WRITE Targets" />}
+        element={
+          <ProtectedPermissionRoute
+            permission_name="WRITE Targets"
+            module_name="Targets"
+          />
+        }
       >
         <Route
           path="/survey-information/targets/upload/:survey_uid?/:form_uid?"
@@ -238,7 +293,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Assignments" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Assignments"
+            module_name="Assign targets to surveyors"
+          />
         }
       >
         <Route
@@ -248,7 +306,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Assignments" />
+          <ProtectedPermissionRoute
+            permission_name="READ Assignments"
+            module_name="Assign targets to surveyors"
+          />
         }
       >
         <Route
@@ -258,7 +319,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Assignments" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Assignments"
+            module_name="Assign targets to surveyors"
+          />
         }
       >
         <Route
@@ -268,7 +332,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Assignments Upload" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Assignments Upload"
+            module_name="Assign targets to surveyors"
+          />
         }
       >
         <Route
@@ -277,7 +344,12 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={<ProtectedPermissionRoute permission_name="READ Emails" />}
+        element={
+          <ProtectedPermissionRoute
+            permission_name="READ Emails"
+            module_name="Emails"
+          />
+        }
       >
         <Route
           path="/module-configuration/emails/:survey_uid?/:tabId?"
@@ -285,7 +357,12 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={<ProtectedPermissionRoute permission_name="WRITE Emails" />}
+        element={
+          <ProtectedPermissionRoute
+            permission_name="WRITE Emails"
+            module_name="Emails"
+          />
+        }
       >
         <Route
           path="/module-configuration/emails/:survey_uid?/create"
@@ -294,7 +371,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="WRITE Target Status Mapping" />
+          <ProtectedPermissionRoute
+            permission_name="WRITE Target Status Mapping"
+            module_name="Target status mapping"
+          />
         }
       >
         <Route
@@ -304,7 +384,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Media Files Config" />
+          <ProtectedPermissionRoute
+            permission_name="READ Media Files Config"
+            module_name="Media (Audio/Photo) audits"
+          />
         }
       >
         <Route
@@ -318,7 +401,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Data Quality Forms" />
+          <ProtectedPermissionRoute
+            permission_name="READ Data Quality Forms"
+            module_name="Track data quality"
+          />
         }
       >
         <Route
@@ -336,7 +422,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Data Quality" />
+          <ProtectedPermissionRoute
+            permission_name="READ Data Quality"
+            module_name="Track data quality"
+          />
         }
       >
         <Route
@@ -354,7 +443,10 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
-          <ProtectedPermissionRoute permission_name="READ Admin Forms" />
+          <ProtectedPermissionRoute
+            permission_name="READ Admin Forms"
+            module_name="Admin forms"
+          />
         }
       >
         <Route
@@ -371,7 +463,12 @@ const AppRoutes = () => {
         />
       </Route>
       <Route
-        element={<ProtectedPermissionRoute permission_name="READ Mapping" />}
+        element={
+          <ProtectedPermissionRoute
+            permission_name="READ Mapping"
+            module_name="Mapping"
+          />
+        }
       >
         <Route
           path="/survey-information/mapping/:mapping_name?/:survey_uid?"
