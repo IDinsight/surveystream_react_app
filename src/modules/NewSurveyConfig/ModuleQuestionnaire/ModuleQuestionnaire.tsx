@@ -107,14 +107,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     { label: "Manual mapping", value: "Manual" },
   ];
 
-  const supervisorsHierarchyOptions = [
-    { label: "Yes, there is a hierarchy", value: true },
-    {
-      label: "No, they are all at the same level",
-      value: false,
-    },
-  ];
-
   // Enumerators checkbox options
   const enumeratorsCriteriaOptions = [
     {
@@ -225,16 +217,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <StyledFormItem required name="target_mapping_criteria">
               <CheckboxGroup
                 options={targetsCriteriaOptions}
-                style={{ marginTop: "15px" }}
-              />
-            </StyledFormItem>
-
-            <Title style={{ marginTop: "24px" }}>
-              Is there a hierarchy in supervisors?
-            </Title>
-            <StyledFormItem name="supervisor_hierarchy_exists">
-              <Radio.Group
-                options={supervisorsHierarchyOptions}
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
