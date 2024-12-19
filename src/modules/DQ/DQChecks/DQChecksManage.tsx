@@ -197,7 +197,7 @@ function DQChecksManage() {
             type="link"
             disabled={
               // disable based on type_id - can enable when we have the edit page ready
-              [1, 2, 3, 7, 8, 9, 10].includes(record?.type_id)
+              [1, 7, 8, 9, 10].includes(record?.type_id)
             }
             onClick={() => handleEdit(record?.type_id)}
           >
