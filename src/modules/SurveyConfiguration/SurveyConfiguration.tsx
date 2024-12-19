@@ -456,7 +456,8 @@ const SurveyConfiguration: React.FC = () => {
                         </li>
                       ))}
                     </ul>
-                    Please resolve the issues above to continue.
+                    Kindly contact your Survey Admin to resolve the issues above
+                    to continue.
                   </span>
                 }
                 type="error"

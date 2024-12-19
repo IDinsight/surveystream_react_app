@@ -54,6 +54,8 @@ import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
 import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
 import React from "react";
+import FullScreenLoader from "../components/Loaders/FullScreenLoader";
+import { message } from "antd";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -97,7 +99,6 @@ const SurveyCreationRoute = () => {
 
   return isSurveyAuthorized ? <Outlet /> : <PermissionDenied />;
 };
-
 const ProtectedPermissionRoute = (params: any) => {
   const { permission_name, module_name } = params;
   const { survey_uid } = useParams<{ survey_uid?: string }>();
@@ -112,15 +113,21 @@ const ProtectedPermissionRoute = (params: any) => {
   );
 
   const [errorModules, setErrorModules] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchErrorModules = async () => {
       if (survey_uid) {
         await getErrorModules(survey_uid, dispatch).then(setErrorModules);
       }
+      setLoading(false);
     };
     fetchErrorModules();
   }, [survey_uid, dispatch]);
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
 
   if (
     module_name &&
@@ -133,6 +140,7 @@ const ProtectedPermissionRoute = (params: any) => {
     if (errorModules.includes(module_name)) {
       return hasPermission ? <Outlet /> : <PermissionDenied />;
     } else {
+      message.error("Kindly resolve modules in error first", 10);
       return <Navigate to={`/survey-configuration/${survey_uid}`} replace />;
     }
   }
