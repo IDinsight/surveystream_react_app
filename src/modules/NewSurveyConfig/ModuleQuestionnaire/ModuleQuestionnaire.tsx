@@ -73,8 +73,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     survey_uid: moduleQuestionnaire?.survey_uid
       ? moduleQuestionnaire?.survey_uid
       : survey_uid
-      ? parseInt(survey_uid)
-      : 0,
+        ? parseInt(survey_uid)
+        : 0,
     target_assignment_criteria: [],
   });
   const [isLLMapping, setIsLLMapping] = useState<boolean | null>(null);
