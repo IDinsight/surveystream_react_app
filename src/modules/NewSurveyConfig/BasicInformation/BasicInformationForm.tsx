@@ -236,6 +236,27 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               </StyledFormItem>
 
               <StyledFormItem
+                labelCol={{ span: 24 }}
+                wrapperCol={{ span: 24 }}
+                name="survey_description"
+                style={{ display: "block" }}
+                label={
+                  <span>
+                    Survey description&nbsp;
+                    <StyledTooltip title="The survey description can help provide additional context about your survey to other SurveyStream users.">
+                      <QuestionCircleOutlined />
+                    </StyledTooltip>
+                  </span>
+                }
+              >
+                <TextArea
+                  id="basic-information-survey-description"
+                  placeholder="Survey description"
+                  style={{ width: "100%" }}
+                ></TextArea>
+              </StyledFormItem>
+
+              <StyledFormItem
                 required
                 labelCol={{ span: 24 }}
                 wrapperCol={{ span: 24 }}
