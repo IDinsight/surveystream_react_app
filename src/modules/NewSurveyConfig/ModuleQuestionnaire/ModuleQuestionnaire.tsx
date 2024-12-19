@@ -76,8 +76,8 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     survey_uid: moduleQuestionnaire?.survey_uid
       ? moduleQuestionnaire?.survey_uid
       : survey_uid
-      ? parseInt(survey_uid)
-      : 0,
+        ? parseInt(survey_uid)
+        : 0,
     target_assignment_criteria: [],
   });
   const [isLLMapping, setIsLLMapping] = useState<boolean | null>(null);
@@ -119,14 +119,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     {
       label: "Type of target/respondent",
       value: "Type of target/respondent",
-    },
-  ];
-
-  const enumeratorsTargetChangeOptions = [
-    { label: "Yes", value: true },
-    {
-      label: "No, there is a fixed list of targets and surveyors",
-      value: false,
     },
   ];
 
@@ -245,16 +237,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
             <StyledFormItem name="target_assignment_criteria">
               <CheckboxGroup
                 options={enumeratorsCriteriaOptions}
-                style={{ marginTop: "15px" }}
-              />
-            </StyledFormItem>
-            <Title style={{ marginTop: "24px" }}>
-              Will the assignment of the targets to surveyors change during the
-              course of the survey?
-            </Title>
-            <StyledFormItem name="reassignment_required">
-              <Radio.Group
-                options={enumeratorsTargetChangeOptions}
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
