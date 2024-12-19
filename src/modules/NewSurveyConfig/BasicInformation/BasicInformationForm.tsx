@@ -239,53 +239,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 required
                 labelCol={{ span: 24 }}
                 wrapperCol={{ span: 24 }}
-                name="survey_description"
-                style={{ display: "block" }}
-                label={
-                  <span>
-                    Survey description&nbsp;
-                    <StyledTooltip title="The survey description can help provide additional context about your survey to other SurveyStream users.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-              >
-                <TextArea
-                  id="basic-information-survey-description"
-                  placeholder="Survey description"
-                  style={{ width: "100%" }}
-                ></TextArea>
-              </StyledFormItem>
-
-              <StyledFormItem
-                labelCol={{ span: 24 }}
-                wrapperCol={{ span: 24 }}
-                name="irb_approval"
-                label={
-                  <span>
-                    Have you received an IRB approval?&nbsp;
-                    <StyledTooltip title="The IRB approval checkbox serves as a reminder to your team to secure ethics approvals before beginning survey activities.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                <Select
-                  id="basic-information-irb-approval"
-                  style={{ width: "100%" }}
-                  placeholder="Yes, no, pending"
-                >
-                  <Select.Option value="Yes">Yes</Select.Option>
-                  <Select.Option value="No">No</Select.Option>
-                  <Select.Option value="Pending">Pending</Select.Option>
-                </Select>
-              </StyledFormItem>
-
-              <StyledFormItem
-                required
-                labelCol={{ span: 24 }}
-                wrapperCol={{ span: 24 }}
                 label={
                   <span>
                     Systems end date (YYYY-MM-DD)&nbsp;
