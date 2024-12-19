@@ -68,16 +68,13 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
   const [mqFormData, setMQFormData] = useState<SurveyModuleQuestionnaireData>({
     assignment_process: null,
     language_location_mapping: null,
-    reassignment_required: null,
     target_mapping_criteria: [],
     surveyor_mapping_criteria: [],
-    supervisor_surveyor_relation: null,
-    supervisor_hierarchy_exists: null,
     survey_uid: moduleQuestionnaire?.survey_uid
       ? moduleQuestionnaire?.survey_uid
       : survey_uid
-        ? parseInt(survey_uid)
-        : 0,
+      ? parseInt(survey_uid)
+      : 0,
     target_assignment_criteria: [],
   });
   const [isLLMapping, setIsLLMapping] = useState<boolean | null>(null);
@@ -240,6 +237,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
+
             <Title style={{ marginTop: "24px" }}>
               What process will you use to perform the assignment of targets to
               surveyors?

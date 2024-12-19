@@ -235,12 +235,6 @@ function NewSurveyConfig() {
       const validationRules = [
         { key: "survey_name", message: "Please fill in the Survey name" },
         { key: "survey_id", message: "Please fill in the Survey ID" },
-
-        {
-          key: "survey_description",
-          message: "Please fill in the Survey description",
-        },
-        { key: "irb_approval", message: "Please fill in the IRB approval" },
         {
           key: "surveying_method",
           message: "Please fill in the Survey method",
