@@ -29,7 +29,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   const [form] = Form.useForm();
   const [userUId, setUserUId] = useState<any>();
   const dispatch = useAppDispatch();
-
+  const [irbApproval, setIrbApproval] = useState<string>("Yes");
   const basicInfo = useAppSelector(
     (state: RootState) => state.surveyConfig.basicInfo
   );
@@ -95,6 +95,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         ? basicInfo?.prime_geo_level_uid
         : null,
       created_by_user_uid: userUId,
+      irb_approval: irbApproval,
     };
   };
   const handleFormValuesChange = (changedValues: any, allValues: any) => {

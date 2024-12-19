@@ -19,9 +19,6 @@ export type SurveyModuleQuestionnaireData = {
   target_assignment_criteria: string[];
   target_mapping_criteria: string[];
   surveyor_mapping_criteria: string[];
-  supervisor_hierarchy_exists: boolean | null;
-  reassignment_required: boolean | null;
-  assignment_process: string | null;
-  supervisor_surveyor_relation: string | null;
+  assignment_process:string| null;
   language_location_mapping: boolean | null;
 };
