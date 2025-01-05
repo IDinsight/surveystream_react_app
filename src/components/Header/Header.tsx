@@ -20,8 +20,10 @@ import {
   MailOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
+import { getAllNotifications } from "./../../redux/notifications/notificationActions";
 
 import "./Header.css";
+import NotificationBell from "../NotificationBell";
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -33,6 +35,11 @@ const Header = () => {
   const storedProfile = localStorage.getItem("userProfile");
   const reduxProfile = useAppSelector((state: RootState) => state.auth.profile);
   const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
+  const {
+    loading: isNotificationLoading,
+    error,
+    notifications,
+  } = useAppSelector((state: RootState) => state.notifications);
 
   const isAuthenticated = () => {
     // Return true if authenticated, false otherwise
@@ -103,6 +110,25 @@ const Header = () => {
     setNavItems(filteredItems);
   }, [location]);
 
+  useEffect(() => {
+    if (userProfile?.user_uid) {
+      const fetchNotifications = async () => {
+        try {
+          await dispatch(getAllNotifications(userProfile.user_uid));
+        } catch (error) {
+          // TODO: Handle error
+        }
+      };
+
+      fetchNotifications();
+      // const intervalId = setInterval(fetchNotifications, 50000);
+
+      // return () => {
+      //   clearInterval(intervalId);
+      // };
+    }
+  }, [userProfile?.user_uid, dispatch]);
+
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
@@ -147,6 +173,13 @@ const Header = () => {
           <Link to="https://docs.surveystream.idinsight.io">
             <span className="!text-gray-2">Documentation</span>
           </Link>
+        </div>
+        <div className="justify-center w-20">
+          {isSignedIn() ? (
+            <>
+              <NotificationBell notifications={notifications} />
+            </>
+          ) : null}
         </div>
       </div>
       {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}

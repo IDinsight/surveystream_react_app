@@ -49,6 +49,7 @@ import AdminFormHome from "../modules/AdminForm";
 import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
 import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
+import Notifications from "../modules/Notifications";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -136,6 +137,10 @@ const AppRoutes = () => {
           path="/survey-configuration/:survey_uid?"
           element={<SurveyConfiguration />}
         />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
 
       <Route
