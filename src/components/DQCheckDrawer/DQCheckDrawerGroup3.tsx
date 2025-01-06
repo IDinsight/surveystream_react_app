@@ -1,39 +1,66 @@
 import { useEffect, useState } from "react";
 import { ChecksSwitch } from "../../modules/DQ/DQChecks/DQChecks.styled";
 import DQChecksFilter from "../../modules/DQ/DQChecks/DQChecksFilter";
-import { Button, Col, Drawer, Form, Input, message, Row, Select } from "antd";
+import {
+  Button,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  message,
+  Row,
+  Select,
+  Spin,
+} from "antd";
+import { getSurveyCTOFormDefinition } from "../../redux/surveyCTOQuestions/apiService";
+import { useAppDispatch } from "../../redux/hooks";
+import { LoadingOutlined } from "@ant-design/icons";
 import { CustomBtn } from "../../shared/Global.styled";
 
-interface IDQCheckDrawerProps {
+interface IDQCheckDrawerGroup3Props {
   visible: boolean;
   onClose: any;
   onSave: any;
   data: any;
-  questions: any[];
+  typeID: string;
+  dqForms: any[];
+  parentFormQuestions: any[];
   showModuleName: boolean;
   moduleNames: any[];
-  variablesValues: string[];
+  scoreNames: any[];
 }
 
-function DQCheckDrawer({
+function DQCheckDrawerGroup3({
   visible,
   onClose,
-  data,
   onSave,
-  questions,
+  data,
+  typeID,
+  dqForms,
+  parentFormQuestions,
   showModuleName,
   moduleNames,
-  variablesValues,
-}: IDQCheckDrawerProps) {
+  scoreNames,
+}: IDQCheckDrawerGroup3Props) {
+  const dispatch = useAppDispatch();
+
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
+  const [localScoreNames, setLocalScoreNames] = useState<any>(scoreNames);
   const [filter, setFilter] = useState<any>([]);
+
+  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
+  const [dqFormQuestions, setDqFormQuestions] = useState<any[]>([]);
+
+  const [finalQuestions, setFinalQuestions] = useState<any[]>([]);
+
   const [localData, setLocalData] = useState<any>({
     dq_check_id: null,
+    dq_scto_form_uid: null,
     variable_name: "",
-    check_values: [],
     flag_description: "",
     is_active: true,
     module_name: "",
+    spotcheck_score_name: null,
   });
 
   const handleFieldChange = (field: string, value: any) => {
@@ -59,14 +86,21 @@ function DQCheckDrawer({
     }
   };
 
+  const handleScoreNameChange = (val: string) => {
+    if (val && !localScoreNames.includes(val)) {
+      setLocalScoreNames((prevOptions: any) => [...prevOptions, val]);
+      handleFieldChange("spotcheck_score_name", val);
+    }
+  };
+
   const handleSave = () => {
-    if (!localData.variable_name) {
-      message.error("Please select a variable");
+    if (!localData.dq_scto_form_uid) {
+      message.error("Please select a data quality form");
       return;
     }
 
-    if (localData.check_values.length === 0) {
-      message.error("Please input at least one check value");
+    if (!localData.variable_name) {
+      message.error("Please select a variable");
       return;
     }
 
@@ -89,26 +123,75 @@ function DQCheckDrawer({
     });
   };
 
+  // Fetch form definition for questions
+  useEffect(() => {
+    if (localData.dq_scto_form_uid) {
+      getSurveyCTOFormDefinition(localData.dq_scto_form_uid, false, true).then(
+        (res: any) => {
+          if (res?.data?.success) {
+            const formDefinition = res.data.data;
+            if (formDefinition && formDefinition.questions) {
+              const questionNames = formDefinition.questions.map(
+                (question: any) => ({
+                  name: question.question_name,
+                  label:
+                    question.question_name +
+                    (question.is_repeat_group ? "_*" : ""),
+                })
+              );
+              setDqFormQuestions(questionNames);
+            }
+          }
+        }
+      );
+    }
+  }, [localData.dq_scto_form_uid]);
+
+  useEffect(() => {
+    if (parentFormQuestions && dqFormQuestions) {
+      // if type is mismatch check, find the common questions in both parent and dq form
+      if (typeID === "7") {
+        const questions: any = [];
+
+        // find the questions that are common in both parent and dq form for mismatch checks
+        parentFormQuestions.forEach((parentQuestion: any) => {
+          dqFormQuestions.forEach((dqQuestion: any) => {
+            if (parentQuestion.name === dqQuestion.name) {
+              questions.push(dqQuestion);
+            }
+          });
+        });
+        setFinalQuestions(questions);
+      } else {
+        setFinalQuestions(dqFormQuestions);
+      }
+    } else {
+      setFinalQuestions([]);
+    }
+  }, [parentFormQuestions, dqFormQuestions]);
+
   useEffect(() => {
     if (data) {
       setLocalData({
         dq_check_id: data.dqCheckUID,
+        dq_scto_form_uid: data.dq_scto_form_uid,
         variable_name: data.questionName,
-        check_values: data.value,
         flag_description: data.flagDescription,
         is_active: data.status === "Active",
         module_name: data.moduleName,
+        spotcheck_score_name: data.spotcheck_score_name,
       });
 
       setFilter(data.filters);
     } else {
       setLocalData({
+        dq_scto_form_uid: null,
         variable_name: "",
-        check_values: [],
         flag_description: "",
         is_active: true,
         module_name: "",
         filters: [],
+        spotcheck_score_name: null,
       });
     }
   }, [data]);
@@ -133,8 +216,34 @@ function DQCheckDrawer({
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
+              label="Select data quality form:"
+              tooltip="Form on which the check will run."
+            />
+          </Col>
+          <Col span={12}>
+            <Select
+              showSearch
+              style={{ width: "100%" }}
+              value={localData.dq_scto_form_uid}
+              options={dqForms?.map((option: any) => ({
+                value: option.form_uid,
+                label: option.scto_form_id,
+              }))}
+              onChange={(value) => {
+                handleFieldChange("dq_scto_form_uid", value);
+              }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={8}>
+            <Form.Item
               label="Select variable"
-              tooltip="Choose variable from SCTO question list"
+              tooltip={`${
+                typeID === "7"
+                  ? "Select from the list of common questions in the parent and selected DQ form. Mismatch checks require the question name to be same in both forms."
+                  : "Select from the list of questions in the selected DQ form."
+              }`}
             />
           </Col>
           <Col span={12}>
@@ -143,40 +252,56 @@ function DQCheckDrawer({
               showSearch
               placeholder="Select variable"
               value={localData.variable_name}
-              options={questions.map((question: any) => ({
+              options={finalQuestions.map((question: any) => ({
                 value: question.name,
                 label: question.label,
               }))}
               onChange={(value) => handleFieldChange("variable_name", value)}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col span={8}>
-            <Form.Item
-              label="Check values:"
-              tooltip="Value that is considered for checks"
-            />
-          </Col>
-          <Col span={12}>
-            <Select
-              mode="tags"
-              style={{ width: "100%" }}
-              value={localData.check_values}
-              options={variablesValues?.map((option: any) => ({
-                value: option,
-                label: option === "''" ? "(empty)" : option,
-              }))}
-              onChange={(newValue) => {
-                const cleanedValues = [...new Set(newValue)];
-                const updatedValues = cleanedValues.map((value) =>
-                  value === '""' ? "''" : value
-                );
-                handleFieldChange("check_values", updatedValues);
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 28 }} spin />}
+              style={{
+                marginLeft: 24,
+                display: isQuestionLoading ? "block" : "none",
               }}
             />
           </Col>
         </Row>
+        {typeID === "9" ? (
+          <Row>
+            <Col span={8}>
+              <Form.Item
+                label="Score Name:"
+                tooltip="Can be used to aggregate data from multiple scores. If left blank, the variable name will be used."
+              />
+            </Col>
+            <Col span={12}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Select or input an option"
+                showSearch
+                value={localData.spotcheck_score_name}
+                options={localScoreNames?.map((name: any) => ({
+                  value: name,
+                  label: name,
+                }))}
+                onChange={(value) =>
+                  handleFieldChange("spotcheck_score_name", value)
+                }
+                onBlur={(e: any) => {
+                  const inputValue = e.target.value;
+                  handleScoreNameChange(inputValue);
+                }}
+                onKeyDown={(e: any) => {
+                  if (e.key === "Enter") {
+                    const inputValue = e.target.value;
+                    handleScoreNameChange(inputValue);
+                  }
+                }}
+              />
+            </Col>
+          </Row>
+        ) : null}
         <Row>
           <Col span={8}>
             <Form.Item
@@ -197,12 +322,12 @@ function DQCheckDrawer({
         <div>
           <Form.Item
             label="Filter before applying this check:"
-            tooltip="Conditions to filter out the data before applying a check. Example: age < 30"
+            tooltip="Conditions to filter out the data before applying a check. Filter is applied on the DQ form. Example: age < 30"
           />
           <DQChecksFilter
             filters={filter}
             setFilterList={setFilter}
-            questions={questions}
+            questions={dqFormQuestions}
           />
         </div>
         {showModuleName ? (
@@ -261,4 +386,4 @@ function DQCheckDrawer({
   );
 }
 
-export default DQCheckDrawer;
+export default DQCheckDrawerGroup3;

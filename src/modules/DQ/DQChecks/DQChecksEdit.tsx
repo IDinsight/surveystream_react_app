@@ -9,6 +9,7 @@ import DQCheckGroup1 from "./DQCheckGroup1";
 import DQCheckGroup2 from "./DQCheckGroup2";
 import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
+import DQCheckGroup3 from "./DQCheckGroup3";
 
 function DQChecksEdit() {
   const navigate = useNavigate();
@@ -71,6 +72,15 @@ function DQChecksEdit() {
             <DQFormWrapper>
               {["Missing", "Don't know", "Refusal"].includes(checkName) && (
                 <DQCheckGroup1
+                  surveyUID={survey_uid || ""}
+                  formUID={form_uid || ""}
+                  typeID={type_id || ""}
+                />
+              )}
+              {["Mismatch", "Protocol violation", "Spotcheck score"].includes(
+                checkName
+              ) && (
+                <DQCheckGroup3
                   surveyUID={survey_uid || ""}
                   formUID={form_uid || ""}
                   typeID={type_id || ""}
