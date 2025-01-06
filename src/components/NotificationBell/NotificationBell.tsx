@@ -1,13 +1,4 @@
-import { useEffect, useState } from "react";
-import {
-  Badge,
-  Button,
-  Divider,
-  Dropdown,
-  List,
-  message,
-  Typography,
-} from "antd";
+import { Badge, Button, Divider, Dropdown, List, Typography } from "antd";
 import {
   BellOutlined,
   CheckCircleFilled,
@@ -15,43 +6,25 @@ import {
   WarningFilled,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 interface INotificationBellProps {
   notifications: Array<any>;
 }
 
 const NotificationBell = ({ notifications }: INotificationBellProps) => {
-  const [prevNotifications, setPrevNotifications] = useState<any[]>([]);
-  const [newNotifications, setNewNotifications] = useState<any[]>([]);
-
   const markAllAsRead = () => {
     // Mark all notifications as read
-    setNewNotifications([]);
   };
-
-  useEffect(() => {
-    // Check for new notifications
-    if (prevNotifications.length > 0) {
-      const diff = notifications.filter(
-        (n) => !prevNotifications.some((prev) => prev.id === n.id)
-      );
-
-      // Show Antd message for new notifications
-      diff.forEach((notification) =>
-        message.info(`New Notification: ${notification.message}`)
-      );
-
-      setNewNotifications(diff);
-    }
-
-    setPrevNotifications(notifications);
-  }, [notifications]);
 
   const notificationList = (
     <>
       <List
         bordered
-        dataSource={notifications.slice(0, 20)}
+        dataSource={notifications?.slice(0, 20)}
         renderItem={(item: any, index: number) => (
           <>
             {index === 0 && (
@@ -97,10 +70,19 @@ const NotificationBell = ({ notifications }: INotificationBellProps) => {
                 )}
               </div>
               <div>
-                <p style={{ marginTop: 0, fontWeight: "bold" }}>
-                  {item.survey_id}
+                <p style={{ marginTop: 0 }}>
+                  <span style={{ fontWeight: "bold" }}>{item.survey_id}</span>
+                  <span style={{ color: "grey", fontSize: 12, marginLeft: 8 }}>
+                    {dayjs(item.created_at).fromNow()}
+                  </span>
                 </p>
-                <p style={{ marginBottom: 0 }}>{item.message}</p>
+                <p style={{ marginBottom: 0 }}>
+                  {item.message} Checkout at{" "}
+                  <Link to={`survey-configuration/${item.survey_uid}`}>
+                    {item.module_name}
+                  </Link>{" "}
+                  module.
+                </p>
               </div>
             </List.Item>
           </>

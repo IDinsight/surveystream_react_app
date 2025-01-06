@@ -5,8 +5,15 @@ import { Button, Divider, List, Result, Typography } from "antd";
 import { GlobalStyle } from "../../shared/Global.styled";
 import Footer from "../../components/Footer";
 import { CheckCircleFilled, WarningFilled } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 function Notifications() {
+  const navigate = useNavigate();
+
   const {
     loading: isNotificationLoading,
     error,
@@ -100,10 +107,34 @@ function Notifications() {
                         )}
                       </div>
                       <div>
-                        <p style={{ marginTop: 0, fontWeight: "bold" }}>
-                          {item.survey_id}
+                        <p style={{ marginTop: 0 }}>
+                          <span style={{ fontWeight: "bold" }}>
+                            {item.survey_id}
+                          </span>
+                          <span
+                            style={{
+                              color: "grey",
+                              fontSize: 12,
+                              marginLeft: 8,
+                            }}
+                          >
+                            {dayjs(item.created_at).fromNow()}
+                          </span>
                         </p>
-                        <p style={{ marginBottom: 0 }}>{item.message}</p>
+                        <p style={{ marginBottom: 0 }}>
+                          {item.message} Checkout at{" "}
+                          <span
+                            style={{ color: "#1890ff", cursor: "pointer" }}
+                            onClick={() =>
+                              navigate(
+                                `/survey-configuration/${item.survey_uid}`
+                              )
+                            }
+                          >
+                            {item.module_name}
+                          </span>{" "}
+                          module.
+                        </p>
                       </div>
                     </List.Item>
                   </>

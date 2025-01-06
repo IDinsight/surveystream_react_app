@@ -37,7 +37,7 @@ const Header = () => {
   const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
   const {
     loading: isNotificationLoading,
-    error,
+    error: notificationError,
     notifications,
   } = useAppSelector((state: RootState) => state.notifications);
 
@@ -114,18 +114,18 @@ const Header = () => {
     if (userProfile?.user_uid) {
       const fetchNotifications = async () => {
         try {
-          await dispatch(getAllNotifications(userProfile.user_uid));
+          await dispatch(getAllNotifications());
         } catch (error) {
           // TODO: Handle error
         }
       };
 
       fetchNotifications();
-      // const intervalId = setInterval(fetchNotifications, 50000);
+      const intervalId = setInterval(fetchNotifications, 30000);
 
-      // return () => {
-      //   clearInterval(intervalId);
-      // };
+      return () => {
+        clearInterval(intervalId);
+      };
     }
   }, [userProfile?.user_uid, dispatch]);
 

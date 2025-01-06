@@ -3,11 +3,11 @@ import { API_BASE_URL } from "../../config/url";
 import { getCSRFToken } from "../apiService";
 import { getCookie } from "../../utils/helper";
 
-export const fetchAllNotifications = async (user_uid: string) => {
+export const fetchAllNotifications = async () => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/notifications?user_uid=${user_uid}`;
+    const url = `${API_BASE_URL}/notifications`;
 
     const res = await axios.get(url, {
       headers: {

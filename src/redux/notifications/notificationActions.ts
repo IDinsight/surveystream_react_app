@@ -9,10 +9,10 @@ import {
 
 export const getAllNotifications = createAsyncThunk(
   "notifications/getAllNotifications",
-  async (user_uid: string, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       dispatch(getNotificationsRequest());
-      const res: any = await api.fetchAllNotifications(user_uid);
+      const res: any = await api.fetchAllNotifications();
 
       if (res.status === 200) {
         dispatch(getNotificationsSuccess(res.data.data));
