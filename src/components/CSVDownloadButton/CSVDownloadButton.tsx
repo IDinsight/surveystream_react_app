@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CSVLink } from "react-csv";
-import { Modal, Button } from "antd";
+import { Modal, Button, Tooltip } from "antd";
 import {
   formatCsvData,
   formatCsvHeaders,
@@ -14,6 +14,7 @@ interface CSVDownloadButtonProps {
   data: any;
   filterData: any;
   disabled: boolean;
+  hoverText: string;
 }
 
 const CSVDownloadButton = ({
@@ -23,6 +24,7 @@ const CSVDownloadButton = ({
   data,
   filterData,
   disabled,
+  hoverText,
 }: CSVDownloadButtonProps) => {
   const csvLinkRef = useRef<any>();
   const [csvData, setCsvData] = useState<{
@@ -55,24 +57,25 @@ const CSVDownloadButton = ({
   };
 
   const showDownloadModal = (): void => {
-    Modal.confirm({
-      title: "Choose Data to Download",
+    Modal.info({
+      title: "Select data to download",
+      width: 450,
       content: (
-        <div>
+        <div style={{ display: "flex" }}>
           <Button
             onClick={() => generateCSV(data, `${tabItemIndex}.csv`)}
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 16, marginLeft: 0 }}
           >
-            Download Main Data
+            Download all data
           </Button>
           <Button
             type="dashed"
             onClick={() =>
               generateCSV(filterData, `Filtered-${tabItemIndex}.csv`)
             }
-            style={{ marginTop: 16, marginBottom: 16 }}
+            style={{ marginTop: 16, marginBottom: 16, marginLeft: 16 }}
           >
-            Download Filtered Data
+            Download filtered data
           </Button>
         </div>
       ),
@@ -100,12 +103,14 @@ const CSVDownloadButton = ({
 
   return (
     <div>
-      <Button
-        disabled={disabled}
-        icon={<DownloadOutlined />}
-        style={{ marginLeft: 16 }}
-        onClick={handleDownload}
-      ></Button>
+      <Tooltip title={hoverText}>
+        <Button
+          disabled={disabled}
+          icon={<DownloadOutlined />}
+          style={{ marginLeft: 16 }}
+          onClick={handleDownload}
+        ></Button>
+      </Tooltip>
       {csvData.data.length > 0 && (
         <CSVLink
           ref={csvLinkRef}
