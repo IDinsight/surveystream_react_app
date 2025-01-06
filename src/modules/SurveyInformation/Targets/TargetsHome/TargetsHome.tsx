@@ -414,23 +414,26 @@ function TargetsHome() {
               </>
             ) : null}
             {targetDataSource !== "scto" && (
-              <Button
-                type="primary"
-                icon={editMode ? null : <EditOutlined />}
-                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                onClick={() => setEditMode((prev) => !prev)}
-              >
-                {editMode ? "Done editing" : "Edit"}
-              </Button>
+              <>
+                <Button
+                  type="primary"
+                  icon={editMode ? null : <EditOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  onClick={() => setEditMode((prev) => !prev)}
+                >
+                  {editMode ? "Done editing" : "Edit"}
+                </Button>
+                <Button
+                  onClick={handlerAddTargetBtn}
+                  type="primary"
+                  icon={<CloudUploadOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                >
+                  Upload targets
+                </Button>
+              </>
             )}
-            <Button
-              onClick={handlerAddTargetBtn}
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-            >
-              Upload targets
-            </Button>
+
             <CSVDownloader
               data={tableDataSource}
               filename={"targets.csv"}

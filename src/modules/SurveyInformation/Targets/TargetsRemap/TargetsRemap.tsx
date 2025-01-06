@@ -294,6 +294,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           dispatch(setMappingErrorStatus(false));
           //route to manage
           setScreenMode("manage");
+          navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
           message.error("Failed to upload kindly check and try again");
           dispatch(setMappingErrorStatus(true));

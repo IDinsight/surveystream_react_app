@@ -1,13 +1,8 @@
 import SideMenu from "../../SideMenu";
-import {
-  HeaderContainer,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import { SCTOLoadErrorArea } from "../../SurveyCTOQuestions/SurveyCTOQuestions.styled";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import { Form, Input, message, Radio, Space, Modal, Alert } from "antd";
@@ -30,6 +25,8 @@ import {
 } from "../../../../redux/targets/targetActions";
 import Container from "../../../../components/Layout/Container";
 import { setuploadMode } from "../../../../redux/targets/targetSlice";
+import TargetsReupload from "../TargetsReupload/TargetsReupload";
+import TargetsRemap from "../TargetsRemap/TargetsRemap";
 
 function TargetsConfig() {
   const activeSurvey = useAppSelector(
@@ -60,6 +57,7 @@ function TargetsConfig() {
   const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
     string[]
   >([]);
+  const [screenMode, setScreenMode] = useState<string>("manage");
 
   const fetchTargetConfig = async () => {
     setLoading(true);
@@ -138,7 +136,7 @@ function TargetsConfig() {
         }
       }
     }
-    await handleSaveConfig();
+    await handleSaveConfig("");
   };
 
   const handleContinue = async () => {
@@ -155,12 +153,14 @@ function TargetsConfig() {
     setLoading(false);
   };
 
-  const handleSaveConfig = async () => {
+  const handleSaveConfig = async (mode: string) => {
     try {
+      if (mode === "delete") {
+        await handleDeleteAllTargets();
+      }
       await form.validateFields(); // Validate all fields before submission
       const values = form.getFieldsValue();
       values.form_uid = form_uid;
-      console.log("values", values);
 
       setLoading(true);
 
@@ -170,9 +170,13 @@ function TargetsConfig() {
 
       if (response.payload) {
         if (sourceType === "csv") {
-          navigate(
-            `/survey-information/targets/upload/${survey_uid}/${form_uid}`
-          );
+          if (mode === "merge") {
+            setScreenMode("reupload");
+          } else {
+            navigate(
+              `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+            );
+          }
         } else {
           const refresh_scto_columns = await dispatch(
             updateTargetSCTOColumns({ form_uid: form_uid! })
@@ -184,7 +188,6 @@ function TargetsConfig() {
           } else {
             setSctoError(true);
             setSurveyCTOErrorMessages(refresh_scto_columns.payload.errors);
-            console.log(refresh_scto_columns);
             message.error("Error in fetching data from SurveyCTO");
           }
         }
@@ -211,134 +214,152 @@ function TargetsConfig() {
       ) : (
         <div style={{ display: "flex" }}>
           <SideMenu />
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: "#f5f5f5",
-              paddingLeft: "80px",
-              paddingTop: "23px",
-              fontFamily: "Lato",
-            }}
-          >
-            <div style={{ display: "flex" }}>
-              <Title>Targets: Configuration</Title>
-            </div>
-            <Form
-              form={form}
-              layout="horizontal"
-              style={{
-                paddingTop: "23px",
-                fontFamily: "Lato",
-                fontSize: "16px",
-              }}
-            >
-              <StyledFormItem
-                name="target_source"
-                label="Select the source of Targets"
-                labelCol={{ span: 24 }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Please Select the source of Targets",
-                  },
-                ]}
+          {screenMode === "manage" ? (
+            <>
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f5f5f5",
+                  paddingLeft: "80px",
+                  paddingTop: "23px",
+                  fontFamily: "Lato",
+                }}
               >
-                <Radio.Group>
-                  <Space direction="horizontal" onChange={handleSourceChange}>
-                    <Radio value="csv">Upload CSV</Radio>
-                    <Radio value="scto">
-                      Connect to a SurveyCTO Dataset/Form
-                    </Radio>
-                  </Space>
-                </Radio.Group>
-              </StyledFormItem>
-
-              {sourceType === "scto" && (
-                <>
+                <div style={{ display: "flex" }}>
+                  <Title>Targets: Configuration</Title>
+                </div>
+                <Form
+                  form={form}
+                  layout="horizontal"
+                  style={{
+                    paddingTop: "23px",
+                    fontFamily: "Lato",
+                    fontSize: "16px",
+                  }}
+                >
                   <StyledFormItem
-                    name="scto_input_type"
-                    label="Select Type of SurveyCTO Input"
+                    name="target_source"
+                    label="Select the source of Targets"
                     labelCol={{ span: 24 }}
                     rules={[
                       {
                         required: true,
-                        message: "Please Select Type of SurveyCTO Input",
+                        message: "Please Select the source of Targets",
                       },
                     ]}
                   >
                     <Radio.Group>
-                      <Space direction="horizontal">
-                        <Radio value="dataset">Dataset</Radio>
-                        <Radio value="form">Form</Radio>
+                      <Space
+                        direction="horizontal"
+                        onChange={handleSourceChange}
+                      >
+                        <Radio value="csv">Upload CSV</Radio>
+                        <Radio value="scto">
+                          Connect to a SurveyCTO Dataset/Form
+                        </Radio>
                       </Space>
                     </Radio.Group>
                   </StyledFormItem>
-                  <StyledFormItem
-                    name="scto_input_id"
-                    labelCol={{ span: 24 }}
-                    label="Enter the SurveyCTO Input ID"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Enter the SurveyCTO Dataset/Form ID",
-                      },
-                    ]}
-                  >
-                    <Input style={{ width: "25%" }} />
-                  </StyledFormItem>
-                  <StyledFormItem
-                    name="scto_encryption_flag"
-                    valuePropName="checked"
-                  >
-                    <CheckboxSCTO>
-                      If SCTO Form is encrypted, please share the SCTO key with{" "}
-                      <a href="mail:surveystream.devs@idinsight.org">
-                        surveystream.devs@idinsight.org
-                      </a>{" "}
-                      via FlowCrypt/Dashlane.
-                    </CheckboxSCTO>
-                  </StyledFormItem>
-                </>
-              )}
-            </Form>
-            {sctoError && (
-              <SCTOLoadErrorArea>
-                <br />
-                The SurveyCTO form definition could not be loaded due to the
-                following errors:
-                <br />
-                <br />
-                <div>
-                  <Alert message={surveyCTOErrorMessages} type="error" />
-                  <br />
-                </div>
-              </SCTOLoadErrorArea>
-            )}
-          </div>
-          <Modal
-            title="Warning"
-            visible={modalVisible}
-            onOk={async () => {
-              setModalVisible(false);
-              await handleDeleteAllTargets();
-              handleSaveConfig(); // Continue after deletion
-            }}
-            onCancel={() => {
-              setModalVisible(false);
-              handleSaveConfig(); // Continue without deletion
-            }}
-            okText="Delete existing targets data"
-            cancelText="Merge with existing targets data"
-          >
-            <p>
-              We have detected changes to target config. Do you want to delete
-              existing targets data?
-            </p>
-          </Modal>
+
+                  {sourceType === "scto" && (
+                    <>
+                      <StyledFormItem
+                        name="scto_input_type"
+                        label="Select Type of SurveyCTO Input"
+                        labelCol={{ span: 24 }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please Select Type of SurveyCTO Input",
+                          },
+                        ]}
+                      >
+                        <Radio.Group>
+                          <Space direction="horizontal">
+                            <Radio value="dataset">Dataset</Radio>
+                            <Radio value="form">Form</Radio>
+                          </Space>
+                        </Radio.Group>
+                      </StyledFormItem>
+                      <StyledFormItem
+                        name="scto_input_id"
+                        labelCol={{ span: 24 }}
+                        label="Enter the SurveyCTO Input ID"
+                        rules={[
+                          {
+                            required: true,
+                            message:
+                              "Please Enter the SurveyCTO Dataset/Form ID",
+                          },
+                        ]}
+                      >
+                        <Input style={{ width: "25%" }} />
+                      </StyledFormItem>
+                      <StyledFormItem
+                        name="scto_encryption_flag"
+                        valuePropName="checked"
+                      >
+                        <CheckboxSCTO>
+                          If SCTO Form is encrypted, please share the SCTO key
+                          with{" "}
+                          <a href="mail:surveystream.devs@idinsight.org">
+                            surveystream.devs@idinsight.org
+                          </a>{" "}
+                          via FlowCrypt/Dashlane.
+                        </CheckboxSCTO>
+                      </StyledFormItem>
+                    </>
+                  )}
+                </Form>
+                {sctoError && (
+                  <SCTOLoadErrorArea>
+                    <br />
+                    The SurveyCTO form definition could not be loaded due to the
+                    following errors:
+                    <br />
+                    <br />
+                    <div>
+                      <Alert message={surveyCTOErrorMessages} type="error" />
+                      <br />
+                    </div>
+                  </SCTOLoadErrorArea>
+                )}
+              </div>
+              <Modal
+                title="Warning"
+                visible={modalVisible}
+                onOk={async () => {
+                  setModalVisible(false);
+                  handleSaveConfig("delete"); // Continue after deletion
+                }}
+                onCancel={() => {
+                  setModalVisible(false);
+                  handleSaveConfig("merge"); // Continue without deletion
+                }}
+                okText="Delete existing targets data"
+                cancelText="Merge with existing targets data"
+              >
+                <p>
+                  We have detected changes to target config. Do you want to
+                  delete existing targets data?
+                </p>
+              </Modal>
+            </>
+          ) : null}
+          {screenMode === "reupload" ? (
+            <>
+              <TargetsReupload setScreenMode={setScreenMode} />
+            </>
+          ) : null}
+          {screenMode === "remap" ? (
+            <TargetsRemap setScreenMode={setScreenMode} />
+          ) : null}
         </div>
       )}
       <FooterWrapper>
-        <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
+        {screenMode !== "remap" ? (
+          <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
+        ) : null}
       </FooterWrapper>
     </>
   );
