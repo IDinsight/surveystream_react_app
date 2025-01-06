@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button, Tag, message, Popconfirm, Tooltip, Modal } from "antd";
-import { isEqual } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable } from "./DQChecks.styled";
 import { useNavigate } from "react-router-dom";
@@ -10,14 +9,13 @@ import {
   activateDQChecks,
   deactivateDQChecks,
   deleteDQChecks,
-  fetchModuleName,
   getDQChecks,
   postDQChecks,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
-import DQCheckDrawerGroup2 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup2";
+import DQCheckDrawerGroup4 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup4";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { CustomBtn } from "../../../shared/Global.styled";
 
@@ -27,7 +25,7 @@ interface IDQCheckGroup1Props {
   typeID: string;
 }
 
-function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
+function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -36,9 +34,6 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const [tablePageSize, setTablePageSize] = useState(5);
 
-  const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
-    []
-  );
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
 
   // Whole DQ Check data
@@ -52,7 +47,6 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
-  const [variablesValues, setVariablesValues] = useState<string[]>([]);
 
   const showAddManualDrawer = () => {
     setIsAddManualDrawerVisible(true);
@@ -64,6 +58,13 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const columns = [
     {
+      title: "Type",
+      dataIndex: "gpsType",
+      key: "gpsType",
+      render: (gpsType: any) =>
+        gpsType === "point2point" ? "Point to Point" : "Point to Shape",
+    },
+    {
       title: "Variable name",
       dataIndex: "questionName",
       key: "questionName",
@@ -71,67 +72,24 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       render: (questionName: any, record: any) =>
         questionName + (record.isRepeatGroup ? "_*" : ""),
     },
-    ...(dqConfig?.group_by_module_name
-      ? [
-          {
-            title: "Module name",
-            dataIndex: "moduleName",
-            key: "moduleName",
-            sorter: (a: any, b: any) =>
-              (a.moduleName || "").localeCompare(b.moduleName || ""),
-          },
-        ]
-      : []),
     {
-      title: "Flag description",
-      dataIndex: "flagDescription",
-      key: "flagDescription",
+      title: "Grid ID variable",
+      dataIndex: "gridIDVariable",
+      key: "gridIDVariable",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
     {
-      title: (
-        <Tooltip title="Click on edit to view the filter conditions">
-          Filter applied
-        </Tooltip>
-      ),
-      dataIndex: "filterData",
-      key: "filterData",
+      title: "Expected GPS variable",
+      dataIndex: "gpsVariable",
+      key: "gpsVariable",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
-    ...(typeID === "2"
-      ? [
-          {
-            title: "Constraints",
-            dataIndex: "constraintsData",
-            render: (val: any, record: any) => {
-              return [
-                record.hardMin ?? "-",
-                record.softMin ?? "-",
-                record.softMax ?? "-",
-                record.hardMax ?? "-",
-              ].join(", ");
-            },
-          },
-        ]
-      : []),
-    ...(typeID === "3"
-      ? [
-          {
-            title: "Value",
-            dataIndex: "outlinerValues",
-            render: (val: any, record: any) => {
-              if (record.outlinerMetric === "interquartile_range") {
-                return `${record.outlinerValue} x IQR`;
-              }
-              if (record.outlinerMetric === "standard_deviation") {
-                return `${record.outlinerValue} x SD`;
-              }
-
-              if (record.outlinerMetric === "percentile") {
-                return <>&plusmn; {record.outlinerValue}th Percentile</>;
-              }
-            },
-          },
-        ]
-      : []),
+    {
+      title: "Threshold distance (m)",
+      dataIndex: "threshold",
+      key: "threshold",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -158,19 +116,12 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const selectVariableData: any = dqCheckData?.map((check: any) => ({
     key: check.dq_check_uid,
     dqCheckUID: check.dq_check_uid,
-    allQuestions: check.all_questions,
     questionName: check.question_name,
-    moduleName: check.module_name,
-    flagDescription: check.flag_description,
-    filterData: check.filters.length > 0 ? "Yes" : "-",
-    outlinerMetric: check.check_components.outlier_metric,
-    outlinerValue: check.check_components.outlier_value,
-    hardMin: check.check_components.hard_min,
-    hardMax: check.check_components.hard_max,
-    softMin: check.check_components.soft_min,
-    softMax: check.check_components.soft_max,
+    gpsType: check.check_components.gps_type,
+    threshold: check.check_components.threshold,
+    gpsVariable: check.check_components.gps_variable,
+    gridIDVariable: check.check_components.grid_id,
     status: check.active ? "Active" : "Inactive",
-    filters: check.filters,
     isDeleted:
       check.note === "Question not found in form definition" ||
       check.note === "Question not found in DQ form definition" ||
@@ -299,29 +250,21 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     if (!data) return;
 
-    let checkComponents = null;
-    if (typeID === "3") {
-      checkComponents = {
-        outlier_metric: data.outliner_metric,
-        outlier_value: data.outliner_value,
-      };
-    } else if (typeID === "2") {
-      checkComponents = {
-        hard_min: data.hard_min,
-        hard_max: data.hard_max,
-        soft_min: data.soft_min,
-        soft_max: data.soft_max,
-      };
-    }
+    const checkComponents = {
+      gps_type: data.gps_type,
+      threshold: data.threshold,
+      gps_variable: data.gps_variable,
+      grid_id: data.grid_id,
+    };
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
       all_questions: false,
-      module_name: data.module_name || "",
+      module_name: "",
       question_name: data.variable_name,
-      flag_description: data.flag_description || "",
-      filters: data.filters,
+      flag_description: "",
+      filters: [],
       active: data.is_active,
       check_components: checkComponents,
     };
@@ -369,14 +312,6 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   useEffect(() => {
     if (formUID) {
-      fetchModuleName(formUID).then((res: any) => {
-        if (res?.data?.success) {
-          setAvailableModuleNames(
-            res.data.data.filter((name: string) => name !== "" && name)
-          );
-        }
-      });
-
       if (typeID) {
         setLoading(true);
         getDQChecks(formUID, typeID)
@@ -421,20 +356,6 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   }, []);
 
   useEffect(() => {
-    if (selectVariableData && selectVariableData.length > 0) {
-      const variablesVals: string[] = [];
-      selectVariableData.map((variable: any) => {
-        if (variable?.value && Array.isArray(variable.value)) {
-          variablesVals.push(...variable.value);
-        }
-      });
-      if (!isEqual(variablesVals, variablesValues)) {
-        setVariablesValues(variablesVals);
-      }
-    }
-  }, [selectVariableData]);
-
-  useEffect(() => {
     if (formUID) {
       dispatch(getDQConfig({ form_uid: formUID }));
     }
@@ -449,10 +370,9 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       ) : (
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            {typeID === "2" &&
-              "This check verifies that continuous variables fall within soft and hard constraints. A soft constraint is a range that most values should fall within, but it is not logically impossible to encounter values outside this range (e.g. # of children 0 - 10). A hard constraint is a range that all values should fall within and anything outside is highly dubious (e.g. age 0 - 130)."}
-            {typeID === "3" &&
-              "This check verifies whether certain continuous variables contain outliers, where an outlier is defined to be a certain multiple of the IQR or SD or as values beyond a given percentile"}
+            This check verifies if GPS location of the household is within the
+            expected grid cell or shape boundary/the household surveyed is the
+            correct sampled household.
           </p>
 
           <>
@@ -546,12 +466,10 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 record.isDeleted ? "greyed-out-row" : ""
               }
             />
-            <DQCheckDrawerGroup2
+            <DQCheckDrawerGroup4
               visible={isAddManualDrawerVisible}
               questions={availableQuestions}
               typeID={typeID}
-              showModuleName={dqConfig?.group_by_module_name}
-              moduleNames={availableModuleNames}
               data={drawerData}
               onSave={handleOnDrawerSave}
               onClose={closeAddManualDrawer}
@@ -563,4 +481,4 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   );
 }
 
-export default DQCheckGroup2;
+export default DQCheckGroup4;
