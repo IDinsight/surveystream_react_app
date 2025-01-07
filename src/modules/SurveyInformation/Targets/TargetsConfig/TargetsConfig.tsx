@@ -155,12 +155,13 @@ function TargetsConfig() {
 
   const handleSaveConfig = async (mode: string) => {
     try {
-      if (mode === "delete") {
-        await handleDeleteAllTargets();
-      }
       await form.validateFields(); // Validate all fields before submission
       const values = form.getFieldsValue();
       values.form_uid = form_uid;
+
+      if (mode === "delete") {
+        await handleDeleteAllTargets();
+      }
 
       setLoading(true);
 
@@ -328,7 +329,7 @@ function TargetsConfig() {
               <Modal
                 title="Warning"
                 visible={modalVisible}
-                onOk={async () => {
+                onOk={() => {
                   setModalVisible(false);
                   handleSaveConfig("delete"); // Continue after deletion
                 }}
