@@ -460,21 +460,44 @@ const SurveyConfiguration: React.FC = () => {
                 description={
                   <span style={{ fontSize: "14px", font: "Lato" }}>
                     The following modules are in error:
-                    <ul style={{ paddingLeft: "20px" }}>
-                      {errorModules.map((module, index) => (
-                        <li key={index}>
-                          <Link to={generateLink(module.section, module.item)}>
-                            {module.item || module.section}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      <Col span={4} style={{ flex: "1 1 50%" }}>
+                        <ul style={{ paddingLeft: "20px" }}>
+                          {errorModules
+                            .filter((_, index) => index % 2 === 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={generateLink(module.section, module.item)}
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                      <Col span={5} style={{ flex: "1 1 50%" }}>
+                        <ul>
+                          {errorModules
+                            .filter((_, index) => index % 2 !== 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={generateLink(module.section, module.item)}
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                    </div>
                     <p>
                       Access restricted to following modules until the errors
                       are resolved.
                       <div style={{ display: "flex", flexWrap: "wrap" }}>
-                        <Col>
-                          <ul style={{ paddingLeft: "20px", flex: "1 1 50%" }}>
+                        <Col span={4} style={{ flex: "1 1 50%" }}>
+                          <ul style={{ paddingLeft: "20px" }}>
                             {noErrorModules
                               .filter((_, index) => index % 2 === 0)
                               .map((module, index) => (
@@ -491,8 +514,8 @@ const SurveyConfiguration: React.FC = () => {
                               ))}
                           </ul>
                         </Col>
-                        <Col>
-                          <ul style={{ paddingLeft: "30px", flex: "1 1 50%" }}>
+                        <Col span={5} style={{ flex: "1 1 50%" }}>
+                          <ul>
                             {noErrorModules
                               .filter((_, index) => index % 2 !== 0)
                               .map((module, index) => (
