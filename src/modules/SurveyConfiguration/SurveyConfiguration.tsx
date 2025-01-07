@@ -44,7 +44,7 @@ import {
   HourglassOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { userHasPermission } from "../../utils/helper";
+import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 
@@ -492,48 +492,50 @@ const SurveyConfiguration: React.FC = () => {
                         </ul>
                       </Col>
                     </div>
-                    <p>
-                      Access restricted to following modules until the errors
-                      are resolved.
-                      <div style={{ display: "flex", flexWrap: "wrap" }}>
-                        <Col span={4} style={{ flex: "1 1 50%" }}>
-                          <ul style={{ paddingLeft: "20px" }}>
-                            {noErrorModules
-                              .filter((_, index) => index % 2 === 0)
-                              .map((module, index) => (
-                                <li key={index}>
-                                  <Link
-                                    to={generateLink(
-                                      module.section,
-                                      module.item
-                                    )}
-                                  >
-                                    {module.item || module.section}
-                                  </Link>
-                                </li>
-                              ))}
-                          </ul>
-                        </Col>
-                        <Col span={5} style={{ flex: "1 1 50%" }}>
-                          <ul>
-                            {noErrorModules
-                              .filter((_, index) => index % 2 !== 0)
-                              .map((module, index) => (
-                                <li key={index}>
-                                  <Link
-                                    to={generateLink(
-                                      module.section,
-                                      module.item
-                                    )}
-                                  >
-                                    {module.item || module.section}
-                                  </Link>
-                                </li>
-                              ))}
-                          </ul>
-                        </Col>
-                      </div>
-                    </p>
+                    {!isAdmin(userProfile, survey_uid) && (
+                      <p>
+                        Access restricted to following modules until the errors
+                        are resolved.
+                        <div style={{ display: "flex", flexWrap: "wrap" }}>
+                          <Col span={4} style={{ flex: "1 1 50%" }}>
+                            <ul style={{ paddingLeft: "20px" }}>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 === 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={generateLink(
+                                        module.section,
+                                        module.item
+                                      )}
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                          <Col span={5} style={{ flex: "1 1 50%" }}>
+                            <ul>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 !== 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={generateLink(
+                                        module.section,
+                                        module.item
+                                      )}
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                        </div>
+                      </p>
+                    )}
                     Kindly contact your Survey Admin to resolve the issues above
                     to continue.
                   </span>
