@@ -609,7 +609,7 @@ function SurveyCTOQuestions() {
           {isLoading ? (
             " "
           ) : (
-            <div>
+            <div style={{ marginLeft: 104 }}>
               <Button
                 onClick={() =>
                   navigate(
