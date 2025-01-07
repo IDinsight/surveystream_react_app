@@ -253,7 +253,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 <TextArea
                   id="basic-information-survey-description"
                   placeholder="Survey description"
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", height: "140px" }}
                 ></TextArea>
               </StyledFormItem>
 
