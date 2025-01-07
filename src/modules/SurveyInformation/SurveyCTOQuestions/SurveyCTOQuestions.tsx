@@ -260,7 +260,7 @@ function SurveyCTOQuestions() {
             initialValue={surveyCTOQuestionsForm?.survey_status}
             rules={[
               {
-                required: false,
+                required: true,
                 message: "Please enter survey status",
               },
               {
