@@ -140,7 +140,12 @@ const ProtectedPermissionRoute = (params: any) => {
     if (errorModules.includes(module_name)) {
       return hasPermission ? <Outlet /> : <PermissionDenied />;
     } else {
-      message.error("Kindly resolve modules in error first", 10);
+      message.error(
+        `Kindly resolve error in the following modules: ${errorModules.join(
+          ", "
+        )}`,
+        10
+      );
       return <Navigate to={`/survey-configuration/${survey_uid}`} replace />;
     }
   }

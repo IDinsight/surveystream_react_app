@@ -20,7 +20,7 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { Result, Button, Tag, Alert } from "antd";
+import { Result, Button, Tag, Alert, Col } from "antd";
 import {
   InfoCircleFilled,
   LayoutFilled,
@@ -109,6 +109,9 @@ const SurveyConfiguration: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [errorModules, setErrorModules] = useState<
+    { section: string; item: string }[]
+  >([]);
+  const [noErrorModules, setNoErrorModules] = useState<
     { section: string; item: string }[]
   >([]);
 
@@ -400,18 +403,28 @@ const SurveyConfiguration: React.FC = () => {
 
   useEffect(() => {
     const errors: { section: string; item: string }[] = [];
+    const noErrors: { section: string; item: string }[] = [];
     Object.entries(surveyConfigs).forEach(([sectionTitle, sectionConfig]) => {
       if (Array.isArray(sectionConfig)) {
         sectionConfig.forEach((item: any) => {
           if (item.status === "Error") {
             errors.push({ section: sectionTitle, item: item.name });
+          } else {
+            if (checkPermissions(item.name)) {
+              noErrors.push({ section: sectionTitle, item: item.name });
+            }
           }
         });
       } else if (sectionConfig.status === "Error") {
         errors.push({ section: sectionTitle, item: "" });
+      } else {
+        if (checkPermissions(sectionTitle)) {
+          noErrors.push({ section: sectionTitle, item: "" });
+        }
       }
     });
     setErrorModules(errors);
+    setNoErrorModules(noErrors);
   }, [surveyConfigs]);
 
   const { height } = useWindowDimensions();
@@ -456,6 +469,48 @@ const SurveyConfiguration: React.FC = () => {
                         </li>
                       ))}
                     </ul>
+                    <p>
+                      Access restricted to following modules until the errors
+                      are resolved.
+                      <div style={{ display: "flex", flexWrap: "wrap" }}>
+                        <Col>
+                          <ul style={{ paddingLeft: "20px", flex: "1 1 50%" }}>
+                            {noErrorModules
+                              .filter((_, index) => index % 2 === 0)
+                              .map((module, index) => (
+                                <li key={index}>
+                                  <Link
+                                    to={generateLink(
+                                      module.section,
+                                      module.item
+                                    )}
+                                  >
+                                    {module.item || module.section}
+                                  </Link>
+                                </li>
+                              ))}
+                          </ul>
+                        </Col>
+                        <Col>
+                          <ul style={{ paddingLeft: "30px", flex: "1 1 50%" }}>
+                            {noErrorModules
+                              .filter((_, index) => index % 2 !== 0)
+                              .map((module, index) => (
+                                <li key={index}>
+                                  <Link
+                                    to={generateLink(
+                                      module.section,
+                                      module.item
+                                    )}
+                                  >
+                                    {module.item || module.section}
+                                  </Link>
+                                </li>
+                              ))}
+                          </ul>
+                        </Col>
+                      </div>
+                    </p>
                     Kindly contact your Survey Admin to resolve the issues above
                     to continue.
                   </span>
