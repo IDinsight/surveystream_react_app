@@ -574,7 +574,6 @@ function SurveyCTOQuestions() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
           <SCTOQuestionsButton
-            type="dashed"
             loading={loading}
             onClick={() => loadFormQuestions(true)}
             disabled={form_uid == undefined}
