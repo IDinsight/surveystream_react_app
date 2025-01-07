@@ -492,8 +492,8 @@ const SurveyConfiguration: React.FC = () => {
                         </ul>
                       </Col>
                     </div>
-                    {!isAdmin(userProfile, survey_uid) && (
-                      <p>
+                    {!isAdmin(userProfile, survey_uid) ? (
+                      <span>
                         Access restricted to following modules until the errors
                         are resolved.
                         <div style={{ display: "flex", flexWrap: "wrap" }}>
@@ -534,10 +534,14 @@ const SurveyConfiguration: React.FC = () => {
                             </ul>
                           </Col>
                         </div>
-                      </p>
+                        <span>
+                          Kindly contact your Survey Admin to resolve the issues
+                          above to continue.
+                        </span>
+                      </span>
+                    ) : (
+                      <span>Kindly resolve issues in above modules.</span>
                     )}
-                    Kindly contact your Survey Admin to resolve the issues above
-                    to continue.
                   </span>
                 }
                 type="error"
