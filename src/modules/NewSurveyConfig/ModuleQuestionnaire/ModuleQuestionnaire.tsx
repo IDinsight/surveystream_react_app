@@ -209,17 +209,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
                 style={{ marginTop: "15px" }}
               />
             </StyledFormItem>
-
-            <Title style={{ marginTop: "24px" }}>
-              What is the mapping of supervisors to surveyors (supervisors :
-              surveyors)?
-            </Title>
-            <StyledFormItem name="supervisor_surveyor_relation">
-              <Radio.Group
-                options={supervisorsEnumeratorsMappingOptions}
-                style={{ marginTop: "15px" }}
-              />
-            </StyledFormItem>
           </>
         );
 

@@ -122,24 +122,8 @@ function NewSurveyConfig() {
             message: "Please select the supervisor hierarchy",
           },
           {
-            key: "target_assignment_criteria",
-            message: "Please select the target assignment criteria",
-          },
-          {
-            key: "reassignment_required",
-            message: "Please select the reassignment required",
-          },
-          {
             key: "assignment_process",
             message: "Please select the assignment process",
-          },
-          {
-            key: "supervisor_surveyor_relation",
-            message: "Please select the supervisor surveyor relation",
-          },
-          {
-            key: "language_location_mapping",
-            message: "Please select the language location mapping",
           },
         ];
 
