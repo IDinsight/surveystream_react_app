@@ -146,7 +146,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 name="project_name"
                 label={
                   <span>
-                    Project name (optional)&nbsp;
+                    Project name&nbsp;
                     <StyledTooltip title="The project name can be used to group together multiple related surveys, such as different survey rounds. Example: ADP 2.0">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
