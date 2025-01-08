@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import Container from "../../../components/Layout/Container";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { RootState } from "../../../redux/store";
 import { Col, Row, Select, Tooltip, message } from "antd";
 import { userHasPermission } from "../../../utils/helper";
 import {
-  BodyContainer,
   CustomBtn,
-  FormItemLabel,
-  DQChecksTable,
   CustomLinkBtn,
+  DQChecksTable,
+  DQFormWrapper,
+  FormItemLabel,
+  CheckboxDQ,
 } from "./DQChecks.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Collapse } from "antd/lib";
@@ -24,6 +26,7 @@ import {
   updateDQConfig,
 } from "../../../redux/dqChecks/dqChecksActions";
 import { EditOutlined } from "@ant-design/icons";
+import SideMenu from "./../SideMenu";
 
 function DQChecksManage() {
   const navigate = useNavigate();
@@ -70,12 +73,14 @@ function DQChecksManage() {
   const [formSurveyStatusData, setFormSurveyStatusData] = useState<any>({
     form_uid: form_uid,
     survey_status_filter: [],
+    group_by_module_name: false,
   });
 
   const [dqChecksTableData, setDQChecksTableData] = useState<any[]>([]);
 
   useEffect(() => {
     dispatch(getDQCheckTypes());
+    dispatch(getSurveyCTOForm({ survey_uid }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -106,6 +111,10 @@ function DQChecksManage() {
         survey_status_filter: [],
       }));
     }
+    setFormSurveyStatusData((prev: any) => ({
+      ...prev,
+      group_by_module_name: dqConfig?.group_by_module_name ?? false,
+    }));
   }, [targetStatusMapping, dqConfig]);
 
   useEffect(() => {
@@ -113,12 +122,11 @@ function DQChecksManage() {
     if (checkTypes.length > 0) {
       const dqChecksTableData = checkTypes.map((item: any) => {
         // find the number of checks configured for this type
-        const numConfigured = dqConfig?.dq_checks?.filter(
+        const numConfigured = dqConfig?.dq_checks?.find(
           (check: any) => check.type_id === item.type_id
         )?.num_configured;
-
         // find the number of active checks for this type
-        const numActive = dqConfig?.dq_checks?.filter(
+        const numActive = dqConfig?.dq_checks?.find(
           (check: any) => check.type_id === item.type_id
         )?.num_active;
 
@@ -147,6 +155,7 @@ function DQChecksManage() {
         data: {
           form_uid: form_uid,
           survey_status_filter: formSurveyStatusData.survey_status_filter,
+          group_by_module_name: formSurveyStatusData.group_by_module_name,
         },
       })
     ).then((res) => {
@@ -188,7 +197,7 @@ function DQChecksManage() {
             type="link"
             disabled={
               // disable based on type_id - can enable when we have the edit page ready
-              [1, 2, 3, 7, 8, 9, 10].includes(record?.type_id)
+              [1, 10].includes(record?.type_id)
             }
             onClick={() => handleEdit(record?.type_id)}
           >
@@ -222,98 +231,120 @@ function DQChecksManage() {
           <HeaderContainer>
             <Title>Data quality checks</Title>
           </HeaderContainer>
-          <BodyContainer>
-            <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-              Configure data quality checks for the form with form ID:{" "}
-              {surveyCTOForm?.scto_form_id}
-            </p>
-            <Collapse
-              ghost
-              defaultActiveKey={
-                dqConfig && dqConfig?.survey_status_filter?.length > 0
-                  ? ["2"]
-                  : ["1"]
-              }
-              items={[
-                {
-                  key: "1",
-                  label: `Step 1: Filter data by survey status before applying checks`,
-                  children: (
-                    <div style={{ marginLeft: "25px" }}>
-                      <Row
-                        align="middle"
-                        style={{ marginBottom: 0, marginTop: 0 }}
-                      >
-                        <Col span={5}>
-                          <FormItemLabel>
-                            <span style={{ color: "red" }}>*</span> Select
-                            survey status values{" "}
-                            <Tooltip title="Checks will run only on submissions with the selected survey status values. Dropdown contains all the survey status values configured under Target status mapping module and by default, the ones with completed flag 'true' are selected.">
-                              <QuestionCircleOutlined />
-                            </Tooltip>{" "}
-                            :
-                          </FormItemLabel>
-                        </Col>
-                        <Col span={8}>
-                          <Select
-                            style={{ width: "100%" }}
-                            placeholder="Select all survey status values"
-                            options={
-                              targetStatusMapping.map((item: any) => {
-                                return {
-                                  label: `${item.survey_status} - ${item.survey_status_label}`,
-                                  value: item.survey_status,
-                                };
-                              }) ?? []
-                            }
-                            mode="multiple"
-                            allowClear
-                            optionFilterProp="label"
-                            value={formSurveyStatusData?.survey_status_filter}
-                            disabled={!canUserWrite}
-                            onChange={(val) => {
-                              setFormSurveyStatusData((prev: any) => ({
-                                ...prev,
-                                survey_status_filter: val,
-                              }));
-                            }}
-                          ></Select>
-                        </Col>
-                      </Row>
-                      <div>
-                        <CustomBtn
-                          style={{ marginTop: 10, marginBottom: 10 }}
-                          disabled={!canUserWrite}
-                          onClick={handleSave}
+          <div style={{ display: "flex" }}>
+            <SideMenu />
+            <DQFormWrapper>
+              <p style={{ color: "#8C8C8C", fontSize: 14 }}>
+                Configure data quality checks for the form with form ID:{" "}
+                {surveyCTOForm?.scto_form_id}
+              </p>
+              <Collapse
+                ghost
+                defaultActiveKey={dqConfig ? ["2"] : ["1"]}
+                items={[
+                  {
+                    key: "1",
+                    label: `Step 1: Global configuration`,
+                    children: (
+                      <div style={{ marginLeft: "25px" }}>
+                        <Row
+                          align="middle"
+                          style={{ marginBottom: 0, marginTop: 0 }}
                         >
-                          Save
-                        </CustomBtn>
+                          <Col span={5}>
+                            <FormItemLabel>
+                              <span style={{ color: "red" }}>*</span> Select
+                              survey status values{" "}
+                              <Tooltip title="Checks will run only on submissions with the selected survey status values. Dropdown contains all the survey status values configured under Target status mapping module and by default, the ones with completed flag 'true' are selected.">
+                                <QuestionCircleOutlined />
+                              </Tooltip>{" "}
+                              :
+                            </FormItemLabel>
+                          </Col>
+                          <Col span={8}>
+                            <Select
+                              style={{ width: "100%" }}
+                              placeholder="Select survey status values on which checks will run"
+                              options={
+                                targetStatusMapping.map((item: any) => {
+                                  return {
+                                    label: `${item.survey_status} - ${item.survey_status_label}`,
+                                    value: item.survey_status,
+                                  };
+                                }) ?? []
+                              }
+                              mode="multiple"
+                              allowClear
+                              optionFilterProp="label"
+                              value={formSurveyStatusData?.survey_status_filter}
+                              disabled={!canUserWrite}
+                              onChange={(val) => {
+                                setFormSurveyStatusData((prev: any) => ({
+                                  ...prev,
+                                  survey_status_filter: val,
+                                }));
+                              }}
+                            ></Select>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col>
+                            <FormItemLabel>
+                              <CheckboxDQ
+                                checked={
+                                  formSurveyStatusData?.group_by_module_name
+                                }
+                                disabled={!canUserWrite}
+                                onChange={(e) => {
+                                  setFormSurveyStatusData((prev: any) => ({
+                                    ...prev,
+                                    group_by_module_name: e.target.checked,
+                                  }));
+                                }}
+                              >
+                                Group DQ check outputs by module name
+                              </CheckboxDQ>
+                              <Tooltip title="Selecting this option will enable 'Module Name' input on all checks. This column will then be included in the outputs and can be used to filter and group the results.">
+                                <QuestionCircleOutlined />
+                              </Tooltip>{" "}
+                            </FormItemLabel>
+                          </Col>
+                        </Row>
+                        <div>
+                          <CustomBtn
+                            style={{ marginTop: 10, marginBottom: 10 }}
+                            disabled={!canUserWrite}
+                            onClick={handleSave}
+                          >
+                            Save
+                          </CustomBtn>
+                        </div>
                       </div>
-                    </div>
-                  ),
-                },
-                // show the checks table only if survey_status_filter is configured
-                ...(dqConfig?.survey_status_filter?.length > 0
-                  ? [
-                      {
-                        key: "2",
-                        label: `Step 2: Configure checks`,
-                        children: (
-                          <div style={{ marginLeft: "25px" }}>
-                            <DQChecksTable
-                              columns={tableColumns}
-                              dataSource={dqChecksTableData}
-                              bordered
-                              pagination={false}
-                            />
-                          </div>
-                        ),
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          </BodyContainer>
+                    ),
+                  },
+                  // show the checks table only if survey_status_filter is configured
+                  ...(dqConfig?.survey_status_filter?.length > 0
+                    ? [
+                        {
+                          key: "2",
+                          label: `Step 2: Configure checks`,
+                          children: (
+                            <div style={{ marginLeft: "25px" }}>
+                              <DQChecksTable
+                                columns={tableColumns}
+                                dataSource={dqChecksTableData}
+                                bordered
+                                pagination={false}
+                              />
+                            </div>
+                          ),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
+            </DQFormWrapper>
+          </div>
         </>
       )}
     </>

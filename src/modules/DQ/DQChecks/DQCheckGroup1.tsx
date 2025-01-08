@@ -16,9 +16,11 @@ import {
 } from "antd";
 import { isEqual } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { ChecksTable, ChecksSwitch, CustomBtn } from "./DQChecks.styled";
+import { ChecksTable, ChecksSwitch } from "./DQChecks.styled";
 import DQChecksFilter from "./DQChecksFilter";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { RootState } from "../../../redux/store";
 import {
   activateDQChecks,
   deactivateDQChecks,
@@ -28,8 +30,11 @@ import {
   postDQChecks,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
+import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawer from "../../../components/DQCheckDrawer/DQCheckDrawer";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -39,6 +44,7 @@ interface IDQCheckGroup1Props {
 
 function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [searchParam] = useSearchParams();
   const modeParam = searchParam.get("mode");
@@ -46,6 +52,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [loading, setLoading] = useState<boolean>(false);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [mode, setMode] = useState<string | null>(null);
+
+  const [tablePageSize, setTablePageSize] = useState(5);
 
   const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
     []
@@ -62,6 +70,10 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [flagDescription, setFlagDescription] = useState<string>("");
   const [filterData, setFilterData] = useState<any[]>([]);
   const [moduleName, setModuleName] = useState<string>("");
+
+  const { dqConfig: dqConfig } = useAppSelector(
+    (state: RootState) => state.dqChecks
+  );
 
   // Drawer state and functiion
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
@@ -90,13 +102,20 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      render: (questionName: any, record: any) =>
+        questionName + (record.isRepeatGroup ? "_*" : ""),
     },
-    {
-      title: "Module name",
-      dataIndex: "moduleName",
-      key: "moduleName",
-      sorter: (a: any, b: any) => a.moduleName.localeCompare(b.moduleName),
-    },
+    ...(dqConfig?.group_by_module_name
+      ? [
+          {
+            title: "Module name",
+            dataIndex: "moduleName",
+            key: "moduleName",
+            sorter: (a: any, b: any) =>
+              (a.moduleName || "").localeCompare(b.moduleName || ""),
+          },
+        ]
+      : []),
     {
       title: "Flag description",
       dataIndex: "flagDescription",
@@ -104,8 +123,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     },
     {
       title: (
-        <Tooltip title="Click on edit to see the filter applied">
-          Filter data
+        <Tooltip title="Click on edit to view the filter conditions">
+          Filter applied
         </Tooltip>
       ),
       dataIndex: "filterData",
@@ -127,8 +146,15 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         { text: "Inactive", value: "Inactive" },
       ],
       onFilter: (value: any, record: any) => record.status.indexOf(value) === 0,
-      render: (status: any) => (
-        <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+      render: (status: any, record: any) => (
+        <>
+          <Tag color={status === "Active" ? "green" : "gray"}>{status}</Tag>
+          {record.isDeleted && (
+            <Tooltip title="This check is inactive because one or more of the variables used in the check are no longer in the form definition.">
+              <ExclamationCircleOutlined />
+            </Tooltip>
+          )}
+        </>
       ),
     },
   ];
@@ -144,6 +170,10 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     value: check.check_components.value,
     status: check.active ? "Active" : "Inactive",
     filters: check.filters,
+    isDeleted:
+      check.note === "Question not found in form definition" ||
+      check.note === "Filter question not found in form definition",
+    isRepeatGroup: check.is_repeat_group,
   }));
 
   const handleModeChange = (e: RadioChangeEvent) => {
@@ -184,10 +214,22 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     showAddManualDrawer();
   };
 
-  const handleMarkActive = () => {
-    const selectedChecks = selectedVariableRows.map(
-      (row: any) => row.dqCheckUID
-    );
+  const handleDuplicate = () => {
+    const selectedCheck = selectedVariableRows[0];
+    const duplicateData = {
+      ...selectedCheck,
+      questionName: "",
+      dqCheckUID: null,
+    };
+
+    showAddManualDrawer();
+    setDrawerData(duplicateData);
+  };
+
+  const handleMarkActiveAction = () => {
+    const selectedChecks = selectedVariableRows
+      .filter((row: any) => !row.isDeleted)
+      .map((row: any) => row.dqCheckUID);
 
     const formData = {
       form_uid: formUID,
@@ -206,6 +248,27 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         message.error("Failed to activate DQ Checks");
       }
     });
+  };
+
+  const handleMarkActive = () => {
+    const isDeletedCheck = selectedVariableRows.some(
+      (row: any) => row.isDeleted
+    );
+
+    if (isDeletedCheck) {
+      Modal.confirm({
+        title: "Are you sure?",
+        content: `Your selection contains some checks which are inactive because one or more of the variables used in the check are no longer in the form definition. This action will mark only the remaining checks as active. Do you want to proceed?`,
+        okText: "Yes",
+        cancelText: "No",
+        width: 600,
+        onOk: () => {
+          handleMarkActiveAction();
+        },
+      });
+    } else {
+      handleMarkActiveAction();
+    }
   };
 
   const handleMarkInactive = () => {
@@ -267,7 +330,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     if (filterData.length > 0) {
       const isFilterValid = filterData.every((filter) => {
-        return filter.question_name && filter.filter_operator;
+        return filter.filter_group.every(
+          (group: any) => group.question_name && group.filter_operator
+        );
       });
 
       if (!isFilterValid) {
@@ -404,7 +469,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (formUID) {
       fetchModuleName(formUID).then((res: any) => {
         if (res?.data?.success) {
-          setAvailableModuleNames(res.data.data);
+          setAvailableModuleNames(
+            res.data.data.filter((name: string) => name !== "" && name)
+          );
         }
       });
 
@@ -476,7 +543,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   // Fetch form definition for questions
   useEffect(() => {
     if (formUID) {
-      getSurveyCTOFormDefinition(formUID, false).then((res: any) => {
+      getSurveyCTOFormDefinition(formUID, false, true).then((res: any) => {
         if (res?.data?.success) {
           const formDefinition = res.data.data;
           if (formDefinition && formDefinition.questions) {
@@ -509,6 +576,12 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     }
   }, [selectVariableData]);
 
+  useEffect(() => {
+    if (formUID) {
+      dispatch(getDQConfig({ form_uid: formUID }));
+    }
+  }, [dispatch, formUID]);
+
   const isLoading = loading;
 
   return (
@@ -519,11 +592,11 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
             {typeID === "4" &&
-              "Checks that certain variables have no missing values. By default, the following are considered missing: ‘ ’, NA, NAN, NULL (caseinsensitive)"}
+              "Checks whether certain variables have a high percentage of missing values. By default, the following are considered missing: ‘ ’, NA, NAN, NULL (caseinsensitive)"}
             {typeID === "5" &&
-              "Checks that certain variables have been marked as don’t know. By default, -888 is considered as don’t know."}
+              "Checks whether certain variables have a high percentage of don’t know values. By default, -888 is considered as don’t know."}
             {typeID === "6" &&
-              "Checks that certain variables have a high number of refusal values. By default, -999 is considered as refusal."}
+              "Checks whether certain variables have a high percentage of refusal values. By default, -999 is considered as refusal."}
           </p>
           <Radio.Group
             value={mode}
@@ -592,7 +665,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 <Col span={4}>
                   <Form.Item
                     label="Flag description:"
-                    tooltip="Short description of the flag."
+                    tooltip="Short description of the flag that will be included in the outputs"
                   />
                 </Col>
                 <Col span={6}>
@@ -614,46 +687,50 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   questions={availableQuestions}
                 />
               </div>
-              <div>
-                <Row>
-                  <Form.Item label="Group variables in the output data using:" />
-                </Row>
-                <Row>
-                  <Col span={4}>
+              {dqConfig?.group_by_module_name ? (
+                <div>
+                  <Row>
                     <Form.Item
-                      label="Module Name:"
-                      style={{ marginLeft: 32 }}
-                      tooltip="This column will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                      label="Group variables in the output data using:"
+                      tooltip="This input is enabled as per selection in - Step 1: Global configuration."
                     />
-                  </Col>
-                  <Col span={6}>
-                    <Select
-                      style={{ width: "100%" }}
-                      placeholder="Select or input an mode name"
-                      showSearch
-                      value={moduleName || null}
-                      options={availableModuleNames?.map((option: any) => {
-                        return { value: option, label: option };
-                      })}
-                      onChange={(newValue) => setModuleName(newValue)}
-                      onBlur={(e: any) => {
-                        const inputValue = e.target.value;
-                        handleModeNameChange(inputValue);
-                      }}
-                      onKeyDown={(e: any) => {
-                        if (e.key === "Enter") {
+                  </Row>
+                  <Row>
+                    <Col span={4}>
+                      <Form.Item
+                        label="Module Name:"
+                        style={{ marginLeft: 32 }}
+                        tooltip="Will be included in the outputs and can be used to filter and group the results. If left blank, default value 'DQ' will be used."
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Select
+                        style={{ width: "100%" }}
+                        placeholder="Select or input an mode name"
+                        showSearch
+                        value={moduleName || null}
+                        options={availableModuleNames?.map((option: any) => {
+                          return { value: option, label: option };
+                        })}
+                        onChange={(newValue) => setModuleName(newValue)}
+                        onBlur={(e: any) => {
                           const inputValue = e.target.value;
                           handleModeNameChange(inputValue);
-                        }
-                      }}
-                    />
-                  </Col>
-                </Row>
-              </div>
+                        }}
+                        onKeyDown={(e: any) => {
+                          if (e.key === "Enter") {
+                            const inputValue = e.target.value;
+                            handleModeNameChange(inputValue);
+                          }
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ) : null}
               <div>
-                <CustomBtn onClick={handleAllSave}>Save</CustomBtn>
                 <Button
-                  style={{ marginLeft: 32 }}
+                  style={{ marginTop: 20 }}
                   onClick={() =>
                     navigate(
                       `/module-configuration/dq-checks/${surveyUID}/manage?form_uid=${formUID}`
@@ -662,13 +739,16 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 >
                   Cancel
                 </Button>
+                <CustomBtn style={{ marginLeft: 20 }} onClick={handleAllSave}>
+                  Save
+                </CustomBtn>
               </div>
             </>
           )}
           {mode === "selected" && (
             <>
-              <div style={{ display: "flex" }}>
-                <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", marginTop: 24 }}>
+                <div>
                   <Tag
                     color="#F6FFED"
                     style={{ color: "#52C41A", borderColor: "#B7EB8F" }}
@@ -686,69 +766,84 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   </Tag>
                 </div>
                 <div style={{ marginLeft: "auto", display: "flex" }}>
-                  <Button
-                    type="primary"
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleAddCheck}
                   >
                     Add
-                  </Button>
-                  {selectedVariableRows.length === 1 && (
-                    <Button
-                      type="primary"
+                  </CustomBtn>
+
+                  <CustomBtn
+                    style={{ marginLeft: 16 }}
+                    onClick={handleEditCheck}
+                    disabled={selectedVariableRows.length !== 1}
+                  >
+                    Edit
+                  </CustomBtn>
+                  <CustomBtn
+                    style={{ marginLeft: 16 }}
+                    onClick={handleDuplicate}
+                    disabled={selectedVariableRows.length !== 1}
+                  >
+                    Duplicate
+                  </CustomBtn>
+
+                  <>
+                    <CustomBtn
                       style={{ marginLeft: 16 }}
-                      onClick={handleEditCheck}
+                      onClick={handleMarkActive}
+                      disabled={selectedVariableRows.length === 0}
                     >
-                      Edit
+                      Mark active
+                    </CustomBtn>
+                    <Button
+                      style={{ marginLeft: 16 }}
+                      onClick={handleMarkInactive}
+                      disabled={selectedVariableRows.length === 0}
+                    >
+                      Mark inactive
                     </Button>
-                  )}
-                  {selectedVariableRows.length > 0 && (
-                    <>
+                    <Popconfirm
+                      title="Are you sure you want to delete checks?"
+                      onConfirm={(e: any) => {
+                        e?.stopPropagation();
+                        handleDeleteCheck();
+                      }}
+                      onCancel={(e: any) => e?.stopPropagation()}
+                      okText="Yes"
+                      cancelText="No"
+                    >
                       <Button
                         style={{ marginLeft: 16 }}
-                        onClick={handleMarkActive}
+                        onClick={(e) => e.stopPropagation()}
+                        disabled={selectedVariableRows.length === 0}
                       >
-                        Mark active
+                        Delete
                       </Button>
-                      <Button
-                        style={{ marginLeft: 16 }}
-                        onClick={handleMarkInactive}
-                      >
-                        Mark inactive
-                      </Button>
-                      <Popconfirm
-                        title="Are you sure you want to delete checks?"
-                        onConfirm={(e: any) => {
-                          e?.stopPropagation();
-                          handleDeleteCheck();
-                        }}
-                        onCancel={(e: any) => e?.stopPropagation()}
-                        okText="Yes"
-                        cancelText="No"
-                      >
-                        <Button
-                          type="primary"
-                          style={{ marginLeft: 16 }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Delete
-                        </Button>
-                      </Popconfirm>
-                    </>
-                  )}
+                    </Popconfirm>
+                  </>
                 </div>
               </div>
               <ChecksTable
                 style={{ marginTop: 16 }}
                 columns={columns}
                 dataSource={selectVariableData}
-                pagination={{ pageSize: 5 }}
+                pagination={{
+                  pageSize: tablePageSize,
+                  pageSizeOptions: ["5", "10", "20", "50", "100"],
+                  showSizeChanger: true,
+                  onShowSizeChange: (current, size) => setTablePageSize(size),
+                }}
                 rowSelection={rowSelection}
                 loading={dataLoading}
+                rowClassName={(record: any) =>
+                  record.isDeleted ? "greyed-out-row" : ""
+                }
               />
               <DQCheckDrawer
                 visible={isAddManualDrawerVisible}
                 questions={availableQuestions}
+                showModuleName={dqConfig?.group_by_module_name}
                 moduleNames={availableModuleNames}
                 data={drawerData}
                 variablesValues={[

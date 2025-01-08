@@ -189,13 +189,7 @@ const EmailScheduleEditForm = ({
         configUID={initialValues.email_config_uid}
         tableList={tableList}
         setTableList={(value: any) => {
-          const newTableList = [...tableList];
-          if (editingIndex !== null) {
-            newTableList[editingIndex] = value;
-          } else {
-            newTableList.push(value);
-          }
-          setTableList(newTableList);
+          setTableList(value);
         }}
         editingIndex={editingIndex}
         setEditingIndex={setEditingIndex}

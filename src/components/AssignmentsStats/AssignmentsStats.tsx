@@ -1,7 +1,7 @@
 import {
   CheckCircleFilled,
   ControlFilled,
-  WarningFilled,
+  InfoCircleFilled,
 } from "@ant-design/icons";
 
 interface IAssignmentsStatusProps {
@@ -74,7 +74,7 @@ function AssignmentsStats({ stats }: IAssignmentsStatusProps) {
             borderRadius: 24,
           }}
         >
-          <WarningFilled style={{ fontSize: 16, color: "#CF1322" }} />
+          <InfoCircleFilled style={{ fontSize: 16, color: "#CF1322" }} />
           <p
             style={{
               marginLeft: 8,

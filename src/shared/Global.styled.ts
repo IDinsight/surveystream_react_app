@@ -34,4 +34,10 @@ export const CustomBtn = styled(Button)`
     background-color: #2f54eb !important;
     color: white !important;
   }
+
+  &:disabled {
+    border-color: #d9d9d9 !important;
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
 `;

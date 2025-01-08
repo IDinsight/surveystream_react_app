@@ -56,14 +56,14 @@ function DQFormHome() {
             <Title>Data quality forms</Title>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
-            <SideMenu></SideMenu>
+            <SideMenu />
             <DQFormWrapper>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
                 Please add all the data quality forms related to your survey
                 here. These include audio audit forms, spot check forms, and
                 back check forms.
               </p>
-              {dqForms.map((dqForm: any) => (
+              {dqForms?.map((dqForm: any) => (
                 <DQFormCard
                   key={dqForm.dq_form_uid}
                   data={dqForm}

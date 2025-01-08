@@ -8,4 +8,5 @@ export interface DQChecksState {
 export type DQConfigPayload = {
   form_uid: string;
   survey_status_filter: string[];
+  group_by_module_name: boolean;
 };

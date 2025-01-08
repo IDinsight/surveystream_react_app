@@ -6,31 +6,36 @@ import { CustomBtn } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
+  typeID: string;
   onClose: any;
   onSave: any;
   data: any;
   questions: any[];
   showModuleName: boolean;
   moduleNames: any[];
-  variablesValues: string[];
 }
 
 function DQCheckDrawer({
   visible,
+  typeID,
   onClose,
   data,
   onSave,
   questions,
   showModuleName,
   moduleNames,
-  variablesValues,
 }: IDQCheckDrawerProps) {
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
   const [filter, setFilter] = useState<any>([]);
   const [localData, setLocalData] = useState<any>({
     dq_check_id: null,
     variable_name: "",
-    check_values: [],
+    outliner_metric: null,
+    outliner_value: null,
+    hard_min: null,
+    hard_max: null,
+    soft_min: null,
+    soft_max: null,
     flag_description: "",
     is_active: true,
     module_name: "",
@@ -44,7 +49,7 @@ function DQCheckDrawer({
       data?.questionName === localData.variable_name
     ) {
       message.error(
-        "Some variables used in the check are deleted and hence, it cannot be activated. Please change the deleted variables to activate this check."
+        "This check's variable is deleted and cannot be activated. Please change the variable to activate this check."
       );
       return;
     }
@@ -65,9 +70,30 @@ function DQCheckDrawer({
       return;
     }
 
-    if (localData.check_values.length === 0) {
-      message.error("Please input at least one check value");
-      return;
+    if (typeID === "3") {
+      if (localData.outliner_metric === null) {
+        message.error("Please select a metric");
+        return;
+      }
+
+      if (localData.outliner_value === null) {
+        message.error("Please input a value");
+        return;
+      }
+    }
+
+    if (typeID === "2") {
+      if (
+        localData.hard_min === null &&
+        localData.soft_min === null &&
+        localData.soft_max === null &&
+        localData.hard_max === null
+      ) {
+        message.error(
+          "Please input at least one value for Hard Min, Soft Min, Soft Max, or Hard Max"
+        );
+        return;
+      }
     }
 
     if (filter.length > 0) {
@@ -94,21 +120,30 @@ function DQCheckDrawer({
       setLocalData({
         dq_check_id: data.dqCheckUID,
         variable_name: data.questionName,
-        check_values: data.value,
         flag_description: data.flagDescription,
         is_active: data.status === "Active",
         module_name: data.moduleName,
+        outliner_metric: data.outlinerMetric ?? null,
+        outliner_value: data.outlinerValue ?? null,
+        soft_min: data.softMin ?? null,
+        soft_max: data.softMax ?? null,
+        hard_min: data.hardMin ?? null,
+        hard_max: data.hardMax ?? null,
       });
 
       setFilter(data.filters);
     } else {
       setLocalData({
         variable_name: "",
-        check_values: [],
         flag_description: "",
         is_active: true,
         module_name: "",
-        filters: [],
+        outliner_metric: null,
+        outliner_value: null,
+        soft_min: null,
+        soft_max: null,
+        hard_min: null,
+        hard_max: null,
       });
     }
   }, [data]);
@@ -154,32 +189,6 @@ function DQCheckDrawer({
         <Row>
           <Col span={8}>
             <Form.Item
-              label="Check values:"
-              tooltip="Value that is considered for checks"
-            />
-          </Col>
-          <Col span={12}>
-            <Select
-              mode="tags"
-              style={{ width: "100%" }}
-              value={localData.check_values}
-              options={variablesValues?.map((option: any) => ({
-                value: option,
-                label: option === "''" ? "(empty)" : option,
-              }))}
-              onChange={(newValue) => {
-                const cleanedValues = [...new Set(newValue)];
-                const updatedValues = cleanedValues.map((value) =>
-                  value === '""' ? "''" : value
-                );
-                handleFieldChange("check_values", updatedValues);
-              }}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col span={8}>
-            <Form.Item
               label="Flag description:"
               tooltip="Short description of the flag that will be included in the outputs"
             />
@@ -194,6 +203,126 @@ function DQCheckDrawer({
             />
           </Col>
         </Row>
+        {typeID === "2" && (
+          <>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Hard Min:"
+                  tooltip="Hard minimum value for the variable"
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  placeholder="Input value"
+                  value={localData.hard_min}
+                  onChange={(e) =>
+                    handleFieldChange("hard_min", e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Soft Min:"
+                  tooltip="Soft minimum value for the variable"
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  placeholder="Input value"
+                  value={localData.soft_min}
+                  onChange={(e) =>
+                    handleFieldChange("soft_min", e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Soft Max:"
+                  tooltip="Soft maximum value for the variable"
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  placeholder="Input value"
+                  value={localData.soft_max}
+                  onChange={(e) =>
+                    handleFieldChange("soft_max", e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Hard Max:"
+                  tooltip="Hard maximum value for the variable"
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  placeholder="Input value"
+                  value={localData.hard_max}
+                  onChange={(e) =>
+                    handleFieldChange("hard_max", e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
+          </>
+        )}
+        {typeID === "3" && (
+          <>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Measure:"
+                  tooltip="Unit of measurement for the variable"
+                />
+              </Col>
+              <Col span={12}>
+                <Select
+                  style={{ width: "100%" }}
+                  showSearch
+                  placeholder="Select metric"
+                  value={localData.outliner_metric}
+                  onChange={(value) =>
+                    handleFieldChange("outliner_metric", value)
+                  }
+                >
+                  <Select.Option value="interquartile_range">
+                    Interquartile Range
+                  </Select.Option>
+                  <Select.Option value="standard_deviation">
+                    Standard Deviation
+                  </Select.Option>
+                  <Select.Option value="percentile">Percentile</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8}>
+                <Form.Item
+                  label="Multipler / Value:"
+                  tooltip="Value that is considered for checks"
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  placeholder="Input value"
+                  value={localData.outliner_value}
+                  onChange={(e) =>
+                    handleFieldChange("outliner_value", e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
+          </>
+        )}
         <div>
           <Form.Item
             label="Filter before applying this check:"
