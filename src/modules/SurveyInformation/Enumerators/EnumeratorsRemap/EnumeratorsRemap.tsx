@@ -185,6 +185,20 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     return { label: item, value: item };
   });
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
   const moveToUpload = () => {
     dispatch(setMappingErrorStatus(false));
     setScreenMode("reupload");
@@ -442,7 +456,10 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     { title: "Update enumerators" },
                   ]}
                 />
-                <Form form={enumeratorMappingForm}>
+                <Form
+                  form={enumeratorMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns
