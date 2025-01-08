@@ -468,7 +468,14 @@ const SurveyConfiguration: React.FC = () => {
                             .map((module, index) => (
                               <li key={index}>
                                 <Link
-                                  to={generateLink(module.section, module.item)}
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
                                 >
                                   {module.item || module.section}
                                 </Link>
@@ -483,7 +490,14 @@ const SurveyConfiguration: React.FC = () => {
                             .map((module, index) => (
                               <li key={index}>
                                 <Link
-                                  to={generateLink(module.section, module.item)}
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
                                 >
                                   {module.item || module.section}
                                 </Link>
@@ -504,10 +518,14 @@ const SurveyConfiguration: React.FC = () => {
                                 .map((module, index) => (
                                   <li key={index}>
                                     <Link
-                                      to={generateLink(
-                                        module.section,
-                                        module.item
-                                      )}
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
                                     >
                                       {module.item || module.section}
                                     </Link>
@@ -522,10 +540,14 @@ const SurveyConfiguration: React.FC = () => {
                                 .map((module, index) => (
                                   <li key={index}>
                                     <Link
-                                      to={generateLink(
-                                        module.section,
-                                        module.item
-                                      )}
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
                                     >
                                       {module.item || module.section}
                                     </Link>
