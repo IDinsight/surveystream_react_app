@@ -130,7 +130,11 @@ function TargetsConfig() {
           return isChanged;
         });
 
-        if (hasChanges) {
+        if (
+          hasChanges ||
+          (values.target_source === "csv" &&
+            targetConfig.target_source === "csv")
+        ) {
           setModalVisible(true);
           return;
         }

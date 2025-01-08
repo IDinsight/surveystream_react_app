@@ -185,10 +185,12 @@ function TargetsHome() {
 
       if (originalData.length == 0) {
         if (targetConfig.payload.success) {
-          if (targetConfig.payload.data?.target_source === "csv") {
+          if (targetConfig.payload.data?.data.target_source === "csv") {
             navigate(
               `/survey-information/targets/upload/${survey_uid}/${form_uid}`
             );
+          } else if (targetConfig.payload.data?.data.target_source === "scto") {
+            setScreenMode("config");
           } else {
             navigate(
               `/survey-information/targets/config/${survey_uid}/${form_uid}`
@@ -521,6 +523,22 @@ function TargetsHome() {
           ) : null}
           {screenMode === "remap" ? (
             <TargetsRemap setScreenMode={setScreenMode} />
+          ) : null}
+          {screenMode === "config" ? (
+            <TargetsHomeFormWrapper>
+              <div style={{ textAlign: "left", marginTop: 50 }}>
+                <p style={{ fontSize: 16, fontWeight: 500 }}>
+                  Target configurations are complete.
+                </p>
+                <p style={{ fontSize: 16 }}>
+                  Targets will be loaded on this screen shortly.
+                </p>
+                <p style={{ fontSize: 16 }}>
+                  If you experience any delays, please contact the SurveyStream
+                  team.
+                </p>
+              </div>
+            </TargetsHomeFormWrapper>
           ) : null}
         </div>
       )}
