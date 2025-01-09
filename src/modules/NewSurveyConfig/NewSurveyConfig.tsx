@@ -97,7 +97,7 @@ function NewSurveyConfig() {
   };
   const handleModuleQuestionnaireContinue = async () => {
     if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] >= 2) {
+      if (stepIndex["mqIndex"] >= 1) {
         if (moduleQuestionnaireformData === null) {
           messageApi.open({
             type: "error",
@@ -116,14 +116,6 @@ function NewSurveyConfig() {
             key: "surveyor_mapping_criteria",
             message:
               "Please select the supervisor to surveyor assignment criteria",
-          },
-          {
-            key: "supervisor_hierarchy_exists",
-            message: "Please select the supervisor hierarchy",
-          },
-          {
-            key: "assignment_process",
-            message: "Please select the assignment process",
           },
         ];
 
@@ -396,11 +388,7 @@ function NewSurveyConfig() {
                   stepIndex.sidebar === 0 ? basicformData === null : false
                 }
               >
-                {stepIndex.sidebar === 0
-                  ? "Save"
-                  : stepIndex["mqIndex"] >= 2
-                  ? "Save"
-                  : "Continue"}
+                Save
               </CustomBtn>
             </div>
           )}
