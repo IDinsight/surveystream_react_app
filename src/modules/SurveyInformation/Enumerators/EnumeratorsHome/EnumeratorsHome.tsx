@@ -403,6 +403,11 @@ function EnumeratorsHome() {
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Enumerators</Title>
+        <EnumeratorsCountBox
+          active={activeEnums}
+          dropped={droppedEnums}
+          inactive={inactiveEnums}
+        />
         {screenMode == "manage" ? (
           <>
             <div
@@ -475,11 +480,6 @@ function EnumeratorsHome() {
             <>
               <EnumeratorsHomeFormWrapper>
                 <br />
-                <EnumeratorsCountBox
-                  active={activeEnums}
-                  dropped={droppedEnums}
-                  inactive={inactiveEnums}
-                />
                 <EnumeratorsTable
                   rowSelection={editMode ? rowSelection : undefined}
                   columns={dataTableColumn}
