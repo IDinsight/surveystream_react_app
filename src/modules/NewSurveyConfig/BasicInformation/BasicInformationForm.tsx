@@ -7,7 +7,7 @@ import {
 } from "./BasicInformationForm.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
-import { Title } from "../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
 import { performGetUserProfile } from "../../../redux/auth/authActions";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -112,8 +112,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     <>
       <GlobalStyle />
       <BasicInformationFormWrapper data-testid="BasicInformationForm">
-        <Title>Basic information</Title>
-
         <DescriptionText>
           Please fill out the basic information about your survey
         </DescriptionText>

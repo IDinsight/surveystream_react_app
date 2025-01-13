@@ -15,14 +15,9 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../shared/Global.styled";
 
 interface IModuleQuestionnaire {
-  stepIndex: number;
   setFormData: (formData: SurveyModuleQuestionnaireData) => void;
 }
-
-const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
-  stepIndex,
-  setFormData,
-}) => {
+const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({ setFormData }) => {
   const [form] = Form.useForm();
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -118,7 +113,6 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     {
       return (
         <>
-          <Title style={{ marginTop: "18px" }}>Supervisors</Title>
           <Title style={{ marginTop: "23px" }}>
             What are the criteria which you will use to map supervisors to
             surveyors? Select all that apply
@@ -152,7 +146,16 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
     <>
       <GlobalStyle />
       <ModuleQuestionnaireWrapper>
-        <Title>Module questionnaire</Title>
+        <p
+          style={{
+            color: "#8C8C8C",
+            fontSize: "14px",
+            fontFamily: '"Lato", sans-serif',
+          }}
+        >
+          Please fill out the questionnaire to help us recommend useful
+          SurveyStream modules for your survey
+        </p>
         <Form form={form} onValuesChange={handleFormValuesChange}>
           {Questionnaire()}
         </Form>
