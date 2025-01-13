@@ -8,6 +8,7 @@ import {
   BackLink,
   BackArrow,
   Title,
+  HeaderContainer,
   MainWrapper,
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
@@ -86,18 +87,18 @@ function NewSurveyConfig() {
   };
 
   const handleBack = async () => {
-    if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] == 0) return;
-
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        mqIndex: prev["mqIndex"] - 1,
-      }));
+    if (stepIndex["sidebar"] >= 1) {
+      if (stepIndex["mqIndex"] <= 1) {
+        setStepIndex((prev: IStepIndex) => ({
+          ...prev,
+          sidebar: prev["sidebar"] - 1,
+        }));
+      }
     }
   };
   const handleModuleQuestionnaireContinue = async () => {
-    if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] >= 1) {
+    if (stepIndex["sidebar"] >= 1) {
+      if (stepIndex["mqIndex"] >= 0) {
         if (moduleQuestionnaireformData === null) {
           messageApi.open({
             type: "error",
@@ -191,11 +192,6 @@ function NewSurveyConfig() {
         }
         return;
       }
-
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        mqIndex: prev["mqIndex"] + 1,
-      }));
     }
   };
 
@@ -346,17 +342,27 @@ function NewSurveyConfig() {
           })()}
         </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
+      <HeaderContainer>
+        <div style={{ display: "flex", marginBottom: "15px" }}>
+          <Title style={{ marginTop: "revert" }}>
+            {stepIndex["sidebar"] === 0
+              ? "Basic information"
+              : "Module questionnaire"}
+          </Title>
+        </div>
+      </HeaderContainer>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
         <SideMenu stepIndex={stepIndex} setStepIndexHandler={setStepIndex} />
         <MainWrapper>
           {contextHolder}
           {stepIndex["sidebar"] === 0 ? (
             <BasicInformationForm setFormData={setBasicFormData} />
           ) : (
-            <ModuleQuestionnaire
-              setFormData={setModuleFormData}
-              stepIndex={stepIndex["mqIndex"]}
-            />
+            <ModuleQuestionnaire setFormData={setModuleFormData} />
           )}
           {isLoading ? (
             " "
@@ -375,7 +381,7 @@ function NewSurveyConfig() {
                   marginLeft: 50,
                   marginRight: 24,
                 }}
-                disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
+                disabled={stepIndex.sidebar == 0}
               >
                 Back
               </Button>
