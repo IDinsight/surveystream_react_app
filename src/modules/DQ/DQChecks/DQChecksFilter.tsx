@@ -26,7 +26,7 @@ function DQChecksFilter({
     "Does not contain",
     "Is empty",
     "Is not empty",
-    "Greather than",
+    "Greater than",
     "Smaller than",
   ];
 
