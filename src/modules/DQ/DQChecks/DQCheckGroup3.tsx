@@ -461,7 +461,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
             {typeID === "7" &&
               "Checks that a variable value in the main form matches the value of the same variable recorded in a data quality form (backcheck/ audioaudit/ spotcheck form). Kindly note that the variable name in the two forms have to be the same."}
             {typeID === "8" &&
-              "Checks if a protocol has been violated. For all protocol questions, calculations assume that the value 1 indicates a violation, while the value 0 indicates no violation."}
+              "Checks if a protocol has been violated. For all protocol questions, calculations assume that the value 0 indicates a violation, while the value 1 indicates no violation."}
             {typeID === "9" &&
               "Averages the spotcheck scores recorded in data quality forms. Multiple variables can be aggregated to one score using the 'Score name' input."}
           </p>
