@@ -24,7 +24,7 @@ import {
   EnumeratorsTable,
 } from "./EnumeratorsHome.styled";
 import {
-  CloudUploadOutlined,
+  PlusOutlined,
   DownloadOutlined,
   EditOutlined,
 } from "@ant-design/icons";
@@ -91,10 +91,13 @@ function EnumeratorsHome() {
     const selectedEnumeratorData = enumeratorList.filter((row: any) =>
       selectedEnumeratorIds.includes(row.enumerator_id)
     );
-
     setSelectedRows(selectedEnumeratorData);
   };
-
+  useEffect(() => {
+    if (selectedRows.length > 0) {
+      setEditMode(true);
+    }
+  }, [selectedRows]);
   const rowSelection = {
     selectedRows,
     onChange: onSelectChange,
@@ -424,29 +427,24 @@ function EnumeratorsHome() {
                   color: "#2F54EB",
                 }}
               >
-                {editMode ? (
-                  <>
-                    <Button
-                      icon={<EditOutlined />}
-                      style={{ marginRight: 20 }}
-                      onClick={onEditDataHandler}
-                    >
-                      Edit data
-                    </Button>
-                  </>
-                ) : null}
                 <Button
                   type="primary"
-                  icon={editMode ? null : <EditOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                  onClick={() => setEditMode((prev) => !prev)}
+                  icon={<EditOutlined />}
+                  style={{
+                    marginRight: 15,
+                    backgroundColor: editMode ? "#2f54eB" : "#d9d9d9",
+                    borderColor: editMode ? "#2f54eB" : "#d9d9d9",
+                    color: editMode ? "#fff" : "#000",
+                  }}
+                  onClick={() => onEditDataHandler()}
+                  disabled={editMode ? false : true}
                 >
-                  {editMode ? "Done editing" : "Edit"}
+                  Edit
                 </Button>
                 <Button
                   onClick={handlerAddEnumBtn}
                   type="primary"
-                  icon={<CloudUploadOutlined />}
+                  icon={<PlusOutlined />}
                   style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 >
                   Add enumerators
@@ -474,14 +472,14 @@ function EnumeratorsHome() {
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex" }} className="modal_wrapper">
           <SideMenu />
           {screenMode === "manage" ? (
             <>
               <EnumeratorsHomeFormWrapper>
                 <br />
                 <EnumeratorsTable
-                  rowSelection={editMode ? rowSelection : undefined}
+                  rowSelection={rowSelection}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   style={{ marginTop: 30 }}
