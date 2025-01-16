@@ -4,7 +4,7 @@ import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
 import { CustomTab } from "./Assignments.styled";
 import Container from "../../components/Layout/Container";
-import { Button, TabsProps } from "antd";
+import { Button, TabsProps, Tooltip } from "antd";
 import {
   ArrowUpOutlined,
   ClearOutlined,
@@ -51,9 +51,11 @@ function Assignments() {
   const { loading: tableConfigLoading, data: tableConfigData } = useAppSelector(
     (state: RootState) => state.assignments.tableConfig
   );
-  const { loading: assignmentsLoading, data: assignmentsData } = useAppSelector(
-    (state: RootState) => state.assignments.assignments
-  );
+  const {
+    loading: assignmentsLoading,
+    err: assignmentsErr,
+    data: assignmentsData,
+  } = useAppSelector((state: RootState) => state.assignments.assignments);
   const { data: enumeratorData, loading: enumeratorLoading } = useAppSelector(
     (state: RootState) => state.assignments.assignmentEnumerators
   );
@@ -343,6 +345,8 @@ function Assignments() {
       setKeyRefs(keys);
 
       resetData();
+    } else {
+      setMainData([]);
     }
   }, [
     tableConfigData,
@@ -451,6 +455,7 @@ function Assignments() {
                 value={searchValue}
                 onSearch={(val) => debounceSearch(val)}
                 onChange={(e) => debounceSearch(e.target.value)}
+                disabled={mainData?.length === 0}
               />
               <Button
                 icon={<UserAddOutlined />}
@@ -465,6 +470,7 @@ function Assignments() {
                   icon={<UploadOutlined />}
                   style={{ marginLeft: "8px" }}
                   onClick={handleUploadAssignments}
+                  disabled={mainData?.length === 0}
                 >
                   Upload assignments
                 </Button>
@@ -475,14 +481,17 @@ function Assignments() {
                 disabled={mainData?.length === 0}
                 tabItemIndex={tabItemIndex}
                 data={getTabData()}
+                hoverText="Download CSV"
                 filterData={mainData}
               />
-              <Button
-                disabled={searchValue === "" && !dataFilter}
-                icon={<ClearOutlined />}
-                style={{ marginLeft: "16px" }}
-                onClick={onClear}
-              ></Button>
+              <Tooltip title="Clear search and filters">
+                <Button
+                  disabled={searchValue === "" && !dataFilter}
+                  icon={<ClearOutlined />}
+                  style={{ marginLeft: "16px" }}
+                  onClick={onClear}
+                ></Button>
+              </Tooltip>
             </HeaderContainer>
 
             {getTabData().length > 0 ? (
@@ -517,28 +526,74 @@ function Assignments() {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  height: "calc(100vh - 190px)",
+                  height: "calc(100vh - 250px)",
                 }}
               >
-                <div>
+                <div style={{ display: "flex" }}>
                   <img
                     src={NotebooksImg}
                     height={220}
                     width={225}
                     alt="Empty data"
-                  />
-                  <p
                     style={{
-                      color: "#8C8C8C",
-                      fontFamily: "Lato",
-                      fontSize: "14px",
-                      lineHeight: "22px",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                    }}
+                  />
+                  <div
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "60%",
                     }}
                   >
-                    {tabItemIndex.charAt(0).toUpperCase() +
-                      tabItemIndex.slice(1)}{" "}
-                    have not yet been uploaded.
-                  </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "24px",
+                        lineHeight: "30px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      {tabItemIndex.charAt(0).toUpperCase() +
+                        tabItemIndex.slice(1)}{" "}
+                      not found
+                    </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      Reason:{" "}
+                      {assignmentsErr ? (
+                        <>{assignmentsErr}</>
+                      ) : assignmentsData.length === 0 ? (
+                        <>
+                          This is likely because there are no targets mapped to
+                          you.
+                        </>
+                      ) : (
+                        <>Failed to fetch data. </>
+                      )}
+                    </p>
+                    <p
+                      style={{
+                        color: "#8C8C8C",
+                        fontFamily: "Lato",
+                        fontSize: "14px",
+                        lineHeight: "22px",
+                        marginLeft: "20px",
+                      }}
+                    >
+                      Please contact the survey admin if you believe this is an
+                      error.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

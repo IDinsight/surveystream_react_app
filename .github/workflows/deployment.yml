@@ -82,7 +82,7 @@ jobs:
             sed -i 's#\\"##g' ./.github/workflows/appspecfinal.json  
 
       - name: ECS task deployment using CodeDeploy
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         env:
           ACTIONS_STEP_DEBUG: true #enable step debug logging
         with:
@@ -166,7 +166,7 @@ jobs:
             sed -i 's#\\"##g' ./.github/workflows/appspecfinal.json  
 
       - name: ECS task deployment using CodeDeploy
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         env:
           ACTIONS_STEP_DEBUG: true #enable step debug logging
         with:
