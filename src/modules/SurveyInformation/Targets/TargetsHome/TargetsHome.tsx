@@ -33,6 +33,8 @@ import { includes } from "cypress/types/lodash";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import Container from "../../../../components/Layout/Container";
+import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { set } from "lodash";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -85,7 +87,6 @@ function TargetsHome() {
     const selectedTargetData = targetList.filter((row: any) =>
       selectedTargetIds.includes(row.target_id)
     );
-
     setSelectedRows(selectedTargetData);
   };
 
@@ -98,16 +99,15 @@ function TargetsHome() {
   const hasSelected = selectedRows.length > 0;
 
   // Handler for Edit Data button
-  const onEditDataHandler = () => {
+  const onEditDataHandler = async () => {
     if (!hasSelected) {
       message.error("No row selected for editing");
       return;
     }
-    setEditData(true);
     // Setting the fields to show on Modal
     const fields = Object.keys({ ...selectedRows[0] })
       .filter((field) => field !== "key")
-      .map((field: any) => {
+      .map((field: string) => {
         if (field === "custom_fields") {
           if (
             selectedRows[0][field] &&
@@ -132,7 +132,57 @@ function TargetsHome() {
       })
       .flat();
 
-    setFieldData(fields);
+    const locationfields = [];
+    if (
+      selectedRows[0]["target_locations"] &&
+      Array.isArray(selectedRows[0]["target_locations"])
+    ) {
+      const locationFields = selectedRows[0]["target_locations"];
+      const locationDataPromises = locationFields
+        .filter(
+          (location: { location_uid: string }) =>
+            location.location_uid === selectedRows[0].location_uid
+        )
+        .map(
+          async (location: {
+            geo_level_uid: string;
+            geo_level_name: string;
+          }) => {
+            const locationData = await dispatch(
+              getSurveyLocationsLong({
+                survey_uid: activeSurvey.survey_uid,
+                geo_level_uid: location.geo_level_uid,
+              })
+            );
+            if (locationData) {
+              const locationOptions = locationData.payload.map(
+                (item: {
+                  location_id: string;
+                  location_name: string;
+                  location_uid: string;
+                }) => ({
+                  label: `${item.location_id} - ${item.location_name}`,
+                  value: item.location_uid,
+                })
+              );
+              return {
+                labelKey: location.geo_level_name + " ID",
+                label: `target_locations.${location.geo_level_name}`,
+                options: locationOptions,
+              };
+            }
+            return {
+              labelKey: location.geo_level_name + " ID",
+              label: `target_locations.${location.geo_level_name}`,
+            };
+          }
+        );
+
+      const locationData = await Promise.all(locationDataPromises);
+      locationfields.push(...locationData);
+    }
+    setFieldData([...fields, ...locationfields]);
+    setEditData(true);
   };
 
   const onEditingCancel = () => {
@@ -144,6 +194,7 @@ function TargetsHome() {
       await getTargetsList(form_uid);
     }
     setEditData(false);
+    setEditMode(false);
   };
 
   const handleFormUID = async () => {
@@ -207,6 +258,7 @@ function TargetsHome() {
       const columnsToExclude = [
         "form_uid",
         "target_uid",
+        "location_uid",
         "target_locations",
         "completed_flag",
         "last_attempt_survey_status",
@@ -281,7 +333,41 @@ function TargetsHome() {
         return acc;
       }, []);
 
-      columnMappings = columnMappings.concat(customFields);
+      const locationFieldsSet = new Set(); // Create a set to track unique location fields
+      const locationFields = originalData.reduce((acc: any, row: any) => {
+        if (row.target_locations && typeof row.target_locations === "object") {
+          for (const location of row.target_locations) {
+            if (row.location_uid === location.location_uid) {
+              const geoLevelName = location.geo_level_name;
+              const geoLevelUID = `${geoLevelName} ID`;
+              const geoLevelNameField = `${geoLevelName} name`;
+
+              if (!locationFieldsSet.has(geoLevelUID)) {
+                locationFieldsSet.add(geoLevelUID);
+                acc.push({
+                  title: geoLevelUID,
+                  dataIndex: `target_locations.${geoLevelUID}`,
+                  width: 90,
+                  ellipsis: true,
+                });
+              }
+
+              if (!locationFieldsSet.has(geoLevelNameField)) {
+                locationFieldsSet.add(geoLevelNameField);
+                acc.push({
+                  title: geoLevelNameField,
+                  dataIndex: `target_locations.${geoLevelNameField}`,
+                  width: 90,
+                  ellipsis: true,
+                });
+              }
+            }
+          }
+        }
+
+        return acc;
+      }, []);
+      columnMappings = columnMappings.concat(customFields, locationFields);
 
       setDataTableColumn(columnMappings);
 
@@ -299,6 +385,19 @@ function TargetsHome() {
               item.custom_fields[customFieldKey] !== null
             ) {
               rowData[dataIndex] = item.custom_fields[customFieldKey];
+            } else {
+              rowData[dataIndex] = null;
+            }
+          } else if (dataIndex.startsWith("target_locations.")) {
+            const locationKey = dataIndex.split(".")[1];
+            if (item.target_locations && Array.isArray(item.target_locations)) {
+              const location = item.target_locations.find(
+                (loc: any) =>
+                  loc.geo_level_name === locationKey.replace(/ ID| name/g, "")
+              );
+              rowData[dataIndex] = locationKey.endsWith(" ID")
+                ? location.location_id
+                : location.location_name;
             } else {
               rowData[dataIndex] = null;
             }
@@ -404,27 +503,18 @@ function TargetsHome() {
                 Edit SCTO Column Mapping
               </Button>
             )}
-            {editMode ? (
-              <>
-                <Button
-                  icon={<EditOutlined />}
-                  style={{ marginRight: 15 }}
-                  onClick={onEditDataHandler}
-                >
-                  Edit data
-                </Button>
-              </>
-            ) : null}
             {targetDataSource !== "scto" && (
               <>
-                <Button
-                  type="primary"
-                  icon={editMode ? null : <EditOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                  onClick={() => setEditMode((prev) => !prev)}
-                >
-                  {editMode ? "Done editing" : "Edit"}
-                </Button>
+                {editMode && (
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                    onClick={onEditDataHandler}
+                  >
+                    Edit
+                  </Button>
+                )}
                 <Button
                   onClick={handlerAddTargetBtn}
                   type="primary"
@@ -465,12 +555,20 @@ function TargetsHome() {
             <>
               <TargetsHomeFormWrapper>
                 <TargetsTable
-                  rowSelection={editMode ? rowSelection : undefined}
+                  rowSelection={{
+                    ...rowSelection,
+                    onChange: (selectedRowKeys, selectedRows) => {
+                      onSelectChange(selectedRowKeys, selectedRows);
+                      setEditMode(selectedRows.length > 0);
+                    },
+                  }}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
-                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
-                  style={{ marginRight: 80, marginTop: 30 }}
+                  tableLayout="auto"
+                  scroll={{ x: "max-content", y: "calc(100vh - 30px)" }}
+                  style={{ marginRight: 50 }}
                   pagination={{
+                    position: ["topRight"],
                     pageSize: paginationPageSize,
                     pageSizeOptions: [10, 25, 50, 100],
                     showSizeChanger: true,

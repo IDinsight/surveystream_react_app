@@ -1,4 +1,4 @@
-import { Button, Form, Input, message, Drawer } from "antd";
+import { Button, Form, Input, message, Drawer, Select } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ interface IRowEditingModal {
 interface Field {
   label: string;
   labelKey: string;
+  options?: { label: string; value: string }[];
 }
 
 interface DataItem {
@@ -59,11 +60,24 @@ function RowEditingModal({
 
   const updateHandler = async () => {
     //validate form
-    const values = await editForm.validateFields();
+    try {
+      const values = await editForm.validateFields();
+    } catch (err) {
+      return;
+    }
 
     const updateData = await editForm.getFieldsValue();
 
     const originalData = data;
+
+    for (const key in updateData) {
+      if (key.startsWith("target_locations.")) {
+        if (updateData[key] !== null) {
+          updateData["location_uid"] = updateData[key];
+        }
+        delete updateData[key];
+      }
+    }
 
     const patchKeys = {
       ...updateData,
@@ -88,7 +102,6 @@ function RowEditingModal({
           delete patchKeys[key];
         }
       }
-
       const batchRes = await dispatch(
         bulkUpdateTargets({ targetsUIDs, formUID, patchKeys })
       );
@@ -225,14 +238,23 @@ function RowEditingModal({
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
       );
+      console.log("fields", fields);
+
+      fields.forEach((field: Field) => {
+        if (
+          field.label &&
+          field.label.startsWith("target_locations.") &&
+          !bulkFieldsToInclude.includes(field.labelKey)
+        ) {
+          additionalFieldsToInclude.push(field);
+        }
+      });
 
       filteredFields = [...filteredFields, ...additionalFieldsToInclude];
     }
-
     setUpdatedFields(filteredFields);
 
     const initialData: DataItem = [];
-
     filteredFields.forEach((field: Field) => {
       if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] = data[0]["custom_fields"][field.labelKey];
@@ -293,7 +315,13 @@ function RowEditingModal({
                   id={`${field.label}-id`}
                   name={field.label}
                   labelAlign="left"
-                  initialValue={field.label ? data[0][field.label] : ""}
+                  initialValue={
+                    field.label.startsWith("target_locations.")
+                      ? data[0]["location_uid"]
+                      : field.label
+                      ? data[0][field.label]
+                      : ""
+                  }
                   label={<span>{field.labelKey}</span>}
                   rules={[
                     {
@@ -302,10 +330,28 @@ function RowEditingModal({
                     },
                   ]}
                 >
-                  <Input
-                    placeholder={`Enter ${field.labelKey}`}
-                    style={{ width: "100%" }}
-                  />
+                  {field.label.startsWith("target_locations.") ? (
+                    <Select
+                      placeholder={`Select ${field.labelKey}`}
+                      style={{ width: "100%" }}
+                    >
+                      {field.options?.map(
+                        (
+                          option: { label: string; value: string },
+                          index: number
+                        ) => (
+                          <Select.Option key={index} value={option.value}>
+                            {option.label}
+                          </Select.Option>
+                        )
+                      )}
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder={`Enter ${field.labelKey}`}
+                      style={{ width: "100%" }}
+                    />
+                  )}
                 </Form.Item>
               ))}
             </Form>

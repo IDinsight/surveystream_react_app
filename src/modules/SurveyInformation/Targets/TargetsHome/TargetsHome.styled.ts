@@ -22,11 +22,21 @@ export const TargetsTable = styled(Table)`
     background-color: #d6e4ff !important;
     height: 40px;
     font-family: "Lato", sans-serif;
+    white-space: nowrap;
+    word-break: break-word;
+    word-break: break-all;
   }
   & th::before {
     background-color: #595959 !important;
   }
   & td {
     font-family: "Lato", sans-serif;
+  }
+
+  .antd-table-custom-class thead th,
+  .antd-table-custom-class tbody td {
+    white-space: nowrap;
+    word-break: break-word;
+    word-break: break-all;
   }
 `;
