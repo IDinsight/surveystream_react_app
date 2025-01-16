@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import SideMenu from "./SideMenu";
@@ -13,7 +13,6 @@ import {
   StyledCard,
   Title,
   MainWrapper,
-  StatusText,
   StatusWrapper,
   SectionTitle,
 } from "./SurveyConfiguration.styled";
@@ -21,8 +20,7 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { Link } from "react-router-dom";
-import { Result, Button, Tag, Progress } from "antd";
+import { Result, Button, Tag, Alert, Col } from "antd";
 import {
   InfoCircleFilled,
   LayoutFilled,
@@ -39,15 +37,14 @@ import {
   AudioOutlined,
   TableOutlined,
   MailOutlined,
-  SoundOutlined,
-  PictureOutlined,
   FormOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   CloseCircleOutlined,
   HourglassOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { userHasPermission } from "../../utils/helper";
+import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 
@@ -111,6 +108,12 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
 const SurveyConfiguration: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [errorModules, setErrorModules] = useState<
+    { section: string; item: string }[]
+  >([]);
+  const [noErrorModules, setNoErrorModules] = useState<
+    { section: string; item: string }[]
+  >([]);
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -176,6 +179,7 @@ const SurveyConfiguration: React.FC = () => {
 
     return "";
   };
+
   const renderModuleIcon = (sectionTitle: string) => {
     const iconProps = { fontSize: "28px" };
 
@@ -397,6 +401,32 @@ const SurveyConfiguration: React.FC = () => {
     }
   }, [survey_uid]);
 
+  useEffect(() => {
+    const errors: { section: string; item: string }[] = [];
+    const noErrors: { section: string; item: string }[] = [];
+    Object.entries(surveyConfigs).forEach(([sectionTitle, sectionConfig]) => {
+      if (Array.isArray(sectionConfig)) {
+        sectionConfig.forEach((item: any) => {
+          if (item.status === "Error") {
+            errors.push({ section: sectionTitle, item: item.name });
+          } else {
+            if (checkPermissions(item.name)) {
+              noErrors.push({ section: sectionTitle, item: item.name });
+            }
+          }
+        });
+      } else if (sectionConfig.status === "Error") {
+        errors.push({ section: sectionTitle, item: "" });
+      } else {
+        if (checkPermissions(sectionTitle)) {
+          noErrors.push({ section: sectionTitle, item: "" });
+        }
+      }
+    });
+    setErrorModules(errors);
+    setNoErrorModules(noErrors);
+  }, [surveyConfigs]);
+
   const { height } = useWindowDimensions();
 
   return (
@@ -422,18 +452,149 @@ const SurveyConfiguration: React.FC = () => {
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ display: "flex" }}>
-          <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
-          <MainWrapper windowHeight={height}>
-            {Object.entries(surveyConfigs).map(
-              ([sectionTitle, sectionConfig], index) => (
-                <div key={index}>
-                  {renderSection(sectionTitle, sectionConfig)}
-                </div>
-              )
-            )}
-          </MainWrapper>
-        </div>
+        <>
+          {errorModules.length > 0 && (
+            <>
+              <Alert
+                message="Modules in Error"
+                description={
+                  <span style={{ fontSize: "14px", font: "Lato" }}>
+                    The following modules are in error:
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      <Col span={4} style={{ flex: "1 1 50%" }}>
+                        <ul style={{ paddingLeft: "20px" }}>
+                          {errorModules
+                            .filter((_, index) => index % 2 === 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                      <Col span={5} style={{ flex: "1 1 50%" }}>
+                        <ul>
+                          {errorModules
+                            .filter((_, index) => index % 2 !== 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                    </div>
+                    {!isAdmin(userProfile, survey_uid) ? (
+                      <span>
+                        Access restricted to following modules until the errors
+                        are resolved.
+                        <div style={{ display: "flex", flexWrap: "wrap" }}>
+                          <Col span={4} style={{ flex: "1 1 50%" }}>
+                            <ul style={{ paddingLeft: "20px" }}>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 === 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                          <Col span={5} style={{ flex: "1 1 50%" }}>
+                            <ul>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 !== 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                        </div>
+                        <span>
+                          Kindly contact your Survey Admin to resolve the issues
+                          above to continue.
+                        </span>
+                      </span>
+                    ) : (
+                      <span>Kindly resolve issues in above modules.</span>
+                    )}
+                  </span>
+                }
+                type="error"
+                showIcon
+                icon={
+                  <ExclamationCircleOutlined
+                    style={{ fontSize: "24px", color: "#ff4d4f" }}
+                  />
+                }
+                style={{
+                  padding: "16px",
+                  borderRadius: "4px",
+                  backgroundColor: "#fff1f0",
+                  border: "1px solid #ffccc7",
+                }}
+              />
+            </>
+          )}
+          <div style={{ display: "flex" }}>
+            <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
+            <MainWrapper windowHeight={height}>
+              {Object.entries(surveyConfigs).map(
+                ([sectionTitle, sectionConfig], index) => (
+                  <div key={index}>
+                    {renderSection(sectionTitle, sectionConfig)}
+                  </div>
+                )
+              )}
+            </MainWrapper>
+          </div>
+        </>
       )}
     </>
   );
