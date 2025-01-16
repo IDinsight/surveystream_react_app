@@ -71,7 +71,7 @@ function Notifications() {
                 bordered
                 dataSource={notifications}
                 pagination={
-                  notifications.length > 10 && {
+                  notifications?.length > 10 && {
                     pageSize: 10,
                     size: "small",
                   }
