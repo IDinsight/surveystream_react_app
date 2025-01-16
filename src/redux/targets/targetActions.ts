@@ -24,8 +24,25 @@ import {
   updateTargetsFailure,
   updateTargetsRequest,
   updateTargetsSuccess,
+  getTargetsConfigRequest,
+  getTargetsConfigSuccess,
+  getTargetsConfigFailure,
+  postTargetConfigRequest,
+  postTargetConfigSuccess,
+  postTargetConfigFailure,
+  putTargetConfigRequest,
+  putTargetConfigSuccess,
+  putTargetConfigFailure,
+  getTargetSCTOColumnsRequest,
+  getTargetSCTOColumnsSuccess,
+  getTargetSCTOColumnsFailure,
+  updateTargetSCTOColumnsRequest,
+  updateTargetSCTOColumnsSuccess,
+  updateTargetSCTOColumnsFailure,
+  deleteAllTargetsFailure,
+  deleteAllTargetsRequest,
+  deleteAllTargetsSuccess,
 } from "./targetSlice";
-import { update } from "cypress/types/lodash";
 
 export const postTargetsMapping = createAsyncThunk(
   "targets/postTargetsMapping",
@@ -258,9 +275,11 @@ export const updateTargetsColumnConfig = createAsyncThunk(
     {
       formUID,
       columnConfig,
+      filters = [],
     }: {
       formUID: string;
-      columnConfig: any;
+      columnConfig?: any;
+      filters?: any;
     },
     { dispatch, rejectWithValue }
   ) => {
@@ -268,7 +287,8 @@ export const updateTargetsColumnConfig = createAsyncThunk(
       dispatch(updateTargetColumnConfigRequest());
       const response: any = await api.updateTargetsColumnConfig(
         formUID,
-        columnConfig
+        columnConfig,
+        filters
       );
       if (response.status == 200) {
         dispatch(updateTargetColumnConfigSuccess(response.data));
@@ -292,11 +312,256 @@ export const updateTargetsColumnConfig = createAsyncThunk(
   }
 );
 
-export const enumeratorsActions = {
+export const getTargetConfig = createAsyncThunk(
+  "targets/getTargetsConfig",
+  async (
+    {
+      form_uid,
+    }: {
+      form_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(getTargetsConfigRequest());
+      const response: any = await api.getTargetConfig(form_uid);
+      if (response.status == 200) {
+        dispatch(getTargetsConfigSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to get targets config.",
+        success: false,
+      };
+      dispatch(getTargetsConfigFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to get targets config.";
+      dispatch(getTargetsConfigFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const postTargetConfig = createAsyncThunk(
+  "targets/postTargetConfig",
+  async (
+    {
+      form_uid,
+      target_source,
+      scto_input_type,
+      scto_input_id,
+      scto_encryption_flag,
+    }: {
+      form_uid: string;
+      target_source: string;
+      scto_input_type: string;
+      scto_input_id: string;
+      scto_encryption_flag: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(postTargetConfigRequest());
+      const response: any = await api.postTargetConfig(
+        form_uid,
+        target_source,
+        scto_input_type,
+        scto_input_id,
+        scto_encryption_flag
+      );
+      if (response.status == 200) {
+        dispatch(postTargetConfigSuccess(response.data));
+        return { ...response, success: true };
+      }
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to post target config.",
+        success: false,
+      };
+      dispatch(postTargetConfigFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to post target config.";
+      dispatch(postTargetConfigFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const putTargetConfig = createAsyncThunk(
+  "targets/putTargetConfig",
+  async (
+    {
+      form_uid,
+      target_source,
+      scto_input_type,
+      scto_input_id,
+      scto_encryption_flag,
+    }: {
+      form_uid: string;
+      target_source: string;
+      scto_input_type: string;
+      scto_input_id: string;
+      scto_encryption_flag: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(putTargetConfigRequest());
+      const response: any = await api.putTargetConfig(
+        form_uid,
+        target_source,
+        scto_input_type,
+        scto_input_id,
+        scto_encryption_flag
+      );
+      if (response.status == 200) {
+        dispatch(putTargetConfigSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to put target config.",
+        success: false,
+      };
+      dispatch(putTargetConfigFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to put target config.";
+      dispatch(putTargetConfigFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getTargetSCTOColumns = createAsyncThunk(
+  "targets/getTargetSCTOColumns",
+  async (
+    {
+      form_uid,
+    }: {
+      form_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(getTargetSCTOColumnsRequest());
+      const response: any = await api.getTargetSCTOColumns(form_uid);
+      if (response.status == 200) {
+        dispatch(getTargetSCTOColumnsSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to get target SCTO columns.",
+        success: false,
+      };
+      dispatch(getTargetSCTOColumnsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to get target SCTO columns.";
+      dispatch(getTargetSCTOColumnsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateTargetSCTOColumns = createAsyncThunk(
+  "targets/updateTargetSCTOColumns",
+  async (
+    {
+      form_uid,
+    }: {
+      form_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      dispatch(updateTargetSCTOColumnsRequest());
+      const response: any = await api.updateTargetSCTOColumns(form_uid);
+      if (response.status == 200) {
+        dispatch(updateTargetSCTOColumnsSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.error,
+        message: response.message
+          ? response.message
+          : "Failed to update target SCTO columns.",
+        success: false,
+      };
+      dispatch(updateTargetSCTOColumnsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to update target SCTO columns.";
+      dispatch(updateTargetSCTOColumnsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const deleteAllTargets = createAsyncThunk(
+  "targets/deleteAllTargets",
+  async (
+    {
+      form_uid,
+    }: {
+      form_uid: string;
+    },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      console.log("deleteAllTargets");
+      dispatch(deleteAllTargetsRequest());
+      const response: any = await api.deleteAllTargets(form_uid);
+      if (response.status == 200) {
+        dispatch(deleteAllTargetsSuccess(response.data));
+        return { ...response, success: true };
+      }
+
+      const error = {
+        errors: response.response.data.errors,
+        message: response.message
+          ? response.message
+          : "Failed to delete all targets.",
+        success: false,
+      };
+      dispatch(deleteAllTargetsFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to delete all targets.";
+      dispatch(deleteAllTargetsFailure(errorMessage));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const targetActions = {
   postTargetsMapping,
   updateTargetsColumnConfig,
   getTargetsColumnConfig,
   bulkUpdateTargets,
   updateTarget,
   getTargets,
+  getTargetDetails,
+  getTargetConfig,
+  postTargetConfig,
+  putTargetConfig,
+  getTargetSCTOColumns,
+  updateTargetSCTOColumns,
+  deleteAllTargets,
 };

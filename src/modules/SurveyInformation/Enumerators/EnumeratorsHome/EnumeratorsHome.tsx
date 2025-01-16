@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import {
+  Button,
+  Divider,
+  Modal,
+  Popconfirm,
+  Radio,
+  Space,
+  message,
+} from "antd";
 import { useCSVDownloader } from "react-papaparse";
 
 import {
@@ -510,12 +518,15 @@ function EnumeratorsHome() {
                   value={newEnumMode}
                 >
                   <Space direction="vertical">
-                    <Radio value="overwrite" disabled={isEnumInUse}>
-                      I want to start a fresh (enumerators uploaded previously
-                      will be deleted)
-                    </Radio>
                     <Radio value="merge">
                       I want to add new enumerators / columns
+                    </Radio>
+                    <Radio value="overwrite" disabled={isEnumInUse}>
+                      <span> I want to start a fresh </span>
+                      <span style={{ color: "red" }}>
+                        ( Enumerators uploaded previously will be removed.
+                        Existing Assignments data will be deleted. )
+                      </span>
                     </Radio>
                   </Space>
                 </Radio.Group>

@@ -1,6 +1,7 @@
 import { Spin } from "antd";
 import { createGlobalStyle } from "styled-components";
 import { Loader, LoaderText, LoaderWrap } from "./FullScreenLoader.styled";
+import PropTypes from "prop-types";
 
 const GlobalStyle = createGlobalStyle`
   :where(.css-dev-only-do-not-override-1e3x2xa).ant-spin-lg .ant-spin-dot i {
@@ -27,16 +28,19 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const FullScreenLoader = () => {
+const FullScreenLoader = ({ loadScreenText = "Loading" }) => {
   return (
     <LoaderWrap>
       <Loader>
         <GlobalStyle />
         <Spin size="large" />
       </Loader>
-      <LoaderText>Loading</LoaderText>
+      <LoaderText>{loadScreenText}</LoaderText>
     </LoaderWrap>
   );
+};
+FullScreenLoader.propTypes = {
+  loadScreenText: PropTypes.string,
 };
 
 export default FullScreenLoader;

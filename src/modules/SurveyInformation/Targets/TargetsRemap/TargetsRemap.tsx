@@ -165,6 +165,21 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     return { label: item, value: item };
   });
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
+
   const handleTargetsUploadMapping = async () => {
     try {
       //start with an empty error count
@@ -190,6 +205,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         column_mapping: column_mapping,
         file: csvBase64Data,
         mode: "merge",
+        load_from_scto: false,
+        load_successful: false,
       };
 
       if (form_uid !== undefined) {
@@ -277,6 +294,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           dispatch(setMappingErrorStatus(false));
           //route to manage
           setScreenMode("manage");
+          navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
           message.error("Failed to upload kindly check and try again");
           dispatch(setMappingErrorStatus(true));
@@ -328,6 +346,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           const customFields: any = column_mapping[key];
 
           const fieldsConfig = Object.keys(customFields).map((customKey) => {
+            const columnName = column_mapping[key][customKey]["column_name"];
+
             const bulk = checkboxValues?.[`${customKey}_bulk`]
               ? checkboxValues?.[`${customKey}_bulk`]
               : true;
@@ -337,9 +357,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
             return {
               bulk_editable: bulk,
-              column_name: customKey,
+              column_name: columnName,
               column_type: "custom_field",
               contains_pii: pii,
+              column_source: columnName,
             };
           });
         }
@@ -361,6 +382,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
               ? "location"
               : "custom_field",
           contains_pii: true, //TODO: fix
+          column_source: column_mapping[key],
         };
       }
     });
@@ -536,7 +558,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     { title: "Update targets" },
                   ]}
                 />
-                <Form form={targetMappingForm}>
+                <Form
+                  form={targetMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns

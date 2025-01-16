@@ -181,6 +181,21 @@ function EnumeratorsMap() {
     );
   };
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
+
   const handleFormUID = async (survey_uid: any, form_uid: any) => {
     if (form_uid == "" || form_uid == undefined) {
       try {
@@ -469,7 +484,10 @@ function EnumeratorsMap() {
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
                 </div>
-                <Form form={enumeratorMappingForm}>
+                <Form
+                  form={enumeratorMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns

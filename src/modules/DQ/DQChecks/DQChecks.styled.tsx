@@ -86,7 +86,7 @@ export const ChecksTable = styled(Table)`
   }
 
   & .ant-table-row-selected.greyed-out-row > .ant-table-cell {
-    background-color: #ffc1bd !important;
+    background-color: #ffccc7 !important;
     color: red !important;
   }
 `;
