@@ -169,12 +169,12 @@ const Header = () => {
         })}
       </div>
       <div className="nav-menu flex mr-2">
-        <div className="nav-menu-item justify-center w-40 px-2">
+        <div className="nav-menu-item justify-center w-40">
           <Link to="https://docs.surveystream.idinsight.io">
             <span className="!text-gray-2">Documentation</span>
           </Link>
         </div>
-        <div className="justify-center w-20">
+        <div className="w-16">
           {isSignedIn() ? (
             <>
               <NotificationBell notifications={notifications} />
