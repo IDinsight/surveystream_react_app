@@ -24,6 +24,7 @@ import { getAllNotifications } from "./../../redux/notifications/notificationAct
 
 import "./Header.css";
 import NotificationBell from "../NotificationBell";
+import { message } from "antd";
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -116,12 +117,12 @@ const Header = () => {
         try {
           await dispatch(getAllNotifications());
         } catch (error) {
-          // TODO: Handle error
+          message.error("Failed to fetch notifications");
         }
       };
 
       fetchNotifications();
-      const intervalId = setInterval(fetchNotifications, 30000);
+      const intervalId = setInterval(fetchNotifications, 15000);
 
       return () => {
         clearInterval(intervalId);

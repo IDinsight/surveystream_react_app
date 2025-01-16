@@ -1,6 +1,5 @@
 import { getSurveyCTOForms } from "../redux/surveyCTOInformation/apiService";
 import { getSurveyConfig } from "../redux/surveyConfig/surveyConfigActions";
-import { useAppDispatch } from "../redux/hooks";
 
 /**
  * Return the day with month
@@ -163,8 +162,6 @@ export const getSCTOForms = async (survey_uid: string) => {
 };
 
 export const getModulePath = (survey_uid: number, module_id: number | null) => {
-  console.log("survey_uid", survey_uid);
-  console.log("module_uid", module_id);
   const moduleRoutes: { [key: number]: string | null } = {
     1: `/new-survey-config/${survey_uid}`,
     2: `/module-selection/${survey_uid}`,
@@ -193,7 +190,7 @@ export const getModulePath = (survey_uid: number, module_id: number | null) => {
   }
 
   return moduleRoutes[module_id] || defaultPath;
-}
+};
 
 export const getErrorModules = async (survey_uid: string, dispatch: any) => {
   if (survey_uid === "" || survey_uid === null) {

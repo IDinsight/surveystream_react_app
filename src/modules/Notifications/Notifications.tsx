@@ -26,9 +26,8 @@ function Notifications() {
     notifications,
   } = useAppSelector((state: RootState) => state.notifications);
 
-  const markAllAsRead = () => {
-    // Mark all notifications as read
-  };
+  // const markAllAsRead = () => {
+  // };
 
   useEffect(() => {
     if (isNotificationLoading) {
@@ -46,7 +45,7 @@ function Notifications() {
             <Result
               status="error"
               title="Something went wrong"
-              subTitle="Currently unable to fetch notifications. Please try again later."
+              subTitle="Unable to fetch notifications. Please try again later."
               extra={
                 <Button
                   onClick={window.location.reload}
@@ -78,7 +77,7 @@ function Notifications() {
                 }
                 locale={{
                   emptyText: (
-                    <span style={{ fontWeight: "bold" }}>
+                    <span style={{ fontWeight: "bold", fontSize: 18 }}>
                       No notifications to display.
                     </span>
                   ),

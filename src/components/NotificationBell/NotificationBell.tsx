@@ -20,9 +20,8 @@ interface INotificationBellProps {
 const NotificationBell = ({ notifications }: INotificationBellProps) => {
   const navigate = useNavigate();
 
-  const markAllAsRead = () => {
-    // Mark all notifications as read
-  };
+  // const markAllAsRead = () => {
+  // };
 
   const notificationList = (
     <>
@@ -31,7 +30,7 @@ const NotificationBell = ({ notifications }: INotificationBellProps) => {
         dataSource={notifications?.slice(0, 20)}
         locale={{
           emptyText: (
-            <span style={{ fontWeight: "bold" }}>
+            <span style={{ fontWeight: "bold", fontSize: 18 }}>
               No notifications to display.
             </span>
           ),
