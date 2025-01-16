@@ -61,12 +61,12 @@ function DQCheckDrawer4({
 
   const handleSave = () => {
     if (!localData.variable_name) {
-      message.error("Please select a variable");
+      message.error("Please select a variable.");
       return;
     }
 
     if (localData.gps_type === null) {
-      message.error("Please select a GPS check type");
+      message.error("Please select a GPS check type.");
       return;
     }
 
@@ -79,17 +79,19 @@ function DQCheckDrawer4({
       localData.gps_type === "point2point" &&
       localData.gps_variable === null
     ) {
-      message.error("Please input the expected GPS variable");
+      message.error("Please input the expected GPS variable.");
       return;
     }
 
     if (localData.gps_type === "point2shape" && localData.grid_id === null) {
-      message.error("Please input the Grid ID variable");
+      message.error("Please input the Grid ID variable.");
       return;
     }
 
     if (localData.gps_type === "point2shape" && confirmed === false) {
-      message.error("Please tick the confirmation of gpkg file sharing");
+      message.error(
+        "Please select the checkbox to confirm sharing required shape files with SurveyStream team."
+      );
       return;
     }
 
