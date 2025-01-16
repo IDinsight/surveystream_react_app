@@ -1,28 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Button,
-  Divider,
-  Modal,
-  Popconfirm,
-  Radio,
-  Space,
-  message,
-} from "antd";
+import { Button, Divider, Modal, Radio, Space, message } from "antd";
 import { useCSVDownloader } from "react-papaparse";
-
-import {
-  BackArrow,
-  BackLink,
-  HeaderContainer,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   EnumeratorsHomeFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsHome.styled";
+
 import {
   PlusOutlined,
   DownloadOutlined,
@@ -498,6 +484,7 @@ function EnumeratorsHome() {
                     fields={fieldData}
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
+                    editMode={editMode}
                   />
                 ) : null}
               </EnumeratorsHomeFormWrapper>

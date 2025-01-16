@@ -1,9 +1,5 @@
-import { Button, Form, Input, message } from "antd";
-import {
-  OptionText,
-  RowEditingModalContainer,
-  RowEditingModalHeading,
-} from "./RowEditingModal.styled";
+import { Button, Drawer, Form, Input, message } from "antd";
+import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -20,6 +16,7 @@ interface IRowEditingModal {
   fields: Field[];
   onCancel: () => void;
   onUpdate: () => void;
+  editMode: boolean;
 }
 
 interface Field {
@@ -41,6 +38,7 @@ function RowEditingModal({
   fields,
   onCancel,
   onUpdate,
+  editMode,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -270,12 +268,16 @@ function RowEditingModal({
   return (
     <>
       <GlobalStyle />
-      <RowEditingModalContainer>
-        <RowEditingModalHeading>
-          {data && data.length > 1
+      <Drawer
+        visible={editMode}
+        size="large"
+        onClose={onCancel}
+        title={
+          data && data.length > 1
             ? `Edit ${data.length} enumerators in bulk`
-            : "Edit enumerator"}
-        </RowEditingModalHeading>
+            : "Edit enumerator"
+        }
+      >
         {data && data.length > 1 ? (
           <OptionText
             style={{ width: 410, display: "inline-block", marginBottom: 20 }}
@@ -292,6 +294,7 @@ function RowEditingModal({
               labelCol={{ span: 7 }}
               form={editForm}
               style={{ textAlign: "left" }}
+              labelAlign="left"
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
@@ -327,7 +330,7 @@ function RowEditingModal({
             Update
           </Button>
         </div>
-      </RowEditingModalContainer>
+      </Drawer>
     </>
   );
 }
