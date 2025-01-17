@@ -10,6 +10,7 @@ import DQCheckGroup2 from "./DQCheckGroup2";
 import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
 import DQCheckGroup3 from "./DQCheckGroup3";
+import DQCheckGroup4 from "./DQCheckGroup4";
 
 function DQChecksEdit() {
   const navigate = useNavigate();
@@ -88,6 +89,13 @@ function DQChecksEdit() {
               )}
               {["Constraint", "Outlier"].includes(checkName) && (
                 <DQCheckGroup2
+                  surveyUID={survey_uid || ""}
+                  formUID={form_uid || ""}
+                  typeID={type_id || ""}
+                />
+              )}
+              {["GPS"].includes(checkName) && (
+                <DQCheckGroup4
                   surveyUID={survey_uid || ""}
                   formUID={form_uid || ""}
                   typeID={type_id || ""}

@@ -27,7 +27,7 @@ interface IDQCheckGroup1Props {
   typeID: string;
 }
 
-function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
+function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -563,4 +563,4 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   );
 }
 
-export default DQCheckGroup1;
+export default DQCheckGroup2;

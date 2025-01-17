@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button, Tag, message, Popconfirm, Tooltip, Modal } from "antd";
-import { isEqual, set } from "lodash";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { ChecksTable } from "./DQChecks.styled";
 import { useNavigate } from "react-router-dom";
@@ -10,25 +9,23 @@ import {
   activateDQChecks,
   deactivateDQChecks,
   deleteDQChecks,
-  fetchModuleName,
   getDQChecks,
   postDQChecks,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
-import DQCheckDrawerGroup3 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup3";
+import DQCheckDrawerGroup4 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup4";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { getDQForms } from "../../../redux/dqForm/dqFormActions";
 import { CustomBtn } from "../../../shared/Global.styled";
 
-interface IDQCheckGroup3Props {
+interface IDQCheckGroup1Props {
   surveyUID: string;
   formUID: string;
   typeID: string;
 }
 
-function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
+function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -37,19 +34,10 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
 
   const [tablePageSize, setTablePageSize] = useState(5);
 
-  const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
-    []
-  );
-  const [availableScoreNames, setAvailableScoreNames] = useState<string[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
 
   // Whole DQ Check data
   const [dqCheckData, setDQCheckData] = useState<any>(null);
-
-  const { loading: isDQFormLoading, dqForms } = useAppSelector(
-    (state: RootState) => state.dqForms
-  );
-  const [selectedDqForms, setSelectedDqForms] = useState<any[]>([]);
 
   const { dqConfig: dqConfig } = useAppSelector(
     (state: RootState) => state.dqChecks
@@ -59,7 +47,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   const [isAddManualDrawerVisible, setIsAddManualDrawerVisible] =
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
-  const [variablesValues, setVariablesValues] = useState<string[]>([]);
 
   const showAddManualDrawer = () => {
     setIsAddManualDrawerVisible(true);
@@ -69,22 +56,13 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     setIsAddManualDrawerVisible(false);
   };
 
-  // Table columns for mode selected
   const columns = [
     {
-      title: "DQ form ID",
-      dataIndex: "dq_scto_form_uid",
-      key: "dq_scto_form_uid",
-      width: 150,
-      sorter: (a: any, b: any) => a.dq_scto_form_uid - b.dq_scto_form_uid,
-      render: (dq_scto_form_uid: any) =>
-        dqForms.find((form: any) => form.form_uid === dq_scto_form_uid)
-          ?.scto_form_id,
-      filters: dqForms.map((form: any) => ({
-        text: form.scto_form_id,
-        value: form.form_uid,
-      })),
-      onFilter: (value: any, record: any) => record.dq_scto_form_uid === value,
+      title: "Type",
+      dataIndex: "gpsType",
+      key: "gpsType",
+      render: (gpsType: any) =>
+        gpsType === "point2point" ? "Point to Point" : "Point to Shape",
     },
     {
       title: "Variable name",
@@ -94,41 +72,23 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       render: (questionName: any, record: any) =>
         questionName + (record.isRepeatGroup ? "_*" : ""),
     },
-    ...(typeID === "9"
-      ? [
-          {
-            title: "Score name",
-            dataIndex: "spotcheck_score_name",
-            key: "spotcheck_score_name",
-            sorter: (a: any, b: any) =>
-              a.spotcheck_score_name.localeCompare(b.spotcheck_score_name),
-          },
-        ]
-      : []),
-    ...(dqConfig?.group_by_module_name
-      ? [
-          {
-            title: "Module name",
-            dataIndex: "moduleName",
-            key: "moduleName",
-            sorter: (a: any, b: any) =>
-              (a.moduleName || "").localeCompare(b.moduleName || ""),
-          },
-        ]
-      : []),
     {
-      title: "Flag description",
-      dataIndex: "flagDescription",
-      key: "flagDescription",
+      title: "Grid ID variable",
+      dataIndex: "gridIDVariable",
+      key: "gridIDVariable",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
     {
-      title: (
-        <Tooltip title="Click on edit to view the filter conditions">
-          Filter applied
-        </Tooltip>
-      ),
-      dataIndex: "filterData",
-      key: "filterData",
+      title: "Expected GPS variable",
+      dataIndex: "gpsVariable",
+      key: "gpsVariable",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+    },
+    {
+      title: "Threshold distance (m)",
+      dataIndex: "threshold",
+      key: "threshold",
+      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
     },
     {
       title: "Status",
@@ -156,15 +116,12 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   const selectVariableData: any = dqCheckData?.map((check: any) => ({
     key: check.dq_check_uid,
     dqCheckUID: check.dq_check_uid,
-    allQuestions: check.all_questions,
     questionName: check.question_name,
-    moduleName: check.module_name,
-    flagDescription: check.flag_description,
-    filterData: check.filters.length > 0 ? "Yes" : "-",
-    dq_scto_form_uid: check.dq_scto_form_uid,
-    spotcheck_score_name: check.check_components.spotcheck_score_name,
+    gpsType: check.check_components.gps_type,
+    threshold: check.check_components.threshold,
+    gpsVariable: check.check_components.gps_variable,
+    gridIDVariable: check.check_components.grid_id,
     status: check.active ? "Active" : "Inactive",
-    filters: check.filters,
     isDeleted:
       check.note === "Question not found in form definition" ||
       check.note === "Question not found in DQ form definition" ||
@@ -293,20 +250,23 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
 
     if (!data) return;
 
+    const checkComponents = {
+      gps_type: data.gps_type,
+      threshold: data.threshold,
+      gps_variable: data.gps_variable,
+      grid_id: data.grid_id,
+    };
+
     const formData = {
       form_uid: formUID,
       type_id: typeID,
       all_questions: false,
-      module_name: data.module_name || "",
+      module_name: "",
       question_name: data.variable_name,
-      flag_description: data.flag_description || "",
-      filters: data.filters,
+      flag_description: "",
+      filters: [],
       active: data.is_active,
-      check_components: {
-        spotcheck_score_name:
-          typeID === "9" ? data.spotcheck_score_name : undefined,
-      },
-      dq_scto_form_uid: data.dq_scto_form_uid,
+      check_components: checkComponents,
     };
 
     if (data.dq_check_id) {
@@ -352,29 +312,12 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
 
   useEffect(() => {
     if (formUID) {
-      fetchModuleName(formUID).then((res: any) => {
-        if (res?.data?.success) {
-          setAvailableModuleNames(
-            res.data.data.filter((name: string) => name !== "" && name)
-          );
-        }
-      });
-
       if (typeID) {
         setLoading(true);
         getDQChecks(formUID, typeID)
           .then((res: any) => {
             if (res?.data?.success) {
               const checkAllData = res.data.data;
-
-              if (typeID === "9") {
-                const scoreNames = checkAllData.map(
-                  (check: any) => check.check_components.spotcheck_score_name
-                );
-                setAvailableScoreNames(scoreNames);
-              } else {
-                setAvailableScoreNames([]);
-              }
 
               setDQCheckData(checkAllData);
               setDataLoading(false);
@@ -413,43 +356,12 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   }, []);
 
   useEffect(() => {
-    if (selectVariableData && selectVariableData.length > 0) {
-      const variablesVals: string[] = [];
-      selectVariableData.map((variable: any) => {
-        if (variable?.value && Array.isArray(variable.value)) {
-          variablesVals.push(...variable.value);
-        }
-      });
-      if (!isEqual(variablesVals, variablesValues)) {
-        setVariablesValues(variablesVals);
-      }
-    }
-  }, [selectVariableData]);
-
-  useEffect(() => {
     if (formUID) {
       dispatch(getDQConfig({ form_uid: formUID }));
     }
   }, [dispatch, formUID]);
 
-  useEffect(() => {
-    if (surveyUID) {
-      dispatch(getDQForms({ survey_uid: surveyUID }));
-    }
-  }, [dispatch, surveyUID]);
-
-  useEffect(() => {
-    if (dqForms.length > 0 && formUID) {
-      const selectedDqForms = dqForms.filter(
-        (form: any) => form.parent_form_uid?.toString() === formUID
-      );
-      setSelectedDqForms(selectedDqForms);
-    } else {
-      setSelectedDqForms([]);
-    }
-  }, [dqForms, formUID]);
-
-  const isLoading = loading || isDQFormLoading;
+  const isLoading = loading;
 
   return (
     <>
@@ -458,16 +370,14 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       ) : (
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            {typeID === "7" &&
-              "Checks that a variable value in the main form matches the value of the same variable recorded in a data quality form (backcheck/ audioaudit/ spotcheck form). Kindly note that the variable name in the two forms have to be the same."}
-            {typeID === "8" &&
-              "Checks if a protocol has been violated. For all protocol questions, calculations assume that the value 0 indicates a violation, while the value 1 indicates no violation."}
-            {typeID === "9" &&
-              "Averages the spotcheck scores recorded in data quality forms. Multiple variables can be aggregated to one score using the 'Score name' input."}
+            This check verifies if GPS location of the household is within the
+            expected grid cell or shape boundary/the household surveyed is the
+            correct sampled household.
           </p>
+
           <>
             <div style={{ display: "flex", marginTop: 24 }}>
-              <div style={{ marginTop: 16 }}>
+              <div>
                 <Tag
                   color="#F6FFED"
                   style={{ color: "#52C41A", borderColor: "#B7EB8F" }}
@@ -490,7 +400,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 </CustomBtn>
 
                 <CustomBtn
-                  type="primary"
                   style={{ marginLeft: 16 }}
                   onClick={handleEditCheck}
                   disabled={selectedVariableRows.length !== 1}
@@ -505,38 +414,40 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                   Duplicate
                 </CustomBtn>
 
-                <CustomBtn
-                  style={{ marginLeft: 16 }}
-                  onClick={handleMarkActive}
-                  disabled={selectedVariableRows.length === 0}
-                >
-                  Mark active
-                </CustomBtn>
-                <Button
-                  style={{ marginLeft: 16 }}
-                  onClick={handleMarkInactive}
-                  disabled={selectedVariableRows.length === 0}
-                >
-                  Mark inactive
-                </Button>
-                <Popconfirm
-                  title="Are you sure you want to delete checks?"
-                  onConfirm={(e: any) => {
-                    e?.stopPropagation();
-                    handleDeleteCheck();
-                  }}
-                  onCancel={(e: any) => e?.stopPropagation()}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button
+                <>
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={handleMarkActive}
                     disabled={selectedVariableRows.length === 0}
                   >
-                    Delete
+                    Mark active
+                  </CustomBtn>
+                  <Button
+                    style={{ marginLeft: 16 }}
+                    onClick={handleMarkInactive}
+                    disabled={selectedVariableRows.length === 0}
+                  >
+                    Mark inactive
                   </Button>
-                </Popconfirm>
+                  <Popconfirm
+                    title="Are you sure you want to delete checks?"
+                    onConfirm={(e: any) => {
+                      e?.stopPropagation();
+                      handleDeleteCheck();
+                    }}
+                    onCancel={(e: any) => e?.stopPropagation()}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      style={{ marginLeft: 16 }}
+                      onClick={(e) => e.stopPropagation()}
+                      disabled={selectedVariableRows.length === 0}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </>
               </div>
             </div>
             <ChecksTable
@@ -555,14 +466,10 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 record.isDeleted ? "greyed-out-row" : ""
               }
             />
-            <DQCheckDrawerGroup3
+            <DQCheckDrawerGroup4
               visible={isAddManualDrawerVisible}
-              parentFormQuestions={availableQuestions}
+              questions={availableQuestions}
               typeID={typeID}
-              dqForms={selectedDqForms}
-              showModuleName={dqConfig?.group_by_module_name}
-              moduleNames={availableModuleNames}
-              scoreNames={availableScoreNames}
               data={drawerData}
               onSave={handleOnDrawerSave}
               onClose={closeAddManualDrawer}
@@ -574,4 +481,4 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   );
 }
 
-export default DQCheckGroup3;
+export default DQCheckGroup4;
