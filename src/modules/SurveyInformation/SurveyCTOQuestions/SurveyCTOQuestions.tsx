@@ -255,12 +255,11 @@ function SurveyCTOQuestions() {
       return (
         <QuestionsForm form={form} onFieldsChange={handleFormChange}>
           <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
-
           <StyledFormItem
             initialValue={surveyCTOQuestionsForm?.survey_status}
             rules={[
               {
-                required: false,
+                required: true,
                 message: "Please enter survey status",
               },
               {
@@ -282,7 +281,12 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            // labelCol={{ flex: 10 }}
+            // wrapperCol={{ span: 10 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: { textAlign: "left", marginRight: "10px" },
+            }}
             wrapperCol={{ span: 8 }}
             name="survey_status"
             label={
@@ -324,7 +328,10 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: { textAlign: "start", marginRight: "10px" },
+            }}
             wrapperCol={{ span: 8 }}
             name="revisit_section"
             label={
@@ -367,7 +374,13 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: {
+                textAlign: "start",
+                marginRight: "10px",
+              },
+            }}
             wrapperCol={{ span: 8 }}
             name="target_id"
             label={
@@ -410,7 +423,13 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: {
+                textAlign: "start",
+                marginRight: "10px",
+              },
+            }}
             wrapperCol={{ span: 8 }}
             name="enumerator_id"
             label={
@@ -480,7 +499,13 @@ function SurveyCTOQuestions() {
               },
             },
           ]}
-          labelCol={{ span: 8 }}
+          labelCol={{
+            flex: "0 0 150px",
+            style: {
+              textAlign: "start",
+              marginRight: "10px",
+            },
+          }}
           wrapperCol={{ span: 8 }}
           name={`locations.${location_field}`}
           label={
@@ -574,7 +599,6 @@ function SurveyCTOQuestions() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
           <SCTOQuestionsButton
-            type="dashed"
             loading={loading}
             onClick={() => loadFormQuestions(true)}
             disabled={form_uid == undefined}
