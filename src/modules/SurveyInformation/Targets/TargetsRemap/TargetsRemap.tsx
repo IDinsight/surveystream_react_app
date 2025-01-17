@@ -587,8 +587,14 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                   !moduleQuestionnaire?.target_mapping_criteria.includes(
                                     "Location"
                                   )) ||
-                                item.key === "gender" ||
-                                item.key === "language"
+                                (item.key === "gender" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Gender"
+                                  )) ||
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Language"
+                                  ))
                                   ? false
                                   : true,
                               message: "Kindly select column to map value!",
