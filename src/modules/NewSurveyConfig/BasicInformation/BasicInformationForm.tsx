@@ -7,7 +7,7 @@ import {
 } from "./BasicInformationForm.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
-import { Title } from "../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { SurveyBasicInformationData } from "../../../redux/surveyConfig/types";
 import { performGetUserProfile } from "../../../redux/auth/authActions";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -29,7 +29,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
   const [form] = Form.useForm();
   const [userUId, setUserUId] = useState<any>();
   const dispatch = useAppDispatch();
-
+  const [irbApproval, setIrbApproval] = useState<string>("Yes");
   const basicInfo = useAppSelector(
     (state: RootState) => state.surveyConfig.basicInfo
   );
@@ -95,6 +95,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         ? basicInfo?.prime_geo_level_uid
         : null,
       created_by_user_uid: userUId,
+      irb_approval: irbApproval,
     };
   };
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
@@ -111,8 +112,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     <>
       <GlobalStyle />
       <BasicInformationFormWrapper data-testid="BasicInformationForm">
-        <Title>Basic information</Title>
-
         <DescriptionText>
           Please fill out the basic information about your survey
         </DescriptionText>
@@ -145,7 +144,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 name="project_name"
                 label={
                   <span>
-                    Project name (optional)&nbsp;
+                    Project name&nbsp;
                     <StyledTooltip title="The project name can be used to group together multiple related surveys, such as different survey rounds. Example: ADP 2.0">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
@@ -236,7 +235,6 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               </StyledFormItem>
 
               <StyledFormItem
-                required
                 labelCol={{ span: 24 }}
                 wrapperCol={{ span: 24 }}
                 name="survey_description"
@@ -253,33 +251,8 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 <TextArea
                   id="basic-information-survey-description"
                   placeholder="Survey description"
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", height: "140px" }}
                 ></TextArea>
-              </StyledFormItem>
-
-              <StyledFormItem
-                labelCol={{ span: 24 }}
-                wrapperCol={{ span: 24 }}
-                name="irb_approval"
-                label={
-                  <span>
-                    Have you received an IRB approval?&nbsp;
-                    <StyledTooltip title="The IRB approval checkbox serves as a reminder to your team to secure ethics approvals before beginning survey activities.">
-                      <QuestionCircleOutlined />
-                    </StyledTooltip>
-                  </span>
-                }
-                style={{ display: "block" }}
-              >
-                <Select
-                  id="basic-information-irb-approval"
-                  style={{ width: "100%" }}
-                  placeholder="Yes, no, pending"
-                >
-                  <Select.Option value="Yes">Yes</Select.Option>
-                  <Select.Option value="No">No</Select.Option>
-                  <Select.Option value="Pending">Pending</Select.Option>
-                </Select>
               </StyledFormItem>
 
               <StyledFormItem
