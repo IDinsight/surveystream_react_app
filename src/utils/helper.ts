@@ -1,6 +1,5 @@
 import { getSurveyCTOForms } from "../redux/surveyCTOInformation/apiService";
 import { getSurveyConfig } from "../redux/surveyConfig/surveyConfigActions";
-import { useAppDispatch } from "../redux/hooks";
 
 /**
  * Return the day with month
@@ -160,6 +159,37 @@ export const properCase = function (str: string) {
 
 export const getSCTOForms = async (survey_uid: string) => {
   return await getSurveyCTOForms(survey_uid);
+};
+
+export const getModulePath = (survey_uid: number, module_id: number | null) => {
+  const moduleRoutes: { [key: number]: string | null } = {
+    1: `/new-survey-config/${survey_uid}`,
+    2: `/module-selection/${survey_uid}`,
+    3: `/survey-information/survey-cto-information/${survey_uid}`,
+    4: `/survey-information/survey-roles/roles/${survey_uid}`,
+    5: `/survey-information/location/upload/${survey_uid}`,
+    6: `/survey-information/survey-users/users/${survey_uid}`,
+    7: `/survey-information/enumerators/${survey_uid}`,
+    8: `/survey-information/targets/${survey_uid}`,
+    9: `/module-configuration/assignments/${survey_uid}`,
+    10: null,
+    11: `/module-configuration/dq-forms/${survey_uid}`,
+    12: `/module-configuration/media-audits/${survey_uid}`,
+    13: null,
+    14: `/survey-information/survey/status-mapping/${survey_uid}`,
+    15: `/module-configuration/emails/${survey_uid}`,
+    16: `/module-configuration/table-config/${survey_uid}`,
+    17: `/survey-information/mapping/surveyor/${survey_uid}`,
+    18: `/module-configuration/admin-forms/${survey_uid}`,
+  };
+
+  const defaultPath = `/survey-configuration/${survey_uid}`;
+
+  if (module_id === null) {
+    return defaultPath;
+  }
+
+  return moduleRoutes[module_id] || defaultPath;
 };
 
 export const getErrorModules = async (survey_uid: string, dispatch: any) => {
