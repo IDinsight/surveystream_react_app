@@ -238,7 +238,6 @@ function RowEditingModal({
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
       );
-      console.log("fields", fields);
 
       fields.forEach((field: Field) => {
         if (
