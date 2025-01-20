@@ -1,30 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Button,
-  Divider,
-  Modal,
-  Popconfirm,
-  Radio,
-  Space,
-  message,
-} from "antd";
+import { Button, Divider, Modal, Radio, Space, message } from "antd";
 import { useCSVDownloader } from "react-papaparse";
-
-import {
-  BackArrow,
-  BackLink,
-  HeaderContainer,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   EnumeratorsHomeFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsHome.styled";
 import {
-  CloudUploadOutlined,
+  PlusOutlined,
   DownloadOutlined,
   EditOutlined,
 } from "@ant-design/icons";
@@ -94,6 +79,11 @@ function EnumeratorsHome() {
 
     setSelectedRows(selectedEnumeratorData);
   };
+  useEffect(() => {
+    if (selectedRows.length > 0) {
+      setEditMode(true);
+    }
+  }, [selectedRows]);
 
   const rowSelection = {
     selectedRows,
@@ -403,6 +393,11 @@ function EnumeratorsHome() {
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Enumerators</Title>
+        <EnumeratorsCountBox
+          active={activeEnums}
+          dropped={droppedEnums}
+          inactive={inactiveEnums}
+        />
         {screenMode == "manage" ? (
           <>
             <div
@@ -419,29 +414,24 @@ function EnumeratorsHome() {
                   color: "#2F54EB",
                 }}
               >
-                {editMode ? (
-                  <>
-                    <Button
-                      icon={<EditOutlined />}
-                      style={{ marginRight: 20 }}
-                      onClick={onEditDataHandler}
-                    >
-                      Edit data
-                    </Button>
-                  </>
-                ) : null}
                 <Button
                   type="primary"
-                  icon={editMode ? null : <EditOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                  onClick={() => setEditMode((prev) => !prev)}
+                  icon={<EditOutlined />}
+                  style={{
+                    marginRight: 15,
+                    backgroundColor: editMode ? "#2f54eB" : "#d9d9d9",
+                    borderColor: editMode ? "#2f54eB" : "#d9d9d9",
+                    color: editMode ? "#fff" : "#000",
+                  }}
+                  onClick={() => onEditDataHandler()}
+                  disabled={editMode ? false : true}
                 >
-                  {editMode ? "Done editing" : "Edit"}
+                  Edit
                 </Button>
                 <Button
                   onClick={handlerAddEnumBtn}
                   type="primary"
-                  icon={<CloudUploadOutlined />}
+                  icon={<PlusOutlined />}
                   style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 >
                   Add enumerators
@@ -475,13 +465,8 @@ function EnumeratorsHome() {
             <>
               <EnumeratorsHomeFormWrapper>
                 <br />
-                <EnumeratorsCountBox
-                  active={activeEnums}
-                  dropped={droppedEnums}
-                  inactive={inactiveEnums}
-                />
                 <EnumeratorsTable
-                  rowSelection={editMode ? rowSelection : undefined}
+                  rowSelection={rowSelection}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   style={{ marginTop: 30 }}
@@ -500,6 +485,7 @@ function EnumeratorsHome() {
                     fields={fieldData}
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
+                    editMode={editMode}
                   />
                 ) : null}
               </EnumeratorsHomeFormWrapper>
