@@ -269,7 +269,7 @@ function RowEditingModal({
     <>
       <GlobalStyle />
       <Drawer
-        visible={editMode}
+        open={editMode}
         size="large"
         onClose={onCancel}
         title={

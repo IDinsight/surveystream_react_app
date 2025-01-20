@@ -21,6 +21,7 @@ import {
   setEnumeratorColumnMapping,
   setLoading,
 } from "../../../../redux/enumerators/enumeratorsSlice";
+import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions";
@@ -57,6 +58,8 @@ function EnumeratorsHome() {
   const [activeEnums, setActiveEnums] = useState<number>(0);
   const [droppedEnums, setDroppedEnums] = useState<number>(0);
   const [inactiveEnums, setInactiveEnums] = useState<number>(0);
+  const [SurveyPrimeGeoLevelUid, setSurveyPrimeGeoLevelUid] =
+    useState<number>(0);
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
@@ -72,7 +75,6 @@ function EnumeratorsHome() {
     const selectedEnumeratorIds = selectedRows.map(
       (row: any) => row.enumerator_id
     );
-
     const selectedEnumeratorData = enumeratorList.filter((row: any) =>
       selectedEnumeratorIds.includes(row.enumerator_id)
     );
@@ -138,6 +140,21 @@ function EnumeratorsHome() {
       await getEnumeratorsList(form_uid);
     }
     setEditData(false);
+  };
+  const survey_prime_geo_level_uid = async () => {
+    try {
+      const surveyInfo = await dispatch(
+        getSurveyBasicInformation({ survey_uid: survey_uid })
+      );
+      if (surveyInfo.payload.prime_geo_level_uid) {
+        setSurveyPrimeGeoLevelUid(surveyInfo.payload.prime_geo_level_uid);
+      } else {
+        message.error("Kindly configure survey prime geo level to proceed");
+      }
+    } catch (error) {
+      console.log("Error fetching surveyInfo:", error);
+    }
+    return;
   };
 
   const handleFormUID = async () => {
@@ -233,7 +250,6 @@ function EnumeratorsHome() {
         "surveyor_locations",
         "monitor_locations",
       ];
-
       if (originalData[0]?.custom_fields?.column_mapping) {
         dispatch(
           setEnumeratorColumnMapping(
@@ -250,17 +266,30 @@ function EnumeratorsHome() {
             !columnsToExclude.includes(key)
           ) {
             columnMapping[key] = key;
+          } else if (key === "surveyor_locations") {
+            columnMapping["location"] = "location";
           }
         }
 
         dispatch(setEnumeratorColumnMapping(columnMapping));
       }
-
+      const updatedData = originalData.map((enumerator: any) => {
+        const surveyorLocations = enumerator.surveyor_locations;
+        // Find the location_name for the location_id with the matching geo_level_uid
+        const locationName = surveyorLocations.find(
+          (location: any) => location.geo_level_uid === SurveyPrimeGeoLevelUid
+        )?.location_name;
+        // Add the location column to the enumerator's data
+        return {
+          ...enumerator,
+          location: locationName,
+        };
+      });
       // Define column mappings
-      let columnMappings = Object.keys(originalData[0])
+      let columnMappings = Object.keys(updatedData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
-          originalData.some(
+          updatedData.some(
             (row: any) => row[column] !== null && column !== "custom_fields"
           )
         )
@@ -294,12 +323,10 @@ function EnumeratorsHome() {
       }, []);
 
       columnMappings = columnMappings.concat(customFields);
-
       setDataTableColumn(columnMappings);
 
-      const tableDataSource = originalData.map((item: any, index: any) => {
+      const tableDataSource = updatedData.map((item: any, index: any) => {
         const rowData: Record<string, any> = {}; // Use index signature
-
         for (const mapping of columnMappings) {
           const { title, dataIndex } = mapping;
 
@@ -377,7 +404,7 @@ function EnumeratorsHome() {
       // redirect to upload if missing csvHeaders and cannot perform mapping
       // TODO: update this for configured surveys already
       await handleFormUID();
-
+      await survey_prime_geo_level_uid();
       if (form_uid && screenMode === "manage") {
         await getEnumeratorsList(form_uid);
       }
