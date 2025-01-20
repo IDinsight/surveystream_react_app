@@ -23,7 +23,7 @@ import {
   Title,
   HeaderContainer,
 } from "../../../../shared/Nav.styled";
-import SideMenu from "../SideMenu";
+import SideMenu from "../../SideMenu";
 
 import Column from "antd/lib/table/Column";
 import {
@@ -497,7 +497,7 @@ function ManageSurveyUsers() {
       <GlobalStyle />
 
       <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+        <HandleBackButton surveyPage={true}></HandleBackButton>
 
         <Title>
           {(() => {

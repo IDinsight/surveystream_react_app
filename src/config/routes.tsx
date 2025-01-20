@@ -20,6 +20,8 @@ import NotFound from "../components/NotFound";
 import TargetsUpload from "../modules/SurveyInformation/Targets/TargetsUpload";
 import TargetsMap from "../modules/SurveyInformation/Targets/TargetsMap";
 import TargetsHome from "../modules/SurveyInformation/Targets";
+import TargetsConfig from "../modules/SurveyInformation/Targets/TargetsConfig";
+import TargetsSctoMap from "../modules/SurveyInformation/Targets/TargetsSctoMap";
 import EnumeratorsHome from "../modules/SurveyInformation/Enumerators";
 import CompleteRegistration from "../modules/Users/CompleteRegistration";
 import AddUser from "../modules/Users/AddUser";
@@ -36,17 +38,19 @@ import PermissionDenied from "../components/PermissionDenied";
 import SurveyStatusMapping from "../modules/SurveyInformation/SurveyStatusMapping";
 import MediaAuditsHome from "../modules/MediaAudits";
 import MediaAuditsManage from "../modules/MediaAudits/MediaAuditsManage";
-import DQFormHome from "../modules/DQForm";
-import DQFormManage from "../modules/DQForm/DQFormManage";
-import DQFormSCTOQuestion from "../modules/DQForm/DQFormSCTOQuestion";
+import DQFormHome from "../modules/DQ/DQForm";
+import DQFormManage from "../modules/DQ/DQForm/DQFormManage";
+import DQFormSCTOQuestion from "../modules/DQ/DQForm/DQFormSCTOQuestion";
+import DQChecksHome from "../modules/DQ/DQChecks";
+import DQChecksManage from "../modules/DQ/DQChecks/DQChecksManage";
+import DQChecksEdit from "../modules/DQ/DQChecks/DQChecksEdit";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
 import AdminFormHome from "../modules/AdminForm";
 import AdminFormManage from "../modules/AdminForm/AdminFormManage";
 import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
-import MappingHome from "../modules/Mapping";
-import MappingManage from "../modules/Mapping/MappingManage";
+import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
@@ -233,6 +237,14 @@ const AppRoutes = () => {
           path="/survey-information/targets/map/:survey_uid?/:form_uid?"
           element={<TargetsMap />}
         />
+        <Route
+          path="/survey-information/targets/config/:survey_uid?/:form_uid?"
+          element={<TargetsConfig />}
+        />
+        <Route
+          path="/survey-information/targets/scto_map/:survey_uid?/:form_uid?"
+          element={<TargetsSctoMap />}
+        />
       </Route>
       <Route
         element={
@@ -334,6 +346,24 @@ const AppRoutes = () => {
       </Route>
       <Route
         element={
+          <ProtectedPermissionRoute permission_name="READ Data Quality" />
+        }
+      >
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid?"
+          element={<DQChecksHome />}
+        />
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid/manage"
+          element={<DQChecksManage />}
+        />
+        <Route
+          path="/module-configuration/dq-checks/:survey_uid/:form_uid/edit/:type_id"
+          element={<DQChecksEdit />}
+        />
+      </Route>
+      <Route
+        element={
           <ProtectedPermissionRoute permission_name="READ Admin Forms" />
         }
       >
@@ -354,11 +384,7 @@ const AppRoutes = () => {
         element={<ProtectedPermissionRoute permission_name="READ Mapping" />}
       >
         <Route
-          path="/survey-information/mapping/:survey_uid?"
-          element={<MappingHome />}
-        />
-        <Route
-          path="/survey-information/mapping/:survey_uid?/:mapping_name?"
+          path="/survey-information/mapping/:mapping_name?/:survey_uid?"
           element={<MappingManage />}
         />
       </Route>

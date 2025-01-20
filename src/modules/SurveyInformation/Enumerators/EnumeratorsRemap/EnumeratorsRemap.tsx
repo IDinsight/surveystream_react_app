@@ -14,6 +14,7 @@ import {
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
@@ -184,6 +185,20 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     return { label: item, value: item };
   });
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
   const moveToUpload = () => {
     dispatch(setMappingErrorStatus(false));
     setScreenMode("reupload");
@@ -441,7 +456,10 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     { title: "Update enumerators" },
                   ]}
                 />
-                <Form form={enumeratorMappingForm}>
+                <Form
+                  form={enumeratorMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns
@@ -663,9 +681,12 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     )}
                   </div>
                 </Form>
-                <ContinueButton onClick={handleEnumeratorUploadMapping}>
+                <CustomBtn
+                  onClick={handleEnumeratorUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               </>
             ) : (
               <>

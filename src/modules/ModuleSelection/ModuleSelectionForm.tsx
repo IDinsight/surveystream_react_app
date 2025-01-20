@@ -14,6 +14,7 @@ import {
 import { FormInstance } from "antd/lib/form";
 import { useForm } from "antd/es/form/Form";
 import { MainWrapper, Title } from "../../shared/Nav.styled";
+import { CustomBtn } from "../../shared/Global.styled";
 import { Card, Checkbox, message } from "antd";
 import Icon, {
   ArrowRightOutlined,
@@ -141,7 +142,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
 
       if (modulesRes.payload?.success === true) {
         message.success("Modules updated successfully");
-        navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        navigate(`/survey-configuration/${survey_uid}`);
       } else {
         modulesRes.payload?.message
           ? message.error(modulesRes.payload.message)
@@ -182,7 +183,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
         }}
       >
         <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
-          <Title>Module Selection </Title>
+          <Title>Module selection </Title>
 
           <p style={{ fontSize: 14 }}>
             Please start by selecting modules you’ll use in your survey
@@ -310,13 +311,18 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             ) : null}
           </div>
         </ModuleSelectionFormWrapper>
+        <CustomBtn
+          loading={loading}
+          onClick={handleContinue}
+          style={{
+            marginLeft: 50,
+            marginTop: 24,
+            marginBottom: 24,
+          }}
+        >
+          Save
+        </CustomBtn>
       </MainWrapper>
-
-      <FooterWrapper>
-        <ContinueButton loading={loading} onClick={handleContinue}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 };

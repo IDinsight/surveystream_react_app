@@ -1,19 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  HeaderContainer,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import { TargetsHomeFormWrapper, TargetsTable } from "./TargetsHome.styled";
 import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
   EditOutlined,
+  ProductOutlined,
+  ReconciliationOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
@@ -25,7 +21,10 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { getTargets } from "../../../../redux/targets/targetActions";
+import {
+  getTargets,
+  getTargetConfig,
+} from "../../../../redux/targets/targetActions";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
@@ -89,6 +88,8 @@ function TargetsHome() {
 
     setSelectedRows(selectedTargetData);
   };
+
+  const [targetDataSource, setTargetDataSource] = useState<string>("");
 
   const rowSelection = {
     selectedRows,
@@ -169,6 +170,13 @@ function TargetsHome() {
   };
   const getTargetsList = async (form_uid: string) => {
     const targetRes = await dispatch(getTargets({ formUID: form_uid }));
+    const targetConfig = await dispatch(
+      getTargetConfig({ form_uid: form_uid })
+    );
+    if (targetConfig.payload.success) {
+      setTargetDataSource(targetConfig.payload.data.data.target_source);
+    }
+
     if (targetRes.payload.status == 200) {
       message.success("Targets loaded successfully.");
       //create rowbox data
@@ -176,18 +184,35 @@ function TargetsHome() {
       setTargetsCount(originalData.length);
 
       if (originalData.length == 0) {
-        navigate(
-          `/survey-information/targets/upload/${survey_uid}/${form_uid}`
-        );
+        if (targetConfig.payload.success) {
+          if (targetConfig.payload.data?.data.target_source === "csv") {
+            navigate(
+              `/survey-information/targets/upload/${survey_uid}/${form_uid}`
+            );
+          } else if (targetConfig.payload.data?.data.target_source === "scto") {
+            setScreenMode("config");
+          } else {
+            navigate(
+              `/survey-information/targets/config/${survey_uid}/${form_uid}`
+            );
+          }
+        } else {
+          navigate(
+            `/survey-information/targets/config/${survey_uid}/${form_uid}`
+          );
+        }
         return;
       }
 
       const columnsToExclude = [
+        "form_uid",
         "target_uid",
         "target_locations",
         "completed_flag",
         "last_attempt_survey_status",
         "last_attempt_survey_status_label",
+        "final_survey_status",
+        "final_survey_status_label",
         "num_attempts",
         "refusal_flag",
         "revisit_sections",
@@ -341,6 +366,7 @@ function TargetsHome() {
       <Container surveyPage={true} />
       <HeaderContainer>
         <Title>Targets</Title>
+        <TargetsCountBox targetCount={targetsCount} />
 
         <div
           style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
@@ -352,6 +378,32 @@ function TargetsHome() {
               color: "#2F54EB",
             }}
           >
+            <Button
+              type="primary"
+              icon={<ProductOutlined />}
+              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+              onClick={() =>
+                navigate(
+                  `/survey-information/targets/config/${survey_uid}/${form_uid}`
+                )
+              }
+            >
+              Change Target Configuration
+            </Button>
+            {targetDataSource === "scto" && (
+              <Button
+                type="primary"
+                icon={<ReconciliationOutlined />}
+                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                onClick={() =>
+                  navigate(
+                    `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+                  )
+                }
+              >
+                Edit SCTO Column Mapping
+              </Button>
+            )}
             {editMode ? (
               <>
                 <Button
@@ -363,22 +415,27 @@ function TargetsHome() {
                 </Button>
               </>
             ) : null}
-            <Button
-              type="primary"
-              icon={editMode ? null : <EditOutlined />}
-              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-              onClick={() => setEditMode((prev) => !prev)}
-            >
-              {editMode ? "Done editing" : "Edit"}
-            </Button>
-            <Button
-              onClick={handlerAddTargetBtn}
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-            >
-              Upload targets
-            </Button>
+            {targetDataSource !== "scto" && (
+              <>
+                <Button
+                  type="primary"
+                  icon={editMode ? null : <EditOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  onClick={() => setEditMode((prev) => !prev)}
+                >
+                  {editMode ? "Done editing" : "Edit"}
+                </Button>
+                <Button
+                  onClick={handlerAddTargetBtn}
+                  type="primary"
+                  icon={<CloudUploadOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                >
+                  Upload targets
+                </Button>
+              </>
+            )}
+
             <CSVDownloader
               data={tableDataSource}
               filename={"targets.csv"}
@@ -407,8 +464,6 @@ function TargetsHome() {
           {screenMode === "manage" ? (
             <>
               <TargetsHomeFormWrapper>
-                <br />
-                <TargetsCountBox total={targetsCount} />
                 <TargetsTable
                   rowSelection={editMode ? rowSelection : undefined}
                   columns={dataTableColumn}
@@ -429,6 +484,7 @@ function TargetsHome() {
                     fields={fieldData}
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
+                    visible={editData}
                   />
                 ) : null}
               </TargetsHomeFormWrapper>
@@ -447,12 +503,15 @@ function TargetsHome() {
                   value={newTargetMode}
                 >
                   <Space direction="vertical">
-                    <Radio value="overwrite" disabled={isTargetInUse}>
-                      I want to start afresh (targets uploaded previously will
-                      be deleted)
-                    </Radio>
                     <Radio value="merge">
                       I want to add new targets / columns
+                    </Radio>
+                    <Radio value="overwrite" disabled={isTargetInUse}>
+                      I want to start afresh with new targets.
+                      <span style={{ color: "red" }}>
+                        ( Targets uploaded previously will be removed. Existing
+                        Assignments data will be deleted. )
+                      </span>
                     </Radio>
                   </Space>
                 </Radio.Group>
@@ -464,6 +523,22 @@ function TargetsHome() {
           ) : null}
           {screenMode === "remap" ? (
             <TargetsRemap setScreenMode={setScreenMode} />
+          ) : null}
+          {screenMode === "config" ? (
+            <TargetsHomeFormWrapper>
+              <div style={{ textAlign: "left", marginTop: 50 }}>
+                <p style={{ fontSize: 16, fontWeight: 500 }}>
+                  Target configurations are complete.
+                </p>
+                <p style={{ fontSize: 16 }}>
+                  Targets will be loaded on this screen shortly.
+                </p>
+                <p style={{ fontSize: 16 }}>
+                  If you experience any delays, please contact the SurveyStream
+                  team.
+                </p>
+              </div>
+            </TargetsHomeFormWrapper>
           ) : null}
         </div>
       )}

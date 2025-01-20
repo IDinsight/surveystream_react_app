@@ -1,6 +1,14 @@
 import { Button, Table } from "antd";
 import styled from "styled-components";
 
+export const TargetStatusFormWrapper = styled.div`
+  flex: 1;
+  background-color: #f5f5f5;
+  padding-left: 80px;
+  padding-top: 23px;
+  font-family: "Lato", sans-serif;
+`;
+
 export const TextHeading = styled.h1`
   font-size: 24px;
   font-weight: 500;
@@ -54,4 +62,5 @@ export const TargetMappingTable = styled(Table)`
     background-color: #d6e4ff !important;
     font-family: "Lato", sans-serif;
   }
+  margin-right: 80px;
 `;

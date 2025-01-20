@@ -310,7 +310,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({
                 </StyledFormItem>
               </>
             ) : null}
-            <p>Now, please click on continue to submit data.</p>
+            <p>Now, please click on save to submit data.</p>
           </>
         );
     }

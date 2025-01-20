@@ -5,6 +5,7 @@ import styled from "styled-components";
 const LocationsTable = styled(Table)`
   margin-top: 15px;
   margin-bottom: 68px;
+  margin-right: 50px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
@@ -20,8 +21,8 @@ const LocationsTable = styled(Table)`
 `;
 
 interface LocationTableProps {
-  transformedColumns: any[];
-  transformedData: any[];
+  transformedColumns: { title: string; dataIndex: string; key: string }[];
+  transformedData: { [key: string]: string | number | boolean }[];
 }
 
 const LocationTable: React.FC<LocationTableProps> = ({
@@ -42,7 +43,6 @@ const LocationTable: React.FC<LocationTableProps> = ({
           showQuickJumper: true,
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
         }}
-        style={{ marginRight: "80px", marginTop: "18px" }}
       />
     </>
   );

@@ -17,7 +17,7 @@ import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import dayjs from "dayjs";
 import { StyledFormItem } from "../NewSurveyConfig.styled";
-import { GlobalStyle } from "../../../shared/Global.styled";
+import { GlobalStyle, DescriptionText } from "../../../shared/Global.styled";
 
 export interface BasicInformationFormProps {
   setFormData: (formData: SurveyBasicInformationData) => void;
@@ -111,11 +111,11 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
     <>
       <GlobalStyle />
       <BasicInformationFormWrapper data-testid="BasicInformationForm">
-        <Title>Basic Information</Title>
+        <Title>Basic information</Title>
 
-        <p style={{ fontSize: 14 }}>
+        <DescriptionText>
           Please fill out the basic information about your survey
-        </p>
+        </DescriptionText>
         <TwoColumnForm form={form} onValuesChange={handleFormValuesChange}>
           <Row gutter={36}>
             <Col span={10}>

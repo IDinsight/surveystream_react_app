@@ -8,22 +8,30 @@ import {
   Row,
   Col,
   Popconfirm,
+  Tooltip,
 } from "antd";
 import {
   fetchSurveyorsMappingConfig,
   updateSurveyorsMappingConfig,
+  deleteSurveyorsMappingConfig,
   resetSurveyorsMappingConfig,
   fetchUserGenders,
   fetchUserLanguages,
   fetchUserLocations,
   fetchSurveyorsMapping,
   updateSurveyorsMapping,
-} from "../../redux/mapping/apiService";
+} from "../../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
-import { CustomBtn, MappingTable, ResetButton } from "./Mapping.styled";
-import { useAppDispatch } from "./../../redux/hooks";
-import { updateMappingStatsSuccess } from "./../../redux/mapping/mappingSlice";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import {
+  CustomBtn,
+  MappingTable,
+  DeleteButton,
+  ResetButton,
+} from "./Mapping.styled";
+import { useAppDispatch } from "./../../../redux/hooks";
+import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -137,6 +145,31 @@ const SurveyorMapping = ({
       render: (status: any) => (
         <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
       ),
+    },
+    {
+      title: (
+        <Tooltip title="Delete action is enabled for rows with manually mapped mapping criteria values">
+          Action
+        </Tooltip>
+      ),
+      key: "action",
+      render: (_: any, record: any) =>
+        // show delete icon if the mapping columns don't match
+        record.surveyorLocation !== record.supervisorLocation ||
+        record.surveyorLanguage !== record.supervisorLanguage ||
+        record.surveyorGender !== record.supervisorGender ? (
+          <Popconfirm
+            title="Delete"
+            description="Are you sure you want to delete this mapping config?"
+            onConfirm={() => handleConfigDelete(record.config_uid)}
+            okText="Delete"
+            cancelText="No"
+          >
+            <DeleteButton type="link">
+              <DeleteOutlined />
+            </DeleteButton>
+          </Popconfirm>
+        ) : null,
     },
   ];
 
@@ -299,6 +332,7 @@ const SurveyorMapping = ({
         config.supervisor_mapping_criteria_values.criteria?.Gender,
       supervisorCount: config.supervisor_count,
       status: config.mapping_status,
+      config_uid: config.config_uid,
     };
   });
 
@@ -400,6 +434,27 @@ const SurveyorMapping = ({
     } else if (type === "Gender") {
       setSelectedGenders(updateState);
     }
+  };
+
+  const handleConfigDelete = (configUID: string) => {
+    setLoading(true);
+    deleteSurveyorsMappingConfig(formUID, configUID).then((res: any) => {
+      if (res?.data?.success) {
+        message.success("Mapping deleted successfully");
+        setLoading(true);
+        fetchSurveyorsMappingConfig(formUID).then((res: any) => {
+          if (res?.data?.success) {
+            setMappingConfig(res?.data?.data);
+          } else {
+            message.error("Failed to fetch mapping config");
+          }
+          setLoading(false);
+        });
+      } else {
+        message.error("Failed to delete mapping");
+      }
+      setLoading(false);
+    });
   };
 
   const handleConfigSave = () => {
@@ -1118,10 +1173,20 @@ const SurveyorMapping = ({
               />
             </>
           )}
-          <div style={{ marginTop: "20px" }}>
+          <div style={{ marginTop: "0px", marginBottom: "40px" }}>
+            <Button
+              onClick={() =>
+                navigate(`/survey-information/mapping/surveyor/${SurveyUID}`)
+              }
+            >
+              Cancel
+            </Button>
+            <Button style={{ marginLeft: "20px" }} onClick={handleContinue}>
+              Continue
+            </Button>
             <CustomBtn
               type="primary"
-              style={{ marginRight: "10px" }}
+              style={{ marginLeft: "20px" }}
               onClick={handleConfigSave}
               disabled={
                 criteria.includes("Manual") || !(unmappedPairData?.length > 0)
@@ -1129,10 +1194,6 @@ const SurveyorMapping = ({
             >
               Save
             </CustomBtn>
-            <Button onClick={handleContinue}>Continue</Button>
-            <Button style={{ marginLeft: "10px" }} onClick={() => navigate(0)}>
-              Cancel
-            </Button>
           </div>
         </div>
       ) : (
@@ -1210,11 +1271,13 @@ const SurveyorMapping = ({
                 </Col>
               </Row>
               <div style={{ marginTop: 16 }}>
-                <Button type="primary" onClick={handleSurveyorMappingSave}>
+                <Button onClick={onDrawerClose}>Cancel</Button>
+                <Button
+                  style={{ marginLeft: 16 }}
+                  type="primary"
+                  onClick={handleSurveyorMappingSave}
+                >
                   Save
-                </Button>
-                <Button style={{ marginLeft: 16 }} onClick={onDrawerClose}>
-                  Cancel
                 </Button>
               </div>
             </Drawer>

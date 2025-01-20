@@ -6,6 +6,15 @@ export const BodyContainer = styled.div`
   padding-top: 18px;
 `;
 
+export const MappingWrapper = styled.div`
+  flex: 1;
+  background-color: #f5f5f5;
+  padding-left: 80px;
+  padding-top: 23px;
+  padding-right: 80px;
+  font-family: "Lato", sans-serif;
+`;
+
 export const FormItemLabel = styled.p`
   color: "#434343",
   font-size: 14px,
@@ -29,6 +38,12 @@ export const ResetButton = styled(Button)`
   &:hover {
     color: red !important;
     border-color: red !important;
+  }
+`;
+
+export const DeleteButton = styled(Button)`
+  &:hover {
+    color: red !important;
   }
 `;
 

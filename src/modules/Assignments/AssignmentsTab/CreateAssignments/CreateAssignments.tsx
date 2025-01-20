@@ -11,9 +11,11 @@ import {
   Radio,
   Form,
   Alert,
+  Select,
 } from "antd";
+import { WarningOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import { AssignmentsSteps } from "./CreateAssignments.styled";
+import { AssignmentsSteps, FormItemLabel } from "./CreateAssignments.styled";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { buildColumnDefinition } from "../../utils";
@@ -28,6 +30,13 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorHandler from "../../../../components/ErrorHandler";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { useForm } from "antd/es/form/Form";
+import {
+  fetchSurveyorsMapping,
+  fetchTargetsMapping,
+} from "../../../../redux/mapping/apiService";
+import dayjs from "dayjs";
+
+const { Option } = Select;
 
 function CreateAssignments() {
   const location = useLocation();
@@ -58,7 +67,15 @@ function CreateAssignments() {
   >([]);
   const [surveyorsFilter, setSurveyorsFilter] = useState(null);
   const [assignmentResponseData, setAssignmentResponseData] = useState<any>();
-  const [nextEmailDate, setNextEmailDate] = useState<string>();
+
+  const [pendingEmailExists, setPendingEmailExists] = useState<boolean>(false);
+  const [surveyorMapping, setSurveyorMapping] = useState<any[]>([]);
+  const [targetMapping, setTargetMapping] = useState<any[]>([]);
+  const [surveyorMappingLoading, setSurveyorMappingLoading] =
+    useState<boolean>(false);
+  const [targetMappingLoading, setTargetMappingLoading] =
+    useState<boolean>(false);
+  const [showWarnings, setShowWarnings] = useState<boolean>(false);
 
   // Fetch the data from the store
   const { loading: surveyorsLoading, data: surveyorsData } = useAppSelector(
@@ -180,6 +197,7 @@ function CreateAssignments() {
       },
     },
   };
+
   const reviewAssignmentTableColumn = tableConfig?.assignments_review?.map(
     (configItem: any, i: any) => {
       if (configItem.group_label) {
@@ -239,37 +257,50 @@ function CreateAssignments() {
           formData: assignmentPayload,
           callFn: (response: any) => {
             if (response.success) {
-              setAssignmentResponseData(response.data);
               if (response.data?.email_schedule) {
-                const now = new Date();
+                // Add a nicely formatted schedule_time value for each email configuration in the response
+                response.data.email_schedule.map((email: any) => {
+                  if (!email.schedule_date || !email.time) {
+                    email.schedule_time = "No pending schedules";
+                  } else {
+                    const parsedDate = new Date(email.schedule_date);
 
-                //get time from response.data?.time and combine dates with time
-                const datesWithTime = response.data.email_schedule?.dates?.map(
-                  (date: any) => {
-                    const parsedDate = new Date(date);
                     const year = parsedDate.getFullYear();
                     const month = parsedDate.getMonth() + 1;
                     const day = parsedDate.getDate();
+                    const [hour, minute] = email.time.split(":");
 
-                    const [hour, minute] =
-                      response.data.email_schedule.time.split(":");
+                    const nextDate = new Date(
+                      year,
+                      month - 1,
+                      day,
+                      hour,
+                      minute,
+                      0,
+                      0
+                    );
+                    const formattedDate = `${nextDate.getFullYear()}-${(
+                      nextDate.getMonth() + 1
+                    )
+                      .toString()
+                      .padStart(2, "0")}-${nextDate
+                      .getDate()
+                      .toString()
+                      .padStart(2, "0")}`;
 
-                    return new Date(year, month - 1, day, hour, minute, 0, 0);
+                    email.schedule_time = formattedDate;
                   }
+                });
+              }
+              setAssignmentResponseData(response.data);
+
+              if (response.data?.email_schedule.length > 0) {
+                const pendingEmails = response.data?.email_schedule.find(
+                  (email: any) => email.schedule_time != "No pending schedules"
                 );
-
-                // Find the date element just greater than now
-                const nextDate = datesWithTime.find((date: any) => date > now);
-                const formattedDate = `${nextDate.getFullYear()}-${(
-                  nextDate.getMonth() + 1
-                )
-                  .toString()
-                  .padStart(2, "0")}-${nextDate
-                  .getDate()
-                  .toString()
-                  .padStart(2, "0")}`;
-
-                setNextEmailDate(formattedDate);
+                if (pendingEmails) {
+                  setPendingEmailExists(true);
+                }
               }
 
               message.success("Assignments updated successfully", 2, () => {
@@ -295,6 +326,7 @@ function CreateAssignments() {
             const manualTriggerPayload = {
               form_uid: formID,
               status: "queued",
+              email_config_uid: formValues.email_config_uid,
               date: formValues.date.format("YYYY-MM-DD"),
               time: formValues.time.format("HH:mm"),
               recipients: assignmentPayload.map(
@@ -307,12 +339,9 @@ function CreateAssignments() {
                 formData: manualTriggerPayload,
                 callFn: (response: any) => {
                   if (response.success) {
-                    message.success(
-                      "Email schedule updated successfully.",
-                      () => {
-                        navigate(-1);
-                      }
-                    );
+                    message.success("Email schedule saved successfully", () => {
+                      navigate(-1);
+                    });
                   } else {
                     message.error("Error: " + response.message);
                   }
@@ -331,6 +360,10 @@ function CreateAssignments() {
     }
   };
 
+  useEffect(() => {
+    console.log("assignmentsResponseData", assignmentResponseData);
+  }, [assignmentResponseData]);
+
   const handleDismiss = (): void => {
     navigate(-1);
   };
@@ -343,9 +376,25 @@ function CreateAssignments() {
     setSurveyorsFilter(filters);
   };
 
+  const validateDate = (rule: any, value: any) => {
+    if (!value) {
+      return Promise.reject("Please select a date!");
+    }
+
+    const selectedDate = dayjs(value); // Convert value to dayjs or moment object
+    const today = dayjs(); // Get today's date
+
+    if (selectedDate.isBefore(today, "day")) {
+      return Promise.reject("Date must be in the future!");
+    }
+
+    return Promise.resolve();
+  };
+
   useEffect(() => {
     const finalObjects: any = [];
     const requestPayload: any = [];
+    setShowWarnings(false);
     if (selectedAssignmentRows?.length > 0 && selectedSurveyorRows.length > 0) {
       let sIndex = 0;
       selectedAssignmentRows.forEach((item: any, index: number) => {
@@ -355,10 +404,34 @@ function CreateAssignments() {
         const mIndex = selectedSurveyorRows.length > index ? index : sIndex;
 
         if (selectedSurveyorRows && selectedSurveyorRows[mIndex]) {
+          // Check if mapping rules are followed
+          const surveyorSupervisorMapping = surveyorMapping.find(
+            (mapping) =>
+              mapping.enumerator_uid ===
+              selectedSurveyorRows[mIndex].enumerator_uid
+          );
+          const targetSupervisorMapping = targetMapping.find(
+            (mapping) => mapping.target_uid === item.target_uid
+          );
+
+          let warning = "";
+          if (
+            surveyorSupervisorMapping?.supervisor_uid === null ||
+            targetSupervisorMapping?.supervisor_uid === null ||
+            surveyorSupervisorMapping?.supervisor_uid !==
+              targetSupervisorMapping?.supervisor_uid
+          ) {
+            warning =
+              "Selected surveyors/targets are either not mapped or are not mapped to the same supervisor";
+            message.warning(warning);
+            setShowWarnings(true);
+          }
+
           const assignedObjects = {
             ...item,
             assigned_enumerator_name: selectedSurveyorRows[mIndex].name,
             prev_assigned_to: item.assigned_enumerator_name,
+            warning: warning,
           };
           const reqObj = {
             target_uid: item.target_uid,
@@ -386,6 +459,29 @@ function CreateAssignments() {
   }, []);
 
   useEffect(() => {
+    setSurveyorMappingLoading(true);
+    setTargetMappingLoading(true);
+
+    fetchSurveyorsMapping(formID).then((res: any) => {
+      if (res?.data?.success) {
+        setSurveyorMapping(res?.data?.data);
+      } else {
+        message.error("Failed to fetch surveyor mapping");
+      }
+      setSurveyorMappingLoading(false);
+    });
+
+    fetchTargetsMapping(formID).then((res: any) => {
+      if (res?.data?.success) {
+        setTargetMapping(res?.data?.data);
+      } else {
+        message.error("Failed to fetch surveyor mapping");
+      }
+      setTargetMappingLoading(false);
+    });
+  }, [formID]);
+
+  useEffect(() => {
     setAssignableSurveyorsLoading(true);
     if (surveyorsData.length > 0) {
       const surveyors = surveyorsData.filter((surveyor: any) => {
@@ -400,7 +496,13 @@ function CreateAssignments() {
     setAssignableSurveyorsLoading(false);
   }, [surveyorsData]);
 
-  if (surveyorsLoading || tableConfigLoading || assignableSurveyorsLoading) {
+  if (
+    surveyorsLoading ||
+    tableConfigLoading ||
+    assignableSurveyorsLoading ||
+    surveyorMappingLoading ||
+    targetMappingLoading
+  ) {
     return <FullScreenLoader />;
   }
 
@@ -527,7 +629,32 @@ function CreateAssignments() {
               </p>
               <Table
                 rowKey={(record: any) => record.target_uid}
-                columns={reviewAssignmentTableColumn}
+                columns={
+                  // Add column for warnings if present
+                  showWarnings
+                    ? reviewAssignmentTableColumn.concat({
+                        title: (
+                          <div>
+                            <span style={{ marginRight: "10px" }}>
+                              Warnings
+                            </span>
+                            <WarningOutlined
+                              style={{
+                                color: "#FAAD14",
+                                display: "inline-block",
+                              }}
+                            />
+                          </div>
+                        ),
+                        dataIndex: "warning",
+                        key: "warning",
+                        width: 200,
+                        render: (text: any) => {
+                          return <p>{text}</p>;
+                        },
+                      })
+                    : reviewAssignmentTableColumn
+                }
                 dataSource={targetAssignments}
                 pagination={false}
                 style={{ marginBottom: 20 }}
@@ -597,7 +724,7 @@ function CreateAssignments() {
                     style={{
                       color: "#434343",
                       fontFamily: "Lato",
-                      fontSize: "16px",
+                      fontSize: "14px",
                       lineHeight: "24px",
                       margin: "10px",
                       marginBottom: "20px",
@@ -611,24 +738,50 @@ function CreateAssignments() {
                 </>
               ) : (
                 <>
-                  {assignmentResponseData?.email_schedule ? (
+                  {pendingEmailExists ? (
                     <>
                       <p
                         style={{
                           color: "#434343",
                           fontFamily: "Lato",
-                          fontSize: "16px",
+                          fontSize: "14px",
                           lineHeight: "24px",
                           marginTop: 30,
                         }}
                       >
-                        The emails are scheduled to be sent on {nextEmailDate}{" "}
-                        at {assignmentResponseData.email_schedule?.time}. Do you
-                        want to send the emails to the surveyors whose
-                        assignments have been changed before that? Please note
-                        that the emails will be sent only to the surveyors whose
-                        assignments have changed. If you want to change the
-                        existing email schedule, please visit the email
+                        The next assignment emails for this form are scheduled
+                        to be sent at:
+                      </p>
+                      {assignmentResponseData?.email_schedule.map(
+                        (email: any, index: any) => (
+                          <li
+                            key={index}
+                            style={{
+                              fontFamily: "Lato",
+                              fontSize: "14px",
+                            }}
+                          >
+                            Email configuration: <b>{email.config_name}</b>,
+                            Date: <b>{email.schedule_time}</b>, Time:{" "}
+                            <b>{email.time}</b>
+                          </li>
+                        )
+                      )}
+                      <p
+                        style={{
+                          color: "#434343",
+                          fontFamily: "Lato",
+                          fontSize: "14px",
+                          lineHeight: "24px",
+                          marginTop: 30,
+                        }}
+                      >
+                        Do you want to send emails to the surveyors whose
+                        assignments have been changed before the given schedule?
+                        Note that the emails set up using this option will be
+                        sent only to the surveyors whose assignments have
+                        changed. If you want to change the existing email
+                        schedule for all surveyors, kindly visit the email
                         configuration module.
                       </p>
                       <Radio.Group
@@ -644,26 +797,25 @@ function CreateAssignments() {
                         </Radio>
                       </Radio.Group>
                     </>
-                  ) : (
+                  ) : assignmentResponseData?.email_schedule ? (
                     <>
                       <p
                         style={{
                           color: "#434343",
                           fontFamily: "Lato",
-                          fontSize: "16px",
+                          fontSize: "14px",
                           lineHeight: "24px",
                           marginTop: 30,
                         }}
                       >
-                        The emails for this survey have not been scheduled yet.
-                        Do you wish to send emails to the surveyors whose
-                        assignments have been changed? Please be aware that the
-                        emails will only be sent to those surveyors whose
-                        assignments have changed. If you would like to setup
-                        email schedules, please visit the email configuration
-                        module.
+                        There are <b> no pending assignment emails </b>{" "}
+                        scheduled for this form. Do you wish to send emails to
+                        the surveyors whose assignments have been changed? Note
+                        that the emails scheduled using this option will be sent
+                        only to the surveyors whose assignments have changed. If
+                        you want to change the existing email schedule for all
+                        surveyors, kindly visit the email configuration module.
                       </p>
-
                       <Radio.Group
                         onChange={(e) => setEmailMode(e.target.value)}
                         value={emailMode}
@@ -674,14 +826,31 @@ function CreateAssignments() {
                         </Radio>
                       </Radio.Group>
                     </>
+                  ) : (
+                    <>
+                      <p
+                        style={{
+                          color: "#434343",
+                          fontFamily: "Lato",
+                          fontSize: "14px",
+                          lineHeight: "24px",
+                          marginTop: 30,
+                        }}
+                      >
+                        Assignment emails for this form have not been configured
+                        yet. If you would like to send emails with assignment
+                        information to the surveyors, kindly visit the emails
+                        module and set up an email configuration for this form.
+                      </p>
+                    </>
                   )}
-
                   {emailMode === "email_time_yes" ? (
                     <>
                       <p
                         style={{
                           color: "#434343",
                           fontFamily: "Lato",
+                          fontSize: "14px",
                           lineHeight: "24px",
                         }}
                       >
@@ -689,24 +858,66 @@ function CreateAssignments() {
                         with assignment information to be sent to the surveyors:
                       </p>
                       <div style={{ marginBottom: 30 }}>
-                        <Form
-                          form={manualTriggerForm}
-                          style={{ display: "flex" }}
-                        >
+                        <Form form={manualTriggerForm} layout="inline">
                           <Form.Item
-                            label="Date"
-                            name="date"
+                            label="Email configuration"
+                            name="email_config_uid"
                             style={{ marginRight: 20 }}
                             rules={[
                               {
                                 required: true,
-                                message: "Please select a date!",
+                                message:
+                                  "Please select an email configuration!",
                               },
                             ]}
+                            tooltip="This select is enabled when there are more than one email configurations using the assignments table."
+                            initialValue={
+                              assignmentResponseData?.email_schedule.length ===
+                              1
+                                ? assignmentResponseData?.email_schedule[0]
+                                    .email_config_uid
+                                : null
+                            }
+                          >
+                            <Select
+                              style={{ width: 250 }}
+                              placeholder="Select an email configuration"
+                              disabled={
+                                assignmentResponseData?.email_schedule.length >
+                                1
+                                  ? false
+                                  : true
+                              }
+                            >
+                              {assignmentResponseData?.email_schedule?.map(
+                                (
+                                  email: {
+                                    email_config_uid: any;
+                                    config_name: any;
+                                  },
+                                  index: any
+                                ) => (
+                                  <Option
+                                    key={index}
+                                    value={email.email_config_uid}
+                                  >
+                                    {email.config_name}
+                                  </Option>
+                                )
+                              )}
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            label="Date"
+                            name="date"
+                            style={{ marginRight: 20 }}
+                            rules={[{ validator: validateDate }]}
+                            tooltip="Date on which the email will be sent."
                           >
                             <DatePicker
                               size="middle"
-                              style={{ width: 300 }}
+                              format="YYYY-MM-DD"
+                              style={{ width: 250 }}
                               onChange={handleDateChange}
                             />
                           </Form.Item>
@@ -719,10 +930,15 @@ function CreateAssignments() {
                                 message: "Please select a time!",
                               },
                             ]}
+                            tooltip="Time at which the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
                           >
                             <TimePicker
-                              size="middle"
-                              style={{ width: 300 }}
+                              placeholder="Select Time"
+                              format="HH:mm"
+                              minuteStep={30}
+                              style={{ width: 250 }}
+                              showNow={false}
+                              needConfirm={false}
                               onChange={handleTimeChange}
                             />
                           </Form.Item>
@@ -736,12 +952,18 @@ function CreateAssignments() {
           ) : null}
 
           <div>
+            {stepIndex === 2 &&
+            assignmentResponseData?.assignments_count ===
+              assignmentResponseData?.no_changes_count ? null : (
+              <Button onClick={handleDismiss}>Cancel</Button>
+            )}
             <Button
               type="primary"
               style={{
                 backgroundColor: "#597EF7",
                 color: "white",
-                marginRight: 10,
+                marginLeft: 20,
+                marginBottom: 20,
               }}
               loading={stepLoading}
               disabled={stepIndex === 0 && !hasSurveyorSelected}
@@ -749,7 +971,6 @@ function CreateAssignments() {
             >
               {stepIndex !== 2 ? "Continue" : "Done"}
             </Button>
-            <Button onClick={handleDismiss}>Dismiss</Button>
           </div>
         </div>
       </div>

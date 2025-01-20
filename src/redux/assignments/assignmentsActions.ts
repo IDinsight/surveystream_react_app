@@ -7,6 +7,9 @@ import {
   assignmentsRequest,
   assignmentsSuccess,
   assignmentsFailure,
+  uploadAssignmentsRequest,
+  uploadAssignmentsSuccess,
+  uploadAssignmentsFailure,
   assignmentTargetsRequest,
   assignmentTargetsSuccess,
   assignmentTargetsFailure,
@@ -77,13 +80,21 @@ export const getAssignments = createAsyncThunk(
       }
 
       const error = {
-        errors: response.response.data.errors,
+        errors: response.response.data.errors?.message
+          ? response.response.data.errors?.message
+          : response.response.data.errors?.mapping_errors
+          ? "Error in supervisor mapping. " +
+            response.response.data.errors?.mapping_errors
+          : response.response.data.errors?.geo_level_hierarchy
+          ? "Error in location levels. " +
+            response.response.data.errors?.geo_level_hierarchy
+          : "Failed to fetch assignments.",
         message: response.message
           ? response.message
           : "Failed to fetch assignments.",
         success: false,
       };
-      dispatch(assignmentsFailure(error.message));
+      dispatch(assignmentsFailure(error.errors));
       return error;
     } catch (error: any) {
       const errorMessage = error || "Failed to fetch assignments.";
@@ -124,19 +135,27 @@ export const updateAssignments = createAsyncThunk(
 export const uploadCSVAssignments = createAsyncThunk(
   "assignments/uploadCSVAssignments",
   async (
-    { formUID, fileData }: { formUID: string; fileData: any },
+    {
+      formUID,
+      fileData,
+      validate_mapping,
+    }: { formUID: string; fileData: any; validate_mapping: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
-      dispatch(assignmentsRequest());
-      const response: any = await uploadAssignments(formUID, fileData);
+      dispatch(uploadAssignmentsRequest());
+      const response: any = await uploadAssignments(
+        formUID,
+        fileData,
+        validate_mapping
+      );
       if (response.status == 200) {
-        dispatch(assignmentsSuccess(response.data.data));
+        dispatch(uploadAssignmentsSuccess(response.data.data));
         return { ...response.data, success: true };
       }
 
       if (response?.response?.status == 422) {
-        dispatch(assignmentsFailure(response.response.data));
+        dispatch(uploadAssignmentsFailure(response.response.data));
         return { ...response?.response?.data, success: false };
       }
 
@@ -146,7 +165,7 @@ export const uploadCSVAssignments = createAsyncThunk(
           : "Failed to update assignments.",
         success: false,
       };
-      dispatch(assignmentsFailure(errorObj));
+      dispatch(uploadAssignmentsFailure(errorObj));
 
       return errorObj;
     } catch (error: any) {
@@ -155,7 +174,7 @@ export const uploadCSVAssignments = createAsyncThunk(
         message: errorMessage,
         success: false,
       };
-      dispatch(assignmentsFailure(errorObj));
+      dispatch(uploadAssignmentsFailure(errorObj));
 
       return errorObj;
     }

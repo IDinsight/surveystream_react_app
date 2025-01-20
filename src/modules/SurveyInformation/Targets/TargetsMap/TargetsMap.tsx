@@ -1,12 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -47,7 +42,6 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
-import { it } from "mocha";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
@@ -154,6 +148,21 @@ function TargetsMap() {
     },
   ];
 
+  const customRequiredMarker = (
+    label: React.ReactNode,
+    { required }: { required: boolean }
+  ) => (
+    <>
+      {required ? (
+        <>
+          {label} <span style={{ color: "red" }}>*</span>
+        </>
+      ) : (
+        <>{label}</>
+      )}
+    </>
+  );
+
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
   });
@@ -183,6 +192,8 @@ function TargetsMap() {
         column_mapping: column_mapping,
         file: csvBase64Data,
         mode: "overwrite",
+        load_from_scto: false,
+        load_successful: false,
       };
 
       if (form_uid !== undefined) {
@@ -331,6 +342,7 @@ function TargetsMap() {
               column_name: columnName,
               column_type: "custom_fields",
               contains_pii: pii,
+              column_source: columnName,
             };
           });
         }
@@ -352,6 +364,7 @@ function TargetsMap() {
               ? "location"
               : "custom_fields",
           contains_pii: true, // TODO: fix
+          column_source: column_mapping[key],
         };
       }
     });
@@ -460,6 +473,7 @@ function TargetsMap() {
 
   useEffect(() => {
     //redirect to upload if missing csvHeaders and cannot perform mapping
+
     if (csvHeaders.length < 1) {
       message.error("csvHeaders not found kindly reupload csv file");
       navigate(`/survey-information/targets/upload/${survey_uid}/${form_uid}`);
@@ -503,7 +517,10 @@ function TargetsMap() {
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
                 </div>
-                <Form form={targetMappingForm}>
+                <Form
+                  form={targetMappingForm}
+                  requiredMark={customRequiredMarker}
+                >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
                       Mandatory columns

@@ -1,9 +1,5 @@
-import { Button, Form, Input, message } from "antd";
-import {
-  OptionText,
-  RowEditingModalContainer,
-  RowEditingModalHeading,
-} from "./RowEditingModal.styled";
+import { Button, Form, Input, message, Drawer } from "antd";
+import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -19,6 +15,7 @@ interface IRowEditingModal {
   fields: Field[];
   onCancel: () => void;
   onUpdate: () => void;
+  visible: boolean;
 }
 
 interface Field {
@@ -40,6 +37,7 @@ function RowEditingModal({
   fields,
   onCancel,
   onUpdate,
+  visible,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -168,6 +166,9 @@ function RowEditingModal({
     "num_attempts",
     "target_locations",
     "webapp_tag_color",
+    "final_survey_status",
+    "final_survey_status_label",
+    "scto_fields",
   ]; //always exclude these
 
   const fetchTargetColumnConfig = async (form_uid: string) => {
@@ -259,12 +260,16 @@ function RowEditingModal({
   return (
     <>
       <GlobalStyle />
-      <RowEditingModalContainer>
-        <RowEditingModalHeading>
-          {data && data.length > 1
+      <Drawer
+        visible={visible}
+        size="large"
+        title={
+          data && data.length > 1
             ? `Edit ${data.length} targets in bulk`
-            : "Edit target"}
-        </RowEditingModalHeading>
+            : "Edit target"
+        }
+        onClose={onCancel}
+      >
         {data && data.length > 1 ? (
           <OptionText
             style={{ width: 410, display: "inline-block", marginBottom: 20 }}
@@ -274,9 +279,8 @@ function RowEditingModal({
               .join(", ")}.`}
           </OptionText>
         ) : null}
-        <br />
         {data && data.length > 0 ? (
-          <>
+          <div style={{ maxHeight: "80vh", overflowY: "auto" }}>
             <Form
               labelCol={{ span: 7 }}
               form={editForm}
@@ -288,6 +292,7 @@ function RowEditingModal({
                   key={idx}
                   id={`${field.label}-id`}
                   name={field.label}
+                  labelAlign="left"
                   initialValue={field.label ? data[0][field.label] : ""}
                   label={<span>{field.labelKey}</span>}
                   rules={[
@@ -304,7 +309,7 @@ function RowEditingModal({
                 </Form.Item>
               ))}
             </Form>
-          </>
+          </div>
         ) : null}
         <div style={{ marginTop: 20 }}>
           <Button onClick={cancelHandler}>Cancel</Button>
@@ -313,10 +318,10 @@ function RowEditingModal({
             style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
             onClick={updateHandler}
           >
-            Update
+            Save
           </Button>
         </div>
-      </RowEditingModalContainer>
+      </Drawer>
     </>
   );
 }

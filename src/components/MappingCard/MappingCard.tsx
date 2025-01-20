@@ -1,6 +1,6 @@
 import { Card, Button, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-import { CustomBtn } from "../../modules/Mapping/Mapping.styled";
+import { CustomBtn } from "../../modules/SurveyInformation/Mapping/Mapping.styled";
 
 const { Text, Title } = Typography;
 

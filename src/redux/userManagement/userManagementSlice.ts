@@ -91,7 +91,7 @@ const userManagementSlice = createSlice({
     },
     putUpdateUserSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.editUser = action.payload;
+      state.editUser = action.payload.user_data;
       state.error = null;
     },
     putUpdateUserFailure: (state, action: PayloadAction<any>) => {

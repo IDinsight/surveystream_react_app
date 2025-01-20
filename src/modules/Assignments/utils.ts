@@ -165,7 +165,7 @@ export const buildColumnDefinition = (
   const colKey = columnItem.column_key;
 
   // This is the base column definition for non-special columns
-  let columnDefinition = {
+  let columnDefinition: any = {
     title: columnItem.column_label,
     dataIndex: colKey,
     key: colKey,
@@ -178,35 +178,75 @@ export const buildColumnDefinition = (
 
   const keyArray = toPath(colKey);
   if (keyArray.length > 1) {
+    if (keyArray[0] === "supervisors") {
+      columnDefinition = {
+        ...columnDefinition,
+        dataIndex: "supervisors",
+        filters: getFilterValues(dataSource, keyArray),
+        onFilter: (value: string | number, record: any) =>
+          _.get(record, keyArray) === value,
+        render: (val: any, record: any) => {
+          const supervisorName = _.get(record, [
+            ...keyArray.slice(0, 2),
+            "supervisor_name",
+          ]);
+
+          const supervisorEmail = _.get(record, [
+            ...keyArray.slice(0, 2),
+            "supervisor_email",
+          ]);
+
+          if (!supervisorName && !supervisorEmail) {
+            if (colKey.includes("supervisor_name")) {
+              return {
+                children: "*",
+                props: {
+                  style: { backgroundColor: "#fff1f0", color: "red" },
+                  colSpan: 2,
+                },
+              };
+            } else if (colKey.includes("supervisor_email")) {
+              return {
+                children: null,
+                props: {
+                  colSpan: 0,
+                },
+              };
+            }
+          }
+
+          return colKey.includes("supervisor_name")
+            ? supervisorName
+            : supervisorEmail;
+        },
+        sorter: defaultSorter(keyArray),
+      };
+    }
+
     if (
       keyArray[0] === "target_locations" ||
       keyArray[0] === "surveyor_locations" ||
-      keyArray[0] === "form_productivity" ||
-      keyArray[0] === "supervisors"
+      keyArray[0] === "form_productivity"
     ) {
       columnDefinition = {
         ...columnDefinition,
-        ...{
-          dataIndex: keyArray[0],
-          filters: getFilterValues(dataSource, keyArray),
-          onFilter: (value, record) => _.get(record, keyArray) === value,
-          render: (val: string, record: any) => {
-            return _.get(record, keyArray) || null;
-          },
-          sorter: defaultSorter(keyArray),
-        },
+        dataIndex: keyArray[0],
+        filters: getFilterValues(dataSource, keyArray),
+        onFilter: (value: string | number, record: any) =>
+          _.get(record, keyArray) === value,
+        render: (val: string, record: any) => _.get(record, keyArray) || null,
+        sorter: defaultSorter(keyArray),
       };
     }
 
     if (keyArray[0] === "custom_fields") {
       columnDefinition = {
         ...columnDefinition,
-        ...{
-          dataIndex: keyArray[0],
-          filters: getFilterValues(dataSource, keyArray),
-          onFilter: (value, record) => _.get(record, keyArray) === value,
-          sorter: defaultSorter(keyArray),
-        },
+        dataIndex: keyArray[0],
+        filters: getFilterValues(dataSource, keyArray),
+        onFilter: (value: string | number, record: any) =>
+          _.get(record, keyArray) === value,
+        sorter: defaultSorter(keyArray),
       };
     }
   }

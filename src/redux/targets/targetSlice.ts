@@ -1,6 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  deleteAllTargets,
+  getTarget,
+  getTargetSCTOColumns,
+  postTargetConfig,
+  updateTargetSCTOColumns,
+} from "./apiService";
+import { act } from "react-dom/test-utils";
 
-interface TagertsState {
+interface TargetsState {
   loading: boolean;
   error: any;
   csvColumnNames: string[];
@@ -14,9 +22,11 @@ interface TagertsState {
   mappingErrorList: any;
   mappingErrorCount: number;
   targetDetails: any;
+  targetConfig: any;
+  uploadMode: string;
 }
 
-const initialState: TagertsState = {
+const initialState: TargetsState = {
   loading: false,
   error: null,
   csvColumnNames: [],
@@ -30,6 +40,8 @@ const initialState: TagertsState = {
   mappingErrorStatus: false,
   mappingErrorList: null,
   mappingErrorCount: 0,
+  targetConfig: [],
+  uploadMode: "merge",
 };
 
 const targetsSlice = createSlice({
@@ -77,7 +89,9 @@ const targetsSlice = createSlice({
     setMappingErrorCount: (state, action: PayloadAction<any>) => {
       state.mappingErrorCount = action.payload;
     },
-
+    setuploadMode: (state, action: PayloadAction<any>) => {
+      state.uploadMode = action.payload;
+    },
     getTargetsRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -162,6 +176,81 @@ const targetsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+
+    getTargetsConfigRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getTargetsConfigSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+      state.targetConfig = action.payload;
+    },
+    getTargetsConfigFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    postTargetConfigRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    postTargetConfigSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    postTargetConfigFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    putTargetConfigRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putTargetConfigSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+      state.csvColumnNames = action.payload.data;
+    },
+    putTargetConfigFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    getTargetSCTOColumnsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    getTargetSCTOColumnsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    getTargetSCTOColumnsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    updateTargetSCTOColumnsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateTargetSCTOColumnsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    updateTargetSCTOColumnsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    deleteAllTargetsRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    deleteAllTargetsSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    deleteAllTargetsFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -196,6 +285,25 @@ export const {
   getTargetDetailsRequest,
   getTargetDetailsSuccess,
   getTargetDetailsFailure,
+  getTargetsConfigRequest,
+  getTargetsConfigSuccess,
+  getTargetsConfigFailure,
+  postTargetConfigRequest,
+  postTargetConfigSuccess,
+  postTargetConfigFailure,
+  putTargetConfigRequest,
+  putTargetConfigSuccess,
+  putTargetConfigFailure,
+  getTargetSCTOColumnsRequest,
+  getTargetSCTOColumnsSuccess,
+  getTargetSCTOColumnsFailure,
+  updateTargetSCTOColumnsRequest,
+  updateTargetSCTOColumnsSuccess,
+  updateTargetSCTOColumnsFailure,
+  setuploadMode,
+  deleteAllTargetsRequest,
+  deleteAllTargetsSuccess,
+  deleteAllTargetsFailure,
 } = targetsSlice.actions;
 
 export default targetsSlice.reducer;
