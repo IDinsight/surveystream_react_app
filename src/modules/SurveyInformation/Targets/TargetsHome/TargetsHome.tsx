@@ -29,12 +29,10 @@ import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useCSVDownloader } from "react-papaparse";
 import TargetsReupload from "../TargetsReupload";
 import TargetsRemap from "../TargetsRemap";
-import { includes } from "cypress/types/lodash";
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
-import { set } from "lodash";
+import { min } from "lodash";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -105,8 +103,9 @@ function TargetsHome() {
       return;
     }
     // Setting the fields to show on Modal
-    const fields = Object.keys({ ...selectedRows[0] })
-      .filter((field) => field !== "key")
+    const colNames = { ...selectedRows[0].custom_fields.column_mapping };
+    const fields = Object.keys(colNames)
+      .filter((field) => field !== "key" && field !== "location_id_column")
       .map((field: string) => {
         if (field === "custom_fields") {
           if (
@@ -131,6 +130,15 @@ function TargetsHome() {
         };
       })
       .flat();
+
+    // Ensure target_id is always at the top
+    const targetIdField = fields.find(
+      (field) => field.labelKey === "target_id"
+    );
+    if (targetIdField) {
+      fields.splice(fields.indexOf(targetIdField), 1);
+      fields.unshift(targetIdField);
+    }
 
     const locationfields = [];
     if (
@@ -562,11 +570,17 @@ function TargetsHome() {
                       setEditMode(selectedRows.length > 0);
                     },
                   }}
-                  columns={dataTableColumn}
+                  columns={dataTableColumn.map((col: any) => ({
+                    ...col,
+                    width: Math.max(
+                      col.title.length * 6,
+                      col.dataIndex.length * 6
+                    ),
+                    minWidth: 90,
+                  }))}
                   dataSource={tableDataSource}
                   tableLayout="auto"
                   scroll={{ x: "max-content", y: "calc(100vh - 30px)" }}
-                  style={{ marginRight: 50 }}
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,

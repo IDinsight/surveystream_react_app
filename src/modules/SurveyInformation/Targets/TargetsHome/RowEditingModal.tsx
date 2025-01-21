@@ -315,7 +315,7 @@ function RowEditingModal({
                   name={field.label}
                   labelAlign="left"
                   initialValue={
-                    field.label.startsWith("target_locations.")
+                    field.label && field.label.startsWith("target_locations.")
                       ? data[0]["location_uid"]
                       : field.label
                       ? data[0][field.label]
@@ -329,7 +329,8 @@ function RowEditingModal({
                     },
                   ]}
                 >
-                  {field.label.startsWith("target_locations.") ? (
+                  {field.label &&
+                  field.label.startsWith("target_locations.") ? (
                     <Select
                       placeholder={`Select ${field.labelKey}`}
                       style={{ width: "100%" }}
