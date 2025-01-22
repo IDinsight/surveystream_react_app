@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
+import { Button, Col, Form, Row, Select, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import { CustomBtn } from "../../../../shared/Global.styled";
 import {
   DescriptionContainer,
@@ -21,7 +12,6 @@ import {
   EnumeratorsMapFormWrapper,
   ErrorTable,
   HeadingText,
-  OptionText,
 } from "./EnumeratorsMap.styled";
 import {
   CloudUploadOutlined,
@@ -45,6 +35,7 @@ import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
   type: string;
@@ -391,6 +382,16 @@ function EnumeratorsMap() {
           );
 
           setHasError(false);
+
+          // Set any unresolved enumerator notifications to resolved
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 7,
+              resolution_status: "done",
+            })
+          );
+
           //route to home
           navigate(`/survey-information/enumerators/${survey_uid}/${form_uid}`);
         } else {

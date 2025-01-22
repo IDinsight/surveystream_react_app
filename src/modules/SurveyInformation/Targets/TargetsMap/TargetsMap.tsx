@@ -44,6 +44,7 @@ import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
   type: string;
@@ -277,6 +278,16 @@ function TargetsMap() {
           handleTargetColumnConfig(form_uid, column_mapping);
 
           setHasError(false);
+
+          // Set any unresolved target notifications to resolved
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 8,
+              resolution_status: "done",
+            })
+          );
+
           //route to manage
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
