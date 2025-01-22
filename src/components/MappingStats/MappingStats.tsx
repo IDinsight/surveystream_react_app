@@ -1,4 +1,4 @@
-import { CheckCircleFilled, WarningFilled } from "@ant-design/icons";
+import { CheckCircleFilled, InfoCircleFilled } from "@ant-design/icons";
 
 interface IMappingStatsProps {
   stats: {
@@ -12,7 +12,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
 
   return (
     <div style={{ display: "flex", gap: 16, marginLeft: "30px" }}>
-      {mapped !== null ? (
+      {mapped !== null && mapped > 0 ? (
         <div
           style={{
             backgroundColor: "#F6FFED",
@@ -36,7 +36,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
           </p>
         </div>
       ) : null}
-      {unmapped !== null ? (
+      {unmapped !== null && unmapped > 0 ? (
         <div
           style={{
             backgroundColor: "#FFF1F0",
@@ -47,7 +47,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
             borderRadius: 24,
           }}
         >
-          <WarningFilled style={{ fontSize: 16, color: "#CF1322" }} />
+          <InfoCircleFilled style={{ fontSize: 16, color: "#CF1322" }} />
           <p
             style={{
               marginLeft: 8,
