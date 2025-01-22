@@ -724,7 +724,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLocationID === value,
-            width: 100,
+            width: 150,
           },
           {
             title: "Target Location",

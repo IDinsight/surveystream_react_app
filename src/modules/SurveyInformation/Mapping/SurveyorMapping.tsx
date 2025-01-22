@@ -736,7 +736,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: { surveyorLocationID: string }) =>
               record.surveyorLocationID.indexOf(value) === 0,
-            width: 100,
+            width: 150,
           },
           {
             title: "Surveyor Location",
