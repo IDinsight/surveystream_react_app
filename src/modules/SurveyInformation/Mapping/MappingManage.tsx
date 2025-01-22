@@ -94,10 +94,10 @@ function MappingManage() {
                 <>
                   <HeaderContainer>
                     <Title>
-                      Mapping -{" "}
                       {mapping_name === "surveyor"
                         ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}
+                        : "Targets <> Supervisors"}{" "}
+                      Mapping
                     </Title>
                   </HeaderContainer>
                   <div style={{ display: "flex" }}>

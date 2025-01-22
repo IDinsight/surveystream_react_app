@@ -11,7 +11,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
   const { type, mapped, unmapped } = stats;
 
   return (
-    <div style={{ display: "flex", gap: 16, marginLeft: "15px" }}>
+    <div style={{ display: "flex", gap: 16, marginLeft: "30px" }}>
       {mapped !== null ? (
         <div
           style={{

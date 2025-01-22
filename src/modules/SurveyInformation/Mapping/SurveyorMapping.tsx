@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
+  Breadcrumb,
   Button,
   Select,
   Tag,
@@ -1238,12 +1239,26 @@ const SurveyorMapping = ({
       ) : pageNumber === 1 ? (
         <>
           <HeaderContainer>
-            <Title>
-              Mapping -{" "}
-              {mappingName === "surveyor"
-                ? "Surveyors <> Supervisors"
-                : "Targets <> Supervisors"}
-            </Title>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: (
+                    <>
+                      {mappingName === "surveyor"
+                        ? "Surveyors <> Supervisors"
+                        : "Targets <> Supervisors"}{" "}
+                      Mapping
+                    </>
+                  ),
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
+                },
+                {
+                  title: "Configuration",
+                },
+              ]}
+            />
             <div
               style={{
                 display: "flex",
@@ -1327,12 +1342,31 @@ const SurveyorMapping = ({
       ) : (
         <>
           <HeaderContainer>
-            <Title>
-              Mapping -{" "}
-              {mappingName === "surveyor"
-                ? "Surveyors <> Supervisors"
-                : "Targets <> Supervisors"}
-            </Title>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: (
+                    <>
+                      {mappingName === "surveyor"
+                        ? "Surveyors <> Supervisors"
+                        : "Targets <> Supervisors"}{" "}
+                      Mapping
+                    </>
+                  ),
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
+                },
+                {
+                  title: "Configuration",
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=1`,
+                },
+                {
+                  title: "Mapping Data",
+                },
+              ]}
+            />
+
             {mappingStats !== null ? (
               <MappingStats stats={mappingStats} />
             ) : null}
