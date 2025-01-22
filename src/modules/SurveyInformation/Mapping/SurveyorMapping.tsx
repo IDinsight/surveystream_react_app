@@ -1117,6 +1117,7 @@ const SurveyorMapping = ({
       }
     }
 
+    setSelectedMappingValue(selectedSurveyorRows[0].supervisorUID);
     showDrawer();
   };
 

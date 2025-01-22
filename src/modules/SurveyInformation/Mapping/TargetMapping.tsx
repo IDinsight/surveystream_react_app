@@ -1070,6 +1070,7 @@ const TargetMapping = ({
       }
     }
 
+    setSelectedMappingValue(selectedTargetRows[0].supervisorUID);
     showDrawer();
   };
 
