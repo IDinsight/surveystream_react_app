@@ -1182,15 +1182,7 @@ const TargetMapping = ({
 
   return (
     <>
-      {loadMappingConfigError &&
-      pageNumber === 1 &&
-      (mappingConfig?.length === 0 || !mappingConfig) ? (
-        <MappingError mappingName="Target" error={loadMappingConfigError} />
-      ) : loadMappingDataError &&
-        pageNumber === 2 &&
-        (mappingData?.length === 0 || !mappingData) ? (
-        <MappingError mappingName="Target" error={loadMappingDataError} />
-      ) : pageNumber === 1 ? (
+      {pageNumber === 1 ? (
         <>
           <HeaderContainer>
             <Breadcrumb
@@ -1228,7 +1220,14 @@ const TargetMapping = ({
               >
                 <ResetButton
                   style={{ marginLeft: "auto", marginRight: 30 }}
-                  disabled={criteria.includes("Manual")}
+                  disabled={
+                    criteria.includes("Manual")
+                      ? true
+                      : loadMappingConfigError &&
+                        (mappingConfig?.length === 0 || !mappingConfig)
+                      ? true
+                      : false
+                  }
                 >
                   Reset Mapping
                 </ResetButton>
@@ -1238,56 +1237,67 @@ const TargetMapping = ({
           <div style={{ display: "flex" }}>
             <SideMenu />
             <MappingWrapper>
-              <div>
-                <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
-                <MappingTable
-                  columns={mappedPairsColumns}
-                  dataSource={mappedPairsData}
-                  scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
-                  pagination={false}
+              {loadMappingConfigError &&
+              (mappingConfig?.length === 0 || !mappingConfig) ? (
+                <MappingError
+                  mappingName="Target"
+                  error={loadMappingConfigError}
                 />
-                {unmappedTargets?.length > 0 && (
-                  <>
-                    <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                      There is no mapping available for below listed Target,
-                      please map them manually:
-                    </p>
-                    <MappingTable
-                      columns={unmappedColumns}
-                      dataSource={unmappedPairData}
-                      scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
-                      pagination={false}
-                    />
-                  </>
-                )}
-                <div style={{ marginTop: "0px", marginBottom: "40px" }}>
-                  <Button
-                    onClick={() =>
-                      navigate(
-                        `/survey-information/mapping/target/${SurveyUID}`
-                      )
-                    }
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    style={{ marginLeft: "20px" }}
-                    onClick={handleContinue}
-                  >
-                    Continue
-                  </Button>
-                  <CustomBtn
-                    style={{ marginLeft: "20px" }}
-                    onClick={handleConfigSave}
-                    disabled={
-                      criteria.includes("Manual") ||
-                      !(unmappedPairData?.length > 0)
-                    }
-                  >
-                    Save
-                  </CustomBtn>
+              ) : (
+                <div>
+                  <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
+                  <MappingTable
+                    columns={mappedPairsColumns}
+                    dataSource={mappedPairsData}
+                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    pagination={false}
+                  />
+                  {unmappedTargets?.length > 0 && (
+                    <>
+                      <p style={{ marginTop: "36px", fontWeight: "bold" }}>
+                        There is no mapping available for below listed Target,
+                        please map them manually:
+                      </p>
+                      <MappingTable
+                        columns={unmappedColumns}
+                        dataSource={unmappedPairData}
+                        scroll={{
+                          x: "max-content",
+                          y: "calc(100vh - 380px)",
+                        }}
+                        pagination={false}
+                      />
+                    </>
+                  )}
+                  <div style={{ marginTop: "0px", marginBottom: "40px" }}>
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `/survey-information/mapping/target/${SurveyUID}`
+                        )
+                      }
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      style={{ marginLeft: "20px" }}
+                      onClick={handleContinue}
+                    >
+                      Continue
+                    </Button>
+                    <CustomBtn
+                      style={{ marginLeft: "20px" }}
+                      onClick={handleConfigSave}
+                      disabled={
+                        criteria.includes("Manual") ||
+                        !(unmappedPairData?.length > 0)
+                      }
+                    >
+                      Save
+                    </CustomBtn>
+                  </div>
                 </div>
-              </div>
+              )}
             </MappingWrapper>
           </div>
         </>
@@ -1339,84 +1349,93 @@ const TargetMapping = ({
           <div style={{ display: "flex" }}>
             <SideMenu />
             <MappingWrapper>
-              <div>
-                <MappingTable
-                  columns={targetsMappingColumns}
-                  dataSource={mappingTableData}
-                  rowSelection={rowSelection}
-                  scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
-                  pagination={{
-                    pageSize: tablePageSize,
-                    pageSizeOptions: ["5", "10", "20", "50", "100"],
-                    showSizeChanger: true,
-                    onShowSizeChange: (current, size) => setTablePageSize(size),
-                  }}
+              {loadMappingDataError &&
+              (mappingData?.length === 0 || !mappingData) ? (
+                <MappingError
+                  mappingName="Target"
+                  error={loadMappingDataError}
                 />
-                {selectedTargetRows.length > 0 && (
-                  <Drawer
-                    title="Edit Target to Supervisor Mapping"
-                    onClose={onDrawerClose}
-                    open={isEditingOpen}
-                    width={480}
-                  >
-                    <Row>
-                      <Col span={8}>
-                        {criteria.includes("Location") && (
-                          <p>Target Location:</p>
-                        )}
-                        {criteria.includes("Language") && (
-                          <p>Target Language:</p>
-                        )}
-                        {criteria.includes("Gender") && <p>Target Gender:</p>}
-                        {criteria.includes("Manual") && <p>Target count:</p>}
-                      </Col>
-                      <Col span={12}>
-                        {criteria.includes("Location") && (
-                          <p>{selectedTargetRows[0].targetLocation}</p>
-                        )}
-                        {criteria.includes("Language") && (
-                          <p>{selectedTargetRows[0].targetLanguage}</p>
-                        )}
-                        {criteria.includes("Gender") && (
-                          <p>{selectedTargetRows[0].targetGender}</p>
-                        )}
-                        {criteria.includes("Manual") && (
-                          <p>{selectedTargetRows.length}</p>
-                        )}
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col span={8}>
-                        <p>Supervisor:</p>
-                      </Col>
-                      <Col span={12}>
-                        <Select
-                          style={{ width: "100%" }}
-                          defaultValue={() => {
-                            selectedMappingValue(
-                              selectedTargetRows[0].supervisorUID
-                            );
-                            return selectedTargetRows[0].supervisorUID;
-                          }}
-                          value={selectedMappingValue}
-                          onChange={(value) => setSelectedMappingValue(value)}
+              ) : (
+                <div>
+                  <MappingTable
+                    columns={targetsMappingColumns}
+                    dataSource={mappingTableData}
+                    rowSelection={rowSelection}
+                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    pagination={{
+                      pageSize: tablePageSize,
+                      pageSizeOptions: ["5", "10", "20", "50", "100"],
+                      showSizeChanger: true,
+                      onShowSizeChange: (current, size) =>
+                        setTablePageSize(size),
+                    }}
+                  />
+                  {selectedTargetRows.length > 0 && (
+                    <Drawer
+                      title="Edit Target to Supervisor Mapping"
+                      onClose={onDrawerClose}
+                      open={isEditingOpen}
+                      width={480}
+                    >
+                      <Row>
+                        <Col span={8}>
+                          {criteria.includes("Location") && (
+                            <p>Target Location:</p>
+                          )}
+                          {criteria.includes("Language") && (
+                            <p>Target Language:</p>
+                          )}
+                          {criteria.includes("Gender") && <p>Target Gender:</p>}
+                          {criteria.includes("Manual") && <p>Target count:</p>}
+                        </Col>
+                        <Col span={12}>
+                          {criteria.includes("Location") && (
+                            <p>{selectedTargetRows[0].targetLocation}</p>
+                          )}
+                          {criteria.includes("Language") && (
+                            <p>{selectedTargetRows[0].targetLanguage}</p>
+                          )}
+                          {criteria.includes("Gender") && (
+                            <p>{selectedTargetRows[0].targetGender}</p>
+                          )}
+                          {criteria.includes("Manual") && (
+                            <p>{selectedTargetRows.length}</p>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={8}>
+                          <p>Supervisor:</p>
+                        </Col>
+                        <Col span={12}>
+                          <Select
+                            style={{ width: "100%" }}
+                            defaultValue={() => {
+                              selectedMappingValue(
+                                selectedTargetRows[0].supervisorUID
+                              );
+                              return selectedTargetRows[0].supervisorUID;
+                            }}
+                            value={selectedMappingValue}
+                            onChange={(value) => setSelectedMappingValue(value)}
+                          >
+                            {getSupervisorOptionList()}
+                          </Select>
+                        </Col>
+                      </Row>
+                      <div style={{ marginTop: 16 }}>
+                        <Button onClick={onDrawerClose}>Cancel</Button>
+                        <CustomBtn
+                          style={{ marginLeft: 16 }}
+                          onClick={handleTargetMappingSave}
                         >
-                          {getSupervisorOptionList()}
-                        </Select>
-                      </Col>
-                    </Row>
-                    <div style={{ marginTop: 16 }}>
-                      <Button onClick={onDrawerClose}>Cancel</Button>
-                      <CustomBtn
-                        style={{ marginLeft: 16 }}
-                        onClick={handleTargetMappingSave}
-                      >
-                        Save
-                      </CustomBtn>
-                    </div>
-                  </Drawer>
-                )}
-              </div>
+                          Save
+                        </CustomBtn>
+                      </div>
+                    </Drawer>
+                  )}
+                </div>
+              )}
             </MappingWrapper>
           </div>
         </>
