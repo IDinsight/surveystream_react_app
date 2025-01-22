@@ -1,5 +1,3 @@
-import { properCase } from "./../../utils/helper";
-
 import { CheckCircleFilled, WarningFilled } from "@ant-design/icons";
 
 interface IMappingStatsProps {
@@ -13,7 +11,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
   const { type, mapped, unmapped } = stats;
 
   return (
-    <div style={{ display: "flex", gap: 16, marginLeft: "auto" }}>
+    <div style={{ display: "flex", gap: 16, marginLeft: "15px" }}>
       {mapped !== null ? (
         <div
           style={{
@@ -34,7 +32,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
               fontWeight: 500,
             }}
           >
-            {mapped} {type ? properCase(type) + "s" : ""} mapped
+            {mapped} Mapped
           </p>
         </div>
       ) : null}
@@ -58,7 +56,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
               fontWeight: 500,
             }}
           >
-            {unmapped} {type ? properCase(type) + "s" : ""} not mapped
+            {unmapped} Not mapped
           </p>
         </div>
       ) : null}

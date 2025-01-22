@@ -32,6 +32,7 @@ import {
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
+import MappingError from "../../../components/MappingError";
 
 const { Option } = Select;
 
@@ -57,6 +58,10 @@ const SurveyorMapping = ({
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
 
+  const [loadMappingConfigError, setLoadMappingConfigError] =
+    useState<string>("");
+  const [loadMappingDataError, setLoadMappingDataError] = useState<string>("");
+
   // State for location criteria
   const [userLocations, setUserLocations] = useState<any>(null);
   const [selectedLocations, setSelectedLocations] = useState<any>({});
@@ -80,6 +85,7 @@ const SurveyorMapping = ({
             title: "Surveyor Location",
             dataIndex: "surveyorLocation",
             key: "surveyorLocation",
+            width: 100,
           },
         ]
       : []),
@@ -89,6 +95,7 @@ const SurveyorMapping = ({
             title: "Surveyor Language",
             dataIndex: "surveyorLanguage",
             key: "surveyorLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -98,6 +105,7 @@ const SurveyorMapping = ({
             title: "Surveyor Gender",
             dataIndex: "surveyorGender",
             key: "surveyorGender",
+            width: 100,
           },
         ]
       : []),
@@ -105,6 +113,7 @@ const SurveyorMapping = ({
       title: "Surveyor Count",
       dataIndex: "surveyorCount",
       key: "surveyorCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -112,6 +121,7 @@ const SurveyorMapping = ({
             title: "Supervisor Location",
             dataIndex: "supervisorLocation",
             key: "supervisorLocation",
+            width: 100,
           },
         ]
       : []),
@@ -121,6 +131,7 @@ const SurveyorMapping = ({
             title: "Supervisor Language",
             dataIndex: "supervisorLanguage",
             key: "supervisorLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -130,6 +141,7 @@ const SurveyorMapping = ({
             title: "Supervisor Gender",
             dataIndex: "supervisorGender",
             key: "supervisorGender",
+            width: 100,
           },
         ]
       : []),
@@ -137,6 +149,7 @@ const SurveyorMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
@@ -145,6 +158,7 @@ const SurveyorMapping = ({
       render: (status: any) => (
         <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
       ),
+      width: 100,
     },
     {
       title: (
@@ -170,6 +184,7 @@ const SurveyorMapping = ({
             </DeleteButton>
           </Popconfirm>
         ) : null,
+      width: 80,
     },
   ];
 
@@ -181,6 +196,7 @@ const SurveyorMapping = ({
             title: "Surveyor Location",
             dataIndex: "surveyorLocation",
             key: "surveyorLocation",
+            width: 100,
           },
         ]
       : []),
@@ -190,6 +206,7 @@ const SurveyorMapping = ({
             title: "Surveyor Language",
             dataIndex: "surveyorLanguage",
             key: "surveyorLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -199,6 +216,7 @@ const SurveyorMapping = ({
             title: "Surveyor Gender",
             dataIndex: "surveyorGender",
             key: "surveyorGender",
+            width: 100,
           },
         ]
       : []),
@@ -206,6 +224,7 @@ const SurveyorMapping = ({
       title: "Surveyor Count",
       dataIndex: "surveyorCount",
       key: "surveyorCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -300,12 +319,14 @@ const SurveyorMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
       dataIndex: "mappingStatus",
       key: "mappingStatus",
       render: () => <Tag color="red">Pending</Tag>,
+      width: 100,
     },
   ];
 
@@ -445,8 +466,15 @@ const SurveyorMapping = ({
         fetchSurveyorsMappingConfig(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
           setLoading(false);
         });
@@ -557,10 +585,15 @@ const SurveyorMapping = ({
             if (res?.data?.success) {
               setSelectedLocations({});
               setMappingConfig(res?.data?.data);
+              setLoadMappingConfigError("");
             } else {
-              message.error(
-                "Failed to fetch mapping config. Please refresh the page"
-              );
+              const error_message = res.response?.data?.errors?.mapping_errors
+                ? res.response?.data?.errors?.mapping_errors
+                : res.response?.data?.errors?.message
+                ? res.response?.data?.errors?.message
+                : "Failed to fetch mapping config";
+              message.error(error_message);
+              setLoadMappingConfigError(error_message);
             }
             setLoading(false);
           });
@@ -594,8 +627,15 @@ const SurveyorMapping = ({
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
+            setLoadMappingDataError("");
           } else {
-            message.error("Failed to fetch mapping");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping";
+            message.error(error_message);
+            setLoadMappingDataError(error_message);
           }
           setLoading(false);
         });
@@ -619,8 +659,14 @@ const SurveyorMapping = ({
         setMappingData(res?.data?.data);
         populateMappingStats(res?.data?.data);
         setIsConfigSetupPage(false);
+        setLoadMappingDataError("");
       } else {
-        message.error("Failed to fetch mapping");
+        const error_message = res.response?.data?.errors?.mapping_errors
+          ? res.response?.data?.errors?.mapping_errors
+          : res.response?.data?.errors?.message
+          ? res.response?.data?.errors?.message
+          : "Failed to fetch mapping";
+        message.error(error_message);
       }
       setLoading(false);
     });
@@ -637,8 +683,15 @@ const SurveyorMapping = ({
           if (res?.data?.success) {
             // Reset the mapping config state
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
           setLoading(false);
         });
@@ -655,12 +708,14 @@ const SurveyorMapping = ({
       dataIndex: "surveyorID",
       key: "surveyorID",
       sorter: (a: any, b: any) => a.surveyorID.localeCompare(b.surveyorID),
+      width: 100,
     },
     {
       title: "Surveyor Name",
       dataIndex: "surveyorName",
       key: "surveyorName",
       sorter: (a: any, b: any) => a.surveyorName.localeCompare(b.surveyorName),
+      width: 100,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -682,6 +737,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: { surveyorLocationID: string }) =>
               record.surveyorLocationID.indexOf(value) === 0,
+            width: 100,
           },
           {
             title: "Surveyor Location",
@@ -703,6 +759,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: { surveyorLocation: string }) =>
               record.surveyorLocation.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -728,6 +785,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: { surveyorLanguage: string }) =>
               record.surveyorLanguage.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -753,6 +811,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: { surveyorGender: string }) =>
               record.surveyorGender.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -779,6 +838,7 @@ const SurveyorMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorEmail?.indexOf(value) === 0,
+      width: 100,
     },
     {
       title: "Supervisor Name",
@@ -803,6 +863,7 @@ const SurveyorMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorName?.indexOf(value) === 0,
+      width: 100,
     },
     ...(criteria.includes("Location") && !criteria.includes("Manual")
       ? [
@@ -828,6 +889,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLocation.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -855,6 +917,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLanguage.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -882,6 +945,7 @@ const SurveyorMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorGender.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -1086,8 +1150,16 @@ const SurveyorMapping = ({
         if (res?.data?.success) {
           setMappingConfig(res?.data?.data);
         } else {
-          message.error("Failed to fetch mapping config");
+          const error_message = res.response?.data?.errors?.mapping_errors
+            ? res.response?.data?.errors?.mapping_errors
+            : res.response?.data?.errors?.message
+            ? res.response?.data?.errors?.message
+            : "Failed to fetch mapping config";
+          message.error(error_message);
+          setLoadMappingConfigError(error_message);
         }
+        console.log(mappingConfig);
+        console.log(loadMappingConfigError);
         setLoading(false);
       });
 
@@ -1136,7 +1208,15 @@ const SurveyorMapping = ({
 
   return (
     <>
-      {isConfigSetupPage ? (
+      {loadMappingConfigError &&
+      isConfigSetupPage &&
+      (mappingConfig?.length === 0 || !mappingConfig) ? (
+        <MappingError mappingName="Surveyor" error={loadMappingConfigError} />
+      ) : loadMappingDataError &&
+        !isConfigSetupPage &&
+        (mappingData?.length === 0 || !mappingData) ? (
+        <MappingError mappingName="Surveyor" error={loadMappingDataError} />
+      ) : isConfigSetupPage ? (
         <div>
           <div style={{ display: "flex" }}>
             <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
@@ -1155,11 +1235,14 @@ const SurveyorMapping = ({
               </ResetButton>
             </Popconfirm>
           </div>
-          <MappingTable
-            columns={mappedPairsColumns}
-            dataSource={mappedPairsData}
-            pagination={false}
-          />
+          <div>
+            <MappingTable
+              columns={mappedPairsColumns}
+              dataSource={mappedPairsData}
+              scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+              pagination={false}
+            />
+          </div>
           {unmappedSurveyors?.length > 0 && (
             <>
               <p style={{ marginTop: "36px", fontWeight: "bold" }}>
@@ -1169,6 +1252,7 @@ const SurveyorMapping = ({
               <MappingTable
                 columns={unmappedColumns}
                 dataSource={unmappedPairData}
+                scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
                 pagination={false}
               />
             </>
@@ -1202,7 +1286,7 @@ const SurveyorMapping = ({
             {selectedSurveyorRows.length > 0 ? (
               <Button
                 type="primary"
-                style={{ marginLeft: "auto" }}
+                style={{ marginLeft: "auto", marginRight: "15px" }}
                 onClick={handleOnEdit}
               >
                 Edit
@@ -1213,7 +1297,7 @@ const SurveyorMapping = ({
             columns={surveyorsMappingColumns}
             dataSource={mappingTableData}
             rowSelection={rowSelection}
-            scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
+            scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
             pagination={{
               pageSize: tablePageSize,
               pageSizeOptions: ["5", "10", "20", "50", "100"],

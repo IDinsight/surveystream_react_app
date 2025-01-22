@@ -32,6 +32,8 @@ import {
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
+import MappingError from "../../../components/MappingError";
+
 const { Option } = Select;
 
 interface TargetMappingProps {
@@ -56,6 +58,10 @@ const TargetMapping = ({
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
 
+  const [loadMappingConfigError, setLoadMappingConfigError] =
+    useState<string>("");
+  const [loadMappingDataError, setLoadMappingDataError] = useState<string>("");
+
   // State for location criteria
   const [userLocations, setUserLocations] = useState<any>(null);
   const [selectedLocations, setSelectedLocations] = useState<any>({});
@@ -79,6 +85,7 @@ const TargetMapping = ({
             title: "Target Location",
             dataIndex: "targetLocation",
             key: "targetLocation",
+            width: 100,
           },
         ]
       : []),
@@ -88,6 +95,7 @@ const TargetMapping = ({
             title: "Target Language",
             dataIndex: "targetLanguage",
             key: "targetLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -97,6 +105,7 @@ const TargetMapping = ({
             title: "Target Gender",
             dataIndex: "targetGender",
             key: "targetGender",
+            width: 100,
           },
         ]
       : []),
@@ -104,6 +113,7 @@ const TargetMapping = ({
       title: "Target Count",
       dataIndex: "targetCount",
       key: "targetCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -111,6 +121,7 @@ const TargetMapping = ({
             title: "Supervisor Location",
             dataIndex: "supervisorLocation",
             key: "supervisorLocation",
+            width: 100,
           },
         ]
       : []),
@@ -120,6 +131,7 @@ const TargetMapping = ({
             title: "Supervisor Language",
             dataIndex: "supervisorLanguage",
             key: "supervisorLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -129,6 +141,7 @@ const TargetMapping = ({
             title: "Supervisor Gender",
             dataIndex: "supervisorGender",
             key: "supervisorGender",
+            width: 100,
           },
         ]
       : []),
@@ -136,6 +149,7 @@ const TargetMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
@@ -144,6 +158,7 @@ const TargetMapping = ({
       render: (status: any) => (
         <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
       ),
+      width: 100,
     },
     {
       title: (
@@ -169,6 +184,7 @@ const TargetMapping = ({
             </DeleteButton>
           </Popconfirm>
         ) : null,
+      width: 80,
     },
   ];
 
@@ -180,6 +196,7 @@ const TargetMapping = ({
             title: "Target Location",
             dataIndex: "targetLocation",
             key: "targetLocation",
+            width: 100,
           },
         ]
       : []),
@@ -189,6 +206,7 @@ const TargetMapping = ({
             title: "Target Language",
             dataIndex: "targetLanguage",
             key: "targetLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -198,6 +216,7 @@ const TargetMapping = ({
             title: "Target Gender",
             dataIndex: "targetGender",
             key: "targetGender",
+            width: 100,
           },
         ]
       : []),
@@ -205,6 +224,7 @@ const TargetMapping = ({
       title: "Target Count",
       dataIndex: "targetCount",
       key: "targetCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -299,12 +319,14 @@ const TargetMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
       dataIndex: "mappingStatus",
       key: "mappingStatus",
       render: () => <Tag color="red">Pending</Tag>,
+      width: 100,
     },
   ];
 
@@ -442,8 +464,15 @@ const TargetMapping = ({
         fetchTargetsMappingConfig(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
           setLoading(false);
         });
@@ -554,10 +583,15 @@ const TargetMapping = ({
             if (res?.data?.success) {
               setSelectedLocations({});
               setMappingConfig(res?.data?.data);
+              setLoadMappingConfigError("");
             } else {
-              message.error(
-                "Failed to fetch mapping config. Please refresh the page"
-              );
+              const error_message = res.response?.data?.errors?.mapping_errors
+                ? res.response?.data?.errors?.mapping_errors
+                : res.response?.data?.errors?.message
+                ? res.response?.data?.errors?.message
+                : "Failed to fetch mapping config";
+              message.error(error_message);
+              setLoadMappingConfigError(error_message);
             }
             setLoading(false);
           });
@@ -591,8 +625,15 @@ const TargetMapping = ({
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
+            setLoadMappingDataError("");
           } else {
-            message.error("Failed to fetch mapping");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping";
+            message.error(error_message);
+            setLoadMappingDataError(error_message);
           }
           setLoading(false);
         });
@@ -616,8 +657,15 @@ const TargetMapping = ({
         setMappingData(res?.data?.data);
         populateMappingStats(res?.data?.data);
         setIsConfigSetupPage(false);
+        setLoadMappingDataError("");
       } else {
-        message.error("Failed to fetch mapping");
+        const error_message = res.response?.data?.errors?.mapping_errors
+          ? res.response?.data?.errors?.mapping_errors
+          : res.response?.data?.errors?.message
+          ? res.response?.data?.errors?.message
+          : "Failed to fetch mapping";
+        message.error(error_message);
+        setLoadMappingDataError(error_message);
       }
       setLoading(false);
     });
@@ -634,8 +682,15 @@ const TargetMapping = ({
           if (res?.data?.success) {
             // Reset the mapping config state
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
           setLoading(false);
         });
@@ -652,6 +707,7 @@ const TargetMapping = ({
       dataIndex: "targetID",
       key: "targetID",
       sorter: (a: any, b: any) => a.targetID - b.targetID,
+      width: 100,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -668,6 +724,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLocationID === value,
+            width: 100,
           },
           {
             title: "Target Location",
@@ -685,6 +742,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLocation.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -704,6 +762,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLanguage.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -723,6 +782,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetGender.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -745,6 +805,7 @@ const TargetMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorEmail?.indexOf(value) === 0,
+      width: 100,
     },
     {
       title: "Supervisor Name",
@@ -767,6 +828,7 @@ const TargetMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorName?.indexOf(value) === 0,
+      width: 100,
     },
     ...(criteria.includes("Location") && !criteria.includes("Manual")
       ? [
@@ -790,6 +852,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLocation?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -814,6 +877,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLanguage?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -838,6 +902,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorGender?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -1036,8 +1101,15 @@ const TargetMapping = ({
       fetchTargetsMappingConfig(formUID).then((res: any) => {
         if (res?.data?.success) {
           setMappingConfig(res?.data?.data);
+          setLoadMappingConfigError("");
         } else {
-          message.error("Failed to fetch mapping config");
+          const error_message = res.response?.data?.errors?.mapping_errors
+            ? res.response?.data?.errors?.mapping_errors
+            : res.response?.data?.errors?.message
+            ? res.response?.data?.errors?.message
+            : "Failed to fetch mapping config";
+          message.error(error_message);
+          setLoadMappingConfigError(error_message);
         }
         setLoading(false);
       });
@@ -1087,7 +1159,15 @@ const TargetMapping = ({
 
   return (
     <>
-      {isConfigSetupPage ? (
+      {loadMappingConfigError &&
+      isConfigSetupPage &&
+      (mappingConfig?.length === 0 || !mappingConfig) ? (
+        <MappingError mappingName="Target" error={loadMappingConfigError} />
+      ) : loadMappingDataError &&
+        !isConfigSetupPage &&
+        (mappingData?.length === 0 || !mappingData) ? (
+        <MappingError mappingName="Target" error={loadMappingDataError} />
+      ) : isConfigSetupPage ? (
         <div>
           <div style={{ display: "flex" }}>
             <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
@@ -1109,6 +1189,7 @@ const TargetMapping = ({
           <MappingTable
             columns={mappedPairsColumns}
             dataSource={mappedPairsData}
+            scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
             pagination={false}
           />
           {unmappedTargets?.length > 0 && (
@@ -1120,6 +1201,7 @@ const TargetMapping = ({
               <MappingTable
                 columns={unmappedColumns}
                 dataSource={unmappedPairData}
+                scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
                 pagination={false}
               />
             </>
@@ -1153,7 +1235,7 @@ const TargetMapping = ({
             {selectedTargetRows.length > 0 ? (
               <Button
                 type="primary"
-                style={{ marginLeft: "auto" }}
+                style={{ marginLeft: "auto", marginRight: "15px" }}
                 onClick={handleOnEdit}
               >
                 Edit
@@ -1164,7 +1246,7 @@ const TargetMapping = ({
             columns={targetsMappingColumns}
             dataSource={mappingTableData}
             rowSelection={rowSelection}
-            scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
+            scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
             pagination={{
               pageSize: tablePageSize,
               pageSizeOptions: ["5", "10", "20", "50", "100"],

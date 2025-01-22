@@ -16,6 +16,7 @@ import TargetMapping from "./TargetMapping";
 import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
+import MappingError from "../../../components/MappingError";
 
 function MappingManage() {
   const navigate = useNavigate();
@@ -76,6 +77,8 @@ function MappingManage() {
       } else if (mapping_name === "target") {
         setCriteria(moduleQuestionnaire.target_mapping_criteria);
       }
+    } else {
+      setCriteria([]);
     }
   }, [moduleQuestionnaire, mapping_name]);
 
@@ -103,71 +106,83 @@ function MappingManage() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <MappingWrapper>
-              {!form_uid ? (
+              {criteria.length > 0 ? (
                 <>
-                  <p>
-                    Map {mapping_name}s to supervisors based on{" "}
-                    <Tooltip title="As per mapping criteria selected under module questionnaire">
-                      <QuestionCircleOutlined />
-                    </Tooltip>{" "}
-                    :{" "}
-                    {
-                      // Display in tag format
-                      criteria.map((c) => (
-                        <Tag key={c}>{properCase(c)}</Tag>
-                      ))
-                    }
-                  </p>
-                  <Row
-                    align="middle"
-                    style={{ marginBottom: 6, marginTop: 12 }}
-                  >
-                    <Col span={5}>
-                      <FormItemLabel>
-                        <span style={{ color: "red" }}>*</span> SCTO form ID{" "}
-                        <Tooltip title="Select the SurveyCTO main form ID">
+                  {!form_uid ? (
+                    <>
+                      <p>
+                        Map {mapping_name}s to supervisors based on{" "}
+                        <Tooltip title="As per mapping criteria selected under module questionnaire">
                           <QuestionCircleOutlined />
                         </Tooltip>{" "}
-                        :
-                      </FormItemLabel>
-                    </Col>
-                    <Col span={8}>
-                      <Select
-                        style={{ width: "100%" }}
-                        placeholder="Select the SCTO form"
-                        value={formUID}
-                        disabled={!canUserWrite}
-                        onSelect={(val) => {
-                          setFormUID(val as string);
-                        }}
+                        :{" "}
+                        {
+                          // Display in tag format
+                          criteria.map((c) => (
+                            <Tag key={c}>{properCase(c)}</Tag>
+                          ))
+                        }
+                      </p>
+                      <Row
+                        align="middle"
+                        style={{ marginBottom: 6, marginTop: 12 }}
                       >
-                        {surveyCTOForm?.scto_form_id && (
-                          <Select.Option value={surveyCTOForm?.form_uid}>
-                            {surveyCTOForm?.scto_form_id}
-                          </Select.Option>
-                        )}
-                      </Select>
-                    </Col>
-                  </Row>
-                  <Row style={{ marginTop: 12 }}>
-                    <CustomBtn type="primary" onClick={handleLoadButton}>
-                      Load
-                    </CustomBtn>
-                  </Row>
+                        <Col span={5}>
+                          <FormItemLabel>
+                            <span style={{ color: "red" }}>*</span> SCTO form ID{" "}
+                            <Tooltip title="Select the SurveyCTO main form ID">
+                              <QuestionCircleOutlined />
+                            </Tooltip>{" "}
+                            :
+                          </FormItemLabel>
+                        </Col>
+                        <Col span={8}>
+                          <Select
+                            style={{ width: "100%" }}
+                            placeholder="Select the SCTO form"
+                            value={formUID}
+                            disabled={!canUserWrite}
+                            onSelect={(val) => {
+                              setFormUID(val as string);
+                            }}
+                          >
+                            {surveyCTOForm?.scto_form_id && (
+                              <Select.Option value={surveyCTOForm?.form_uid}>
+                                {surveyCTOForm?.scto_form_id}
+                              </Select.Option>
+                            )}
+                          </Select>
+                        </Col>
+                      </Row>
+                      <Row style={{ marginTop: 12 }}>
+                        <CustomBtn type="primary" onClick={handleLoadButton}>
+                          Load
+                        </CustomBtn>
+                      </Row>
+                    </>
+                  ) : mapping_name === "surveyor" ? (
+                    <SurveyorMapping
+                      formUID={form_uid ?? ""}
+                      SurveyUID={survey_uid ?? ""}
+                      criteria={criteria}
+                    />
+                  ) : mapping_name === "target" ? (
+                    <TargetMapping
+                      formUID={form_uid ?? ""}
+                      SurveyUID={survey_uid ?? ""}
+                      criteria={criteria}
+                    />
+                  ) : null}
                 </>
-              ) : mapping_name === "surveyor" ? (
-                <SurveyorMapping
-                  formUID={form_uid ?? ""}
-                  SurveyUID={survey_uid ?? ""}
-                  criteria={criteria}
+              ) : (
+                <MappingError
+                  mappingName={mapping_name ?? ""}
+                  error={
+                    properCase(mapping_name ?? "") +
+                    " mapping criteria not set in module questionnaire. Kindly set the criteria in module questionnaire first."
+                  }
                 />
-              ) : mapping_name === "target" ? (
-                <TargetMapping
-                  formUID={form_uid ?? ""}
-                  SurveyUID={survey_uid ?? ""}
-                  criteria={criteria}
-                />
-              ) : null}
+              )}
             </MappingWrapper>
           </div>
         </>

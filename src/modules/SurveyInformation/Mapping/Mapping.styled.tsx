@@ -13,6 +13,7 @@ export const MappingWrapper = styled.div`
   padding-top: 23px;
   padding-right: 80px;
   font-family: "Lato", sans-serif;
+  width: 70%;
 `;
 
 export const FormItemLabel = styled.p`
@@ -49,6 +50,7 @@ export const DeleteButton = styled(Button)`
 
 export const MappingTable = styled(Table)`
   overflow: auto;
+  width: 99%;
   margin-top: 15px;
   margin-bottom: 68px;
   & th {
