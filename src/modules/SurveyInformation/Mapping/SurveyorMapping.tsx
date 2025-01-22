@@ -25,12 +25,8 @@ import {
 } from "../../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  CustomBtn,
-  MappingTable,
-  DeleteButton,
-  ResetButton,
-} from "./Mapping.styled";
+import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -1314,7 +1310,6 @@ const SurveyorMapping = ({
                     Continue
                   </Button>
                   <CustomBtn
-                    type="primary"
                     style={{ marginLeft: "20px" }}
                     onClick={handleConfigSave}
                     disabled={
@@ -1348,7 +1343,6 @@ const SurveyorMapping = ({
               }}
             >
               <CustomBtn
-                type="primary"
                 style={{ marginLeft: "auto", marginRight: 30 }}
                 onClick={handleOnEdit}
                 disabled={selectedSurveyorRows.length === 0}
@@ -1428,13 +1422,12 @@ const SurveyorMapping = ({
                     </Row>
                     <div style={{ marginTop: 16 }}>
                       <Button onClick={onDrawerClose}>Cancel</Button>
-                      <Button
+                      <CustomBtn
                         style={{ marginLeft: 16 }}
-                        type="primary"
                         onClick={handleSurveyorMappingSave}
                       >
                         Save
-                      </Button>
+                      </CustomBtn>
                     </div>
                   </Drawer>
                 )}

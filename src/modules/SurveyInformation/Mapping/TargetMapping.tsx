@@ -25,12 +25,8 @@ import {
 } from "../../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  CustomBtn,
-  MappingTable,
-  DeleteButton,
-  ResetButton,
-} from "./Mapping.styled";
+import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -1265,7 +1261,6 @@ const TargetMapping = ({
                     Continue
                   </Button>
                   <CustomBtn
-                    type="primary"
                     style={{ marginLeft: "20px" }}
                     onClick={handleConfigSave}
                     disabled={
@@ -1299,7 +1294,6 @@ const TargetMapping = ({
               }}
             >
               <CustomBtn
-                type="primary"
                 style={{ marginLeft: "auto", marginRight: "30px" }}
                 onClick={handleOnEdit}
                 disabled={selectedTargetRows.length === 0}
@@ -1379,13 +1373,12 @@ const TargetMapping = ({
                     </Row>
                     <div style={{ marginTop: 16 }}>
                       <Button onClick={onDrawerClose}>Cancel</Button>
-                      <Button
+                      <CustomBtn
                         style={{ marginLeft: 16 }}
-                        type="primary"
                         onClick={handleTargetMappingSave}
                       >
                         Save
-                      </Button>
+                      </CustomBtn>
                     </div>
                   </Drawer>
                 )}

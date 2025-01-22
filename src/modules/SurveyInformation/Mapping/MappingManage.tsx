@@ -8,7 +8,8 @@ import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOI
 import { RootState } from "../../../redux/store";
 import { Col, Row, Select, Tag, Tooltip } from "antd";
 import { properCase, userHasPermission } from "../../../utils/helper";
-import { BodyContainer, CustomBtn, FormItemLabel } from "./Mapping.styled";
+import { FormItemLabel } from "./Mapping.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import SurveyorMapping from "./SurveyorMapping";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
@@ -147,9 +148,7 @@ function MappingManage() {
                         </Col>
                       </Row>
                       <Row style={{ marginTop: 12 }}>
-                        <CustomBtn type="primary" onClick={handleLoadButton}>
-                          Load
-                        </CustomBtn>
+                        <CustomBtn onClick={handleLoadButton}>Load</CustomBtn>
                       </Row>
                     </MappingWrapper>
                   </div>
