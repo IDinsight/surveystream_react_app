@@ -13,7 +13,6 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 import SurveyorMapping from "./SurveyorMapping";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import TargetMapping from "./TargetMapping";
-import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
 import MappingError from "../../../components/MappingError";
@@ -30,6 +29,7 @@ function MappingManage() {
   // Get the form_uid parameter from the URL
   const [searchParam] = useSearchParams();
   const form_uid = searchParam.get("form_uid");
+  const pageNumber = parseInt(searchParam.get("page") || "1");
 
   if (!survey_uid) {
     navigate("/surveys");
@@ -50,17 +50,13 @@ function MappingManage() {
     (state: RootState) => state.surveyConfig
   );
 
-  const { loading: mappingLoading, stats: mappingStats } = useAppSelector(
-    (state: RootState) => state.mapping
-  );
-
   const [formUID, setFormUID] = useState<null | string>(null);
   const [criteria, setCriteria] = useState<string[]>([]);
 
   const handleLoadButton = () => {
     if (formUID) {
       navigate(
-        `/survey-information/mapping/${mapping_name}/${survey_uid}?form_uid=${formUID}`
+        `/survey-information/mapping/${mapping_name}/${survey_uid}?form_uid=${formUID}&page=1`
       );
     }
   };
@@ -82,8 +78,7 @@ function MappingManage() {
     }
   }, [moduleQuestionnaire, mapping_name]);
 
-  const isLoading =
-    isSurveyCTOFormLoading || surveyConfigLoading || mappingLoading;
+  const isLoading = isSurveyCTOFormLoading || surveyConfigLoading;
 
   return (
     <>
@@ -92,24 +87,21 @@ function MappingManage() {
       ) : (
         <>
           <Container surveyPage={true} />
-          <HeaderContainer>
-            <Title>
-              Mapping -{" "}
-              {mapping_name === "surveyor"
-                ? "Surveyors <> Supervisors"
-                : "Targets <> Supervisors"}
-            </Title>
-            {mappingStats !== null ? (
-              <MappingStats stats={mappingStats} />
-            ) : null}
-          </HeaderContainer>
-          <div style={{ display: "flex" }}>
-            <SideMenu />
-            <MappingWrapper>
-              {criteria.length > 0 ? (
+          {criteria.length > 0 ? (
+            <>
+              {!form_uid ? (
                 <>
-                  {!form_uid ? (
-                    <>
+                  <HeaderContainer>
+                    <Title>
+                      Mapping -{" "}
+                      {mapping_name === "surveyor"
+                        ? "Surveyors <> Supervisors"
+                        : "Targets <> Supervisors"}
+                    </Title>
+                  </HeaderContainer>
+                  <div style={{ display: "flex" }}>
+                    <SideMenu />
+                    <MappingWrapper>
                       <p>
                         Map {mapping_name}s to supervisors based on{" "}
                         <Tooltip title="As per mapping criteria selected under module questionnaire">
@@ -159,32 +151,51 @@ function MappingManage() {
                           Load
                         </CustomBtn>
                       </Row>
-                    </>
-                  ) : mapping_name === "surveyor" ? (
-                    <SurveyorMapping
-                      formUID={form_uid ?? ""}
-                      SurveyUID={survey_uid ?? ""}
-                      criteria={criteria}
-                    />
-                  ) : mapping_name === "target" ? (
-                    <TargetMapping
-                      formUID={form_uid ?? ""}
-                      SurveyUID={survey_uid ?? ""}
-                      criteria={criteria}
-                    />
-                  ) : null}
+                    </MappingWrapper>
+                  </div>
                 </>
-              ) : (
-                <MappingError
-                  mappingName={mapping_name ?? ""}
-                  error={
-                    properCase(mapping_name ?? "") +
-                    " mapping criteria not set in module questionnaire. Kindly set the criteria in module questionnaire first."
-                  }
+              ) : mapping_name === "surveyor" ? (
+                <SurveyorMapping
+                  formUID={form_uid ?? ""}
+                  SurveyUID={survey_uid ?? ""}
+                  mappingName={mapping_name}
+                  criteria={criteria}
+                  pageNumber={pageNumber}
                 />
-              )}
-            </MappingWrapper>
-          </div>
+              ) : mapping_name === "target" ? (
+                <TargetMapping
+                  formUID={form_uid ?? ""}
+                  SurveyUID={survey_uid ?? ""}
+                  mappingName={mapping_name}
+                  criteria={criteria}
+                  pageNumber={pageNumber}
+                />
+              ) : null}
+            </>
+          ) : (
+            <>
+              <HeaderContainer>
+                <Title>
+                  Mapping -{" "}
+                  {mapping_name === "surveyor"
+                    ? "Surveyors <> Supervisors"
+                    : "Targets <> Supervisors"}
+                </Title>
+              </HeaderContainer>
+              <div style={{ display: "flex" }}>
+                <SideMenu />
+                <MappingWrapper>
+                  <MappingError
+                    mappingName={mapping_name ?? ""}
+                    error={
+                      properCase(mapping_name ?? "") +
+                      " mapping criteria not set in module questionnaire. Kindly set the criteria in module questionnaire first."
+                    }
+                  />
+                </MappingWrapper>
+              </div>
+            </>
+          )}
         </>
       )}
     </>

@@ -13,7 +13,7 @@ export const MappingWrapper = styled.div`
   padding-top: 23px;
   padding-right: 80px;
   font-family: "Lato", sans-serif;
-  width: 70%;
+  width: 72%;
 `;
 
 export const FormItemLabel = styled.p`
