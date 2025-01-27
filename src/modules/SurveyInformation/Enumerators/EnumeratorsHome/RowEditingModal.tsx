@@ -17,6 +17,7 @@ interface IRowEditingModal {
   onCancel: () => void;
   onUpdate: () => void;
   editMode: boolean;
+  locationList: any;
 }
 
 interface Field {
@@ -39,6 +40,7 @@ function RowEditingModal({
   onCancel,
   onUpdate,
   editMode,
+  locationList,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -65,6 +67,7 @@ function RowEditingModal({
     // Write code here for any cleanup
     onCancel();
   };
+  //  for locations editing, I would like this to be from a dropdown which contains all values of the same geo_level
 
   const updateHandler = async () => {
     //validate form
@@ -149,6 +152,7 @@ function RowEditingModal({
       }
 
       const enumeratorData = { ...originalData[0] };
+      console.log("enumeratorData", enumeratorData);
       const updateRes = await dispatch(
         updateEnumerator({ enumeratorUID, enumeratorData })
       );
@@ -227,7 +231,7 @@ function RowEditingModal({
           !bulkFieldsToExclude.includes(field.labelKey) &&
           !fieldsToExclude.includes(field.labelKey)
       );
-
+      console.log("filteredFields", filteredFields);
       //include if a field is contracting
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)

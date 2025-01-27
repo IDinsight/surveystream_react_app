@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
 import { useCSVDownloader } from "react-papaparse";
@@ -30,6 +30,7 @@ import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
+import { use } from "chai";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -54,12 +55,14 @@ function EnumeratorsHome() {
   const enumeratorList = useAppSelector(
     (state: RootState) => state.enumerators.enumeratorList
   );
+  const locationList = useAppSelector(
+    (state: RootState) => state.surveyLocations.surveyLocationsLong
+  );
+  const surveys = useAppSelector((state: RootState) => state.surveys);
 
   const [activeEnums, setActiveEnums] = useState<number>(0);
   const [droppedEnums, setDroppedEnums] = useState<number>(0);
   const [inactiveEnums, setInactiveEnums] = useState<number>(0);
-  const [SurveyPrimeGeoLevelUid, setSurveyPrimeGeoLevelUid] =
-    useState<number>(0);
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
@@ -67,6 +70,12 @@ function EnumeratorsHome() {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
+  const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
+  const fetchSurveyInfo = async () => {
+    const survey = await dispatch(getSurveyBasicInformation({ survey_uid }));
+    setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid);
+  };
+  // make sure prime_geo_level_uid is available when the component mounts
 
   // Row selection state and handler
   const [selectedRows, setSelectedRows] = useState<any>([]);
@@ -78,7 +87,6 @@ function EnumeratorsHome() {
     const selectedEnumeratorData = enumeratorList.filter((row: any) =>
       selectedEnumeratorIds.includes(row.enumerator_id)
     );
-
     setSelectedRows(selectedEnumeratorData);
   };
   useEffect(() => {
@@ -140,21 +148,6 @@ function EnumeratorsHome() {
       await getEnumeratorsList(form_uid);
     }
     setEditData(false);
-  };
-  const survey_prime_geo_level_uid = async () => {
-    try {
-      const surveyInfo = await dispatch(
-        getSurveyBasicInformation({ survey_uid: survey_uid })
-      );
-      if (surveyInfo.payload.prime_geo_level_uid) {
-        setSurveyPrimeGeoLevelUid(surveyInfo.payload.prime_geo_level_uid);
-      } else {
-        message.error("Kindly configure survey prime geo level to proceed");
-      }
-    } catch (error) {
-      console.log("Error fetching surveyInfo:", error);
-    }
-    return;
   };
 
   const handleFormUID = async () => {
@@ -270,26 +263,13 @@ function EnumeratorsHome() {
             columnMapping["location"] = "location";
           }
         }
-
         dispatch(setEnumeratorColumnMapping(columnMapping));
       }
-      const updatedData = originalData.map((enumerator: any) => {
-        const surveyorLocations = enumerator.surveyor_locations;
-        // Find the location_name for the location_id with the matching geo_level_uid
-        const locationName = surveyorLocations.find(
-          (location: any) => location.geo_level_uid === SurveyPrimeGeoLevelUid
-        )?.location_name;
-        // Add the location column to the enumerator's data
-        return {
-          ...enumerator,
-          location: locationName,
-        };
-      });
       // Define column mappings
-      let columnMappings = Object.keys(updatedData[0])
+      let columnMappings = Object.keys(originalData[0])
         .filter((column) => !columnsToExclude.includes(column))
         .filter((column) =>
-          updatedData.some(
+          originalData.some(
             (row: any) => row[column] !== null && column !== "custom_fields"
           )
         )
@@ -299,9 +279,25 @@ function EnumeratorsHome() {
           width: 90,
           ellipsis: true,
         })); // Filter out columns with all null values
-
+      columnMappings.push({
+        title: "location",
+        dataIndex: "location",
+        width: 90,
+        ellipsis: true,
+      });
+      const updatedData = originalData.map((enumerator: any) => {
+        const surveyorLocations = enumerator.surveyor_locations;
+        // Find the location_name for the location_id with the matching geo_level_uid
+        const locationName = surveyorLocations?.find(
+          (location: any) => location.geo_level_uid === PrimeGeoLevelUID
+        )?.location_name;
+        return {
+          ...enumerator,
+          location: locationName,
+        };
+      });
       const customFieldsSet = new Set(); // Create a set to track unique custom fields
-      const customFields = originalData.reduce((acc: any, row: any) => {
+      const customFields = updatedData.reduce((acc: any, row: any) => {
         if (row.custom_fields && typeof row.custom_fields === "object") {
           for (const key in row.custom_fields) {
             if (
@@ -404,14 +400,15 @@ function EnumeratorsHome() {
       // redirect to upload if missing csvHeaders and cannot perform mapping
       // TODO: update this for configured surveys already
       await handleFormUID();
-      await survey_prime_geo_level_uid();
       if (form_uid && screenMode === "manage") {
         await getEnumeratorsList(form_uid);
       }
     };
-
-    fetchData();
-  }, [form_uid, screenMode]);
+    fetchSurveyInfo().then(() => {
+      // wait until primegoeleveluid is available
+      fetchData();
+    });
+  }, [form_uid, screenMode, PrimeGeoLevelUID]);
 
   return (
     <>
@@ -513,6 +510,7 @@ function EnumeratorsHome() {
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
                     editMode={editMode}
+                    locationList={locationList}
                   />
                 ) : null}
               </EnumeratorsHomeFormWrapper>

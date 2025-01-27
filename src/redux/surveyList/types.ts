@@ -10,4 +10,5 @@ export type Survey = {
   planned_end_date: string;
   state: string;
   last_updated_at: string;
+  prime_geo_level_uid: number;
 };
