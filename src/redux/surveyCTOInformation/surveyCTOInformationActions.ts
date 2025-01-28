@@ -14,6 +14,9 @@ import {
   putSurveyCTOFormFailure,
   putSurveyCTOFormRequest,
   putSurveyCTOFormSuccess,
+  getSurveyCTOFormDataFailure,
+  getSurveyCTOFormDataRequest,
+  getSurveyCTOFormDataSuccess,
 } from "./surveyCTOInformationSlice";
 import { SurveyCTOForm } from "./types";
 
@@ -128,9 +131,32 @@ export const getTimezones = createAsyncThunk(
   }
 );
 
+export const getSurveyCTOFormData = createAsyncThunk(
+  "surveyInformation/getSurveyCTOFormData",
+  async (params: { form_uid: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(getSurveyCTOFormDataRequest());
+      const res: any = await api.getSurveyCTOFormData(params.form_uid);
+
+      if (res.status === 200) {
+        dispatch(getSurveyCTOFormDataSuccess(res.data.data));
+        return res.data.data;
+      }
+      const error = { ...res.response.data, code: res.response.status };
+      dispatch(getSurveyCTOFormDataFailure(error));
+      return res.response.data;
+    } catch (error) {
+      const errorMessage = error || "Failed to get surveyCTO form data";
+      dispatch(getSurveyCTOFormDataFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const surveyCTOInformationActions = {
   getTimezones,
   getSurveyCTOForm,
   postSurveyCTOForm,
   putSurveyCTOForm,
+  getSurveyCTOFormData,
 };

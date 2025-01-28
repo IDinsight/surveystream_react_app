@@ -20,7 +20,10 @@ import {
 } from "../../../../redux/targets/targetSlice";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { RootState } from "../../../../redux/store";
-import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import {
+  getSurveyCTOForm,
+  getSurveyCTOFormData,
+} from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import {
   getTargets,
   getTargetConfig,
@@ -32,7 +35,6 @@ import TargetsRemap from "../TargetsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
-import { min } from "lodash";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -64,7 +66,33 @@ function TargetsHome() {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
+  const [targetsLastUpdated, setTargetsLastUpdated] = useState<string>("");
+  const [formTimezone, setFormTimezone] = useState<string>("UTC");
 
+  const formatDate = (date: any, tz_name: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "short",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZone: tz_name,
+    };
+
+    // find timezone abbreviation to append to the date
+    const timeZone = Intl.DateTimeFormat(undefined, {
+      timeZone: tz_name,
+      timeZoneName: "shortGeneric",
+    }).formatToParts();
+
+    return (
+      new Date(date).toLocaleDateString("en-US", options) +
+      " " +
+      timeZone[6].value
+    );
+  };
   // Row selection state and handler
   const [selectedRows, setSelectedRows] = useState<any>([]);
 
@@ -234,6 +262,14 @@ function TargetsHome() {
     );
     if (targetConfig.payload.success) {
       setTargetDataSource(targetConfig.payload.data.data.target_source);
+      setTargetsLastUpdated(
+        targetConfig.payload.data.data.targets_last_uploaded
+      );
+
+      const formData = await dispatch(getSurveyCTOFormData({ form_uid }));
+      if (formData.payload) {
+        setFormTimezone(formData.payload.tz_name);
+      }
     }
 
     if (targetRes.payload.status == 200) {
@@ -474,6 +510,14 @@ function TargetsHome() {
       <HeaderContainer>
         <Title>Targets</Title>
         <TargetsCountBox targetCount={targetsCount} />
+        {targetsLastUpdated && (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <p style={{ fontSize: 14, marginRight: 20, marginLeft: 20 }}>
+              Targets Last uploaded on:{" "}
+              {formatDate(targetsLastUpdated, formTimezone)}{" "}
+            </p>
+          </div>
+        )}
 
         <div
           style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
