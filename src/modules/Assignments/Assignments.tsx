@@ -529,12 +529,12 @@ function Assignments() {
                         }}
                       >
                         <p>
-                          Targets Last uploaded on:{" "}
+                          Targets last uploaded on:{" "}
                           {targetsLastUpdated && form?.tz_name
                             ? formatDate(targetsLastUpdated, form.tz_name, true)
                             : "NA"}
                           <br />
-                          Form data Last fetched on:{" "}
+                          Form data last fetched on:{" "}
                           {form?.last_ingested_at && form?.tz_name
                             ? formatDate(
                                 form.last_ingested_at,

@@ -510,14 +510,6 @@ function TargetsHome() {
       <HeaderContainer>
         <Title>Targets</Title>
         <TargetsCountBox targetCount={targetsCount} />
-        {targetsLastUpdated && (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <p style={{ fontSize: 14, marginRight: 20, marginLeft: 20 }}>
-              Targets Last uploaded on:{" "}
-              {formatDate(targetsLastUpdated, formTimezone)}{" "}
-            </p>
-          </div>
-        )}
 
         <div
           style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
@@ -606,6 +598,18 @@ function TargetsHome() {
           {screenMode === "manage" ? (
             <>
               <TargetsHomeFormWrapper>
+                {targetsLastUpdated && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "right",
+                      fontSize: 14,
+                    }}
+                  >
+                    Targets last uploaded on:{" "}
+                    {formatDate(targetsLastUpdated, formTimezone)}{" "}
+                  </div>
+                )}
                 <TargetsTable
                   rowSelection={{
                     ...rowSelection,
