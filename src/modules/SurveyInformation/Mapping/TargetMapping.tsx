@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAppSelector } from "../../../redux/hooks";
+import { RootState } from "../../../redux/store";
 import {
+  Breadcrumb,
   Button,
   Select,
   Tag,
@@ -23,38 +26,52 @@ import {
 } from "../../../redux/mapping/apiService";
 import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import {
-  CustomBtn,
-  MappingTable,
-  DeleteButton,
-  ResetButton,
-} from "./Mapping.styled";
+import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
 import { DeleteOutlined } from "@ant-design/icons";
+import MappingError from "../../../components/MappingError";
+import Container from "../../../components/Layout/Container";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import MappingStats from "../../../components/MappingStats";
+import SideMenu from "../SideMenu";
+import { MappingWrapper } from "./Mapping.styled";
+import { setLoading } from "@/redux/enumerators/enumeratorsSlice";
+
 const { Option } = Select;
 
 interface TargetMappingProps {
   formUID: string;
   SurveyUID: string;
+  mappingName: string;
   criteria: string[];
+  pageNumber: number;
 }
 
 const TargetMapping = ({
   formUID,
   SurveyUID,
+  mappingName,
   criteria,
+  pageNumber,
 }: TargetMappingProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [isConfigSetupPage, setIsConfigSetupPage] = useState<boolean>(true);
   const [tablePageSize, setTablePageSize] = useState(5);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
+
+  const [loadingMappingConfig, setLoadingMappingConfig] =
+    useState<boolean>(false);
+  const [loadingMappingData, setLoadingMappingData] = useState<boolean>(false);
+
+  const [loadMappingConfigError, setLoadMappingConfigError] =
+    useState<string>("");
+  const [loadMappingDataError, setLoadMappingDataError] = useState<string>("");
 
   // State for location criteria
   const [userLocations, setUserLocations] = useState<any>(null);
@@ -71,6 +88,10 @@ const TargetMapping = ({
   // Use in case of editing the mapping
   const [selectedMappingValue, setSelectedMappingValue] = useState<any>(null);
 
+  const { loading: mappingLoading, stats: mappingStats } = useAppSelector(
+    (state: RootState) => state.mapping
+  );
+
   // Columns for mapped Pairs Table
   const mappedPairsColumns = [
     ...(criteria.includes("Location")
@@ -79,6 +100,7 @@ const TargetMapping = ({
             title: "Target Location",
             dataIndex: "targetLocation",
             key: "targetLocation",
+            width: 100,
           },
         ]
       : []),
@@ -88,6 +110,7 @@ const TargetMapping = ({
             title: "Target Language",
             dataIndex: "targetLanguage",
             key: "targetLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -97,6 +120,7 @@ const TargetMapping = ({
             title: "Target Gender",
             dataIndex: "targetGender",
             key: "targetGender",
+            width: 100,
           },
         ]
       : []),
@@ -104,6 +128,7 @@ const TargetMapping = ({
       title: "Target Count",
       dataIndex: "targetCount",
       key: "targetCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -111,6 +136,7 @@ const TargetMapping = ({
             title: "Supervisor Location",
             dataIndex: "supervisorLocation",
             key: "supervisorLocation",
+            width: 100,
           },
         ]
       : []),
@@ -120,6 +146,7 @@ const TargetMapping = ({
             title: "Supervisor Language",
             dataIndex: "supervisorLanguage",
             key: "supervisorLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -129,6 +156,7 @@ const TargetMapping = ({
             title: "Supervisor Gender",
             dataIndex: "supervisorGender",
             key: "supervisorGender",
+            width: 100,
           },
         ]
       : []),
@@ -136,6 +164,7 @@ const TargetMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
@@ -144,6 +173,7 @@ const TargetMapping = ({
       render: (status: any) => (
         <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
       ),
+      width: 100,
     },
     {
       title: (
@@ -169,6 +199,7 @@ const TargetMapping = ({
             </DeleteButton>
           </Popconfirm>
         ) : null,
+      width: 80,
     },
   ];
 
@@ -180,6 +211,7 @@ const TargetMapping = ({
             title: "Target Location",
             dataIndex: "targetLocation",
             key: "targetLocation",
+            width: 100,
           },
         ]
       : []),
@@ -189,6 +221,7 @@ const TargetMapping = ({
             title: "Target Language",
             dataIndex: "targetLanguage",
             key: "targetLanguage",
+            width: 100,
           },
         ]
       : []),
@@ -198,6 +231,7 @@ const TargetMapping = ({
             title: "Target Gender",
             dataIndex: "targetGender",
             key: "targetGender",
+            width: 100,
           },
         ]
       : []),
@@ -205,6 +239,7 @@ const TargetMapping = ({
       title: "Target Count",
       dataIndex: "targetCount",
       key: "targetCount",
+      width: 100,
     },
     ...(criteria.includes("Location")
       ? [
@@ -299,12 +334,14 @@ const TargetMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
+      width: 100,
     },
     {
       title: "Mapping Status",
       dataIndex: "mappingStatus",
       key: "mappingStatus",
       render: () => <Tag color="red">Pending</Tag>,
+      width: 100,
     },
   ];
 
@@ -434,23 +471,30 @@ const TargetMapping = ({
   };
 
   const handleConfigDelete = (configUID: string) => {
-    setLoading(true);
+    setLoadingMappingConfig(true);
     deleteTargetsMappingConfig(formUID, configUID).then((res: any) => {
       if (res?.data?.success) {
         message.success("Mapping deleted successfully");
-        setLoading(true);
+        setLoadingMappingConfig(true);
         fetchTargetsMappingConfig(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
-          setLoading(false);
+          setLoadingMappingConfig(false);
         });
       } else {
         message.error("Failed to delete mapping");
       }
-      setLoading(false);
+      setLoadingMappingConfig(false);
     });
   };
 
@@ -544,27 +588,32 @@ const TargetMapping = ({
       mapping_config: mappingConfigPayload,
     };
 
-    setLoading(true);
+    setLoadingMappingConfig(true);
     updateTargetsMappingConfig(formUID, targetssMappingConfigPayload).then(
       (res: any) => {
         if (res?.data?.success || res?.data?.message === "Success") {
           message.success("Mapping updated successfully");
-          setLoading(true);
+          setLoadingMappingConfig(true);
           fetchTargetsMappingConfig(formUID).then((res: any) => {
             if (res?.data?.success) {
               setSelectedLocations({});
               setMappingConfig(res?.data?.data);
+              setLoadMappingConfigError("");
             } else {
-              message.error(
-                "Failed to fetch mapping config. Please refresh the page"
-              );
+              const error_message = res.response?.data?.errors?.mapping_errors
+                ? res.response?.data?.errors?.mapping_errors
+                : res.response?.data?.errors?.message
+                ? res.response?.data?.errors?.message
+                : "Failed to fetch mapping config";
+              message.error(error_message);
+              setLoadMappingConfigError(error_message);
             }
-            setLoading(false);
+            setLoadingMappingConfig(false);
           });
         } else {
           message.error("Failed to update mapping");
         }
-        setLoading(false);
+        setLoadingMappingConfig(false);
       }
     );
   };
@@ -582,19 +631,26 @@ const TargetMapping = ({
       return;
     }
 
-    setLoading(true);
+    setLoadingMappingData(true);
     updateTargetsMapping(formUID, mappingsPayload).then((res: any) => {
       if (res?.data?.success) {
         message.success("Target to Supervisor mapping updated successfully");
-        setLoading(true);
+        setLoadingMappingData(true);
         fetchTargetsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
+            setLoadMappingDataError("");
           } else {
-            message.error("Failed to fetch mapping");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping";
+            message.error(error_message);
+            setLoadMappingDataError(error_message);
           }
-          setLoading(false);
+          setLoadingMappingData(false);
         });
         setSelectedMappingValue(null);
         onDrawerClose();
@@ -605,44 +661,43 @@ const TargetMapping = ({
           message.error("Failed to update mapping");
         }
       }
-      setLoading(false);
+      setLoadingMappingData(false);
     });
   };
 
   const handleContinue = () => {
-    setLoading(true);
-    fetchTargetsMapping(formUID).then((res: any) => {
-      if (res?.data?.success) {
-        setMappingData(res?.data?.data);
-        populateMappingStats(res?.data?.data);
-        setIsConfigSetupPage(false);
-      } else {
-        message.error("Failed to fetch mapping");
-      }
-      setLoading(false);
-    });
+    navigate(
+      `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=2`
+    );
   };
 
   const resetMappingConfig = () => {
     // Reset the existing mapping config
-    setLoading(true);
+    setLoadingMappingConfig(true);
     resetTargetsMappingConfig(formUID).then((res: any) => {
       if (res?.data?.success) {
         message.success("Mapping reset successfully");
-        setLoading(true);
+        setLoadingMappingConfig(true);
         fetchTargetsMappingConfig(formUID).then((res: any) => {
           if (res?.data?.success) {
             // Reset the mapping config state
             setMappingConfig(res?.data?.data);
+            setLoadMappingConfigError("");
           } else {
-            message.error("Failed to fetch mapping config");
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping config";
+            message.error(error_message);
+            setLoadMappingConfigError(error_message);
           }
-          setLoading(false);
+          setLoadingMappingConfig(false);
         });
       } else {
         message.error("Failed to reset mapping");
       }
-      setLoading(false);
+      setLoadingMappingConfig(false);
     });
   };
 
@@ -652,6 +707,7 @@ const TargetMapping = ({
       dataIndex: "targetID",
       key: "targetID",
       sorter: (a: any, b: any) => a.targetID - b.targetID,
+      width: 100,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -668,6 +724,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLocationID === value,
+            width: 150,
           },
           {
             title: "Target Location",
@@ -685,6 +742,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLocation.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -704,6 +762,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetLanguage.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -723,6 +782,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.targetGender.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -745,6 +805,7 @@ const TargetMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorEmail?.indexOf(value) === 0,
+      width: 100,
     },
     {
       title: "Supervisor Name",
@@ -767,6 +828,7 @@ const TargetMapping = ({
       onFilter: (value: any, record: any) =>
         typeof value === "string" &&
         record.supervisorName?.indexOf(value) === 0,
+      width: 100,
     },
     ...(criteria.includes("Location") && !criteria.includes("Manual")
       ? [
@@ -790,6 +852,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLocation?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -814,6 +877,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorLanguage?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -838,6 +902,7 @@ const TargetMapping = ({
             })),
             onFilter: (value: any, record: any) =>
               record.supervisorGender?.indexOf(value) === 0,
+            width: 100,
           },
         ]
       : []),
@@ -1005,6 +1070,7 @@ const TargetMapping = ({
       }
     }
 
+    setSelectedMappingValue(selectedTargetRows[0].supervisorUID);
     showDrawer();
   };
 
@@ -1032,15 +1098,42 @@ const TargetMapping = ({
 
   useEffect(() => {
     if (formUID) {
-      setLoading(true);
+      setLoadingMappingConfig(true);
       fetchTargetsMappingConfig(formUID).then((res: any) => {
         if (res?.data?.success) {
           setMappingConfig(res?.data?.data);
+          setLoadMappingConfigError("");
         } else {
-          message.error("Failed to fetch mapping config");
+          const error_message = res.response?.data?.errors?.mapping_errors
+            ? res.response?.data?.errors?.mapping_errors
+            : res.response?.data?.errors?.message
+            ? res.response?.data?.errors?.message
+            : "Failed to fetch mapping config";
+          message.error(error_message);
+          setLoadMappingConfigError(error_message);
         }
-        setLoading(false);
+        setLoadingMappingConfig(false);
       });
+
+      if (pageNumber === 2) {
+        setLoadingMappingData(true);
+        fetchTargetsMapping(formUID).then((res: any) => {
+          if (res?.data?.success) {
+            setMappingData(res?.data?.data);
+            populateMappingStats(res?.data?.data);
+            setLoadMappingDataError("");
+          } else {
+            const error_message = res.response?.data?.errors?.mapping_errors
+              ? res.response?.data?.errors?.mapping_errors
+              : res.response?.data?.errors?.message
+              ? res.response?.data?.errors?.message
+              : "Failed to fetch mapping";
+            message.error(error_message);
+            setLoadMappingDataError(error_message);
+          }
+          setLoadingMappingData(false);
+        });
+      }
 
       if (criteria.includes("Location") || criteria.includes("Manual")) {
         fetchUserLocations(SurveyUID).then((res: any) => {
@@ -1079,7 +1172,9 @@ const TargetMapping = ({
         });
       }
     }
-  }, [formUID, SurveyUID, criteria]);
+  }, [formUID, SurveyUID, criteria, pageNumber]);
+
+  const loading = loadingMappingConfig || loadingMappingData || mappingLoading;
 
   if (loading) {
     return <FullScreenLoader />;
@@ -1087,151 +1182,264 @@ const TargetMapping = ({
 
   return (
     <>
-      {isConfigSetupPage ? (
-        <div>
-          <div style={{ display: "flex" }}>
-            <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
-            <Popconfirm
-              title="Delete"
-              description="Are you sure you want to delete all mapping config?"
-              onConfirm={resetMappingConfig}
-              okText="Delete"
-              cancelText="No"
+      {pageNumber === 1 ? (
+        <>
+          <HeaderContainer>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: (
+                    <>
+                      {mappingName === "surveyor"
+                        ? "Surveyors <> Supervisors"
+                        : "Targets <> Supervisors"}{" "}
+                      Mapping
+                    </>
+                  ),
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
+                },
+                {
+                  title: "Configuration",
+                },
+              ]}
+            />
+            <div
+              style={{
+                display: "flex",
+                marginLeft: "auto",
+              }}
             >
-              <ResetButton
-                style={{ marginLeft: "auto" }}
-                disabled={criteria.includes("Manual")}
+              <Popconfirm
+                title="Delete"
+                description="Are you sure you want to delete all mapping config?"
+                onConfirm={resetMappingConfig}
+                okText="Delete"
+                cancelText="No"
               >
-                Reset Mapping
-              </ResetButton>
-            </Popconfirm>
+                <ResetButton
+                  style={{ marginLeft: "auto", marginRight: 30 }}
+                  disabled={
+                    criteria.includes("Manual")
+                      ? true
+                      : loadMappingConfigError &&
+                        (mappingConfig?.length === 0 || !mappingConfig)
+                      ? true
+                      : false
+                  }
+                >
+                  Reset Mapping
+                </ResetButton>
+              </Popconfirm>
+            </div>
+          </HeaderContainer>
+          <div style={{ display: "flex" }}>
+            <SideMenu />
+            <MappingWrapper>
+              {loadMappingConfigError &&
+              (mappingConfig?.length === 0 || !mappingConfig) ? (
+                <MappingError
+                  mappingName="Target"
+                  error={loadMappingConfigError}
+                />
+              ) : (
+                <div>
+                  <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
+                  <MappingTable
+                    columns={mappedPairsColumns}
+                    dataSource={mappedPairsData}
+                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    pagination={false}
+                  />
+                  {unmappedTargets?.length > 0 && (
+                    <>
+                      <p style={{ marginTop: "36px", fontWeight: "bold" }}>
+                        There is no mapping available for below listed Target,
+                        please map them manually:
+                      </p>
+                      <MappingTable
+                        columns={unmappedColumns}
+                        dataSource={unmappedPairData}
+                        scroll={{
+                          x: "max-content",
+                          y: "calc(100vh - 380px)",
+                        }}
+                        pagination={false}
+                      />
+                    </>
+                  )}
+                  <div style={{ marginTop: "0px", marginBottom: "40px" }}>
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `/survey-information/mapping/target/${SurveyUID}`
+                        )
+                      }
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      style={{ marginLeft: "20px" }}
+                      onClick={handleContinue}
+                    >
+                      Continue
+                    </Button>
+                    <CustomBtn
+                      style={{ marginLeft: "20px" }}
+                      onClick={handleConfigSave}
+                      disabled={
+                        criteria.includes("Manual") ||
+                        !(unmappedPairData?.length > 0)
+                      }
+                    >
+                      Save
+                    </CustomBtn>
+                  </div>
+                </div>
+              )}
+            </MappingWrapper>
           </div>
-          <MappingTable
-            columns={mappedPairsColumns}
-            dataSource={mappedPairsData}
-            pagination={false}
-          />
-          {unmappedTargets?.length > 0 && (
-            <>
-              <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                There is no mapping available for below listed Target, please
-                map them manually:
-              </p>
-              <MappingTable
-                columns={unmappedColumns}
-                dataSource={unmappedPairData}
-                pagination={false}
-              />
-            </>
-          )}
-          <div style={{ marginTop: "0px", marginBottom: "40px" }}>
-            <Button
-              onClick={() =>
-                navigate(`/survey-information/mapping/target/${SurveyUID}`)
-              }
-            >
-              Cancel
-            </Button>
-            <Button style={{ marginLeft: "20px" }} onClick={handleContinue}>
-              Continue
-            </Button>
-            <CustomBtn
-              type="primary"
-              style={{ marginLeft: "20px" }}
-              onClick={handleConfigSave}
-              disabled={
-                criteria.includes("Manual") || !(unmappedPairData?.length > 0)
-              }
-            >
-              Save
-            </CustomBtn>
-          </div>
-        </div>
+        </>
       ) : (
-        <div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {selectedTargetRows.length > 0 ? (
-              <Button
-                type="primary"
-                style={{ marginLeft: "auto" }}
+        <>
+          <HeaderContainer>
+            <Breadcrumb
+              separator=">"
+              style={{ fontSize: "16px", color: "#000" }}
+              items={[
+                {
+                  title: (
+                    <>
+                      {mappingName === "surveyor"
+                        ? "Surveyors <> Supervisors"
+                        : "Targets <> Supervisors"}{" "}
+                      Mapping
+                    </>
+                  ),
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
+                },
+                {
+                  title: "Configuration",
+                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=1`,
+                },
+                {
+                  title: "Mapping Data",
+                },
+              ]}
+            />
+            {mappingStats !== null ? (
+              <MappingStats stats={mappingStats} />
+            ) : null}
+            <div
+              style={{
+                display: "flex",
+                marginLeft: "auto",
+              }}
+            >
+              <CustomBtn
+                style={{ marginLeft: "auto", marginRight: "30px" }}
                 onClick={handleOnEdit}
+                disabled={selectedTargetRows.length === 0}
               >
                 Edit
-              </Button>
-            ) : null}
-          </div>
-          <MappingTable
-            columns={targetsMappingColumns}
-            dataSource={mappingTableData}
-            rowSelection={rowSelection}
-            scroll={criteria.includes("Manual") ? { x: 1500 } : {}}
-            pagination={{
-              pageSize: tablePageSize,
-              pageSizeOptions: ["5", "10", "20", "50", "100"],
-              showSizeChanger: true,
-              onShowSizeChange: (current, size) => setTablePageSize(size),
-            }}
-          />
-          {selectedTargetRows.length > 0 && (
-            <Drawer
-              title="Edit Target to Supervisor Mapping"
-              onClose={onDrawerClose}
-              open={isEditingOpen}
-              width={480}
-            >
-              <Row>
-                <Col span={8}>
-                  {criteria.includes("Location") && <p>Target Location:</p>}
-                  {criteria.includes("Language") && <p>Target Language:</p>}
-                  {criteria.includes("Gender") && <p>Target Gender:</p>}
-                  {criteria.includes("Manual") && <p>Target count:</p>}
-                </Col>
-                <Col span={12}>
-                  {criteria.includes("Location") && (
-                    <p>{selectedTargetRows[0].targetLocation}</p>
-                  )}
-                  {criteria.includes("Language") && (
-                    <p>{selectedTargetRows[0].targetLanguage}</p>
-                  )}
-                  {criteria.includes("Gender") && (
-                    <p>{selectedTargetRows[0].targetGender}</p>
-                  )}
-                  {criteria.includes("Manual") && (
-                    <p>{selectedTargetRows.length}</p>
-                  )}
-                </Col>
-              </Row>
-              <Row>
-                <Col span={8}>
-                  <p>Supervisor:</p>
-                </Col>
-                <Col span={12}>
-                  <Select
-                    style={{ width: "100%" }}
-                    defaultValue={() => {
-                      selectedMappingValue(selectedTargetRows[0].supervisorUID);
-                      return selectedTargetRows[0].supervisorUID;
+              </CustomBtn>
+            </div>
+          </HeaderContainer>
+          <div style={{ display: "flex" }}>
+            <SideMenu />
+            <MappingWrapper>
+              {loadMappingDataError &&
+              (mappingData?.length === 0 || !mappingData) ? (
+                <MappingError
+                  mappingName="Target"
+                  error={loadMappingDataError}
+                />
+              ) : (
+                <div>
+                  <MappingTable
+                    columns={targetsMappingColumns}
+                    dataSource={mappingTableData}
+                    rowSelection={rowSelection}
+                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    pagination={{
+                      position: ["topRight"],
+                      pageSize: tablePageSize,
+                      pageSizeOptions: ["5", "10", "20", "50", "100"],
+                      showSizeChanger: true,
+                      onShowSizeChange: (current, size) =>
+                        setTablePageSize(size),
                     }}
-                    value={selectedMappingValue}
-                    onChange={(value) => setSelectedMappingValue(value)}
-                  >
-                    {getSupervisorOptionList()}
-                  </Select>
-                </Col>
-              </Row>
-              <div style={{ marginTop: 16 }}>
-                <Button onClick={onDrawerClose}>Cancel</Button>
-                <Button
-                  style={{ marginLeft: 16 }}
-                  type="primary"
-                  onClick={handleTargetMappingSave}
-                >
-                  Save
-                </Button>
-              </div>
-            </Drawer>
-          )}
-        </div>
+                  />
+                  {selectedTargetRows.length > 0 && (
+                    <Drawer
+                      title="Edit Target to Supervisor Mapping"
+                      onClose={onDrawerClose}
+                      open={isEditingOpen}
+                      width={480}
+                    >
+                      <Row>
+                        <Col span={8}>
+                          {criteria.includes("Location") && (
+                            <p>Target Location:</p>
+                          )}
+                          {criteria.includes("Language") && (
+                            <p>Target Language:</p>
+                          )}
+                          {criteria.includes("Gender") && <p>Target Gender:</p>}
+                          {criteria.includes("Manual") && <p>Target count:</p>}
+                        </Col>
+                        <Col span={12}>
+                          {criteria.includes("Location") && (
+                            <p>{selectedTargetRows[0].targetLocation}</p>
+                          )}
+                          {criteria.includes("Language") && (
+                            <p>{selectedTargetRows[0].targetLanguage}</p>
+                          )}
+                          {criteria.includes("Gender") && (
+                            <p>{selectedTargetRows[0].targetGender}</p>
+                          )}
+                          {criteria.includes("Manual") && (
+                            <p>{selectedTargetRows.length}</p>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={8}>
+                          <p>Supervisor:</p>
+                        </Col>
+                        <Col span={12}>
+                          <Select
+                            style={{ width: "100%" }}
+                            defaultValue={() => {
+                              selectedMappingValue(
+                                selectedTargetRows[0].supervisorUID
+                              );
+                              return selectedTargetRows[0].supervisorUID;
+                            }}
+                            value={selectedMappingValue}
+                            onChange={(value) => setSelectedMappingValue(value)}
+                          >
+                            {getSupervisorOptionList()}
+                          </Select>
+                        </Col>
+                      </Row>
+                      <div style={{ marginTop: 16 }}>
+                        <Button onClick={onDrawerClose}>Cancel</Button>
+                        <CustomBtn
+                          style={{ marginLeft: 16 }}
+                          onClick={handleTargetMappingSave}
+                        >
+                          Save
+                        </CustomBtn>
+                      </div>
+                    </Drawer>
+                  )}
+                </div>
+              )}
+            </MappingWrapper>
+          </div>
+        </>
       )}
     </>
   );
