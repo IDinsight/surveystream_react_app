@@ -10,8 +10,8 @@ export const MappingWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   padding-left: 80px;
-  padding-top: 23px;
-  padding-right: 80px;
+  padding-top: 10px;
+  padding-right: 70px;
   font-family: "Lato", sans-serif;
   width: 65%;
 `;

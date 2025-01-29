@@ -1363,6 +1363,7 @@ const TargetMapping = ({
                     rowSelection={rowSelection}
                     scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
                     pagination={{
+                      position: ["topRight"],
                       pageSize: tablePageSize,
                       pageSizeOptions: ["5", "10", "20", "50", "100"],
                       showSizeChanger: true,
