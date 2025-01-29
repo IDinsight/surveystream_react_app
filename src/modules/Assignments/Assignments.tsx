@@ -528,21 +528,29 @@ function Assignments() {
                           color: "#595959",
                         }}
                       >
-                        <p>
-                          Targets last uploaded on:{" "}
-                          {targetsLastUpdated && form?.tz_name
-                            ? formatDate(targetsLastUpdated, form.tz_name, true)
-                            : "NA"}
-                          <br />
-                          Form data last fetched on:{" "}
-                          {form?.last_ingested_at && form?.tz_name
-                            ? formatDate(
-                                form.last_ingested_at,
-                                form.tz_name,
-                                false
-                              )
-                            : "NA"}
-                        </p>
+                        {tabItemIndex === "targets" ? (
+                          <>
+                            Targets last uploaded on:{" "}
+                            {targetsLastUpdated && form?.tz_name
+                              ? formatDate(
+                                  targetsLastUpdated,
+                                  form.tz_name,
+                                  true
+                                )
+                              : "NA"}
+                          </>
+                        ) : (
+                          <>
+                            Form data last fetched on:{" "}
+                            {form?.last_ingested_at && form?.tz_name
+                              ? formatDate(
+                                  form.last_ingested_at,
+                                  form.tz_name,
+                                  false
+                                )
+                              : "NA"}
+                          </>
+                        )}
                       </div>
                     </div>
                   }
