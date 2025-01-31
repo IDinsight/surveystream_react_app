@@ -11,6 +11,7 @@ import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
 import DQCheckGroup3 from "./DQCheckGroup3";
 import DQCheckGroup4 from "./DQCheckGroup4";
+import DQCheckGroup5 from "./DQCheckGroup5";
 
 function DQChecksEdit() {
   const navigate = useNavigate();
@@ -96,6 +97,13 @@ function DQChecksEdit() {
               )}
               {["GPS"].includes(checkName) && (
                 <DQCheckGroup4
+                  surveyUID={survey_uid || ""}
+                  formUID={form_uid || ""}
+                  typeID={type_id || ""}
+                />
+              )}
+              {["Logic"].includes(checkName) && (
+                <DQCheckGroup5
                   surveyUID={survey_uid || ""}
                   formUID={form_uid || ""}
                   typeID={type_id || ""}
