@@ -383,10 +383,9 @@ function SurveyLocationUpload() {
       </>
     );
   };
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const createNotification = async () => {
-    if (notifications.length > 0) {
-      for (const notification of notifications) {
+  const createNotification = async (notification_input: string[]) => {
+    if (notification_input.length > 0) {
+      for (const notification of notification_input) {
         try {
           const data = {
             action: notification,
@@ -481,8 +480,7 @@ function SurveyLocationUpload() {
           );
 
           // Create notification to inform user that locations have been reuploaded
-          setNotifications(["Locations reuploaded"]);
-          createNotification();
+          createNotification(["Locations reuploaded"]);
 
           await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
           setLoading(false);
