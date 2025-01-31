@@ -31,6 +31,7 @@ import EnumeratorsRemap from "../EnumeratorsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { use } from "chai";
+import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -55,14 +56,12 @@ function EnumeratorsHome() {
   const enumeratorList = useAppSelector(
     (state: RootState) => state.enumerators.enumeratorList
   );
-  const locationList = useAppSelector(
-    (state: RootState) => state.surveyLocations.surveyLocationsLong
-  );
   const surveys = useAppSelector((state: RootState) => state.surveys);
 
   const [activeEnums, setActiveEnums] = useState<number>(0);
   const [droppedEnums, setDroppedEnums] = useState<number>(0);
   const [inactiveEnums, setInactiveEnums] = useState<number>(0);
+  const [locations, setLocations] = useState<any>([]);
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
@@ -71,13 +70,29 @@ function EnumeratorsHome() {
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
+
   const fetchSurveyInfo = async () => {
+    // Fetch survey information to get prime_geo_level_uid
     const survey = await dispatch(getSurveyBasicInformation({ survey_uid }));
-    setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid);
+    if (survey.payload.prime_geo_level_uid !== undefined)
+      setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid);
+    else setPrimeGeoLevelUID(0);
   };
-  // make sure prime_geo_level_uid is available when the component mounts
+  const fetchLocationList = async () => {
+    // Fetch location list based on prime_geo_level_uid to pass to the RowEditingModal
+    if (PrimeGeoLevelUID) {
+      const locationsRequest = await dispatch(
+        getSurveyLocationsLong({
+          survey_uid: survey_uid || "",
+          geo_level_uid: PrimeGeoLevelUID,
+        })
+      );
+      setLocations(locationsRequest.payload);
+    }
+  };
 
   // Row selection state and handler
+
   const [selectedRows, setSelectedRows] = useState<any>([]);
 
   const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
@@ -135,6 +150,13 @@ function EnumeratorsHome() {
         };
       })
       .flat();
+    // Ensure location field is included
+    if (!fields.some((field: any) => field.labelKey === "location")) {
+      fields.push({
+        labelKey: "location",
+        label: "Location",
+      });
+    }
 
     setFieldData(fields);
   };
@@ -320,7 +342,6 @@ function EnumeratorsHome() {
 
       columnMappings = columnMappings.concat(customFields);
       setDataTableColumn(columnMappings);
-
       const tableDataSource = updatedData.map((item: any, index: any) => {
         const rowData: Record<string, any> = {}; // Use index signature
         for (const mapping of columnMappings) {
@@ -405,8 +426,9 @@ function EnumeratorsHome() {
       }
     };
     fetchSurveyInfo().then(() => {
-      // wait until primegoeleveluid is available
-      fetchData();
+      fetchLocationList().then(() => {
+        fetchData();
+      });
     });
   }, [form_uid, screenMode, PrimeGeoLevelUID]);
 
@@ -510,7 +532,9 @@ function EnumeratorsHome() {
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
                     editMode={editMode}
-                    locationList={locationList}
+                    primeGeoLevelUid={PrimeGeoLevelUID}
+                    survey_uid={survey_uid}
+                    locations={locations}
                   />
                 ) : null}
               </EnumeratorsHomeFormWrapper>

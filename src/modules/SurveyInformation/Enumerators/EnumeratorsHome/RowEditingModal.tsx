@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, message } from "antd";
+import { Button, Drawer, Form, Input, message, Select } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -17,7 +17,9 @@ interface IRowEditingModal {
   onCancel: () => void;
   onUpdate: () => void;
   editMode: boolean;
-  locationList: any;
+  primeGeoLevelUid: any;
+  survey_uid: any;
+  locations: [];
 }
 
 interface Field {
@@ -40,7 +42,9 @@ function RowEditingModal({
   onCancel,
   onUpdate,
   editMode,
-  locationList,
+  primeGeoLevelUid,
+  survey_uid,
+  locations,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -67,7 +71,6 @@ function RowEditingModal({
     // Write code here for any cleanup
     onCancel();
   };
-  //  for locations editing, I would like this to be from a dropdown which contains all values of the same geo_level
 
   const updateHandler = async () => {
     //validate form
@@ -152,7 +155,6 @@ function RowEditingModal({
       }
 
       const enumeratorData = { ...originalData[0] };
-      console.log("enumeratorData", enumeratorData);
       const updateRes = await dispatch(
         updateEnumerator({ enumeratorUID, enumeratorData })
       );
@@ -231,7 +233,6 @@ function RowEditingModal({
           !bulkFieldsToExclude.includes(field.labelKey) &&
           !fieldsToExclude.includes(field.labelKey)
       );
-      console.log("filteredFields", filteredFields);
       //include if a field is contracting
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
@@ -243,7 +244,6 @@ function RowEditingModal({
     setUpdatedFields(filteredFields);
 
     const initialData: DataItem = [];
-
     filteredFields.forEach((field: Field) => {
       if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] = data[0]["custom_fields"][field.labelKey];
@@ -315,10 +315,27 @@ function RowEditingModal({
                     },
                   ]}
                 >
-                  <Input
-                    placeholder={`Enter ${field.labelKey}`}
-                    style={{ width: "100%" }}
-                  />
+                  {field.labelKey === `location` ? (
+                    <Select
+                      placeholder={data[0][field.labelKey]}
+                      style={{ width: "100%" }}
+                      defaultValue={data[0][field.labelKey]}
+                    >
+                      {locations.map((location: any) => (
+                        <Select.Option
+                          key={location.location_id}
+                          value={location.location_name}
+                        >
+                          {location.location_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder={`Enter ${field.labelKey}`}
+                      style={{ width: "100%" }}
+                    />
+                  )}
                 </Form.Item>
               ))}
             </Form>
