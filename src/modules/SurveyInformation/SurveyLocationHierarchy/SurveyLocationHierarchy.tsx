@@ -100,6 +100,7 @@ function SurveyLocationHierarchy() {
             action: notification,
             survey_uid: survey_uid,
           };
+          await dispatch(createNotificationViaAction(data));
         } catch (error) {
           console.error("Failed to create notification:", error);
         }
