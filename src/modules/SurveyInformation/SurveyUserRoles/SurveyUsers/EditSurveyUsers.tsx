@@ -34,6 +34,7 @@ import {
 } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -194,12 +195,22 @@ function EditSurveyUsers() {
           );
         }
         message.success("User updated successfully");
+
         navigate(`/survey-information/survey-users/users/${survey_uid}`);
       } else {
         message.error("Failed to update user kindly check");
       }
     });
-
+    if (lowestRole) {
+      console.log("resolveSurveyNotification");
+      dispatch(
+        resolveSurveyNotification({
+          survey_uid: survey_uid,
+          module_id: 4,
+          resolution_status: "done",
+        })
+      );
+    }
     setLoading(false);
   };
 

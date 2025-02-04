@@ -37,6 +37,7 @@ import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
+import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 
 const { Option } = Select;
 
@@ -1160,6 +1161,14 @@ const SurveyorMapping = ({
           setLoadMappingConfigError(error_message);
         }
         setLoadingMappingConfig(false);
+        // Resolve existing mapping notifications
+        dispatch(
+          resolveSurveyNotification({
+            survey_uid: SurveyUID,
+            module_id: 17,
+            resolution_status: "done",
+          })
+        );
       });
 
       if (pageNumber === 2) {

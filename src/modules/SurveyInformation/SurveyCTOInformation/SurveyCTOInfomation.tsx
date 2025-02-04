@@ -3,12 +3,8 @@ import { Form, Row, Col, Input, Select, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
+import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+
 import SideMenu from "../SideMenu";
 import {
   CheckboxSCTO,
@@ -30,8 +26,8 @@ import {
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import HandleBackButton from "../../../components/HandleBackButton";
 import Container from "../../../components/Layout/Container";
+import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -54,6 +50,8 @@ function SurveyCTOInfomation() {
   const timezones = useAppSelector(
     (state: RootState) => state.surveyCTOInformation.timezones
   );
+  const [initialSurveyCTOForm, setInitialSurveyCTOForm] =
+    useState<SurveyCTOForm | null>(null);
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const formValues: SurveyCTOForm = {
@@ -67,6 +65,15 @@ function SurveyCTOInfomation() {
     };
 
     setFormData(formValues); // Update form data
+  };
+
+  const checkIfFormChanged = () => {
+    if (initialSurveyCTOForm === null) {
+      return;
+    }
+    if (initialSurveyCTOForm.scto_form_id !== formData?.scto_form_id) {
+      createNotification(survey_uid, ["Form ID changed"]);
+    }
   };
 
   const handleContinue = async () => {
@@ -115,6 +122,7 @@ function SurveyCTOInfomation() {
               : formRes.payload?.data?.survey?.form_uid
           }`
         );
+        checkIfFormChanged();
       } else {
         message.error(formRes.payload.message);
       }
@@ -130,6 +138,24 @@ function SurveyCTOInfomation() {
   };
   const fetchTimezones = async () => {
     await dispatch(getTimezones());
+  };
+  const createNotification = async (
+    survey_uid: any,
+    notifications: string[]
+  ) => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
   };
 
   const fecthSurveyCTOForm = async () => {
@@ -156,6 +182,7 @@ function SurveyCTOInfomation() {
       };
       form.setFieldsValue(formFieldData);
       setFormData(formFieldData);
+      setInitialSurveyCTOForm(formFieldData);
     }
 
     setLoading(false);
