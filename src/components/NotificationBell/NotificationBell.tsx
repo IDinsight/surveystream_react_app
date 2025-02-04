@@ -137,7 +137,11 @@ const NotificationBell = ({ notifications }: INotificationBellProps) => {
 
   return (
     <Dropdown overlay={notificationList} trigger={["click"]}>
-      <Badge dot={notifications?.length > 0}>
+      <Badge
+        dot={notifications?.some(
+          (notification) => notification.resolution_status !== "done"
+        )}
+      >
         <BellOutlined style={{ fontSize: "24px", cursor: "pointer" }} />
       </Badge>
     </Dropdown>

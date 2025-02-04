@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GeoLevel, SurveyLocationLong } from "./types";
-import { updateLocation } from "./apiService";
 
 interface SurveyLocationsState {
   loading: boolean;
