@@ -143,7 +143,7 @@ function SurveyState({
                 : state === "Past"
                 ? "Click here to move the survey to draft state. This action is allowed only after updating the survey end date to a future date."
                 : ""
-              : null
+              : "You do not have permission to change the state of this survey."
           }
           overlayInnerStyle={{ fontSize: "13px" }}
         >
@@ -173,7 +173,7 @@ function SurveyState({
                   true
                 );
               } else {
-                e.currentTarget.style.cursor = "default";
+                e.currentTarget.style.cursor = "not-allowed";
               }
             }}
             onMouseLeave={(e) => {
@@ -202,7 +202,7 @@ function SurveyState({
                 if (can_edit) {
                   e.currentTarget.style.cursor = "pointer";
                 } else {
-                  e.currentTarget.style.cursor = "default";
+                  e.currentTarget.style.cursor = "not-allowed";
                 }
               }}
               onMouseLeave={(e) => {
