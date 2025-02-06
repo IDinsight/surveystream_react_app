@@ -14,6 +14,7 @@ interface ISurveyStateProps {
   survey_name: string;
   state?: string;
   error: boolean;
+  can_edit: boolean;
 }
 
 function SurveyState({
@@ -21,6 +22,7 @@ function SurveyState({
   survey_name,
   state,
   error,
+  can_edit,
 }: ISurveyStateProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -133,13 +135,15 @@ function SurveyState({
         <Tooltip
           placement="bottom"
           title={
-            state === "Active"
-              ? "Click here to move the survey to draft state."
-              : state === "Draft"
-              ? "Click here to move the survey to active state. This action is allowed only after completing the survey configuration."
-              : state === "Past"
-              ? "Click here to move the survey to draft state. This action is allowed only after updating the survey end date to a future date."
-              : ""
+            can_edit
+              ? state === "Active"
+                ? "Click here to move the survey to draft state."
+                : state === "Draft"
+                ? "Click here to move the survey to active state. This action is allowed only after completing the survey configuration."
+                : state === "Past"
+                ? "Click here to move the survey to draft state. This action is allowed only after updating the survey end date to a future date."
+                : ""
+              : null
           }
           overlayInnerStyle={{ fontSize: "13px" }}
         >
@@ -157,13 +161,20 @@ function SurveyState({
               color: getBorderAndFontColor(state, false),
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = getbgColor(state, true);
-              e.currentTarget.style.cursor = "pointer";
-              e.currentTarget.style.boxShadow =
-                "0px 4px 8px rgba(0, 0, 0, 0.1)";
-              e.currentTarget.style.border =
-                "1px solid " + getBorderAndFontColor(state, true);
-              e.currentTarget.style.color = getBorderAndFontColor(state, true);
+              if (can_edit) {
+                e.currentTarget.style.backgroundColor = getbgColor(state, true);
+                e.currentTarget.style.cursor = "pointer";
+                e.currentTarget.style.boxShadow =
+                  "0px 4px 8px rgba(0, 0, 0, 0.1)";
+                e.currentTarget.style.border =
+                  "1px solid " + getBorderAndFontColor(state, true);
+                e.currentTarget.style.color = getBorderAndFontColor(
+                  state,
+                  true
+                );
+              } else {
+                e.currentTarget.style.cursor = "default";
+              }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = getbgColor(state, false);
@@ -174,7 +185,9 @@ function SurveyState({
               e.currentTarget.style.color = getBorderAndFontColor(state, false);
             }}
             onClick={() => {
-              handleChangeState();
+              {
+                can_edit ? handleChangeState() : null;
+              }
             }}
           >
             <p
@@ -186,7 +199,11 @@ function SurveyState({
                 fontWeight: 500,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.cursor = "pointer";
+                if (can_edit) {
+                  e.currentTarget.style.cursor = "pointer";
+                } else {
+                  e.currentTarget.style.cursor = "default";
+                }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.cursor = "default";

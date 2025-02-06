@@ -498,6 +498,7 @@ const SurveyConfiguration: React.FC = () => {
             );
           })()}
           error={errorModules.length > 0}
+          can_edit={isAdmin(userProfile, survey_uid)}
         />
       </NavWrapper>
       {isLoading ? (
