@@ -184,11 +184,7 @@ function SurveyState({
                 "1px solid " + getBorderAndFontColor(state, false);
               e.currentTarget.style.color = getBorderAndFontColor(state, false);
             }}
-            onClick={() => {
-              {
-                can_edit ? handleChangeState() : null;
-              }
-            }}
+            {...(can_edit ? { onClick: handleChangeState } : {})}
           >
             <p
               style={{
