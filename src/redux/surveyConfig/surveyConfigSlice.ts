@@ -7,7 +7,7 @@ interface SurveyConfigState {
   basicInfo: any;
   moduleQuestionnaire: any;
   completionStats: any;
-  errorModules: any;
+  surveyModules: any;
   surveyConfigs:
     | {
         [key: string]: any;
@@ -22,7 +22,7 @@ const initialState: SurveyConfigState = {
   surveyConfigs: surveyConfigs,
   completionStats: completionStats,
   moduleQuestionnaire: null,
-  errorModules: null,
+  surveyModules: null,
 };
 
 const surveyConfigSlice = createSlice({
@@ -147,18 +147,18 @@ const surveyConfigSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    fetchSurveyErrorModulesRequest: (state) => {
+    fetchSurveyModulesRequest: (state) => {
       state.loading = true;
       state.error = null;
     },
-    fetchSurveyErrorModulesSuccess: (state, action: PayloadAction<any>) => {
+    fetchSurveyModulesSuccess: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.errorModules = action.payload;
+      state.surveyModules = action.payload;
       state.error = null;
     },
-    fetchSurveyErrorModulesFailure: (state, action: PayloadAction<any>) => {
+    fetchSurveyModulesFailure: (state, action: PayloadAction<any>) => {
       state.loading = false;
-      state.errorModules = null;
+      state.surveyModules = null;
       state.error = action.payload;
     },
   },
@@ -188,9 +188,9 @@ export const {
   putSurveyStateRequest,
   putSurveyStateSuccess,
   putSurveyStateFailure,
-  fetchSurveyErrorModulesRequest,
-  fetchSurveyErrorModulesSuccess,
-  fetchSurveyErrorModulesFailure,
+  fetchSurveyModulesRequest,
+  fetchSurveyModulesSuccess,
+  fetchSurveyModulesFailure,
 } = surveyConfigSlice.actions;
 
 export default surveyConfigSlice.reducer;

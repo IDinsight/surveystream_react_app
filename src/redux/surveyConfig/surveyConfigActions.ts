@@ -23,9 +23,9 @@ import {
   putSurveyStateRequest,
   putSurveyStateSuccess,
   putSurveyStateFailure,
-  fetchSurveyErrorModulesRequest,
-  fetchSurveyErrorModulesSuccess,
-  fetchSurveyErrorModulesFailure,
+  fetchSurveyModulesRequest,
+  fetchSurveyModulesSuccess,
+  fetchSurveyModulesFailure,
 } from "./surveyConfigSlice";
 import {
   SurveyBasicInformationData,
@@ -376,33 +376,33 @@ export const putSurveyState = createAsyncThunk(
   }
 );
 
-export const getSurveyErrorModules = createAsyncThunk(
-  "surveyConfig/getSurveyErrorModules",
+export const getSurveyModules = createAsyncThunk(
+  "surveyConfig/getSurveyModules",
   async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(fetchSurveyErrorModulesRequest());
-      const errorModules: any = await api.fetchSurveyErrorModules(
+      dispatch(fetchSurveyModulesRequest());
+      const surveyModules: any = await api.fetchSurveyModules(
         params.survey_uid
       );
-      if (errorModules.status == 200) {
-        dispatch(fetchSurveyErrorModulesSuccess(errorModules.data));
-        return errorModules.data;
+      if (surveyModules.status == 200) {
+        dispatch(fetchSurveyModulesSuccess(surveyModules.data));
+        return surveyModules.data;
       }
 
       const error = {
-        message: errorModules.message
-          ? errorModules.message
-          : "Failed to fetch survey error modules.",
-        code: errorModules.response?.status
-          ? errorModules.response?.status
-          : errorModules.code,
+        message: surveyModules.message
+          ? surveyModules.message
+          : "Failed to fetch survey modules.",
+        code: surveyModules.response?.status
+          ? surveyModules.response?.status
+          : surveyModules.code,
         success: false,
       };
-      dispatch(fetchSurveyErrorModulesFailure(error));
+      dispatch(fetchSurveyModulesFailure(error));
       return error;
     } catch (error) {
-      const errorMessage = error || "Failed to fetch survey error modules.";
-      dispatch(fetchSurveyErrorModulesFailure(errorMessage as string));
+      const errorMessage = error || "Failed to fetch survey modules.";
+      dispatch(fetchSurveyModulesFailure(errorMessage as string));
       return rejectWithValue(errorMessage);
     }
   }
@@ -415,5 +415,5 @@ export const surveyConfigActions = {
   getSurveyBasicInformation,
   getSurveyModuleQuestionnaire,
   updateSurveyModuleQuestionnaire,
-  getSurveyErrorModules,
+  getSurveyModules,
 };

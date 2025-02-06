@@ -90,6 +90,10 @@ function AddSurveyUsers() {
     (state: RootState) => state.userManagement.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const updateUserHierarchy = async (
     userUid: any,
     surveyUid: any,
@@ -429,7 +433,7 @@ function AddSurveyUsers() {
       <HeaderContainer>
         <Title>Survey Users - Add new user</Title>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

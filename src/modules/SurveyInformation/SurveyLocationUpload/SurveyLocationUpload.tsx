@@ -92,6 +92,10 @@ function SurveyLocationUpload() {
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [addLocationsModal, setAddLocationsModal] = useState(false);
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
 
@@ -564,7 +568,7 @@ function SurveyLocationUpload() {
           ) : null}
         </div>
       </HeaderContainer>
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

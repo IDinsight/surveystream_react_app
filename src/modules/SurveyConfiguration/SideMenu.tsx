@@ -1,5 +1,4 @@
 import { Progress, Tooltip, List } from "antd";
-import { green, red } from "@ant-design/colors";
 import {
   HelpCard,
   StepCard,

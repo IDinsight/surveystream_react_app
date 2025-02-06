@@ -51,6 +51,10 @@ function TargetsHome() {
   const dispatch = useAppDispatch();
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
@@ -590,7 +594,7 @@ function TargetsHome() {
           </div>
         </div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

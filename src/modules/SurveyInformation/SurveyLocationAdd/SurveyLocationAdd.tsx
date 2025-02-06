@@ -47,6 +47,10 @@ function SurveyLocationAdd() {
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [numLocationFields, setNumLocationFields] = useState(
     surveyLocationGeoLevels.length !== 0 ? surveyLocationGeoLevels.length : 1
   );
@@ -351,7 +355,7 @@ function SurveyLocationAdd() {
           )}
         </div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

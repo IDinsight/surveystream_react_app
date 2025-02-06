@@ -52,7 +52,6 @@ import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 import SurveyState from "../../components/SurveyState";
-import { set } from "lodash";
 
 interface CheckboxProps {
   checked: boolean;

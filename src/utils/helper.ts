@@ -1,5 +1,5 @@
 import { getSurveyCTOForms } from "../redux/surveyCTOInformation/apiService";
-import { getSurveyErrorModules } from "../redux/surveyConfig/surveyConfigActions";
+import { getSurveyModules } from "../redux/surveyConfig/surveyConfigActions";
 
 /**
  * Return the day with month
@@ -87,7 +87,6 @@ export const userHasPermission = (
           role.permission_names.includes(
             `READ ${permissions.slice(1).join(" ")}`
           );
-
         if (permissions.includes("READ")) {
           return hasReadPermission || hasWritePermission;
         } else {
@@ -196,11 +195,16 @@ export const getErrorModules = async (survey_uid: string, dispatch: any) => {
   if (survey_uid === "" || survey_uid === null) {
     return [];
   }
-  const errorModules = await dispatch(
-    getSurveyErrorModules({ survey_uid })
+  const surveyModules = await dispatch(
+    getSurveyModules({ survey_uid })
   ).unwrap();
-  if (errorModules.success) {
-    const errorModulesData = errorModules.data;
+
+  if (surveyModules.success) {
+    const errorModulesData = [
+      ...surveyModules.data
+        .filter((module: any) => module.error === true)
+        .map((module: any) => module.name),
+    ];
     return errorModulesData;
   }
   return [];

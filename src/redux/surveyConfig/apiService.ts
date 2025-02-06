@@ -165,12 +165,12 @@ export const updateSurveyState = async (survey_uid: string, state: string) => {
   }
 };
 
-export const fetchSurveyErrorModules = async (survey_uid?: string) => {
+export const fetchSurveyModules = async (survey_uid?: string) => {
   try {
     await getCSRFToken();
     const csrfToken = await getCookie("CSRF-TOKEN");
 
-    const url = `${API_BASE_URL}/surveys/${survey_uid}/error-modules`;
+    const url = `${API_BASE_URL}/surveys/${survey_uid}/modules`;
 
     const response = await axios.get(url, {
       headers: {
@@ -193,5 +193,5 @@ export const api = {
   fetchSurveyModuleQuestionnaire,
   postSurveyModuleQuestionnaire,
   updateSurveyState,
-  fetchSurveyErrorModules,
+  fetchSurveyModules,
 };

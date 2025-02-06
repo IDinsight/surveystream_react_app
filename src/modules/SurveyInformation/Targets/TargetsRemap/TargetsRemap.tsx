@@ -85,6 +85,9 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -554,7 +557,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
             <CloseOutlined /> Cancel
           </Button>
         </div>
-        {isLoading || quesLoading || locLoading ? (
+        {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
           <FullScreenLoader />
         ) : (
           <div>

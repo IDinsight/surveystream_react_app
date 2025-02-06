@@ -79,6 +79,9 @@ function TargetsSctoMap() {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -692,7 +695,7 @@ function TargetsSctoMap() {
       </HeaderContainer>
       {targetLoading ? (
         <FullScreenLoader loadScreenText="Kindly wait while we fetch targets from surveycto" />
-      ) : isLoading || quesLoading || locLoading ? (
+      ) : isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

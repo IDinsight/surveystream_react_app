@@ -66,6 +66,10 @@ function SurveyLocationHierarchy() {
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
@@ -362,7 +366,7 @@ function SurveyLocationHierarchy() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
       </HeaderContainer>
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
