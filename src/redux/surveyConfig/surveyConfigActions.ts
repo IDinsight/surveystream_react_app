@@ -51,21 +51,30 @@ export const getSurveyConfig = createAsyncThunk(
         const transformedConfigs = Object.entries(surveyConfigsInit).reduce(
           (acc, [key, value]) => {
             if (Array.isArray(value)) {
-              const transformedModules = value.map((module) => {
-                const matchingModule = surveyConfig.data[key]?.find(
-                  (dataModule: { name: any }) => dataModule.name === module.name
-                );
+              const transformedModules = value
+                .filter((module) =>
+                  surveyConfig.data[key]?.find(
+                    (dataModule: { name: any }) =>
+                      dataModule.name === module.name
+                  )
+                )
+                .map((module) => {
+                  const matchingModule = surveyConfig.data[key]?.find(
+                    (dataModule: { name: any }) =>
+                      dataModule.name === module.name
+                  );
 
-                if (matchingModule) {
-                  return {
-                    ...module,
-                    status: matchingModule.status,
-                    optional: matchingModule.optional,
-                  };
-                } else {
-                  return module;
-                }
-              });
+                  if (matchingModule) {
+                    return {
+                      ...module,
+                      status: matchingModule.status,
+                      optional: matchingModule.optional,
+                    };
+                  } else {
+                    return module;
+                  }
+                });
+
               return { ...acc, [key]: transformedModules };
             } else {
               const matchingValue = surveyConfig.data[key];

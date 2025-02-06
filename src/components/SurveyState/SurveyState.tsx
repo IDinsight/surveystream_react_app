@@ -13,9 +13,15 @@ interface ISurveyStateProps {
   survey_uid: string;
   survey_name: string;
   state?: string;
+  error: boolean;
 }
 
-function SurveyState({ survey_uid, survey_name, state }: ISurveyStateProps) {
+function SurveyState({
+  survey_uid,
+  survey_name,
+  state,
+  error,
+}: ISurveyStateProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

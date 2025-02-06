@@ -46,6 +46,7 @@ import {
   ExclamationCircleOutlined,
   RiseOutlined,
   IssuesCloseOutlined,
+  PauseCircleOutlined,
 } from "@ant-design/icons";
 import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -159,6 +160,7 @@ const SurveyConfiguration: React.FC = () => {
       "In Progress - Incomplete": "orange",
       Error: "red",
       Live: "green",
+      Paused: "orange",
     };
     const color = colors[status];
     const icons: { [key: string]: any } = {
@@ -167,6 +169,7 @@ const SurveyConfiguration: React.FC = () => {
       "In Progress - Incomplete": IssuesCloseOutlined,
       Error: CloseCircleOutlined,
       Live: RiseOutlined,
+      Paused: PauseCircleOutlined,
     };
     const IconComponent = icons[status] || HourglassOutlined;
 
@@ -494,6 +497,7 @@ const SurveyConfiguration: React.FC = () => {
               ""
             );
           })()}
+          error={errorModules.length > 0}
         />
       </NavWrapper>
       {isLoading ? (
@@ -503,7 +507,11 @@ const SurveyConfiguration: React.FC = () => {
           {errorModules.length > 0 && (
             <>
               <Alert
-                message="Modules in Error"
+                message={`Modules in Error. ${
+                  activeSurvey?.state === "Active"
+                    ? "Survey will be paused until these errors are resolved."
+                    : ""
+                }`}
                 description={
                   <span style={{ fontSize: "14px", font: "Lato" }}>
                     The following modules are in error:

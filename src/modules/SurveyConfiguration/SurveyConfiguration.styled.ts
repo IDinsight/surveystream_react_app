@@ -88,6 +88,7 @@ export const MainWrapper = styled.div<{ windowHeight: number }>`
   background-color: #f5f5f5;
   overflow-y: auto;
   height: ${({ windowHeight }) => Math.min(windowHeight - HEADER_HEIGHT)}px;
+  passing-bottom: "10px";
 `;
 
 export const StyledCard = styled(Card)`
