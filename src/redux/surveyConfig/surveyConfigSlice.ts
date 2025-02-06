@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { surveyConfigs } from "./surveyConfigsInit";
+import { surveyConfigs, completionStats } from "./surveyConfigsInit";
 
 interface SurveyConfigState {
   loading: boolean;
   error: any;
   basicInfo: any;
   moduleQuestionnaire: any;
+  completionStats: any;
+  errorModules: any;
   surveyConfigs:
     | {
         [key: string]: any;
@@ -18,7 +20,9 @@ const initialState: SurveyConfigState = {
   error: null,
   basicInfo: null,
   surveyConfigs: surveyConfigs,
+  completionStats: completionStats,
   moduleQuestionnaire: null,
+  errorModules: null,
 };
 
 const surveyConfigSlice = createSlice({
@@ -35,10 +39,17 @@ const surveyConfigSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    fetchSurveysConfigSuccess: (state, action: PayloadAction<any>) => {
-      if (Object.keys(action.payload).length > 0) {
-        state.surveyConfigs = action.payload;
+    fetchSurveysConfigSuccess: (
+      state: SurveyConfigState,
+      action: PayloadAction<{
+        surveyConfigs: any;
+        completionStats: any;
+      }>
+    ) => {
+      if (Object.keys(action.payload.surveyConfigs).length > 0) {
+        state.surveyConfigs = action.payload.surveyConfigs;
       }
+      state.completionStats = action.payload.completionStats;
       state.loading = false;
       state.error = null;
     },
@@ -124,6 +135,32 @@ const surveyConfigSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    putSurveyStateRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    putSurveyStateSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = null;
+    },
+    putSurveyStateFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    fetchSurveyErrorModulesRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchSurveyErrorModulesSuccess: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.errorModules = action.payload;
+      state.error = null;
+    },
+    fetchSurveyErrorModulesFailure: (state, action: PayloadAction<any>) => {
+      state.loading = false;
+      state.errorModules = null;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -148,6 +185,12 @@ export const {
   postSurveyBasicInformationFailure,
   clearBasicInfo,
   clearModuleQuestionnaire,
+  putSurveyStateRequest,
+  putSurveyStateSuccess,
+  putSurveyStateFailure,
+  fetchSurveyErrorModulesRequest,
+  fetchSurveyErrorModulesSuccess,
+  fetchSurveyErrorModulesFailure,
 } = surveyConfigSlice.actions;
 
 export default surveyConfigSlice.reducer;

@@ -20,6 +20,12 @@ import {
   putSurveyModuleQuestionnaireFailure,
   putSurveyBasicInformationSuccess,
   putSurveyBasicInformationFailure,
+  putSurveyStateRequest,
+  putSurveyStateSuccess,
+  putSurveyStateFailure,
+  fetchSurveyErrorModulesRequest,
+  fetchSurveyErrorModulesSuccess,
+  fetchSurveyErrorModulesFailure,
 } from "./surveyConfigSlice";
 import {
   SurveyBasicInformationData,
@@ -38,6 +44,9 @@ export const getSurveyConfig = createAsyncThunk(
       if (surveyConfig.data && surveyConfig.success) {
         delete surveyConfig.data.overall_status;
 
+        const completionStats = surveyConfig.data.completion_stats;
+        delete surveyConfig.data.completionStats;
+
         // Filter and transform config
         const transformedConfigs = Object.entries(surveyConfigsInit).reduce(
           (acc, [key, value]) => {
@@ -51,6 +60,7 @@ export const getSurveyConfig = createAsyncThunk(
                   return {
                     ...module,
                     status: matchingModule.status,
+                    optional: matchingModule.optional,
                   };
                 } else {
                   return module;
@@ -63,7 +73,11 @@ export const getSurveyConfig = createAsyncThunk(
               if (matchingValue) {
                 return {
                   ...acc,
-                  [key]: { ...value, status: matchingValue.status },
+                  [key]: {
+                    ...value,
+                    status: matchingValue.status,
+                    optional: matchingValue.optional,
+                  },
                 };
               } else {
                 return { ...acc, [key]: value };
@@ -84,6 +98,9 @@ export const getSurveyConfig = createAsyncThunk(
           const moduleStatus = surveyConfig?.data["Module configuration"].map(
             (module: any) => module.status
           );
+          const moduleOptional = surveyConfig?.data["Module configuration"].map(
+            (module: any) => module.optional
+          );
 
           transformedModules = moduleDescriptions
             .filter((module) => moduleIds.includes(module.module_id))
@@ -93,14 +110,18 @@ export const getSurveyConfig = createAsyncThunk(
                 module_id: moduleIds[index],
                 name: module.title,
                 status: moduleStatus[index],
+                optional: moduleOptional[index],
               };
             });
         }
 
         dispatch(
           fetchSurveysConfigSuccess({
-            ...transformedConfigs,
-            "Module configuration": transformedModules,
+            surveyConfigs: {
+              ...transformedConfigs,
+              "Module configuration": transformedModules,
+            },
+            completionStats: completionStats,
           })
         );
         return {
@@ -317,6 +338,67 @@ export const postBasicInformation = createAsyncThunk(
   }
 );
 
+export const putSurveyState = createAsyncThunk(
+  "surveyConfig/updateSurveyState",
+  async ({ survey_uid, state }: any, { dispatch }) => {
+    try {
+      dispatch(putSurveyStateRequest());
+      const response = await api.updateSurveyState(survey_uid, state);
+
+      if (response.status == 200) {
+        dispatch(putSurveyStateSuccess(response.data));
+        return { ...response.data, success: true };
+      }
+
+      const error = {
+        message: response.response?.data?.error
+          ? response.response?.data?.error
+          : "Failed to update the survey state.",
+        code: response.response?.status
+          ? response.response?.status
+          : response.code,
+        success: false,
+      };
+      dispatch(putSurveyStateFailure(error));
+      return error;
+    } catch (error: any) {
+      return { success: false };
+    }
+  }
+);
+
+export const getSurveyErrorModules = createAsyncThunk(
+  "surveyConfig/getSurveyErrorModules",
+  async (params: { survey_uid?: string }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(fetchSurveyErrorModulesRequest());
+      const errorModules: any = await api.fetchSurveyErrorModules(
+        params.survey_uid
+      );
+      if (errorModules.status == 200) {
+        dispatch(fetchSurveyErrorModulesSuccess(errorModules.data));
+        return errorModules.data;
+      }
+
+      const error = {
+        message: errorModules.message
+          ? errorModules.message
+          : "Failed to fetch survey error modules.",
+        code: errorModules.response?.status
+          ? errorModules.response?.status
+          : errorModules.code,
+        success: false,
+      };
+      dispatch(fetchSurveyErrorModulesFailure(error));
+      return error;
+    } catch (error) {
+      const errorMessage = error || "Failed to fetch survey error modules.";
+      dispatch(fetchSurveyErrorModulesFailure(errorMessage as string));
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const surveyConfigActions = {
   getSurveyConfig,
   postBasicInformation,
@@ -324,4 +406,5 @@ export const surveyConfigActions = {
   getSurveyBasicInformation,
   getSurveyModuleQuestionnaire,
   updateSurveyModuleQuestionnaire,
+  getSurveyErrorModules,
 };

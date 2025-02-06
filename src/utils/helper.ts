@@ -1,5 +1,5 @@
 import { getSurveyCTOForms } from "../redux/surveyCTOInformation/apiService";
-import { getSurveyConfig } from "../redux/surveyConfig/surveyConfigActions";
+import { getSurveyErrorModules } from "../redux/surveyConfig/surveyConfigActions";
 
 /**
  * Return the day with month
@@ -196,21 +196,12 @@ export const getErrorModules = async (survey_uid: string, dispatch: any) => {
   if (survey_uid === "" || survey_uid === null) {
     return [];
   }
-  const surveyConfig = await dispatch(getSurveyConfig({ survey_uid })).unwrap();
-  if (surveyConfig.success) {
-    const surveyInformation = surveyConfig["Survey information"];
-    const moduleConfiguration = surveyConfig["Module configuration"];
-
-    const errorModules = [
-      ...surveyInformation
-        .filter((module: any) => module.status === "Error")
-        .map((module: any) => module.name),
-      ...moduleConfiguration
-        .filter((module: any) => module.status === "Error")
-        .map((module: any) => module.name),
-    ];
-
-    return errorModules;
+  const errorModules = await dispatch(
+    getSurveyErrorModules({ survey_uid })
+  ).unwrap();
+  if (errorModules.success) {
+    const errorModulesData = errorModules.data;
+    return errorModulesData;
   }
   return [];
 };

@@ -138,6 +138,53 @@ export const postSurveyBasicInformation = async (
     return err;
   }
 };
+
+export const updateSurveyState = async (survey_uid: string, state: string) => {
+  try {
+    await getCSRFToken();
+
+    const csrfToken = getCookie("CSRF-TOKEN");
+
+    const response = await axios.put(
+      `${API_BASE_URL}/surveys/${survey_uid}/state`,
+      {
+        survey_uid: survey_uid,
+        state: state,
+      },
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return response;
+  } catch (err: any) {
+    return err;
+  }
+};
+
+export const fetchSurveyErrorModules = async (survey_uid?: string) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const url = `${API_BASE_URL}/surveys/${survey_uid}/error-modules`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const api = {
   fetchSurveyBasicInformation,
   postSurveyBasicInformation,
@@ -145,4 +192,6 @@ export const api = {
   fetchSurveysConfig,
   fetchSurveyModuleQuestionnaire,
   postSurveyModuleQuestionnaire,
+  updateSurveyState,
+  fetchSurveyErrorModules,
 };

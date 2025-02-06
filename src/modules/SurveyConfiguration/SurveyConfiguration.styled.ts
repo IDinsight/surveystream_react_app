@@ -133,3 +133,10 @@ export const SectionTitle = styled.h3`
   line-height: 24px;
   color: #262626;
 `;
+
+export const ToolTipText = styled.p`
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+`;

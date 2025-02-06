@@ -20,9 +20,10 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { Result, Button, Tag, Alert, Col } from "antd";
+import { Result, Button, Tag, Alert, Col, message } from "antd";
 import {
   InfoCircleFilled,
+  InfoCircleOutlined,
   LayoutFilled,
   MobileOutlined,
   PushpinFilled,
@@ -43,10 +44,14 @@ import {
   CloseCircleOutlined,
   HourglassOutlined,
   ExclamationCircleOutlined,
+  RiseOutlined,
+  IssuesCloseOutlined,
 } from "@ant-design/icons";
 import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
+import SurveyState from "../../components/SurveyState";
+import { set } from "lodash";
 
 interface CheckboxProps {
   checked: boolean;
@@ -130,6 +135,10 @@ const SurveyConfiguration: React.FC = () => {
     (state: RootState) => state.surveyConfig.surveyConfigs
   );
 
+  const completionStats = useAppSelector(
+    (state: RootState) => state.surveyConfig.completionStats
+  );
+
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
   );
@@ -141,17 +150,23 @@ const SurveyConfiguration: React.FC = () => {
     );
   };
 
+  const [isSurveyLoading, setIsSurveyLoading] = useState<boolean>(true);
+
   const renderStatus = (status: string) => {
     const colors: { [key: string]: string } = {
       Done: "green",
-      "In Progress": "orange",
+      "In Progress": "yellow",
+      "In Progress - Incomplete": "orange",
       Error: "red",
+      Live: "green",
     };
     const color = colors[status];
     const icons: { [key: string]: any } = {
       Done: CheckCircleOutlined,
       "In Progress": SyncOutlined,
+      "In Progress - Incomplete": IssuesCloseOutlined,
       Error: CloseCircleOutlined,
+      Live: RiseOutlined,
     };
     const IconComponent = icons[status] || HourglassOutlined;
 
@@ -185,7 +200,9 @@ const SurveyConfiguration: React.FC = () => {
 
     switch (sectionTitle) {
       case "Basic information":
-        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+        return (
+          <InfoCircleOutlined style={{ color: "#391085", ...iconProps }} />
+        );
       case "Module selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
 
@@ -206,7 +223,7 @@ const SurveyConfiguration: React.FC = () => {
       case "Target status mapping":
         return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Assign targets to surveyors":
-        return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+        return <MailFilled style={{ color: "#cf1322", ...iconProps }} />;
       case "Emails":
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
       case "Assignments column configuration":
@@ -314,7 +331,7 @@ const SurveyConfiguration: React.FC = () => {
                     >
                       {renderModuleIcon(item.name)}
                     </div>
-                    {item.name}
+                    {item.name} {item.optional && "(Optional)"}
                     {renderStatus(item.status)}
                   </StyledCard>
                 </Link>
@@ -392,9 +409,19 @@ const SurveyConfiguration: React.FC = () => {
             (survey: any) => survey.survey_uid === parseInt(survey_uid)
           );
 
+          if (!surveyInfo) {
+            message.error("Survey not found");
+            navigate("/surveys");
+            return;
+          }
+
           // set the active survey
           dispatch(
-            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+            setActiveSurvey({
+              survey_uid,
+              survey_name: surveyInfo?.survey_name || "",
+              state: surveyInfo?.state || "",
+            })
           );
         }
       });
@@ -404,6 +431,7 @@ const SurveyConfiguration: React.FC = () => {
   useEffect(() => {
     const errors: { section: string; item: string }[] = [];
     const noErrors: { section: string; item: string }[] = [];
+
     Object.entries(surveyConfigs).forEach(([sectionTitle, sectionConfig]) => {
       if (Array.isArray(sectionConfig)) {
         sectionConfig.forEach((item: any) => {
@@ -448,6 +476,25 @@ const SurveyConfiguration: React.FC = () => {
             }`;
           })()}
         </Title>
+        <SurveyState
+          survey_uid={survey_uid || ""}
+          survey_name={(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
+              ""
+            );
+          })()}
+          state={(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.state ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.state) ||
+              ""
+            );
+          })()}
+        />
       </NavWrapper>
       {isLoading ? (
         <FullScreenLoader />
@@ -583,7 +630,11 @@ const SurveyConfiguration: React.FC = () => {
             </>
           )}
           <div style={{ display: "flex" }}>
-            <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
+            <SideMenu
+              surveyProgress={surveyConfigs}
+              completionStats={completionStats}
+              windowHeight={height}
+            />
             <MainWrapper windowHeight={height}>
               {Object.entries(surveyConfigs).map(
                 ([sectionTitle, sectionConfig], index) => (
