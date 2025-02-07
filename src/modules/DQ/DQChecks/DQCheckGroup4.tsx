@@ -270,29 +270,35 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     };
 
     if (data.dq_check_id) {
-      setLoading(true);
       putDQChecks(data.dq_check_id, formData).then((res: any) => {
         setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ Check updated successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to update DQ Check");
+          setLoading(true);
         }
       });
     } else {
       setLoading(true);
       postDQChecks(formUID, typeID, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ added successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to add DQ Check");
+          setLoading(false);
         }
       });
     }
@@ -310,26 +316,30 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     },
   };
 
+  const loadDQChecks = () => {
+    if (typeID) {
+      setLoading(true);
+      getDQChecks(formUID, typeID)
+        .then((res: any) => {
+          if (res?.data?.success) {
+            const checkAllData = res.data.data;
+
+            setDQCheckData(checkAllData);
+            setDataLoading(false);
+          } else {
+            setDQCheckData([]);
+            setDataLoading(false);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
+
   useEffect(() => {
     if (formUID) {
-      if (typeID) {
-        setLoading(true);
-        getDQChecks(formUID, typeID)
-          .then((res: any) => {
-            if (res?.data?.success) {
-              const checkAllData = res.data.data;
-
-              setDQCheckData(checkAllData);
-              setDataLoading(false);
-            } else {
-              setDQCheckData([]);
-              setDataLoading(false);
-            }
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      }
+      loadDQChecks();
     }
   }, [formUID, typeID]);
 

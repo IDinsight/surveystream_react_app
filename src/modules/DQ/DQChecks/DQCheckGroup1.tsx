@@ -420,27 +420,33 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (data.dq_check_id) {
       setLoading(true);
       putDQChecks(data.dq_check_id, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ Check updated successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to update DQ Check");
+          setLoading(false);
         }
       });
     } else {
       setLoading(true);
       postDQChecks(formUID, typeID, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ added successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to add DQ Check");
+          setLoading(false);
         }
       });
     }
@@ -465,6 +471,71 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     }
   }, [modeParam]);
 
+  const loadDQChecks = () => {
+    if (typeID) {
+      setLoading(true);
+      getDQChecks(formUID, typeID)
+        .then((res: any) => {
+          if (res?.data?.success) {
+            const checkAllData = res.data.data;
+
+            if (
+              checkAllData.length === 1 &&
+              checkAllData[0].all_questions === true
+            ) {
+              if (!modeParam && !mode) {
+                navigate(`?mode=all`);
+              }
+
+              // Mode is "all"
+              if (mode === "all") {
+                setIsActive(checkAllData[0].active);
+                setModuleName(checkAllData[0].module_name);
+                setFlagDescription(checkAllData[0].flag_description);
+                setCheckValues(checkAllData[0].check_components.value);
+                setFilterData(checkAllData[0].filters);
+                setDQCheckData([checkAllData[0]]);
+                setDataLoading(false);
+              } else if (modeParam === "selected") {
+                // Clear data for "selected" mode when all_questions is true
+                setDQCheckData([]);
+                setDataLoading(false);
+              }
+            } else {
+              if (!modeParam && !mode) {
+                navigate(`?mode=selected`);
+              }
+
+              // Mode is "selected"
+              if (mode === "selected") {
+                const selectedData = checkAllData.filter(
+                  (check: any) => !check.all_questions
+                );
+                setDQCheckData(selectedData);
+                setDataLoading(false);
+              } else if (modeParam === "all") {
+                // Fallback for "all" mode
+                setDQCheckData(
+                  checkAllData.filter((check: any) => check.all_questions)
+                );
+                setDataLoading(false);
+              }
+            }
+          } else {
+            // In case of no data from API, set the mode to "all"
+            const checkAllData = res?.response?.data?.data;
+            if (checkAllData === null && !modeParam) {
+              navigate(`?mode=all`);
+            }
+            setDataLoading(false);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
+
   useEffect(() => {
     if (formUID) {
       fetchModuleName(formUID).then((res: any) => {
@@ -475,68 +546,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         }
       });
 
-      if (typeID) {
-        setLoading(true);
-        getDQChecks(formUID, typeID)
-          .then((res: any) => {
-            if (res?.data?.success) {
-              const checkAllData = res.data.data;
-
-              if (
-                checkAllData.length === 1 &&
-                checkAllData[0].all_questions === true
-              ) {
-                if (!modeParam && !mode) {
-                  navigate(`?mode=all`);
-                }
-
-                // Mode is "all"
-                if (mode === "all") {
-                  setIsActive(checkAllData[0].active);
-                  setModuleName(checkAllData[0].module_name);
-                  setFlagDescription(checkAllData[0].flag_description);
-                  setCheckValues(checkAllData[0].check_components.value);
-                  setFilterData(checkAllData[0].filters);
-                  setDQCheckData([checkAllData[0]]);
-                  setDataLoading(false);
-                } else if (modeParam === "selected") {
-                  // Clear data for "selected" mode when all_questions is true
-                  setDQCheckData([]);
-                  setDataLoading(false);
-                }
-              } else {
-                if (!modeParam && !mode) {
-                  navigate(`?mode=selected`);
-                }
-
-                // Mode is "selected"
-                if (mode === "selected") {
-                  const selectedData = checkAllData.filter(
-                    (check: any) => !check.all_questions
-                  );
-                  setDQCheckData(selectedData);
-                  setDataLoading(false);
-                } else if (modeParam === "all") {
-                  // Fallback for "all" mode
-                  setDQCheckData(
-                    checkAllData.filter((check: any) => check.all_questions)
-                  );
-                  setDataLoading(false);
-                }
-              }
-            } else {
-              // In case of no data from API, set the mode to "all"
-              const checkAllData = res?.response?.data?.data;
-              if (checkAllData === null && !modeParam) {
-                navigate(`?mode=all`);
-              }
-              setDataLoading(false);
-            }
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      }
+      loadDQChecks();
     }
   }, [formUID, typeID, mode, modeParam]);
 
