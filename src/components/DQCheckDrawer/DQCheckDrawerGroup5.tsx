@@ -92,18 +92,37 @@ function DQCheckDrawer5({
     }
 
     if (assertion.length > 0) {
+      const variableNamesList = localData.other_variable_name.map(
+        (variable: any) => variable.alias
+      );
+      variableNamesList.push(localData.variable_name.alias);
+
       const isOtherVariableValid = assertion.every(
         (group: { assert_group: { assertion: string }[] }) => {
           return group.assert_group.every((variable: { assertion: string }) => {
             const validation = validateExpression(variable.assertion);
             if (!variable.assertion || !validation.valid) {
-              if (!variable.assertion) {
-                message.error("Please select all other variables");
-              } else {
-                message.error(validation.errors[0]);
-              }
+              message.error(
+                !variable.assertion
+                  ? "Please provide a valid assertion condition."
+                  : validation.errors[0]
+              );
               return false;
             }
+
+            const missingVariables = validation.variables.filter(
+              (varName) => !variableNamesList.includes(varName)
+            );
+
+            if (missingVariables.length > 0) {
+              message.error(
+                `The following variables's alias are undefined: ${missingVariables.join(
+                  ", "
+                )}`
+              );
+              return false;
+            }
+
             return true;
           });
         }
@@ -127,11 +146,11 @@ function DQCheckDrawer5({
       }
     }
 
-    onSave({
-      ...localData,
-      assertion: assertion,
-      filters: filter,
-    });
+    // onSave({
+    //   ...localData,
+    //   assertion: assertion,
+    //   filters: filter,
+    // });
   };
 
   const getNextAlias = () => {
@@ -206,7 +225,7 @@ function DQCheckDrawer5({
               required
             />
           </Col>
-          <Col span={12} style={{ display: "flex", alignItems: "center" }}>
+          <Col span={12} style={{ display: "flex" }}>
             <Select
               style={{ width: "80%" }}
               showSearch
@@ -238,7 +257,7 @@ function DQCheckDrawer5({
                 required
               />
             </Col>
-            <Col span={12} style={{ display: "flex", alignItems: "center" }}>
+            <Col span={12} style={{ display: "flex" }}>
               <Select
                 style={{ width: "80%" }}
                 showSearch

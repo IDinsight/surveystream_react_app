@@ -3,12 +3,14 @@ import jsep, { Expression } from "jsep";
 interface ValidationResult {
   valid: boolean;
   errors: string[];
+  variables: string[];
 }
 
 export function validateExpression(expr: string): ValidationResult {
   try {
     const ast: Expression = jsep(expr);
     const errors: string[] = [];
+    const variables: Set<string> = new Set();
 
     if (expr.includes("(") || expr.includes(")")) {
       errors.push(`Parentheses in expressions are not allowed: "${expr}".`);
@@ -26,6 +28,13 @@ export function validateExpression(expr: string): ValidationResult {
         errors.push(`Logical operators (AND/OR) are not allowed: ${expr}.`);
       }
 
+      if (node.type === "Identifier") {
+        if (typeof node.name === "string") {
+          variables.add(node.name);
+        }
+      }
+
+      if ((node as any).body) (node as any).body.forEach(traverse);
       if ((node as any).left) traverse((node as any).left);
       if ((node as any).right) traverse((node as any).right);
       if ((node as any).argument) traverse((node as any).argument);
@@ -36,11 +45,13 @@ export function validateExpression(expr: string): ValidationResult {
     return {
       valid: errors.length === 0,
       errors,
+      variables: Array.from(variables),
     };
   } catch (err) {
     return {
       valid: false,
       errors: [err instanceof Error ? err.message : "Unknown error"],
+      variables: [],
     };
   }
 }
