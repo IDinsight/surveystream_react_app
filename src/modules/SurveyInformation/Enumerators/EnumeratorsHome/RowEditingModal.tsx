@@ -17,9 +17,8 @@ interface IRowEditingModal {
   onCancel: () => void;
   onUpdate: () => void;
   editMode: boolean;
-  primeGeoLevelUid: any;
   survey_uid: any;
-  locations: [];
+  locations: any[];
 }
 
 interface Field {
@@ -42,7 +41,6 @@ function RowEditingModal({
   onCancel,
   onUpdate,
   editMode,
-  primeGeoLevelUid,
   survey_uid,
   locations,
 }: IRowEditingModal) {
@@ -176,7 +174,6 @@ function RowEditingModal({
     "custom_fields",
     "enumerator_uid",
     "monitor_locations",
-    "surveyor_locations",
     "monitor_status",
     "surveyor_status",
   ]; //always exclude these
@@ -219,21 +216,46 @@ function RowEditingModal({
   };
 
   const initializeFormData = async () => {
+    console.log("Starting initializeFormData with fields:", fields);
+
+    // Modify fieldsToExclude to not exclude location-related fields
+    const fieldsToExclude = [
+      "status",
+      "custom_fields",
+      "enumerator_uid",
+      "monitor_locations",
+      // Remove "surveyor_locations" from here since we need it for location
+      "surveyor_locations",
+      "monitor_status",
+      "surveyor_status",
+    ];
+
     //exclude the mandatory fields
     let filteredFields = fields.filter(
       (field: Field) => !fieldsToExclude.includes(field.labelKey)
     );
 
+    console.log("Filtered fields before bulk check:", filteredFields);
+
     if (form_uid && data.length > 1) {
-      //must wait for config before fields filtering
       await fetchEnumeratorsColumnConfig(form_uid);
-      //exclude bulk non editable as well as the personal fields
+
+      // Make sure location is in bulkFieldsToInclude
+      if (!bulkFieldsToInclude.includes("location")) {
+        setBulkFieldsToInclude([...bulkFieldsToInclude, "location"]);
+      }
+
+      // Remove location from bulkFieldsToExclude if it's there
+      setBulkFieldsToExclude(
+        bulkFieldsToExclude.filter((field) => field !== "location")
+      );
+
       filteredFields = fields.filter(
         (field: Field) =>
           !bulkFieldsToExclude.includes(field.labelKey) &&
           !fieldsToExclude.includes(field.labelKey)
       );
-      //include if a field is contracting
+
       const additionalFieldsToInclude = fields.filter((field: Field) =>
         bulkFieldsToInclude.includes(field.labelKey)
       );
@@ -241,6 +263,7 @@ function RowEditingModal({
       filteredFields = [...filteredFields, ...additionalFieldsToInclude];
     }
 
+    console.log("Final filtered fields:", filteredFields);
     setUpdatedFields(filteredFields);
 
     const initialData: DataItem = [];
@@ -268,6 +291,10 @@ function RowEditingModal({
       initializeFormData();
     }
   }, []);
+
+  useEffect(() => {
+    console.log("RowEditingModal received locations:", locations);
+  }, [locations]);
 
   return (
     <>
@@ -316,20 +343,32 @@ function RowEditingModal({
                   ]}
                 >
                   {field.labelKey === `location` ? (
-                    <Select
-                      placeholder={data[0][field.labelKey]}
-                      style={{ width: "100%" }}
-                      defaultValue={data[0][field.labelKey]}
-                    >
-                      {locations.map((location: any) => (
-                        <Select.Option
-                          key={location.location_id}
-                          value={location.location_name}
-                        >
-                          {location.location_name}
-                        </Select.Option>
-                      ))}
-                    </Select>
+                    (console.log("Rendering location dropdown with:", {
+                      locations,
+                      defaultValue: data[0][field.labelKey],
+                    }),
+                    (
+                      <Select
+                        placeholder={data[0][field.labelKey]}
+                        style={{ width: "100%" }}
+                        defaultValue={data[0][field.labelKey]}
+                      >
+                        {Array.isArray(locations) && locations.length > 0 ? (
+                          locations.map((location: any) => (
+                            <Select.Option
+                              key={location.location_id}
+                              value={location.location_name}
+                            >
+                              {location.location_name}
+                            </Select.Option>
+                          ))
+                        ) : (
+                          <Select.Option value={data[0][field.labelKey]}>
+                            {data[0][field.labelKey]}
+                          </Select.Option>
+                        )}
+                      </Select>
+                    ))
                   ) : (
                     <Input
                       placeholder={`Enter ${field.labelKey}`}

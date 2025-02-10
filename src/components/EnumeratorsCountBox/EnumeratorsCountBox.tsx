@@ -47,7 +47,7 @@ function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
               fontWeight: 500,
             }}
           >
-            Active Enumerators: {active}
+            {active} Active
           </p>
         </div>
       ) : null}
@@ -71,7 +71,7 @@ function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
               fontWeight: 500,
             }}
           >
-            Dropped Enumerators: {dropped}
+            {dropped} Dropped
           </p>
         </div>
       ) : null}
@@ -95,7 +95,7 @@ function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
               fontWeight: 500,
             }}
           >
-            Inactive Enumerators: {inactive}
+            {inactive} Inactive
           </p>
         </div>
       ) : null}
