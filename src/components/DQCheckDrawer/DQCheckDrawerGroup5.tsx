@@ -146,11 +146,11 @@ function DQCheckDrawer5({
       }
     }
 
-    // onSave({
-    //   ...localData,
-    //   assertion: assertion,
-    //   filters: filter,
-    // });
+    onSave({
+      ...localData,
+      assertion: assertion,
+      filters: filter,
+    });
   };
 
   const getNextAlias = () => {
@@ -273,11 +273,7 @@ function DQCheckDrawer5({
                 Alias: {variable.alias}
               </span>
             </Col>
-            <Button
-              type="link"
-              style={{ marginLeft: 16, marginTop: 16 }}
-              onClick={handleOtherVariableDelete(index)}
-            >
+            <Button type="link" onClick={handleOtherVariableDelete(index)}>
               <DeleteOutlined />
             </Button>
           </Row>
