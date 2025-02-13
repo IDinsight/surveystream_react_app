@@ -135,6 +135,7 @@ function DQCheckDrawer({
             <Form.Item
               label="Select variable"
               tooltip="Choose variable from SCTO question list"
+              required
             />
           </Col>
           <Col span={12}>
@@ -156,6 +157,7 @@ function DQCheckDrawer({
             <Form.Item
               label="Check values:"
               tooltip="Value that is considered for checks"
+              required
             />
           </Col>
           <Col span={12}>

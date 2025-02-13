@@ -146,6 +146,7 @@ function DQCheckDrawer4({
             <Form.Item
               label="Select type:"
               tooltip="Type of GPS check. Ex. Point to Point or Point to Shape"
+              required
             />
           </Col>
           <Col span={12}>
@@ -166,6 +167,7 @@ function DQCheckDrawer4({
             <Form.Item
               label="Select variable"
               tooltip="Choose variable from SCTO question list"
+              required
             />
           </Col>
           <Col span={12}>
@@ -188,6 +190,7 @@ function DQCheckDrawer4({
               <Form.Item
                 label="Expected GPS variable:"
                 tooltip="Value that is considered for checks"
+                required
               />
             </Col>
             <Col span={12}>
@@ -212,6 +215,7 @@ function DQCheckDrawer4({
               <Form.Item
                 label="Grid ID variable:"
                 tooltip="Value that is considered for checks"
+                required
               />
             </Col>
             <Col span={12}>
@@ -234,6 +238,7 @@ function DQCheckDrawer4({
             <Form.Item
               label="Threshold distance (m):"
               tooltip="Threshold to check value within"
+              required
             />
           </Col>
           <Col span={12}>

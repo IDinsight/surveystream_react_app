@@ -218,6 +218,7 @@ function DQCheckDrawerGroup3({
             <Form.Item
               label="Select data quality form:"
               tooltip="Form on which the check will run."
+              required
             />
           </Col>
           <Col span={12}>
@@ -244,6 +245,7 @@ function DQCheckDrawerGroup3({
                   ? "Select from the list of common questions in the parent and selected DQ form. Mismatch checks require the question name to be same in both forms."
                   : "Select from the list of questions in the selected DQ form."
               }`}
+              required
             />
           </Col>
           <Col span={12}>

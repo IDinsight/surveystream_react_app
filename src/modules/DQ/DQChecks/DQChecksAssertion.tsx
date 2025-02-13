@@ -1,6 +1,7 @@
 import { Col, Row, Tag, Input, Button } from "antd";
 import {
   DeleteFilled,
+  MinusSquareFilled,
   PlusCircleFilled,
   PlusSquareFilled,
 } from "@ant-design/icons";
@@ -160,7 +161,7 @@ function DQChecksAssertion({
             </Button>
             <Button
               type="link"
-              icon={<PlusSquareFilled />}
+              icon={<MinusSquareFilled />}
               onClick={() => handleRemoveAssertionGroup(groupIndex)}
               danger
             >
