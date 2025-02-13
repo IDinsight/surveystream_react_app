@@ -77,12 +77,20 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       dataIndex: "gridIDVariable",
       key: "gridIDVariable",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      render: (gridIDVariable: any, record: any) =>
+        gridIDVariable
+          ? gridIDVariable + (record.gridIDVariableIsRepeatGroup ? "_*" : "")
+          : "",
     },
     {
       title: "Expected GPS variable",
       dataIndex: "gpsVariable",
       key: "gpsVariable",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      render: (gpsVariable: any, record: any) =>
+        gpsVariable
+          ? gpsVariable + (record.gpsVariableIsRepeatGroup ? "_*" : "")
+          : "",
     },
     {
       title: "Threshold distance (m)",
@@ -119,13 +127,19 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     questionName: check.question_name,
     gpsType: check.check_components.gps_type,
     threshold: check.check_components.threshold,
-    gpsVariable: check.check_components.gps_variable,
-    gridIDVariable: check.check_components.grid_id,
+    gpsVariable: check.check_components.gps_variable?.question_name,
+    gpsVariableIsRepeatGroup:
+      check.check_components.gps_variable?.is_repeat_group,
+    gridIDVariable: check.check_components.grid_id?.question_name,
+    gridIDVariableIsRepeatGroup:
+      check.check_components.grid_id?.is_repeat_group,
     status: check.active ? "Active" : "Inactive",
     isDeleted:
       check.note === "Question not found in form definition" ||
       check.note === "Question not found in DQ form definition" ||
-      check.note === "Filter question not found in form definition",
+      check.note === "Filter question not found in form definition" ||
+      check.note === "GPS variable not found in form definition" ||
+      check.note === "Grid ID not found in form definition",
     isRepeatGroup: check.is_repeat_group,
   }));
 
