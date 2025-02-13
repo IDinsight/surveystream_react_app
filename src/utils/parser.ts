@@ -21,10 +21,13 @@ export function validateExpression(expr: string): ValidationResult {
     "!=",
   ]);
 
+  const COMPARISON_OPERATORS = new Set([">", ">=", "<", "<=", "==", "!="]);
+
   try {
     const ast: Expression = jsep(expr);
     const errors: string[] = [];
     const variables: Set<string> = new Set();
+    let hasComparison = false;
 
     if (expr.includes("(") || expr.includes(")")) {
       errors.push(`Parentheses in expressions are not allowed: "${expr}".`);
@@ -45,6 +48,10 @@ export function validateExpression(expr: string): ValidationResult {
             `Operator "${binaryNode.operator}" is not allowed: ${expr}.`
           );
         }
+
+        if (COMPARISON_OPERATORS.has(binaryNode.operator)) {
+          hasComparison = true;
+        }
       } else if (node.type === "Identifier") {
         if (typeof node.name === "string") {
           variables.add(node.name);
@@ -60,6 +67,12 @@ export function validateExpression(expr: string): ValidationResult {
     };
 
     traverse(ast);
+
+    if (!hasComparison) {
+      errors.push(
+        "Expression must contain at least one comparison operator (>, >=, <, <=, ==, !=)."
+      );
+    }
 
     return {
       valid: errors.length === 0,
