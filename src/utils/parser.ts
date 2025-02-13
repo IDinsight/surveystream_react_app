@@ -7,6 +7,20 @@ interface ValidationResult {
 }
 
 export function validateExpression(expr: string): ValidationResult {
+  const ALLOWED_OPERATORS = new Set([
+    "+",
+    "-",
+    "*",
+    "/",
+    "**",
+    ">",
+    ">=",
+    "<",
+    "<=",
+    "==",
+    "!=",
+  ]);
+
   try {
     const ast: Expression = jsep(expr);
     const errors: string[] = [];
@@ -21,23 +35,28 @@ export function validateExpression(expr: string): ValidationResult {
     }
 
     const traverse = (node: Expression): void => {
-      if (
-        node.type === "BinaryExpression" &&
-        ((node as any).operator === "||" || (node as any).operator === "&&")
-      ) {
-        errors.push(`Logical operators (AND/OR) are not allowed: ${expr}.`);
-      }
+      const binaryNode = node as any;
 
-      if (node.type === "Identifier") {
+      if (node.type === "BinaryExpression") {
+        if (binaryNode.operator === "||" || binaryNode.operator === "&&") {
+          errors.push(`Logical operators (AND/OR) are not allowed: ${expr}.`);
+        } else if (!ALLOWED_OPERATORS.has(binaryNode.operator)) {
+          errors.push(
+            `Operator "${binaryNode.operator}" is not allowed: ${expr}.`
+          );
+        }
+      } else if (node.type === "Identifier") {
         if (typeof node.name === "string") {
           variables.add(node.name);
         }
+      } else if (node.type === "Literal") {
+        return;
+      } else {
+        errors.push(`Invalid expression type: "${node.type}" is not allowed.`);
       }
 
-      if ((node as any).body) (node as any).body.forEach(traverse);
-      if ((node as any).left) traverse((node as any).left);
-      if ((node as any).right) traverse((node as any).right);
-      if ((node as any).argument) traverse((node as any).argument);
+      if (binaryNode.left) traverse(binaryNode.left);
+      if (binaryNode.right) traverse(binaryNode.right);
     };
 
     traverse(ast);

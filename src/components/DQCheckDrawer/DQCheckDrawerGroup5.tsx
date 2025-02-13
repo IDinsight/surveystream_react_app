@@ -198,6 +198,8 @@ function DQCheckDrawer5({
         is_active: true,
         module_name: "",
       });
+      setFilter([]);
+      setAssertion([]);
     }
   }, [data]);
 
