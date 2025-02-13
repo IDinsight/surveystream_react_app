@@ -214,13 +214,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     activateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check activated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to activate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -259,13 +262,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deactivateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to deactivate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -283,13 +289,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deleteDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Checks deleted", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to delete DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -511,14 +520,24 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkActive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Inactive"
+                      )
+                    }
                   >
                     Mark active
                   </CustomBtn>
                   <Button
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkInactive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Active"
+                      )
+                    }
                   >
                     Mark inactive
                   </Button>
