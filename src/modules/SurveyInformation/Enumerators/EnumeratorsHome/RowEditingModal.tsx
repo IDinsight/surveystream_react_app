@@ -116,6 +116,8 @@ function RowEditingModal({
             "Failed to updated enumerators, kindly check and try again"
           );
     } else {
+      console.log("Updating single enumerator");
+      console.log("Original data:", data);
       const enumeratorUID = originalData[0]["enumerator_uid"];
       //create a single update request
       // Find the index of the row to update in originalData
@@ -178,8 +180,23 @@ function RowEditingModal({
     "surveyor_status",
   ]; //always exclude these
 
+  const getFilteredFields = (
+    fields: Field[],
+    data: DataItem[],
+    bulkFieldsToExclude: string[]
+  ) => {
+    // If not bulk editing, return all fields
+    if (data.length <= 1) return fields;
+
+    // For bulk editing, exclude location and other excluded fields
+    return fields.filter((field) => {
+      if (bulkFieldsToExclude.includes(field.labelKey)) return false;
+      if (field.labelKey === "location") return false; // Always exclude location in bulk edit
+      return true;
+    });
+  };
+
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
-    //more than one record so editing in bulk
     const configRes = await dispatch(
       getEnumeratorsColumnConfig({ formUID: form_uid })
     );
@@ -191,109 +208,70 @@ function RowEditingModal({
           .filter((field: ConfigField) => field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        setBulkFieldsToInclude(editableFields);
-
         const nonEditableFields = configData
           .filter((field: ConfigField) => !field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        //remove fields not defined on the custom config
-        fields.forEach((field: Field) => {
-          if (
-            !editableFields.includes(field.labelKey) &&
-            !nonEditableFields.includes(field.labelKey)
-          ) {
-            bulkFieldsToExclude.push(field.labelKey);
+        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
+
+        // Filter fields and always exclude location in bulk edit
+        const filteredFields = fields.filter(
+          (field) =>
+            !excludeFields.includes(field.labelKey) &&
+            field.labelKey !== "location"
+        );
+
+        // Set up form with filtered fields
+        const initialData: DataItem = {};
+        filteredFields.forEach((field) => {
+          if (field?.label?.startsWith("custom_fields")) {
+            initialData[field.label] = data[0]["custom_fields"][field.labelKey];
+          } else {
+            initialData[field.labelKey] = data[0][field.labelKey];
           }
         });
 
-        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
-
-        setBulkFieldsToExclude(excludeFields);
+        setFormData(initialData);
+        setUpdatedFields(filteredFields);
+        editForm.setFieldsValue(initialData);
       }
     }
-    return;
   };
 
-  const initializeFormData = async () => {
-    console.log("Starting initializeFormData with fields:", fields);
+  const setupFormData = () => {
+    // For single edit, use all fields
+    if (data.length <= 1) {
+      const initialData: DataItem = {};
+      fields.forEach((field) => {
+        if (field?.label?.startsWith("custom_fields")) {
+          initialData[field.label] = data[0]["custom_fields"][field.labelKey];
+        } else {
+          initialData[field.labelKey] = data[0][field.labelKey];
+        }
+      });
 
-    // Modify fieldsToExclude to not exclude location-related fields
-    const fieldsToExclude = [
-      "status",
-      "custom_fields",
-      "enumerator_uid",
-      "monitor_locations",
-      // Remove "surveyor_locations" from here since we need it for location
-      "surveyor_locations",
-      "monitor_status",
-      "surveyor_status",
-    ];
-
-    //exclude the mandatory fields
-    let filteredFields = fields.filter(
-      (field: Field) => !fieldsToExclude.includes(field.labelKey)
-    );
-
-    console.log("Filtered fields before bulk check:", filteredFields);
-
-    if (form_uid && data.length > 1) {
-      await fetchEnumeratorsColumnConfig(form_uid);
-
-      // Make sure location is in bulkFieldsToInclude
-      if (!bulkFieldsToInclude.includes("location")) {
-        setBulkFieldsToInclude([...bulkFieldsToInclude, "location"]);
-      }
-
-      // Remove location from bulkFieldsToExclude if it's there
-      setBulkFieldsToExclude(
-        bulkFieldsToExclude.filter((field) => field !== "location")
-      );
-
-      filteredFields = fields.filter(
-        (field: Field) =>
-          !bulkFieldsToExclude.includes(field.labelKey) &&
-          !fieldsToExclude.includes(field.labelKey)
-      );
-
-      const additionalFieldsToInclude = fields.filter((field: Field) =>
-        bulkFieldsToInclude.includes(field.labelKey)
-      );
-
-      filteredFields = [...filteredFields, ...additionalFieldsToInclude];
+      setFormData(initialData);
+      setUpdatedFields(fields);
+      editForm.setFieldsValue(initialData);
+      return;
     }
 
-    console.log("Final filtered fields:", filteredFields);
-    setUpdatedFields(filteredFields);
-
-    const initialData: DataItem = [];
-    filteredFields.forEach((field: Field) => {
-      if (field?.label?.startsWith("custom_fields")) {
-        initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-
-        const label = field?.label;
-        const _field: any = {};
-        _field[label] = initialData[field.label];
-
-        editForm.setFieldsValue({ ..._field });
-      } else {
-        initialData[field.labelKey] = data[0][field.labelKey];
-      }
-    });
-
-    setFormData(initialData);
-    return;
+    // For bulk edit, wait for fetchEnumeratorsColumnConfig
+    if (form_uid) {
+      fetchEnumeratorsColumnConfig(form_uid);
+    }
   };
 
   useEffect(() => {
-    //handle bulk fields
-    if (formData.length == 0) {
-      initializeFormData();
+    setupFormData();
+    // Only fetch bulk config if needed
+    if (form_uid && data.length > 1) {
+      fetchEnumeratorsColumnConfig(form_uid);
     }
   }, []);
 
   useEffect(() => {
-    console.log("RowEditingModal received locations:", locations);
+    console.log("Locations received in modal:", locations);
   }, [locations]);
 
   return (
@@ -343,32 +321,26 @@ function RowEditingModal({
                   ]}
                 >
                   {field.labelKey === `location` ? (
-                    (console.log("Rendering location dropdown with:", {
-                      locations,
-                      defaultValue: data[0][field.labelKey],
-                    }),
-                    (
-                      <Select
-                        placeholder={data[0][field.labelKey]}
-                        style={{ width: "100%" }}
-                        defaultValue={data[0][field.labelKey]}
-                      >
-                        {Array.isArray(locations) && locations.length > 0 ? (
-                          locations.map((location: any) => (
-                            <Select.Option
-                              key={location.location_id}
-                              value={location.location_name}
-                            >
-                              {location.location_name}
-                            </Select.Option>
-                          ))
-                        ) : (
-                          <Select.Option value={data[0][field.labelKey]}>
-                            {data[0][field.labelKey]}
+                    <Select
+                      placeholder="Select location"
+                      style={{ width: "100%" }}
+                      defaultValue={data[0].location}
+                    >
+                      {Array.isArray(locations) && locations.length > 0 ? (
+                        locations.map((location: any) => (
+                          <Select.Option
+                            key={location.location_id}
+                            value={location.location_name}
+                          >
+                            {location.location_name}
                           </Select.Option>
-                        )}
-                      </Select>
-                    ))
+                        ))
+                      ) : (
+                        <Select.Option value={data[0].location}>
+                          {data[0].location || "No location"}
+                        </Select.Option>
+                      )}
+                    </Select>
                   ) : (
                     <Input
                       placeholder={`Enter ${field.labelKey}`}

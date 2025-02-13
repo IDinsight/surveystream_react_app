@@ -116,59 +116,51 @@ function EnumeratorsHome() {
       return;
     }
 
-    // Prepare fields first
-    const fields = Object.keys({ ...selectedRows[0] })
-      .filter((field) => field !== "key")
-      .map((field: any) => {
-        if (field === "custom_fields") {
-          if (
-            selectedRows[0][field] &&
-            typeof selectedRows[0][field] === "object"
-          ) {
-            const customFields = selectedRows[0][field];
-            return Object.keys(customFields)
-              .filter((key) => key !== "column_mapping")
-              .map((key) => ({
-                labelKey: key,
-                label: `custom_fields.${key}`,
-              }));
-          }
-        }
-        return {
-          labelKey: field,
-          label: dataTableColumn.find((col: any) => col.dataIndex === field)
-            ?.title,
-        };
-      })
-      .flat();
+    // Check if selected row has surveyor_locations
+    const hasSurveyorLocations = selectedRows[0].surveyor_locations?.length > 0;
 
-    // Ensure location field is included
-    if (!fields.some((field: any) => field.labelKey === "location")) {
-      fields.push({
+    // Pre-filter fields
+    const fieldsToExclude = [
+      "status",
+      "custom_fields",
+      "enumerator_uid",
+      "monitor_locations",
+      "surveyor_locations",
+      "monitor_status",
+      "surveyor_status",
+    ];
+
+    const filteredFields = Object.keys({ ...selectedRows[0] })
+      .filter((field) => !fieldsToExclude.includes(field))
+      .map((field) => ({
+        labelKey: field,
+        label: field,
+      }));
+
+    // Add location only if surveyor_locations exist
+    if (hasSurveyorLocations) {
+      filteredFields.push({
         labelKey: "location",
-        label: "Location",
+        label: "location",
       });
-    }
 
-    // Set fields and open modal immediately
-    setFieldData(fields);
-    setEditData(true);
-
-    // Fetch locations after modal is open
-    if (PrimeGeoLevelUID) {
-      try {
-        const locationsRequest = await dispatch(
+      // Fetch locations in background
+      if (PrimeGeoLevelUID) {
+        dispatch(
           getSurveyLocationsLong({
             survey_uid: survey_uid || "",
             geo_level_uid: PrimeGeoLevelUID,
           })
-        );
-        dispatch(setLocations(locationsRequest.payload));
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-        message.error("Failed to fetch locations");
+        ).then((response) => {
+          if (response.payload) {
+            dispatch(setLocations(response.payload));
+          }
+        });
       }
     }
+
+    setFieldData(filteredFields);
+    setEditData(true);
   };
 
   const onEditingCancel = () => {
@@ -208,7 +200,7 @@ function EnumeratorsHome() {
     form_uid: string,
     enumerator_type?: string
   ) => {
-    setTableLoading(true); // Start loading
+    setTableLoading(true);
     try {
       const enumeratorRes = await dispatch(
         getEnumerators(
@@ -221,13 +213,9 @@ function EnumeratorsHome() {
       if (enumeratorRes.payload.status == 200) {
         const originalData = enumeratorRes.payload.data.data;
 
-        // Ensure we have PrimeGeoLevelUID before proceeding
-        if (!PrimeGeoLevelUID) {
-          await fetchSurveyInfo();
-        }
-
-        //move to upload if it is a fresh upload
-        if (originalData.length == 0) {
+        // Handle empty data case immediately
+        if (!originalData || originalData.length == 0) {
+          setTableLoading(false); // Stop loading before navigation
           navigate(
             `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
           );
@@ -305,6 +293,11 @@ function EnumeratorsHome() {
           }
           dispatch(setEnumeratorColumnMapping(columnMapping));
         }
+        // Check if any enumerator has surveyor_locations
+        const hasSurveyorLocations = originalData.some(
+          (enumerator: any) => enumerator.surveyor_locations?.length > 0
+        );
+
         // Define column mappings
         let columnMappings = Object.keys(originalData[0])
           .filter((column) => !columnsToExclude.includes(column))
@@ -320,25 +313,27 @@ function EnumeratorsHome() {
             ellipsis: true,
           }));
 
-        // Add location columns
-        columnMappings.push({
-          title: "Location",
-          dataIndex: "location",
-          width: 90,
-          ellipsis: true,
-        });
-        columnMappings.push({
-          title: "Location ID",
-          dataIndex: "location_id",
-          width: 90,
-          ellipsis: true,
-        });
-        columnMappings.push({
-          title: "Location Name",
-          dataIndex: "location_name",
-          width: 90,
-          ellipsis: true,
-        });
+        // Only add location columns if surveyor_locations exist
+        if (hasSurveyorLocations) {
+          columnMappings.push({
+            title: "Location",
+            dataIndex: "location",
+            width: 90,
+            ellipsis: true,
+          });
+          columnMappings.push({
+            title: "Location ID",
+            dataIndex: "location_id",
+            width: 90,
+            ellipsis: true,
+          });
+          columnMappings.push({
+            title: "Location Name",
+            dataIndex: "location_name",
+            width: 90,
+            ellipsis: true,
+          });
+        }
 
         // Map the data with locations
         const updatedData = originalData.map((enumerator: any) => {
@@ -421,7 +416,7 @@ function EnumeratorsHome() {
       console.error("Error loading enumerators:", error);
       message.error("Failed to load enumerators");
     } finally {
-      setTableLoading(false); // End loading regardless of outcome
+      setTableLoading(false);
     }
   };
 
@@ -468,22 +463,36 @@ function EnumeratorsHome() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (screenMode !== "manage") {
+        setTableLoading(false);
+        return;
+      }
+
       try {
-        if (!form_uid) {
-          await handleFormUID();
-          return; // Wait for form_uid to be set and trigger another effect
+        // Only start loading when we're actually going to fetch data
+        if (!form_uid || !PrimeGeoLevelUID) {
+          if (!form_uid) {
+            await handleFormUID();
+            return;
+          }
+
+          if (!PrimeGeoLevelUID) {
+            const survey = await dispatch(
+              getSurveyBasicInformation({ survey_uid })
+            );
+            setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid ?? 0);
+            return;
+          }
         }
 
-        if (!PrimeGeoLevelUID) {
-          await fetchSurveyInfo();
-          return; // Wait for PrimeGeoLevelUID to be set and trigger another effect
-        }
-
-        if (screenMode === "manage") {
+        // Only set loading and fetch data when we have all prerequisites
+        if (form_uid && PrimeGeoLevelUID) {
+          setTableLoading(true);
           await getEnumeratorsList(form_uid);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        setTableLoading(false);
       }
     };
 

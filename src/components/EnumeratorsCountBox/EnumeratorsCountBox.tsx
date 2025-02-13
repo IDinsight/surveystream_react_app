@@ -78,7 +78,7 @@ function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
       {inactive ? (
         <div
           style={{
-            backgroundColor: "#FDD1A1",
+            backgroundColor: "rgb(255, 241, 240)",
             padding: "4px 12px",
             display: "flex",
             alignItems: "center",
