@@ -241,8 +241,8 @@ function EnumeratorsHome() {
             status = "Active";
             activeCount++;
           } else if (
-            row.surveyor_status === "Inactive" ||
-            row.monitor_status === "Inactive"
+            row.surveyor_status?.includes("Inactive") ||
+            row.monitor_status?.includes("Inactive")
           ) {
             status = "Inactive";
             inactiveCount++;
@@ -338,10 +338,6 @@ function EnumeratorsHome() {
         // Map the data with locations
         const updatedData = originalData.map((enumerator: any) => {
           const surveyorLocations = enumerator.surveyor_locations || [];
-          console.log("Mapping locations for enumerator:", {
-            PrimeGeoLevelUID,
-            surveyorLocations,
-          });
 
           const matchingLocation = surveyorLocations.find(
             (location: any) => location.geo_level_uid === PrimeGeoLevelUID
@@ -591,6 +587,7 @@ function EnumeratorsHome() {
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                    position: ["topRight"],
                   }}
                 />
                 {editData ? (
