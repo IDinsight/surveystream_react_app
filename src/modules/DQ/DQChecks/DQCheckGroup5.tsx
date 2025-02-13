@@ -9,23 +9,24 @@ import {
   activateDQChecks,
   deactivateDQChecks,
   deleteDQChecks,
+  fetchModuleName,
   getDQChecks,
   postDQChecks,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
-import DQCheckDrawerGroup4 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup4";
+import DQCheckDrawerGroup5 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup5";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { CustomBtn } from "../../../shared/Global.styled";
 
-interface IDQCheckGroup1Props {
+interface IDQCheckGroup5Props {
   surveyUID: string;
   formUID: string;
   typeID: string;
 }
 
-function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
+function DQCheckGroup5({ surveyUID, formUID, typeID }: IDQCheckGroup5Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -35,6 +36,9 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const [tablePageSize, setTablePageSize] = useState(5);
 
   const [availableQuestions, setAvailableQuestions] = useState<any[]>([]);
+  const [availableModuleNames, setAvailableModuleNames] = useState<string[]>(
+    []
+  );
 
   // Whole DQ Check data
   const [dqCheckData, setDQCheckData] = useState<any>(null);
@@ -58,13 +62,6 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const columns = [
     {
-      title: "Type",
-      dataIndex: "gpsType",
-      key: "gpsType",
-      render: (gpsType: any) =>
-        gpsType === "point2point" ? "Point to Point" : "Point to Shape",
-    },
-    {
       title: "Variable name",
       dataIndex: "questionName",
       key: "questionName",
@@ -72,31 +69,40 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       render: (questionName: any, record: any) =>
         questionName + (record.isRepeatGroup ? "_*" : ""),
     },
+    ...(dqConfig?.group_by_module_name
+      ? [
+          {
+            title: "Module name",
+            dataIndex: "moduleName",
+            key: "moduleName",
+            sorter: (a: any, b: any) =>
+              (a.moduleName || "").localeCompare(b.moduleName || ""),
+          },
+        ]
+      : []),
     {
-      title: "Grid ID variable",
-      dataIndex: "gridIDVariable",
-      key: "gridIDVariable",
-      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
-      render: (gridIDVariable: any, record: any) =>
-        gridIDVariable
-          ? gridIDVariable + (record.gridIDVariableIsRepeatGroup ? "_*" : "")
-          : "",
+      title: "Flag description",
+      dataIndex: "flagDescription",
+      key: "flagDescription",
     },
     {
-      title: "Expected GPS variable",
-      dataIndex: "gpsVariable",
-      key: "gpsVariable",
-      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
-      render: (gpsVariable: any, record: any) =>
-        gpsVariable
-          ? gpsVariable + (record.gpsVariableIsRepeatGroup ? "_*" : "")
-          : "",
+      title: "Variables",
+      dataIndex: "variables",
+      key: "variables",
     },
     {
-      title: "Threshold distance (m)",
-      dataIndex: "threshold",
-      key: "threshold",
-      sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      title: "Assert condition",
+      dataIndex: "assertCondition",
+      key: "assertCondition",
+    },
+    {
+      title: (
+        <Tooltip title="Click on edit to view the filter conditions">
+          Filter applied
+        </Tooltip>
+      ),
+      dataIndex: "filterData",
+      key: "filterData",
     },
     {
       title: "Status",
@@ -125,21 +131,19 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     key: check.dq_check_uid,
     dqCheckUID: check.dq_check_uid,
     questionName: check.question_name,
-    gpsType: check.check_components.gps_type,
-    threshold: check.check_components.threshold,
-    gpsVariable: check.check_components.gps_variable?.question_name,
-    gpsVariableIsRepeatGroup:
-      check.check_components.gps_variable?.is_repeat_group,
-    gridIDVariable: check.check_components.grid_id?.question_name,
-    gridIDVariableIsRepeatGroup:
-      check.check_components.grid_id?.is_repeat_group,
     status: check.active ? "Active" : "Inactive",
+    filterData: check.filters.length > 0 ? "Yes" : "-",
+    moduleName: check.module_name,
+    flagDescription: check.flag_description,
+    assertCondition: check.check_components?.logic_check_assertions.length,
+    variables: check.check_components?.logic_check_questions.length,
+    otherVariable: check.check_components?.logic_check_questions.slice(1),
+    assertions: check.check_components?.logic_check_assertions,
+    filters: check.filters,
     isDeleted:
       check.note === "Question not found in form definition" ||
       check.note === "Question not found in DQ form definition" ||
-      check.note === "Filter question not found in form definition" ||
-      check.note === "GPS variable not found in form definition" ||
-      check.note === "Grid ID not found in form definition",
+      check.note === "Filter question not found in form definition",
     isRepeatGroup: check.is_repeat_group,
   }));
 
@@ -179,13 +183,16 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     activateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check activated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to activate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -224,13 +231,16 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deactivateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to deactivate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -248,13 +258,16 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deleteDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Checks deleted", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to delete DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -265,38 +278,37 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (!data) return;
 
     const checkComponents = {
-      gps_type: data.gps_type,
-      threshold: data.threshold,
-      gps_variable: data.gps_variable,
-      grid_id: data.grid_id,
+      logic_check_questions: [data.variable_name, ...data.other_variable_name],
+      logic_check_assertions: data.assertion,
     };
 
     const formData = {
       form_uid: formUID,
       type_id: typeID,
       all_questions: false,
-      module_name: "",
-      question_name: data.variable_name,
-      flag_description: "",
-      filters: [],
+      module_name: data.module_name,
+      question_name: data.variable_name.question_name,
+      flag_description: data.flag_description,
+      filters: data.filters,
       active: data.is_active,
       check_components: checkComponents,
     };
 
     if (data.dq_check_id) {
+      setLoading(true);
       putDQChecks(data.dq_check_id, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ Check updated successfully", 1, () => {
             loadDQChecks();
+            dispatch(getDQConfig({ form_uid: formUID }));
             setDataLoading(true);
             setSelectedVariableRows([]);
             setLoading(false);
           });
         } else {
           message.error("Failed to update DQ Check");
-          setLoading(true);
+          setLoading(false);
         }
       });
     } else {
@@ -306,6 +318,7 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
           closeAddManualDrawer();
           message.success("DQ added successfully", 1, () => {
             loadDQChecks();
+            dispatch(getDQConfig({ form_uid: formUID }));
             setDataLoading(true);
             setSelectedVariableRows([]);
             setLoading(false);
@@ -353,6 +366,14 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   useEffect(() => {
     if (formUID) {
+      fetchModuleName(formUID).then((res: any) => {
+        if (res?.data?.success) {
+          setAvailableModuleNames(
+            res.data.data.filter((name: string) => name !== "" && name)
+          );
+        }
+      });
+
       loadDQChecks();
     }
   }, [formUID, typeID]);
@@ -394,9 +415,8 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       ) : (
         <>
           <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            This check verifies if GPS location of the household is within the
-            expected grid cell or shape boundary/the household surveyed is the
-            correct sampled household.
+            Checks that certain skip patterns and logical relationships among
+            variables are followed.
           </p>
 
           <>
@@ -442,14 +462,24 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkActive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Inactive"
+                      )
+                    }
                   >
                     Mark active
                   </CustomBtn>
                   <Button
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkInactive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Active"
+                      )
+                    }
                   >
                     Mark inactive
                   </Button>
@@ -490,13 +520,15 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 record.isDeleted ? "greyed-out-row" : ""
               }
             />
-            <DQCheckDrawerGroup4
+            <DQCheckDrawerGroup5
               visible={isAddManualDrawerVisible}
               questions={availableQuestions}
               typeID={typeID}
               data={drawerData}
               onSave={handleOnDrawerSave}
               onClose={closeAddManualDrawer}
+              showModuleName={dqConfig?.group_by_module_name}
+              moduleNames={availableModuleNames}
             />
           </>
         </>
@@ -505,4 +537,4 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   );
 }
 
-export default DQCheckGroup4;
+export default DQCheckGroup5;

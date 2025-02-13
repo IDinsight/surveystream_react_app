@@ -11,8 +11,9 @@ export const MappingWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
-  padding-right: 80px;
+  padding-right: 70px;
   font-family: "Lato", sans-serif;
+  width: 65%;
 `;
 
 export const FormItemLabel = styled.p`
@@ -49,7 +50,8 @@ export const DeleteButton = styled(Button)`
 
 export const MappingTable = styled(Table)`
   overflow: auto;
-  margin-top: 15px;
+  width: 99%;
+  margin-top: 0px;
   margin-bottom: 68px;
   & th {
     color: #434343 !important;

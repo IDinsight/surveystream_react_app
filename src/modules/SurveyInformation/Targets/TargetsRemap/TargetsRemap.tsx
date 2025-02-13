@@ -42,7 +42,7 @@ import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
 import { ContinueButton } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
-
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 interface CSVError {
   type: string;
   count: number;
@@ -292,6 +292,16 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           handleTargetColumnConfig(form_uid, column_mapping);
 
           dispatch(setMappingErrorStatus(false));
+
+          // Set any unresolved target notifications to resolved
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 8,
+              resolution_status: "done",
+            })
+          );
+
           //route to manage
           setScreenMode("manage");
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
@@ -587,8 +597,14 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                   !moduleQuestionnaire?.target_mapping_criteria.includes(
                                     "Location"
                                   )) ||
-                                item.key === "gender" ||
-                                item.key === "language"
+                                (item.key === "gender" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Gender"
+                                  )) ||
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Language"
+                                  ))
                                   ? false
                                   : true,
                               message: "Kindly select column to map value!",
