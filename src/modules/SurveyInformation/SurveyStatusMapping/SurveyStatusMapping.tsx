@@ -617,7 +617,7 @@ function SurveyStatusMapping() {
                       editingMode === "add" ? onAddMapping : onEditMapping
                     }
                   >
-                    {editingMode === "add" ? "Add" : "Edit"}
+                    Save
                   </CustomBtn>
                 </Drawer>
               ) : null}
