@@ -85,21 +85,8 @@ function RowEditingModal({
         );
 
         if (selectedLocation) {
-          // Update the surveyor_locations array
-          const updatedSurveyorLocations =
-            originalData[0].surveyor_locations.map((loc: any) => {
-              if (loc.geo_level_uid === selectedLocation.geo_level_uid) {
-                return {
-                  ...loc,
-                  location_name: selectedLocation.location_name,
-                  location_uid: selectedLocation.location_uid,
-                };
-              }
-              return loc;
-            });
-
           // Update the data with new surveyor_locations
-          updateData.surveyor_locations = updatedSurveyorLocations;
+          updateData.location_uid = selectedLocation.location_uid;
         }
       }
 
