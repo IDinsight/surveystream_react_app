@@ -1,6 +1,4 @@
-import { properCase } from "./../../utils/helper";
-
-import { CheckCircleFilled, WarningFilled } from "@ant-design/icons";
+import { CheckCircleFilled, InfoCircleFilled } from "@ant-design/icons";
 
 interface IMappingStatsProps {
   stats: {
@@ -13,8 +11,8 @@ function MappingStats({ stats }: IMappingStatsProps) {
   const { type, mapped, unmapped } = stats;
 
   return (
-    <div style={{ display: "flex", gap: 16, marginLeft: "auto" }}>
-      {mapped !== null ? (
+    <div style={{ display: "flex", gap: 16, marginLeft: "30px" }}>
+      {mapped !== null && mapped > 0 ? (
         <div
           style={{
             backgroundColor: "#F6FFED",
@@ -34,11 +32,11 @@ function MappingStats({ stats }: IMappingStatsProps) {
               fontWeight: 500,
             }}
           >
-            {mapped} {type ? properCase(type) + "s" : ""} mapped
+            {mapped} Mapped
           </p>
         </div>
       ) : null}
-      {unmapped !== null ? (
+      {unmapped !== null && unmapped > 0 ? (
         <div
           style={{
             backgroundColor: "#FFF1F0",
@@ -49,7 +47,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
             borderRadius: 24,
           }}
         >
-          <WarningFilled style={{ fontSize: 16, color: "#CF1322" }} />
+          <InfoCircleFilled style={{ fontSize: 16, color: "#CF1322" }} />
           <p
             style={{
               marginLeft: 8,
@@ -58,7 +56,7 @@ function MappingStats({ stats }: IMappingStatsProps) {
               fontWeight: 500,
             }}
           >
-            {unmapped} {type ? properCase(type) + "s" : ""} not mapped
+            {unmapped} Not mapped
           </p>
         </div>
       ) : null}

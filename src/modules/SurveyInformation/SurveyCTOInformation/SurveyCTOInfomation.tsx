@@ -45,6 +45,11 @@ function SurveyCTOInfomation() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [formData, setFormData] = useState<SurveyCTOForm | null>(null);
   const [loading, setLoading] = useState(false);
   const [surveyCTOForm, setSurveyCTOForm] = useState<SurveyCTOForm | null>(
@@ -179,7 +184,7 @@ function SurveyCTOInfomation() {
         ></div>
       </HeaderContainer>
 
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

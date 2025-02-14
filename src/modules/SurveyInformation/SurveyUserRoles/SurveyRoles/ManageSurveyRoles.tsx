@@ -69,6 +69,10 @@ function ManageSurveyRoles() {
     (state: RootState) => state.surveys.activeSurvey
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchSupervisorRoles = async () => {
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
 
@@ -263,7 +267,7 @@ function ManageSurveyRoles() {
     },
   ];
 
-  const isLoading = isuserRolesLoading || loading;
+  const isLoading = isuserRolesLoading || loading || isSideMenuLoading;
 
   return (
     <>

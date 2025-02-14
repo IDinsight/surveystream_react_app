@@ -52,6 +52,10 @@ import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
 import { LocationEditDrawer } from "./LocationEditDrawer";
 import { DescriptionText } from "../../../shared/Global.styled";
+import {
+  createNotificationViaAction,
+  resolveSurveyNotification,
+} from "../../../redux/notifications/notificationActions";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -86,6 +90,10 @@ function SurveyLocationUpload() {
 
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
+  );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
   );
 
   const [addLocationsModal, setAddLocationsModal] = useState(false);
@@ -379,6 +387,21 @@ function SurveyLocationUpload() {
       </>
     );
   };
+  const createNotification = async (notification_input: string[]) => {
+    if (notification_input.length > 0) {
+      for (const notification of notification_input) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
+  };
 
   const handleUploadContinue = () => {
     if (
@@ -450,6 +473,19 @@ function SurveyLocationUpload() {
             return;
           }
           message.success("Survey locations mapping updated successfully.");
+
+          // Resolve existing location notifications
+          await dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 5,
+              resolution_status: "done",
+            })
+          );
+
+          // Create notification to inform user that locations have been reuploaded
+          createNotification(["Locations reuploaded"]);
+
           await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
           setLoading(false);
           setHasError(false);
@@ -532,7 +568,7 @@ function SurveyLocationUpload() {
           ) : null}
         </div>
       </HeaderContainer>
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

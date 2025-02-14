@@ -64,6 +64,10 @@ function AddSurveyRoles() {
     (state: RootState) => state.surveys.activeSurvey
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchSupervisorRoles = async () => {
     setLoading(true);
     const res = await dispatch(getSupervisorRoles({ survey_uid: survey_uid }));
@@ -179,7 +183,7 @@ function AddSurveyRoles() {
     fetchAllPermissions();
   }, [dispatch]);
 
-  const isLoading = isuserManagementLoading || loading;
+  const isLoading = isuserManagementLoading || loading || isSideMenuLoading;
 
   return (
     <>

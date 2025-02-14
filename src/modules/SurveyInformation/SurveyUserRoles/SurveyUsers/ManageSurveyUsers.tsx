@@ -87,6 +87,9 @@ function ManageSurveyUsers() {
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const fetchAllUsers = async () => {
     setisUsersLoading(true);
@@ -490,7 +493,8 @@ function ManageSurveyUsers() {
     isBasicInformationLoading ||
     isModuleQuestionnaireLoading ||
     isLocationDetailsLoading ||
-    loading;
+    loading ||
+    isSideMenuLoading;
 
   return (
     <>

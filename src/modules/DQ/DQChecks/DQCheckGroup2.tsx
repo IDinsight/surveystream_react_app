@@ -214,13 +214,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     activateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check activated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to activate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -259,13 +262,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deactivateDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Check deactivated", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to deactivate DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -283,13 +289,16 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
     setLoading(true);
     deleteDQChecks(formData).then((res: any) => {
-      setLoading(false);
       if (res?.data?.success) {
         message.success("DQ Checks deleted", 1, () => {
-          navigate(0);
+          loadDQChecks();
+          setDataLoading(true);
+          setSelectedVariableRows([]);
+          setLoading(false);
         });
       } else {
         message.error("Failed to delete DQ Checks");
+        setLoading(false);
       }
     });
   };
@@ -329,27 +338,33 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     if (data.dq_check_id) {
       setLoading(true);
       putDQChecks(data.dq_check_id, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ Check updated successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to update DQ Check");
+          setLoading(false);
         }
       });
     } else {
       setLoading(true);
       postDQChecks(formUID, typeID, formData).then((res: any) => {
-        setLoading(false);
         if (res?.data?.success) {
           closeAddManualDrawer();
           message.success("DQ added successfully", 1, () => {
-            navigate(0);
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
+            setLoading(false);
           });
         } else {
           message.error("Failed to add DQ Check");
+          setLoading(false);
         }
       });
     }
@@ -367,6 +382,30 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     },
   };
 
+  // Fetch DQ checks
+  const loadDQChecks = () => {
+    if (typeID) {
+      setLoading(true);
+      getDQChecks(formUID, typeID)
+        .then((res: any) => {
+          if (res?.data?.success) {
+            const checkAllData = res.data.data;
+
+            setDQCheckData(checkAllData);
+            setDataLoading(false);
+          } else {
+            setDQCheckData([]);
+            setDataLoading(false);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      message.error("Failed to fetch DQ Checks");
+    }
+  };
+
   useEffect(() => {
     if (formUID) {
       fetchModuleName(formUID).then((res: any) => {
@@ -377,24 +416,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         }
       });
 
-      if (typeID) {
-        setLoading(true);
-        getDQChecks(formUID, typeID)
-          .then((res: any) => {
-            if (res?.data?.success) {
-              const checkAllData = res.data.data;
-
-              setDQCheckData(checkAllData);
-              setDataLoading(false);
-            } else {
-              setDQCheckData([]);
-              setDataLoading(false);
-            }
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      }
+      loadDQChecks();
     }
   }, [formUID, typeID]);
 
@@ -498,14 +520,24 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkActive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Inactive"
+                      )
+                    }
                   >
                     Mark active
                   </CustomBtn>
                   <Button
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkInactive}
-                    disabled={selectedVariableRows.length === 0}
+                    disabled={
+                      selectedVariableRows.length === 0 ||
+                      !selectedVariableRows.some(
+                        (row: any) => row.status === "Active"
+                      )
+                    }
                   >
                     Mark inactive
                   </Button>

@@ -29,6 +29,7 @@ import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
+import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -46,6 +47,10 @@ function SurveyLocationAdd() {
     (state: RootState) => state.surveyLocations.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [numLocationFields, setNumLocationFields] = useState(
     surveyLocationGeoLevels.length !== 0 ? surveyLocationGeoLevels.length : 1
   );
@@ -53,6 +58,23 @@ function SurveyLocationAdd() {
   const [isAllowedEdit, setIsAllowedEdit] = useState<boolean[]>(
     Array(numLocationFields).fill(true)
   );
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const createNotification = async () => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
+  };
 
   const handleDeleteGeoLevel = (index: number) => {
     const indexedLocationUid = surveyLocationGeoLevels[index]?.geo_level_uid;
@@ -72,6 +94,7 @@ function SurveyLocationAdd() {
     newUpdatedGeoLevels.forEach((geoLevel, idx) => {
       form.setFieldValue(`geo_level_${idx}`, geoLevel.geo_level_name);
     });
+    setNotifications([...notifications, "Location level deleted"]);
   };
 
   const fetchSurveyLocationGeoLevels = async () => {
@@ -201,6 +224,7 @@ function SurveyLocationAdd() {
         setNumLocationFields(numLocationFields + 1);
         setIsAllowedEdit([...isAllowedEdit, true]);
         form.setFieldsValue({ [`geo_level_${numLocationFields}`]: "" });
+        setNotifications([...notifications, "Location level added"]);
       })
       .catch((error) => {
         console.error(error);
@@ -331,7 +355,7 @@ function SurveyLocationAdd() {
           )}
         </div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -347,7 +371,10 @@ function SurveyLocationAdd() {
               </DynamicItemsForm>
             </div>
             <CustomBtn
-              onClick={handleLocationAddContinue}
+              onClick={async () => {
+                await createNotification();
+                await handleLocationAddContinue();
+              }}
               loading={loading}
               disabled={numLocationFields === 0}
               style={{ marginTop: 24 }}

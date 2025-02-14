@@ -23,6 +23,7 @@ import {
   getAssignmentTargets,
 } from "../../redux/assignments/assignmentsActions";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { getTargetConfig } from "../../redux/targets/targetActions";
 import AssignmentsStatus from "../../components/AssignmentsStats";
 import { debounce } from "lodash";
 import NotFound from "../../components/NotFound";
@@ -89,6 +90,8 @@ function Assignments() {
   const [selecteAssignmentdRowKeys, setSelectedAssignmentRowKeys] = useState<
     Key[]
   >([]);
+
+  const [targetsLastUpdated, setTargetsLastUpdated] = useState<string>("");
 
   const onAssignmentSelect = (record: any, selected: any, selectedRow: any) => {
     if (record["target_uid"] !== undefined) {
@@ -285,14 +288,25 @@ function Assignments() {
 
   // Dispatch the actions to populate the data
   useEffect(() => {
-    if (form_uid == "" || form_uid == undefined) return;
-    dispatch(getSurveyCTOForm({ survey_uid }));
-    dispatch(
-      getTableConfig({ formUID: form_uid || "", filter_supervisors: true })
-    );
-    dispatch(getAssignments({ formUID: form_uid ?? "" }));
-    dispatch(getAssignmentEnumerators({ formUID: form_uid ?? "" }));
-    dispatch(getAssignmentTargets({ formUID: form_uid ?? "" }));
+    const fetchData = async () => {
+      if (form_uid == "" || form_uid == undefined) return;
+      dispatch(getSurveyCTOForm({ survey_uid }));
+      dispatch(
+        getTableConfig({ formUID: form_uid || "", filter_supervisors: true })
+      );
+      dispatch(getAssignments({ formUID: form_uid ?? "" }));
+      dispatch(getAssignmentEnumerators({ formUID: form_uid ?? "" }));
+      dispatch(getAssignmentTargets({ formUID: form_uid ?? "" }));
+
+      const targetConfig: any = await dispatch(getTargetConfig({ form_uid }));
+      if (targetConfig?.payload?.success) {
+        setTargetsLastUpdated(
+          targetConfig.payload.data.data.targets_last_uploaded
+        );
+      }
+    };
+
+    fetchData();
   }, [form_uid]);
 
   // Update the main data and stats when the assignments data changes
@@ -400,7 +414,12 @@ function Assignments() {
     },
   ];
 
-  const formatDate = (date: any, tz_name: string) => {
+  const formatDate = (
+    date: any,
+    tz_name: string,
+    convert_timezone: boolean
+  ) => {
+    console.log(date, tz_name);
     const options: Intl.DateTimeFormatOptions = {
       weekday: "short",
       day: "numeric",
@@ -409,7 +428,7 @@ function Assignments() {
       hour: "numeric",
       minute: "numeric",
       second: "numeric",
-      timeZone: "UTC", // UTC is used to get the correct date and time
+      timeZone: convert_timezone ? tz_name : "UTC",
     };
 
     // find timezone abbreviation to append to the date
@@ -509,12 +528,29 @@ function Assignments() {
                           color: "#595959",
                         }}
                       >
-                        <p>
-                          Last updated on:{" "}
-                          {form?.last_ingested_at && form?.tz_name
-                            ? formatDate(form.last_ingested_at, form.tz_name)
-                            : "NA"}
-                        </p>
+                        {tabItemIndex === "targets" ? (
+                          <>
+                            Targets last uploaded on:{" "}
+                            {targetsLastUpdated && form?.tz_name
+                              ? formatDate(
+                                  targetsLastUpdated,
+                                  form.tz_name,
+                                  true
+                                )
+                              : "NA"}
+                          </>
+                        ) : (
+                          <>
+                            Form data last fetched on:{" "}
+                            {form?.last_ingested_at && form?.tz_name
+                              ? formatDate(
+                                  form.last_ingested_at,
+                                  form.tz_name,
+                                  false
+                                )
+                              : "NA"}
+                          </>
+                        )}
                       </div>
                     </div>
                   }

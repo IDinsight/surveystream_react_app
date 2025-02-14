@@ -59,6 +59,10 @@ function EnumeratorsHome() {
   );
   const surveys = useAppSelector((state: RootState) => state.surveys);
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [activeEnums, setActiveEnums] = useState<number>(0);
   const [droppedEnums, setDroppedEnums] = useState<number>(0);
   const [inactiveEnums, setInactiveEnums] = useState<number>(0);
@@ -565,7 +569,7 @@ function EnumeratorsHome() {
           </>
         ) : null}
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

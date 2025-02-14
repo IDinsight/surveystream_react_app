@@ -10,7 +10,7 @@ import {
   Input,
   Row,
   Select,
-  Table,
+  Drawer,
   Tag,
   message,
 } from "antd";
@@ -21,11 +21,11 @@ import { RootState } from "../../../redux/store";
 import {
   TargetStatusFormWrapper,
   BodyContainer,
-  CustomBtn,
   EditingModel,
   FormItemLabel,
   TargetMappingTable,
 } from "./SurveyStatusMapping.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   getTargetStatusMapping,
@@ -33,6 +33,7 @@ import {
 } from "../../../redux/targetStatusMapping/targetStatusMappingActions";
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import SurveyStatusCount from "../../../components/SurveyStatusCount";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();
@@ -51,6 +52,9 @@ function SurveyStatusMapping() {
     useAppSelector((state: RootState) => state.targetStatusMapping);
 
   const { loading: isBasicInfoLoading, basicInfo } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+  const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
 
@@ -294,7 +298,10 @@ function SurveyStatusMapping() {
 
   return (
     <>
-      {isLoading || isMappingLoading || isBasicInfoLoading ? (
+      {isLoading ||
+      isMappingLoading ||
+      isBasicInfoLoading ||
+      isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -302,36 +309,36 @@ function SurveyStatusMapping() {
           <HeaderContainer>
             <Title>Target status mapping</Title>
             {isFormConfirmed ? (
-              <BodyContainer>
-                <CustomBtn
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  style={{ marginLeft: "auto" }}
-                  onClick={onAddClick}
-                >
-                  Add
-                </CustomBtn>
-                {selectedRowKeys.length === 1 ? (
+              <>
+                <SurveyStatusCount
+                  surveyStatusCount={targetStatusMapping.length}
+                />
+                <BodyContainer>
                   <CustomBtn
-                    type="primary"
+                    icon={<PlusOutlined />}
+                    style={{ marginLeft: "auto" }}
+                    onClick={onAddClick}
+                  >
+                    Add
+                  </CustomBtn>
+                  <CustomBtn
                     icon={<EditOutlined />}
                     style={{ marginLeft: 10 }}
                     onClick={onEditClick}
+                    disabled={selectedRowKeys.length !== 1}
                   >
                     Edit
                   </CustomBtn>
-                ) : null}
-                {selectedRowKeys.length > 0 ? (
                   <CustomBtn
-                    type="primary"
                     icon={<DeleteOutlined />}
                     style={{ marginLeft: 10 }}
                     onClick={onDeleteMapping}
+                    disabled={selectedRowKeys.length === 0}
                   >
                     Delete
                   </CustomBtn>
-                ) : null}
-              </BodyContainer>
+                </BodyContainer>
+              </>
             ) : null}
           </HeaderContainer>
           <div style={{ display: "flex" }}>
@@ -344,26 +351,39 @@ function SurveyStatusMapping() {
                     style={{
                       color: "#8C8C8C",
                       fontSize: 14,
-                      marginBottom: 20,
-                      marginRight: 80,
+                      marginBottom: 0,
+                      marginRight: 60,
                     }}
                   >
-                    Add or edit possible survey status values for the selected
-                    form. If nothing is configured, the default values as per
-                    survey modality is shown below. This mapping will be used to
-                    determine the status (completed, refused or pending) of a
-                    target for productivity calculations and assignments.
+                    Add or edit all possible survey status values for the
+                    selected form with form ID: {formIdName}. If nothing is
+                    configured, the default values as per survey modality is
+                    shown below.
                   </p>
-                  <p> {formIdName} </p>
                   <TargetMappingTable
                     columns={tableColumns}
                     dataSource={tableDataSources}
                     rowSelection={rowSelection}
+                    pagination={{ position: ["topRight"] }}
                     bordered
                   />
                 </>
               ) : (
                 <>
+                  <p
+                    style={{
+                      color: "#8C8C8C",
+                      fontSize: 14,
+                      marginBottom: 20,
+                      marginRight: 60,
+                    }}
+                  >
+                    Target status mapping is used to determine the status
+                    (completed, refused, pending etc.) of a target for
+                    productivity calculations and assignments, based on the
+                    value recorded in the survey_status variable in its
+                    SurveyCTO submissions.
+                  </p>
                   <p
                     style={{
                       color: "#8C8C8C",
@@ -389,6 +409,7 @@ function SurveyStatusMapping() {
                       <Select
                         placeholder="Select SCTO form ID"
                         onSelect={(e) => setFormIdName(e)}
+                        style={{ marginLeft: 11 }}
                       >
                         {sctoForm && Object.keys(sctoForm).length > 0 ? (
                           <Select.Option value={sctoForm.scto_form_id}>
@@ -412,9 +433,7 @@ function SurveyStatusMapping() {
                           />
                         </Form.Item>
                         <Form.Item shouldUpdate>
-                          <CustomBtn type="primary" onClick={onConfirmClick}>
-                            Load
-                          </CustomBtn>
+                          <CustomBtn onClick={onConfirmClick}>Load</CustomBtn>
                         </Form.Item>
                       </>
                     ) : null}
@@ -423,24 +442,23 @@ function SurveyStatusMapping() {
               )}
 
               {editingMode ? (
-                <EditingModel>
-                  <p
-                    style={{
-                      color: "#262626",
-                      fontSize: 24,
-                      lineHeight: "32px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {editingMode === "add" ? "Add mapping" : "Edit mapping"}
-                  </p>
+                <Drawer
+                  open={editingMode ? true : false}
+                  size="large"
+                  onClose={() => setEditingMode(null)}
+                  title={
+                    editingMode === "add"
+                      ? "Add survey status"
+                      : "Edit survey status"
+                  }
+                >
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Survey status:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Input
                         type="number"
                         defaultValue={editingData.survey_status || ""}
@@ -457,13 +475,13 @@ function SurveyStatusMapping() {
                     </Col>
                   </Row>
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Survey status
                         label:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Input
                         defaultValue={editingData.survey_status_label}
                         onChange={(e) => {
@@ -478,12 +496,12 @@ function SurveyStatusMapping() {
                     </Col>
                   </Row>
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Completed flag:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Select
                         defaultValue={editingData.completed_flag ?? true}
                         style={{ width: 120 }}
@@ -503,12 +521,12 @@ function SurveyStatusMapping() {
                     </Col>
                   </Row>
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Refusal flag:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Select
                         defaultValue={editingData.refusal_flag ?? false}
                         style={{ width: 120 }}
@@ -528,13 +546,13 @@ function SurveyStatusMapping() {
                     </Col>
                   </Row>
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Target
                         assignable:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Select
                         defaultValue={editingData.target_assignable ?? false}
                         style={{ width: 120 }}
@@ -554,14 +572,14 @@ function SurveyStatusMapping() {
                     </Col>
                   </Row>
                   <Row align="middle" style={{ marginBottom: 12 }}>
-                    <Col span={8}>
+                    <Col span={7}>
                       <FormItemLabel>
                         <span style={{ color: "red" }}>*</span> Web-app tag:
                       </FormItemLabel>
                     </Col>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Row align="middle">
-                        <Col span={16}>
+                        <Col span={10}>
                           <Select
                             defaultValue={editingData.webapp_tag_color}
                             style={{ width: 120 }}
@@ -581,7 +599,7 @@ function SurveyStatusMapping() {
                         <Col span={8}>
                           <Tag
                             color={editingData.webapp_tag_color}
-                            style={{ marginLeft: 16 }}
+                            style={{ marginLeft: 0 }}
                           >
                             {editingData.webapp_tag_color}
                           </Tag>
@@ -591,27 +609,23 @@ function SurveyStatusMapping() {
                   </Row>
                   <Button
                     type="default"
-                    style={{ marginTop: 24, marginRight: 12, borderRadius: 2 }}
+                    style={{ marginTop: 24 }}
                     onClick={() => setEditingMode(null)}
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="primary"
+                  <CustomBtn
                     style={{
                       marginTop: 24,
                       marginLeft: 24,
-                      backgroundColor: "#2f54eb",
-                      color: "white",
-                      borderRadius: 2,
                     }}
                     onClick={
                       editingMode === "add" ? onAddMapping : onEditMapping
                     }
                   >
-                    {editingMode === "add" ? "Add" : "Edit"}
-                  </Button>
-                </EditingModel>
+                    Save
+                  </CustomBtn>
+                </Drawer>
               ) : null}
             </TargetStatusFormWrapper>
           </div>

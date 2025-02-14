@@ -11,4 +11,5 @@ export type Survey = {
   state: string;
   last_updated_at: string;
   prime_geo_level_uid: number;
+  error: boolean;
 };
