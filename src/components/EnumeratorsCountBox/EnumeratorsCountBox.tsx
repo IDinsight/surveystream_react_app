@@ -71,7 +71,7 @@ function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
               fontWeight: 500,
             }}
           >
-            {dropped} Dropped
+            {dropped} Dropout
           </p>
         </div>
       ) : null}
