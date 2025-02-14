@@ -310,8 +310,8 @@ function EnumeratorsHome() {
           .map((column) => ({
             title: column,
             dataIndex: column,
-            width: 90,
-            ellipsis: true,
+            width: 140,
+            ellipsis: false,
           }));
 
         // Only add location columns if surveyor_locations exist
@@ -319,14 +319,14 @@ function EnumeratorsHome() {
           columnMappings.push({
             title: "Geo Level Name",
             dataIndex: "location",
-            width: 90,
-            ellipsis: true,
+            width: 150,
+            ellipsis: false,
           });
           columnMappings.push({
             title: "Geo Level ID",
             dataIndex: "location_uid",
-            width: 90,
-            ellipsis: true,
+            width: 150,
+            ellipsis: false,
           });
         }
 
@@ -354,12 +354,12 @@ function EnumeratorsHome() {
                 !customFieldsSet.has(key) &&
                 key !== "column_mapping"
               ) {
-                customFieldsSet.add(key); // Add the custom field to the set
+                customFieldsSet.add(key);
                 acc.push({
                   title: key,
                   dataIndex: `custom_fields.${key}`,
-                  width: 90,
-                  ellipsis: true,
+                  width: 150,
+                  ellipsis: false,
                 });
               }
             }
