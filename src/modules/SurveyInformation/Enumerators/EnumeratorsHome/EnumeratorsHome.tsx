@@ -227,8 +227,6 @@ function EnumeratorsHome() {
           return;
         }
 
-        message.success("Enumerators loaded successfully.");
-
         // Initialize counters
         let activeCount = 0;
         let inactiveCount = 0;
@@ -583,7 +581,6 @@ function EnumeratorsHome() {
                   rowSelection={rowSelection}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
-                  style={{ marginTop: 30 }}
                   scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
                   pagination={{
                     pageSize: paginationPageSize,
