@@ -54,6 +54,9 @@ function SurveyStatusMapping() {
   const { loading: isBasicInfoLoading, basicInfo } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const [formIdName, setFormIdName] = useState<string>("");
   const [isFormConfirmed, setIsFormConfirmed] = useState<boolean>(false);
@@ -295,7 +298,10 @@ function SurveyStatusMapping() {
 
   return (
     <>
-      {isLoading || isMappingLoading || isBasicInfoLoading ? (
+      {isLoading ||
+      isMappingLoading ||
+      isBasicInfoLoading ||
+      isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

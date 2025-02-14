@@ -74,6 +74,10 @@ function SurveyCTOQuestions() {
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
@@ -231,7 +235,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading) {
+    if (isLoading || isSideMenuLoading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {

@@ -76,7 +76,9 @@ function EditSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
-
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
   const fetchAllPermissions = async () => {
     const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
@@ -240,7 +242,7 @@ function EditSurveyRoles() {
       <HeaderContainer>
         <Title>Survey Roles</Title>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>

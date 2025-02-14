@@ -96,6 +96,10 @@ function EnumeratorsMap() {
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const errorTableColumn = [
     {
       title: "Error type",
@@ -471,7 +475,7 @@ function EnumeratorsMap() {
           })()}
         </Title>
       </NavWrapper>
-      {isLoading || quesLoading || locLoading ? (
+      {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

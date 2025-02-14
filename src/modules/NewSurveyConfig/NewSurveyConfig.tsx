@@ -159,6 +159,7 @@ function NewSurveyConfig() {
               setActiveSurvey({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
+                state: "Draft",
               })
             );
 
@@ -167,6 +168,7 @@ function NewSurveyConfig() {
               JSON.stringify({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
+                state: "Draft",
               })
             );
 
@@ -308,7 +310,11 @@ function NewSurveyConfig() {
 
           // set the active survey
           dispatch(
-            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+            setActiveSurvey({
+              survey_uid,
+              survey_name: surveyInfo.survey_name,
+              state: surveyInfo.state,
+            })
           );
         }
       });
