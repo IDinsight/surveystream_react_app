@@ -214,27 +214,27 @@ function RowEditingModal({
   };
 
   const setupFormData = () => {
-    // For single edit, use all fields
-    if (data.length <= 1) {
-      const initialData: DataItem = {};
-      fields.forEach((field) => {
-        if (field?.label?.startsWith("custom_fields")) {
-          initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-        } else {
-          initialData[field.labelKey] = data[0][field.labelKey];
-        }
-      });
+    // Get the current location from surveyor_locations
+    const currentLocation = data[0].surveyor_locations?.find(
+      (loc: any) => loc.geo_level_uid === locations[0]?.geo_level_uid
+    )?.location_name;
 
-      setFormData(initialData);
-      setUpdatedFields(fields);
-      editForm.setFieldsValue(initialData);
-      return;
-    }
+    const initialData: DataItem = {};
+    fields.forEach((field) => {
+      if (field?.label?.startsWith("custom_fields")) {
+        initialData[field.label] =
+          data[0]["custom_fields"][field.labelKey] || "";
+      } else if (field.labelKey === "location") {
+        // Use the found location from surveyor_locations
+        initialData.location = currentLocation || "";
+      } else {
+        initialData[field.labelKey] = data[0][field.labelKey] || "";
+      }
+    });
 
-    // For bulk edit, wait for fetchEnumeratorsColumnConfig
-    if (form_uid) {
-      fetchEnumeratorsColumnConfig(form_uid);
-    }
+    setFormData(initialData);
+    setUpdatedFields(fields);
+    editForm.setFieldsValue(initialData);
   };
 
   useEffect(() => {
@@ -281,31 +281,51 @@ function RowEditingModal({
                   required
                   key={idx}
                   id={`${field.label}-id`}
-                  name={field.label}
-                  initialValue={field.label ? data[0][field.label] : ""}
-                  label={<span>{field.labelKey}</span>}
+                  name={field.labelKey}
+                  initialValue={
+                    field.labelKey === "location"
+                      ? data[0].surveyor_locations?.find(
+                          (loc: any) =>
+                            loc.geo_level_uid === locations[0]?.geo_level_uid
+                        )?.location_name
+                      : data[0][field.labelKey]
+                  }
+                  label={
+                    <span>
+                      {field.labelKey === "location"
+                        ? "Geo Level ID"
+                        : field.labelKey}
+                    </span>
+                  }
                   rules={[
                     {
                       required: true,
-                      message: `Please enter ${field.labelKey}`,
+                      message: `Please enter ${
+                        field.labelKey === "location"
+                          ? "Geo Level ID"
+                          : field.labelKey
+                      }`,
                     },
                   ]}
                 >
                   {field.labelKey === `location` ? (
                     <Select
-                      placeholder="Select location"
+                      placeholder={data[0].location || "Select location"}
                       style={{ width: "100%" }}
                       defaultValue={data[0].location}
                     >
                       {Array.isArray(locations) && locations.length > 0 ? (
-                        locations.map((location: any) => (
-                          <Select.Option
-                            key={location.location_id}
-                            value={location.location_name}
-                          >
-                            {location.location_name}
-                          </Select.Option>
-                        ))
+                        locations.map((location: any) => {
+                          const locationDisplay = `${location.location_uid}_${location.location_name}`;
+                          return (
+                            <Select.Option
+                              key={location.location_id}
+                              value={location.location_name}
+                            >
+                              {locationDisplay}
+                            </Select.Option>
+                          );
+                        })
                       ) : (
                         <Select.Option value={data[0].location}>
                           {data[0].location || "No location"}

@@ -299,7 +299,6 @@ function EnumeratorsHome() {
         const hasSurveyorLocations = originalData.some(
           (enumerator: any) => enumerator.surveyor_locations?.length > 0
         );
-
         // Define column mappings
         let columnMappings = Object.keys(originalData[0])
           .filter((column) => !columnsToExclude.includes(column))
@@ -318,20 +317,14 @@ function EnumeratorsHome() {
         // Only add location columns if surveyor_locations exist
         if (hasSurveyorLocations) {
           columnMappings.push({
-            title: "Location",
+            title: "Geo Level Name",
             dataIndex: "location",
             width: 90,
             ellipsis: true,
           });
           columnMappings.push({
-            title: "Location ID",
-            dataIndex: "location_id",
-            width: 90,
-            ellipsis: true,
-          });
-          columnMappings.push({
-            title: "Location Name",
-            dataIndex: "location_name",
+            title: "Geo Level ID",
+            dataIndex: "location_uid",
             width: 90,
             ellipsis: true,
           });
@@ -348,8 +341,7 @@ function EnumeratorsHome() {
           return {
             ...enumerator,
             location: matchingLocation?.location_name || null,
-            location_id: matchingLocation?.location_id || null,
-            location_name: matchingLocation?.geo_level_name || null,
+            location_uid: matchingLocation?.location_uid || null,
           };
         });
 
