@@ -59,6 +59,10 @@ function TargetsConfig() {
   >([]);
   const [screenMode, setScreenMode] = useState<string>("manage");
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchTargetConfig = async () => {
     setLoading(true);
     const response = await dispatch(getTargetConfig({ form_uid: form_uid! }));
@@ -214,7 +218,7 @@ function TargetsConfig() {
       <HeaderContainer>
         <Title>Targets: Configuration</Title>
       </HeaderContainer>
-      {loading ? (
+      {loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

@@ -66,6 +66,10 @@ function EnumeratorsUpload() {
     (state: RootState) => state.enumerators.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const errorTableColumn = [
     {
       title: "Error type",
@@ -148,7 +152,7 @@ function EnumeratorsUpload() {
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

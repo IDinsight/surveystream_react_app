@@ -21,6 +21,7 @@ import dqChecksReducer from "./dqChecks/dqChecksSlice";
 import tableConfigSlice from "./tableConfig/tableConfigSlice";
 import adminFormsReducer from "./adminForm/adminFormSlice";
 import mappingReducer from ".//mapping/mappingSlice";
+import notificationReducer from "./notifications/notificationSlice";
 
 const rootReducer = combineReducers({
   moduleStatuses: moduleStatusesReducer,
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
   tableConfig: tableConfigSlice,
   adminForms: adminFormsReducer,
   mapping: mappingReducer,
+  notifications: notificationReducer,
 });
 
 export default rootReducer;

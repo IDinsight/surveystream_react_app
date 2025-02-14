@@ -24,9 +24,9 @@ import {
 import { Menu, MenuProps } from "antd";
 
 import { useEffect, useState } from "react";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
+import { userHasPermission, isAdmin } from "../../utils/helper";
 
 function SideMenu() {
   const location = useLocation();
@@ -46,11 +46,47 @@ function SideMenu() {
     (state: RootState) => state.surveyCTOInformation
   );
 
+  const { loading: isSurveyModulesLoading, surveyModules: surveyModules } =
+    useAppSelector((state: RootState) => state.surveyConfig);
+
   const [formUID, setFormUID] = useState<string>("");
+  const userProfile = useAppSelector((state: RootState) => state.auth.profile);
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
     return path.includes(currentPath) ? "active" : "";
+  };
+
+  const checkPermissions = (sectionTitle: string) => {
+    let permission_name: string;
+
+    switch (sectionTitle) {
+      case "Survey locations":
+        permission_name = "READ Survey Locations";
+        break;
+      case "User and role management":
+        permission_name = "Survey Admin";
+        break;
+      case "SurveyCTO information":
+        permission_name = "Survey Admin";
+        break;
+      case "Enumerators":
+        permission_name = "READ Enumerators";
+        break;
+      case "Targets":
+        permission_name = "READ Targets";
+        break;
+      case "Mapping":
+        permission_name = "READ Mapping";
+        break;
+      case "Target status mapping":
+        permission_name = "READ Target Status Mapping";
+        break;
+      default:
+        permission_name = sectionTitle;
+        break;
+    }
+    return userHasPermission(userProfile, survey_uid, permission_name);
   };
 
   const items: MenuProps["items"] = [
@@ -374,6 +410,43 @@ function SideMenu() {
       key: "targetStatusMapping",
     },
   ];
+
+  const filteredItems = items.filter((item) => {
+    let module_name: string;
+    let permission_name: string;
+    if (item?.key === "surveyLocation") {
+      module_name = "Survey locations";
+      permission_name = "READ Survey Locations";
+    } else if (item?.key === "surveyRolesAndUsers") {
+      module_name = "User and role management";
+      permission_name = "Survey Admin";
+    } else if (item?.key === "surveyInformation") {
+      module_name = "SurveyCTO information";
+      permission_name = "Survey Admin";
+    } else if (item?.key === "surveyEnumerators") {
+      module_name = "Enumerators";
+      permission_name = "READ Enumerators";
+    } else if (item?.key === "surveyTargets") {
+      module_name = "Targets";
+      permission_name = "READ Targets";
+    } else if (item?.key === "supervisorMapping") {
+      module_name = "Mapping";
+      permission_name = "READ Mapping";
+    } else if (item?.key === "targetStatusMapping") {
+      module_name = "Target status mapping";
+      permission_name = "READ Target Status Mapping";
+    } else {
+      return true;
+    }
+
+    return (
+      userHasPermission(userProfile, survey_uid, permission_name) &
+      surveyModules.data.some(
+        (module: { name: string }) => module.name === module_name
+      )
+    );
+  });
+
   const [current, setCurrent] = useState("mail");
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
@@ -426,7 +499,7 @@ function SideMenu() {
         openKeys={openKeys}
         onOpenChange={(key) => setOpenKeys(key)}
         mode="inline"
-        items={items}
+        items={filteredItems}
       />
     </SideMenuWrapper>
   );

@@ -26,6 +26,8 @@ import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyCon
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { CustomBtn } from "../../../shared/Global.styled";
+import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
+import { set } from "lodash";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -36,7 +38,12 @@ function SurveyLocationHierarchy() {
     survey_uid: "",
   };
   const [loading, setLoading] = useState(false);
-  const [surveyBasicInformation, setSurveyBasicInformation] = useState({});
+  interface SurveyBasicInformation {
+    prime_geo_level_uid: string | null;
+  }
+
+  const [surveyBasicInformation, setSurveyBasicInformation] =
+    useState<SurveyBasicInformation | null>(null);
   const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
     useState<any>("no_location");
 
@@ -53,8 +60,14 @@ function SurveyLocationHierarchy() {
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
+  const [initialSurveyLocationGeoLevels] = useState(surveyLocationGeoLevels);
+
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyLocations.loading
+  );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
@@ -78,6 +91,24 @@ function SurveyLocationHierarchy() {
       message.error(
         "Could not load survey basic information, kindly reload to try again"
       );
+    }
+  };
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  const createNotification = async () => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
     }
   };
 
@@ -216,20 +247,59 @@ function SurveyLocationHierarchy() {
     };
 
     dispatch(setSurveyLocationGeoLevels(updatedLevels));
+    checkNotificationConditions();
+    return;
   };
 
   const handlePrimeSelectChange = (value: any) => {
     setSurveyPrimeGeoLocation(value);
+    if (
+      surveyBasicInformation &&
+      value !== surveyBasicInformation.prime_geo_level_uid &&
+      !notifications.includes("Prime location updated")
+    ) {
+      setNotifications([...notifications, "Prime location updated"]);
+    }
+    if (
+      surveyBasicInformation &&
+      value === surveyBasicInformation.prime_geo_level_uid
+    ) {
+      const filteredNotification = notifications.filter(
+        (notification) => notification !== "Prime location updated"
+      );
+      setNotifications(filteredNotification);
+    }
+  };
+
+  const checkNotificationConditions = async () => {
+    // Check if hierarchy has changed
+    const initialHierarchy = initialSurveyLocationGeoLevels.map(
+      (level: any) => level.parent_geo_level_uid
+    );
+
+    const currentHierarchy = surveyLocationGeoLevels.map(
+      (level) => level.parent_geo_level_uid
+    );
+
+    if (JSON.stringify(initialHierarchy) !== JSON.stringify(currentHierarchy)) {
+      setNotifications([...notifications, "Location hierarchy changed"]);
+    } else {
+      const filteredNotification = notifications.filter(
+        (notification) => notification !== "Location hierarchy changed"
+      );
+      setNotifications(filteredNotification);
+    }
   };
 
   const handleHierarchyContinue = async () => {
     try {
       if (survey_uid != undefined) {
+        await form.validateFields();
         setLoading(true);
 
-        await form.validateFields();
-
         const surveyGeoLevelsData = surveyLocationGeoLevels;
+
+        await createNotification();
 
         const geoLevelsRes = await dispatch(
           postSurveyLocationGeoLevels({
@@ -244,6 +314,7 @@ function SurveyLocationHierarchy() {
           return;
         } else {
           message.success("Location level hierarchy updated successfully.");
+
           if (
             surveyPrimeGeoLocation !== null &&
             surveyPrimeGeoLocation !== "no_location"
@@ -277,6 +348,7 @@ function SurveyLocationHierarchy() {
 
   useEffect(() => {
     fetchGeoLevelData();
+
     return () => {
       dispatch(resetSurveyLocations());
     };
@@ -294,7 +366,7 @@ function SurveyLocationHierarchy() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
       </HeaderContainer>
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -330,7 +402,9 @@ function SurveyLocationHierarchy() {
             </div>
             <CustomBtn
               loading={loading}
-              onClick={handleHierarchyContinue}
+              onClick={async () => {
+                await handleHierarchyContinue();
+              }}
               style={{ marginTop: 24 }}
             >
               Save

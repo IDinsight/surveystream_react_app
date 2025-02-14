@@ -58,6 +58,10 @@ function SurveyRoleHierarchy() {
     (state: RootState) => state.userRoles.loading
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const handleGoBack = () => {
     if (window.history.length > 1) {
       navigate(-1);
@@ -274,7 +278,7 @@ function SurveyRoleHierarchy() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
       </HeaderContainer>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

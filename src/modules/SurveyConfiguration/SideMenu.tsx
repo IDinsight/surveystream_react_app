@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { Progress, Tooltip, List } from "antd";
 import {
   HelpCard,
   StepCard,
@@ -6,143 +6,122 @@ import {
   SideMenuWrapper,
   HelpList,
   HelpListItem,
+  ToolTipText,
 } from "./SurveyConfiguration.styled";
 
 interface SurveyProgress {
   [key: string]: string[] | any;
 }
 
+interface CompletionStats {
+  num_modules: number;
+  num_completed: number;
+  num_in_progress: number;
+  num_in_progress_incomplete: number;
+  num_not_started: number;
+  num_error: number;
+  num_optional: number;
+}
+
 function SideMenu({
   surveyProgress,
+  completionStats,
   windowHeight,
 }: {
   surveyProgress: SurveyProgress;
+  completionStats: CompletionStats;
   windowHeight: number;
 }) {
+  const numModules = completionStats?.num_modules || 0;
+  const numCompleted = completionStats?.num_completed || 0;
+  const numInProgress = completionStats?.num_in_progress || 0;
+  const numInProgressIncomplete =
+    completionStats?.num_in_progress_incomplete || 0;
+  const numError = completionStats?.num_error || 0;
+  const numNotStarted = completionStats?.num_not_started || 0;
+  const numOptional = completionStats?.num_optional || 0;
+
+  const size = 170 / (numModules === 0 ? 10 : numModules);
+
+  const getStrokeColor = (step: number) => {
+    if (step <= numCompleted) {
+      return "#359d73"; // Green (Completed)
+    } else if (step <= numCompleted + numInProgress) {
+      return "#eec76b"; // Different green (In Progress but Completed)
+    } else if (step <= numCompleted + numInProgress + numInProgressIncomplete) {
+      return "#ea8553"; // Orange (In Progress and Incomplete)
+    } else if (
+      step <=
+      numCompleted + numInProgress + numInProgressIncomplete + numError
+    ) {
+      return "#d70e17"; // Red (Error)
+    } else {
+      return "#d9d9d9"; // Grey (Not Started)
+    }
+  };
+
+  const getTooltipTitle = () => {
+    return [
+      numCompleted + numInProgress == numModules ? (
+        <ToolTipText key="completedAll">
+          Congratulations! All {numModules} modules are complete.
+        </ToolTipText>
+      ) : null,
+      numNotStarted == numModules ? (
+        <ToolTipText key="notStarted">
+          Get started! {numModules} modules to configure.
+        </ToolTipText>
+      ) : null,
+      numCompleted + numInProgress < numModules ? (
+        <ToolTipText key="inProgress">
+          Keep going! {numModules - numCompleted - numInProgress} out of{" "}
+          {numModules} modules remaining:
+          <ol
+            style={{
+              paddingTop: "0px",
+              paddingLeft: "20px",
+              listStyleType: "circle",
+            }}
+          >
+            {numInProgressIncomplete ? (
+              <li>{numInProgressIncomplete} modules incomplete</li>
+            ) : null}
+            {numError ? <li>{numError} modules with errors</li> : null}
+            {numNotStarted ? (
+              <li>{numNotStarted} modules not started</li>
+            ) : null}
+          </ol>
+        </ToolTipText>
+      ) : null,
+      numOptional ? (
+        <ToolTipText key="optional">
+          Note: {numOptional} optional module
+          {numOptional > 1 ? "s are" : " is"} not included in the progress bar.
+        </ToolTipText>
+      ) : null,
+    ];
+  };
+
   return (
     <SideMenuWrapper windowHeight={windowHeight}>
       <StepCard title="Configuration completion">
         <StepsWrapper>
-          <div
-            style={{
-              width: "24%",
-              display: "inline-block",
-              marginRight: "2px",
-            }}
-          >
+          <Tooltip title={getTooltipTitle()}>
             <Progress
-              percent={
-                surveyProgress["Basic Information"]?.status === "Done" ||
-                surveyProgress["Basic Information"]?.status === "Error"
-                  ? 100
-                  : 0
-              }
-              strokeColor={
-                surveyProgress["Basic Information"]?.status === "Error"
-                  ? "#F5222D"
-                  : "#1D39C4"
-              }
+              type="line"
+              steps={numModules || 10}
+              percent={100}
+              size={[size, 10]}
               showInfo={false}
+              trailColor={"#d9d9d9"}
+              strokeColor={Array.from(
+                { length: completionStats?.num_modules },
+                (_, index) => {
+                  return getStrokeColor(index + 1);
+                }
+              )}
             />
-          </div>
-          <div
-            style={{
-              width: "24%",
-              display: "inline-block",
-              marginRight: "2px",
-            }}
-          >
-            <Progress
-              percent={
-                surveyProgress["Module Selection"]?.status === "Done" ||
-                surveyProgress["Module Selection"]?.status === "Error"
-                  ? 100
-                  : 0
-              }
-              strokeColor={
-                surveyProgress["Module Selection"]?.status === "Error"
-                  ? "#F5222D"
-                  : "#1D39C4"
-              }
-              showInfo={false}
-            />
-          </div>
-          <div
-            style={{
-              width: "24%",
-              display: "inline-block",
-              marginRight: "2px",
-            }}
-          >
-            <Progress
-              percent={
-                Array.isArray(surveyProgress["Survey Information"]) &&
-                surveyProgress["Survey Information"].every(
-                  (step, index, array) =>
-                    index === array.length - 1 && step.status === "Done"
-                )
-                  ? 100
-                  : 0
-              }
-              strokeColor={
-                Array.isArray(surveyProgress["Survey Information"]) &&
-                surveyProgress["Survey Information"].some(
-                  (step) => step.status === "Error"
-                )
-                  ? "#F5222D"
-                  : surveyProgress["Survey Information"]?.length > 0 &&
-                    surveyProgress["Survey Information"].length ===
-                      surveyProgress["Survey Information"].filter(
-                        (step: { status: string }) => step.status === "Done"
-                      ).length
-                  ? "#52C41A"
-                  : "#1D39C4"
-              }
-              showInfo={
-                Array.isArray(surveyProgress["Survey Information"]) &&
-                surveyProgress["Survey Information"].length > 0 &&
-                surveyProgress["Survey Information"].length ===
-                  surveyProgress["Survey Information"].filter(
-                    (step) => step.status === "Done"
-                  ).length
-              }
-            />
-          </div>
-          <div style={{ width: "24%", display: "inline-block" }}>
-            <Progress
-              percent={
-                Array.isArray(surveyProgress["Module Configuration"]) &&
-                surveyProgress["Module Configuration"].every(
-                  (step, index, array) =>
-                    index === array.length - 1 && step.status === "Done"
-                )
-                  ? 100
-                  : 0
-              }
-              strokeColor={
-                Array.isArray(surveyProgress["Module Configuration"]) &&
-                surveyProgress["Module Configuration"].some(
-                  (step) => step.status === "Error"
-                )
-                  ? "#F5222D"
-                  : surveyProgress["Module Configuration"]?.length > 0 &&
-                    surveyProgress["Module Configuration"].length ===
-                      surveyProgress["Module Configuration"].filter(
-                        (step: { status: string }) => step.status === "Done"
-                      ).length
-                  ? "#52C41A"
-                  : "#1D39C4"
-              }
-              showInfo={
-                Array.isArray(surveyProgress["Module Configuration"]) &&
-                surveyProgress["Module Configuration"].length > 0 &&
-                surveyProgress["Module Configuration"].length ===
-                  surveyProgress["Module Configuration"].filter(
-                    (step) => step.status === "Done"
-                  ).length
-              }
-            />
-          </div>
+          </Tooltip>
         </StepsWrapper>
         <div
           style={{
