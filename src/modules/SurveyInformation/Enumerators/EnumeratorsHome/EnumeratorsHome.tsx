@@ -29,7 +29,7 @@ import { getEnumerators } from "../../../../redux/enumerators/enumeratorsActions
 
 import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { use } from "chai";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
@@ -527,7 +527,7 @@ function EnumeratorsHome() {
                   color: "#2F54EB",
                 }}
               >
-                <Button
+                <CustomBtn
                   type="primary"
                   icon={<EditOutlined />}
                   style={{
@@ -540,7 +540,7 @@ function EnumeratorsHome() {
                   disabled={editMode ? false : true}
                 >
                   Edit
-                </Button>
+                </CustomBtn>
                 <Button
                   onClick={handlerAddEnumBtn}
                   type="primary"
