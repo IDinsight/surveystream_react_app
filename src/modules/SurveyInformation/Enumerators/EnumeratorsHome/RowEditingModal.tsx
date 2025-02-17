@@ -67,6 +67,8 @@ function RowEditingModal({
     "monitor_locations",
     "home_address",
   ]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
@@ -215,20 +217,22 @@ function RowEditingModal({
     }
   };
 
-  const setupFormData = () => {
-    // Get the current location from surveyor_locations
-    const currentLocation = data[0].surveyor_locations?.find(
+  // Get the current location value once when modal opens
+  const currentLocation =
+    data[0].surveyor_locations?.find(
       (loc: any) => loc.geo_level_uid === locations[0]?.geo_level_uid
-    )?.location_name;
+    )?.location_name ||
+    data[0].location ||
+    "";
 
+  const setupFormData = () => {
     const initialData: DataItem = {};
     fields.forEach((field) => {
       if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] =
           data[0]["custom_fields"][field.labelKey] || "";
       } else if (field.labelKey === "location") {
-        // Use the found location from surveyor_locations
-        initialData.location = currentLocation || "";
+        initialData.location = currentLocation;
       } else {
         initialData[field.labelKey] = data[0][field.labelKey] || "";
       }
@@ -240,12 +244,12 @@ function RowEditingModal({
   };
 
   useEffect(() => {
-    setupFormData();
-    // Only fetch bulk config if needed
-    if (form_uid && data.length > 1) {
-      fetchEnumeratorsColumnConfig(form_uid);
+    if (editMode) {
+      setIsLoading(true);
+      setupFormData();
+      setIsLoading(false);
     }
-  }, []);
+  }, [editMode, currentLocation]);
 
   return (
     <>
@@ -282,41 +286,31 @@ function RowEditingModal({
                 <Form.Item
                   required
                   key={idx}
-                  id={`${field.label}-id`}
                   name={field.labelKey}
                   initialValue={
                     field.labelKey === "location"
-                      ? data[0].surveyor_locations?.find(
-                          (loc: any) =>
-                            loc.geo_level_uid === locations[0]?.geo_level_uid
-                        )?.location_name
-                      : data[0][field.labelKey]
+                      ? currentLocation
+                      : data[0][field.labelKey] || ""
                   }
                   label={
                     <span>
                       {field.labelKey === "location"
-                        ? `${primeLocationName}`
+                        ? primeLocationName
                         : field.labelKey}
                     </span>
                   }
                   rules={[
                     {
                       required: true,
-                      message: `Please enter ${
-                        field.labelKey === "location"
-                          ? "Geo Level ID"
-                          : field.labelKey
-                      }`,
+                      message: `Please enter ${field.labelKey}`,
                     },
                   ]}
                 >
                   {field.labelKey === `location` ? (
-                    <Select
-                      placeholder={data[0].location || "Select location"}
-                      style={{ width: "100%" }}
-                      defaultValue={data[0].location}
-                    >
-                      {Array.isArray(locations) && locations.length > 0 ? (
+                    <Select style={{ width: "100%" }} loading={isLoading}>
+                      {!isLoading &&
+                      Array.isArray(locations) &&
+                      locations.length > 0 ? (
                         locations.map((location: any) => {
                           const locationDisplay = `${location.location_uid} - ${location.location_name}`;
                           return (
@@ -329,8 +323,8 @@ function RowEditingModal({
                           );
                         })
                       ) : (
-                        <Select.Option value={data[0].location}>
-                          {data[0].location || "No location"}
+                        <Select.Option value={currentLocation}>
+                          {currentLocation}
                         </Select.Option>
                       )}
                     </Select>
