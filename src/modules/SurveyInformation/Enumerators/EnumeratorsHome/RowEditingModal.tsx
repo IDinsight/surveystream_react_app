@@ -312,7 +312,7 @@ function RowEditingModal({
                       Array.isArray(locations) &&
                       locations.length > 0 ? (
                         locations.map((location: any) => {
-                          const locationDisplay = `${location.location_uid} - ${location.location_name}`;
+                          const locationDisplay = `${location.location_id} - ${location.location_name}`;
                           return (
                             <Select.Option
                               key={location.location_id}
