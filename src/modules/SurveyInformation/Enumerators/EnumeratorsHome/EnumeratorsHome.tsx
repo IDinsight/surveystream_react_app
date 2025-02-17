@@ -77,6 +77,7 @@ function EnumeratorsHome() {
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
+  const [primeLocationName, setPrimeLocationName] = useState<any>(null);
 
   // Add a new loading state for the table specifically
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -145,7 +146,7 @@ function EnumeratorsHome() {
     if (hasSurveyorLocations) {
       filteredFields.push({
         labelKey: "location",
-        label: "location",
+        label: `${primeLocationName} Name`,
       });
 
       // Fetch locations in background
@@ -299,6 +300,10 @@ function EnumeratorsHome() {
         const hasSurveyorLocations = originalData.some(
           (enumerator: any) => enumerator.surveyor_locations?.length > 0
         );
+        const primeLocationName = originalData[0].surveyor_locations?.find(
+          (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
+        )?.geo_level_name;
+        setPrimeLocationName(primeLocationName);
         // Define column mappings
         let columnMappings = Object.keys(originalData[0])
           .filter((column) => !columnsToExclude.includes(column))
@@ -317,14 +322,15 @@ function EnumeratorsHome() {
         // Only add location columns if surveyor_locations exist
         if (hasSurveyorLocations) {
           columnMappings.push({
-            title: "Geo Level Name",
+            // this title should be e.g. District Name or county name depending on the key location_name
+            title: `${primeLocationName} Name`,
             dataIndex: "location",
             width: 150,
             ellipsis: false,
           });
           columnMappings.push({
-            title: "Geo Level ID",
-            dataIndex: "location_uid",
+            title: `${primeLocationName} ID`,
+            dataIndex: "location_id",
             width: 150,
             ellipsis: false,
           });
@@ -342,6 +348,7 @@ function EnumeratorsHome() {
             ...enumerator,
             location: matchingLocation?.location_name || null,
             location_uid: matchingLocation?.location_uid || null,
+            location_id: matchingLocation?.location_id || null,
           };
         });
 
@@ -592,6 +599,7 @@ function EnumeratorsHome() {
                     editMode={editMode}
                     survey_uid={survey_uid}
                     locations={locations}
+                    primeLocationName={primeLocationName}
                   />
                 ) : null}
               </EnumeratorsHomeFormWrapper>

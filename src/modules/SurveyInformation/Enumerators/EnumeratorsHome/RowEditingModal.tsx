@@ -19,6 +19,7 @@ interface IRowEditingModal {
   editMode: boolean;
   survey_uid: any;
   locations: any[];
+  primeLocationName: string;
 }
 
 interface Field {
@@ -43,6 +44,7 @@ function RowEditingModal({
   editMode,
   survey_uid,
   locations,
+  primeLocationName,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -293,7 +295,7 @@ function RowEditingModal({
                   label={
                     <span>
                       {field.labelKey === "location"
-                        ? "Geo Level ID"
+                        ? `${primeLocationName}`
                         : field.labelKey}
                     </span>
                   }
@@ -316,7 +318,7 @@ function RowEditingModal({
                     >
                       {Array.isArray(locations) && locations.length > 0 ? (
                         locations.map((location: any) => {
-                          const locationDisplay = `${location.location_uid}_${location.location_name}`;
+                          const locationDisplay = `${location.location_uid} - ${location.location_name}`;
                           return (
                             <Select.Option
                               key={location.location_id}
@@ -350,7 +352,7 @@ function RowEditingModal({
             style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
             onClick={updateHandler}
           >
-            Update
+            Save
           </Button>
         </div>
       </Drawer>
