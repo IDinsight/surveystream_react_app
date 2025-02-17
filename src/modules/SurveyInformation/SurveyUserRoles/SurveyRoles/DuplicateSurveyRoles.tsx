@@ -71,6 +71,11 @@ function DuplicateSurveyRoles() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchAllPermissions = async () => {
     const res = await dispatch(getAllPermissions({ survey_uid: survey_uid }));
     setAllPermissions(res.payload);
@@ -205,7 +210,7 @@ function DuplicateSurveyRoles() {
     fetchAllPermissions();
   }, [dispatch]);
 
-  const isLoading = loading || isuserRolesLoading;
+  const isLoading = loading || isuserRolesLoading || isSideMenuLoading;
 
   return (
     <>

@@ -14,7 +14,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.13",
+    "@types/node": "^16.18.125",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/react-redux": "^7.1.25",
@@ -23,8 +23,9 @@
     "axios": "^1.4.0",
     "buffer": "^6.0.3",
     "csv-file-validator": "^2.1.0",
-    "dayjs": "^1.11.8",
+    "dayjs": "^1.11.13",
     "env-cmd": "^10.1.0",
+    "jsep": "^1.4.0",
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "pbkdf2": "^3.1.2",
@@ -42,6 +43,7 @@
     "react-scripts": "5.0.1",
     "redux": "^4.2.1",
     "styled-components": "^5.3.9",
+    "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
   },
   "scripts": {
@@ -54,6 +56,7 @@
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "eject": "react-scripts eject",
     "ts-coverage": "typescript-coverage-report",
+    "parser-test": "ts-node src/utils/parser.test.ts",
     "cypress:run-all": "npx cypress run"
   },
   "eslintConfig": {

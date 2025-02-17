@@ -104,6 +104,7 @@ function SurveysHomePage() {
                               start={getDayMonth(survey.planned_start_date)}
                               end={getDayMonth(survey.planned_end_date)}
                               state="Active"
+                              error={survey.error}
                             />
                           ))}
                         </div>
@@ -124,6 +125,7 @@ function SurveysHomePage() {
                                 lastUpdatedAt={getDayMonth(
                                   survey.last_updated_at
                                 )}
+                                error={survey.error}
                               />
                             </div>
                           ))}

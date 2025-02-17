@@ -44,6 +44,7 @@ import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
   type: string;
@@ -87,6 +88,9 @@ function TargetsMap() {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -277,6 +281,16 @@ function TargetsMap() {
           handleTargetColumnConfig(form_uid, column_mapping);
 
           setHasError(false);
+
+          // Set any unresolved target notifications to resolved
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 8,
+              resolution_status: "done",
+            })
+          );
+
           //route to manage
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
         } else {
@@ -503,7 +517,7 @@ function TargetsMap() {
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      {isLoading || quesLoading || locLoading ? (
+      {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -538,8 +552,14 @@ function TargetsMap() {
                                   !moduleQuestionnaire?.target_mapping_criteria.includes(
                                     "Location"
                                   )) ||
-                                item.key === "gender" ||
-                                item.key === "language"
+                                (item.key === "gender" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Gender"
+                                  )) ||
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Language"
+                                  ))
                                   ? false
                                   : true,
                               message: "Kindly select column to map value!",

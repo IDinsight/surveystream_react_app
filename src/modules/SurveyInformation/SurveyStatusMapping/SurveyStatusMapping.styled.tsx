@@ -21,6 +21,7 @@ export const BodyContainer = styled.div`
   margin-left: auto;
   margin-top: 12px;
   margin-bottom: 12px;
+  margin-right: 40px;
 `;
 
 export const EditingModel = styled.div`

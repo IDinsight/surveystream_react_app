@@ -9,7 +9,6 @@ class BasicInformationPage {
     projectNameInput: () => cy.get("#basic-information-project-name"),
     surveyDescriptionInput: () =>
       cy.get("#basic-information-survey-description"),
-    irbApprovalInput: () => cy.get("#basic-information-irb-approval"),
     startDateInput: () => cy.get("#basic-information-start-date"),
     endDateInput: () => cy.get("#basic-information-end-date"),
   };
@@ -62,9 +61,6 @@ class BasicInformationPage {
   }
   getSurveyMethod() {
     return this.elements.surveyMethodInput();
-  }
-  getIRBApproval() {
-    return this.elements.irbApprovalInput();
   }
   getStartDate() {
     return this.elements.startDateInput();

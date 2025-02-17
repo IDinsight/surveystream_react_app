@@ -265,6 +265,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                           onChange={() =>
                             handleCheckboxChange(module.module_id.toString())
                           }
+                          disabled={module.module_id === 10} // Disable Track productivity module
                           checked={isCardSelected(module.module_id.toString())}
                         >
                           I need this module in my survey

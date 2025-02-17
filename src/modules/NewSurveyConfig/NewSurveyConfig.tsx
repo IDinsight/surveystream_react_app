@@ -8,6 +8,7 @@ import {
   BackLink,
   BackArrow,
   Title,
+  HeaderContainer,
   MainWrapper,
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
@@ -86,18 +87,18 @@ function NewSurveyConfig() {
   };
 
   const handleBack = async () => {
-    if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] == 0) return;
-
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        mqIndex: prev["mqIndex"] - 1,
-      }));
+    if (stepIndex["sidebar"] >= 1) {
+      if (stepIndex["mqIndex"] <= 1) {
+        setStepIndex((prev: IStepIndex) => ({
+          ...prev,
+          sidebar: prev["sidebar"] - 1,
+        }));
+      }
     }
   };
   const handleModuleQuestionnaireContinue = async () => {
-    if (stepIndex["sidebar"] == 1) {
-      if (stepIndex["mqIndex"] >= 2) {
+    if (stepIndex["sidebar"] >= 1) {
+      if (stepIndex["mqIndex"] >= 0) {
         if (moduleQuestionnaireformData === null) {
           messageApi.open({
             type: "error",
@@ -116,30 +117,6 @@ function NewSurveyConfig() {
             key: "surveyor_mapping_criteria",
             message:
               "Please select the supervisor to surveyor assignment criteria",
-          },
-          {
-            key: "supervisor_hierarchy_exists",
-            message: "Please select the supervisor hierarchy",
-          },
-          {
-            key: "target_assignment_criteria",
-            message: "Please select the target assignment criteria",
-          },
-          {
-            key: "reassignment_required",
-            message: "Please select the reassignment required",
-          },
-          {
-            key: "assignment_process",
-            message: "Please select the assignment process",
-          },
-          {
-            key: "supervisor_surveyor_relation",
-            message: "Please select the supervisor surveyor relation",
-          },
-          {
-            key: "language_location_mapping",
-            message: "Please select the language location mapping",
           },
         ];
 
@@ -182,6 +159,7 @@ function NewSurveyConfig() {
               setActiveSurvey({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
+                state: "Draft",
               })
             );
 
@@ -190,6 +168,7 @@ function NewSurveyConfig() {
               JSON.stringify({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
+                state: "Draft",
               })
             );
 
@@ -215,11 +194,6 @@ function NewSurveyConfig() {
         }
         return;
       }
-
-      setStepIndex((prev: IStepIndex) => ({
-        ...prev,
-        mqIndex: prev["mqIndex"] + 1,
-      }));
     }
   };
 
@@ -235,12 +209,6 @@ function NewSurveyConfig() {
       const validationRules = [
         { key: "survey_name", message: "Please fill in the Survey name" },
         { key: "survey_id", message: "Please fill in the Survey ID" },
-
-        {
-          key: "survey_description",
-          message: "Please fill in the Survey description",
-        },
-        { key: "irb_approval", message: "Please fill in the IRB approval" },
         {
           key: "surveying_method",
           message: "Please fill in the Survey method",
@@ -342,7 +310,11 @@ function NewSurveyConfig() {
 
           // set the active survey
           dispatch(
-            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+            setActiveSurvey({
+              survey_uid,
+              survey_name: surveyInfo.survey_name,
+              state: surveyInfo.state,
+            })
           );
         }
       });
@@ -376,17 +348,27 @@ function NewSurveyConfig() {
           })()}
         </Title>
       </NavWrapper>
-      <div style={{ display: "flex" }}>
+      <HeaderContainer>
+        <div style={{ display: "flex", marginBottom: "15px" }}>
+          <Title style={{ marginTop: "revert" }}>
+            {stepIndex["sidebar"] === 0
+              ? "Basic information"
+              : "Module questionnaire"}
+          </Title>
+        </div>
+      </HeaderContainer>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
         <SideMenu stepIndex={stepIndex} setStepIndexHandler={setStepIndex} />
         <MainWrapper>
           {contextHolder}
           {stepIndex["sidebar"] === 0 ? (
             <BasicInformationForm setFormData={setBasicFormData} />
           ) : (
-            <ModuleQuestionnaire
-              setFormData={setModuleFormData}
-              stepIndex={stepIndex["mqIndex"]}
-            />
+            <ModuleQuestionnaire setFormData={setModuleFormData} />
           )}
           {isLoading ? (
             " "
@@ -405,7 +387,7 @@ function NewSurveyConfig() {
                   marginLeft: 50,
                   marginRight: 24,
                 }}
-                disabled={stepIndex.sidebar == 0 || stepIndex["mqIndex"] == 0}
+                disabled={stepIndex.sidebar == 0}
               >
                 Back
               </Button>
@@ -418,11 +400,7 @@ function NewSurveyConfig() {
                   stepIndex.sidebar === 0 ? basicformData === null : false
                 }
               >
-                {stepIndex.sidebar === 0
-                  ? "Save"
-                  : stepIndex["mqIndex"] >= 2
-                  ? "Save"
-                  : "Continue"}
+                Save
               </CustomBtn>
             </div>
           )}
