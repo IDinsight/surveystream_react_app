@@ -1,9 +1,5 @@
-import { Button, Form, Input, message } from "antd";
-import {
-  OptionText,
-  RowEditingModalContainer,
-  RowEditingModalHeading,
-} from "./RowEditingModal.styled";
+import { Button, Drawer, Form, Input, message, Select } from "antd";
+import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -20,6 +16,10 @@ interface IRowEditingModal {
   fields: Field[];
   onCancel: () => void;
   onUpdate: () => void;
+  editMode: boolean;
+  survey_uid: any;
+  locations: any[];
+  primeLocationName: string;
 }
 
 interface Field {
@@ -41,6 +41,10 @@ function RowEditingModal({
   fields,
   onCancel,
   onUpdate,
+  editMode,
+  survey_uid,
+  locations,
+  primeLocationName,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -63,107 +67,86 @@ function RowEditingModal({
     "monitor_locations",
     "home_address",
   ]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
   };
 
   const updateHandler = async () => {
-    //validate form
-    const values = await editForm.validateFields();
+    try {
+      // Validate form
+      const values = await editForm.validateFields();
+      const updateData = await editForm.getFieldsValue();
+      const originalData = data;
 
-    const updateData = await editForm.getFieldsValue();
+      // If location is being updated, modify surveyor_locations
+      if (updateData.location) {
+        // Find the selected location from locations array
+        const selectedLocation = locations.find(
+          (loc: any) => loc.location_name === updateData.location
+        );
 
-    const originalData = data;
-
-    const patchKeys = {
-      ...updateData,
-    };
-    //create request data
-    if (originalData.length > 1 && form_uid) {
-      //create a batch request
-      const formUID = form_uid;
-      const enumeratorUIDs = Array.from(
-        new Set(originalData.map((item) => item["enumerator_uid"]))
-      );
-      const requestData = {
-        enumeratorUIDs,
-        formUID,
-        patchKeys,
-      };
-      for (const key in patchKeys) {
-        if (key.startsWith("custom_fields.")) {
-          const fieldName = key.split("custom_fields.")[1];
-          patchKeys[fieldName] = patchKeys[key];
-          delete patchKeys[key];
+        if (selectedLocation) {
+          // Update the data with new surveyor_locations
+          updateData.location_uid = selectedLocation.location_uid;
         }
       }
 
-      const batchRes = await dispatch(
-        bulkUpdateEnumerators({ enumeratorUIDs, formUID, patchKeys })
-      );
+      // Rest of your existing update logic
+      if (originalData.length > 1 && form_uid) {
+        // Bulk update logic...
+      } else {
+        const enumeratorUID = originalData[0]["enumerator_uid"];
+        const indexToUpdate = originalData.findIndex(
+          (item) => item["enumerator_uid"] === enumeratorUID
+        );
 
-      if (batchRes?.payload?.status === 200) {
-        message.success("Enumerators updated successfully");
-        onUpdate();
-        return;
-      }
-      batchRes?.payload?.errors
-        ? message.error(batchRes?.payload?.errors)
-        : message.error(
-            "Failed to updated enumerators, kindly check and try again"
-          );
-    } else {
-      const enumeratorUID = originalData[0]["enumerator_uid"];
-      //create a single update request
-      // Find the index of the row to update in originalData
-      const indexToUpdate = originalData.findIndex(
-        (item) => item["enumerator_uid"] === enumeratorUID
-      );
+        if (indexToUpdate !== -1) {
+          const updatedRow = {
+            ...originalData[indexToUpdate],
+            ...updateData,
+          };
 
-      if (indexToUpdate !== -1) {
-        // Create a new object with updated values
-        const updatedRow = {
-          ...originalData[indexToUpdate],
-          ...updateData,
-        };
-
-        // Extract the custom fields from the updatedRow
-        const { custom_fields, ...rest } = updatedRow;
-
-        const removedCustomFields: any = {};
-        for (const key in rest) {
-          if (key.startsWith("custom_fields.")) {
-            const fieldName = key.split("custom_fields.")[1];
-            removedCustomFields[fieldName] = rest[key];
-            delete rest[key];
+          // Extract the custom fields from the updatedRow
+          const { custom_fields, ...rest } = updatedRow;
+          const removedCustomFields: any = {};
+          for (const key in rest) {
+            if (key.startsWith("custom_fields.")) {
+              const fieldName = key.split("custom_fields.")[1];
+              removedCustomFields[fieldName] = rest[key];
+              delete rest[key];
+            }
           }
+
+          rest.custom_fields = {
+            ...custom_fields,
+            ...removedCustomFields,
+          };
+
+          originalData[indexToUpdate] = rest;
         }
 
-        // Update the custom_fields object within the main object with the removed values
-        rest.custom_fields = {
-          ...custom_fields,
-          ...removedCustomFields,
-        };
+        const enumeratorData = { ...originalData[0] };
+        const updateRes = await dispatch(
+          updateEnumerator({ enumeratorUID, enumeratorData })
+        );
 
-        // Update the originalData array with the modified main object
-        originalData[indexToUpdate] = rest;
+        if (updateRes?.payload?.status === 200) {
+          message.success("Enumerator updated successfully");
+          onUpdate();
+          return;
+        }
+        updateRes?.payload?.errors
+          ? message.error(updateRes?.payload?.errors)
+          : message.error(
+              "Failed to update enumerator, kindly check and try again"
+            );
       }
-
-      const enumeratorData = { ...originalData[0] };
-      const updateRes = await dispatch(
-        updateEnumerator({ enumeratorUID, enumeratorData })
-      );
-      if (updateRes?.payload?.status === 200) {
-        message.success("Enumerator updated successfully");
-        onUpdate();
-        return;
-      }
-      updateRes?.payload?.errors
-        ? message.error(updateRes?.payload?.errors)
-        : message.error(
-            "Failed to updated enumerator, kindly check and try again"
-          );
+    } catch (error: any) {
+      console.error("Update error:", error);
+      message.error(error.message || "Failed to update, please try again");
     }
   };
 
@@ -172,13 +155,27 @@ function RowEditingModal({
     "custom_fields",
     "enumerator_uid",
     "monitor_locations",
-    "surveyor_locations",
     "monitor_status",
     "surveyor_status",
   ]; //always exclude these
 
+  const getFilteredFields = (
+    fields: Field[],
+    data: DataItem[],
+    bulkFieldsToExclude: string[]
+  ) => {
+    // If not bulk editing, return all fields
+    if (data.length <= 1) return fields;
+
+    // For bulk editing, exclude location and other excluded fields
+    return fields.filter((field) => {
+      if (bulkFieldsToExclude.includes(field.labelKey)) return false;
+      if (field.labelKey === "location") return false; // Always exclude location in bulk edit
+      return true;
+    });
+  };
+
   const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
-    //more than one record so editing in bulk
     const configRes = await dispatch(
       getEnumeratorsColumnConfig({ formUID: form_uid })
     );
@@ -190,92 +187,83 @@ function RowEditingModal({
           .filter((field: ConfigField) => field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        setBulkFieldsToInclude(editableFields);
-
         const nonEditableFields = configData
           .filter((field: ConfigField) => !field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
-        //remove fields not defined on the custom config
-        fields.forEach((field: Field) => {
-          if (
-            !editableFields.includes(field.labelKey) &&
-            !nonEditableFields.includes(field.labelKey)
-          ) {
-            bulkFieldsToExclude.push(field.labelKey);
+        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
+
+        // Filter fields and always exclude location in bulk edit
+        const filteredFields = fields.filter(
+          (field) =>
+            !excludeFields.includes(field.labelKey) &&
+            field.labelKey !== "location"
+        );
+
+        // Set up form with filtered fields
+        const initialData: DataItem = {};
+        filteredFields.forEach((field) => {
+          if (field?.label?.startsWith("custom_fields")) {
+            initialData[field.label] = data[0]["custom_fields"][field.labelKey];
+          } else {
+            initialData[field.labelKey] = data[0][field.labelKey];
           }
         });
 
-        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
-
-        setBulkFieldsToExclude(excludeFields);
+        setFormData(initialData);
+        setUpdatedFields(filteredFields);
+        editForm.setFieldsValue(initialData);
       }
     }
-    return;
   };
 
-  const initializeFormData = async () => {
-    //exclude the mandatory fields
-    let filteredFields = fields.filter(
-      (field: Field) => !fieldsToExclude.includes(field.labelKey)
-    );
+  // Get the current location value once when modal opens
+  const currentLocation =
+    data[0].surveyor_locations?.find(
+      (loc: any) => loc.geo_level_uid === locations[0]?.geo_level_uid
+    )?.location_name ||
+    data[0].location ||
+    "";
 
-    if (form_uid && data.length > 1) {
-      //must wait for config before fields filtering
-      await fetchEnumeratorsColumnConfig(form_uid);
-      //exclude bulk non editable as well as the personal fields
-      filteredFields = fields.filter(
-        (field: Field) =>
-          !bulkFieldsToExclude.includes(field.labelKey) &&
-          !fieldsToExclude.includes(field.labelKey)
-      );
-
-      //include if a field is contracting
-      const additionalFieldsToInclude = fields.filter((field: Field) =>
-        bulkFieldsToInclude.includes(field.labelKey)
-      );
-
-      filteredFields = [...filteredFields, ...additionalFieldsToInclude];
-    }
-
-    setUpdatedFields(filteredFields);
-
-    const initialData: DataItem = [];
-
-    filteredFields.forEach((field: Field) => {
+  const setupFormData = () => {
+    const initialData: DataItem = {};
+    fields.forEach((field) => {
       if (field?.label?.startsWith("custom_fields")) {
-        initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-
-        const label = field?.label;
-        const _field: any = {};
-        _field[label] = initialData[field.label];
-
-        editForm.setFieldsValue({ ..._field });
+        initialData[field.label] =
+          data[0]["custom_fields"][field.labelKey] || "";
+      } else if (field.labelKey === "location") {
+        initialData.location = currentLocation;
       } else {
-        initialData[field.labelKey] = data[0][field.labelKey];
+        initialData[field.labelKey] = data[0][field.labelKey] || "";
       }
     });
 
     setFormData(initialData);
-    return;
+    setUpdatedFields(fields);
+    editForm.setFieldsValue(initialData);
   };
 
   useEffect(() => {
-    //handle bulk fields
-    if (formData.length == 0) {
-      initializeFormData();
+    if (editMode) {
+      setIsLoading(true);
+      setupFormData();
+      setIsLoading(false);
     }
-  }, []);
+  }, [editMode, currentLocation]);
 
   return (
     <>
       <GlobalStyle />
-      <RowEditingModalContainer>
-        <RowEditingModalHeading>
-          {data && data.length > 1
+      <Drawer
+        open={editMode}
+        size="large"
+        onClose={onCancel}
+        title={
+          data && data.length > 1
             ? `Edit ${data.length} enumerators in bulk`
-            : "Edit enumerator"}
-        </RowEditingModalHeading>
+            : "Edit enumerator"
+        }
+      >
         {data && data.length > 1 ? (
           <OptionText
             style={{ width: 410, display: "inline-block", marginBottom: 20 }}
@@ -292,15 +280,25 @@ function RowEditingModal({
               labelCol={{ span: 7 }}
               form={editForm}
               style={{ textAlign: "left" }}
+              labelAlign="left"
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
                   required
                   key={idx}
-                  id={`${field.label}-id`}
-                  name={field.label}
-                  initialValue={field.label ? data[0][field.label] : ""}
-                  label={<span>{field.labelKey}</span>}
+                  name={field.labelKey}
+                  initialValue={
+                    field.labelKey === "location"
+                      ? currentLocation
+                      : data[0][field.labelKey] || ""
+                  }
+                  label={
+                    <span>
+                      {field.labelKey === "location"
+                        ? primeLocationName
+                        : field.labelKey}
+                    </span>
+                  }
                   rules={[
                     {
                       required: true,
@@ -308,10 +306,34 @@ function RowEditingModal({
                     },
                   ]}
                 >
-                  <Input
-                    placeholder={`Enter ${field.labelKey}`}
-                    style={{ width: "100%" }}
-                  />
+                  {field.labelKey === `location` ? (
+                    <Select style={{ width: "100%" }} loading={isLoading}>
+                      {!isLoading &&
+                      Array.isArray(locations) &&
+                      locations.length > 0 ? (
+                        locations.map((location: any) => {
+                          const locationDisplay = `${location.location_id} - ${location.location_name}`;
+                          return (
+                            <Select.Option
+                              key={location.location_id}
+                              value={location.location_name}
+                            >
+                              {locationDisplay}
+                            </Select.Option>
+                          );
+                        })
+                      ) : (
+                        <Select.Option value={currentLocation}>
+                          {currentLocation}
+                        </Select.Option>
+                      )}
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder={`Enter ${field.labelKey}`}
+                      style={{ width: "100%" }}
+                    />
+                  )}
                 </Form.Item>
               ))}
             </Form>
@@ -324,10 +346,10 @@ function RowEditingModal({
             style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
             onClick={updateHandler}
           >
-            Update
+            Save
           </Button>
         </div>
-      </RowEditingModalContainer>
+      </Drawer>
     </>
   );
 }

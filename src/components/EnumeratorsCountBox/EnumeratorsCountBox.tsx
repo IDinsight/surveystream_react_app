@@ -23,43 +23,84 @@ interface ERowCountBox {
   dropped: number;
   inactive: number;
 }
-const CountBox = ({ color, title, count, Icon }: ICountBox) => {
+
+function EnumeratorsCountBox({ active, dropped, inactive }: ERowCountBox) {
   return (
-    <div style={{ color }}>
-      <RowTitle style={{ color }}>{title}</RowTitle>
-      <RowIconContainer>
-        <Icon style={{ fontSize: 24 }} />
-        <RowCountValue color={color}>{count}</RowCountValue>
-      </RowIconContainer>
+    <div style={{ display: "flex", gap: 16, marginLeft: 28 }}>
+      {active ? (
+        <div
+          style={{
+            backgroundColor: "#F6FFED",
+            padding: "4px 12px",
+            display: "flex",
+            alignItems: "center",
+            height: 30,
+            borderRadius: 24,
+          }}
+        >
+          <CheckCircleFilled style={{ fontSize: 16, color: "#389E0D" }} />
+          <p
+            style={{
+              marginLeft: 8,
+              fontFamily: "Lato",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            {active} Active
+          </p>
+        </div>
+      ) : null}
+      {dropped ? (
+        <div
+          style={{
+            backgroundColor: "rgb(255, 241, 240)",
+            padding: "4px 12px",
+            display: "flex",
+            alignItems: "center",
+            height: 30,
+            borderRadius: 24,
+          }}
+        >
+          <CloseCircleFilled style={{ fontSize: 16, color: "#CF1312" }} />
+          <p
+            style={{
+              marginLeft: 8,
+              fontFamily: "Lato",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            {dropped} Dropout
+          </p>
+        </div>
+      ) : null}
+      {inactive ? (
+        <div
+          style={{
+            backgroundColor: "rgb(255, 247, 230)",
+            padding: "4px 12px",
+            display: "flex",
+            alignItems: "center",
+            height: 30,
+            borderRadius: 24,
+          }}
+        >
+          <WarningFilled style={{ fontSize: 16, color: "#FA8C16" }} />
+          <p
+            style={{
+              marginLeft: 8,
+              fontFamily: "Lato",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            {inactive} Inactive
+          </p>
+        </div>
+      ) : null}
     </div>
   );
-};
-
-const EnumeratorsCountBox = ({ active, dropped, inactive }: ERowCountBox) => {
-  return (
-    <EnumeratorsCountBoxContainer>
-      <CountBox
-        color="#389E0D"
-        title="Active"
-        count={active}
-        Icon={CheckCircleFilled}
-      />
-      <RowCountDivider type="vertical" />
-      <CountBox
-        color="#CF1322"
-        title="Dropped-out"
-        count={dropped}
-        Icon={CloseCircleFilled}
-      />
-      <RowCountDivider type="vertical" />
-      <CountBox
-        color="#FA8C16"
-        title="Inactive"
-        count={inactive}
-        Icon={WarningFilled}
-      />
-    </EnumeratorsCountBoxContainer>
-  );
-};
+}
 
 export default EnumeratorsCountBox;
