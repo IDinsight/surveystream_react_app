@@ -159,7 +159,7 @@ function NewSurveyConfig() {
               setActiveSurvey({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
-                state: "Draft",
+                state: basicformData?.state || "Draft",
               })
             );
 
