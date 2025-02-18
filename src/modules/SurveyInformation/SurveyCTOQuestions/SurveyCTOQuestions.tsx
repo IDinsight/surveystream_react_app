@@ -4,10 +4,7 @@ import {
   HeaderContainer,
 } from "../../../shared/Nav.styled";
 import { Form, Select, message, Alert, Button } from "antd";
-import {
-  FooterWrapper,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
+
 import SideMenu from "../SideMenu";
 import {
   QuestionsForm,
@@ -43,6 +40,7 @@ import { SurveyCTOQuestionsForm } from "../../../redux/surveyCTOQuestions/types"
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -74,6 +72,10 @@ function SurveyCTOQuestions() {
   );
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
+  );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
   );
 
   const fetchSurveyLocationGeoLevels = async () => {
@@ -209,6 +211,13 @@ function SurveyCTOQuestions() {
           return;
         } else {
           message.success("SurveyCTO question mapping updated successfully");
+          await dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 3,
+              resolution_status: "done",
+            })
+          );
           navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
       } else {
@@ -226,7 +235,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading) {
+    if (isLoading || isSideMenuLoading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {
@@ -255,12 +264,11 @@ function SurveyCTOQuestions() {
       return (
         <QuestionsForm form={form} onFieldsChange={handleFormChange}>
           <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
-
           <StyledFormItem
             initialValue={surveyCTOQuestionsForm?.survey_status}
             rules={[
               {
-                required: false,
+                required: true,
                 message: "Please enter survey status",
               },
               {
@@ -282,7 +290,12 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            // labelCol={{ flex: 10 }}
+            // wrapperCol={{ span: 10 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: { textAlign: "left", marginRight: "10px" },
+            }}
             wrapperCol={{ span: 8 }}
             name="survey_status"
             label={
@@ -324,7 +337,10 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: { textAlign: "start", marginRight: "10px" },
+            }}
             wrapperCol={{ span: 8 }}
             name="revisit_section"
             label={
@@ -367,7 +383,13 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: {
+                textAlign: "start",
+                marginRight: "10px",
+              },
+            }}
             wrapperCol={{ span: 8 }}
             name="target_id"
             label={
@@ -410,7 +432,13 @@ function SurveyCTOQuestions() {
                 },
               },
             ]}
-            labelCol={{ span: 8 }}
+            labelCol={{
+              flex: "0 0 150px",
+              style: {
+                textAlign: "start",
+                marginRight: "10px",
+              },
+            }}
             wrapperCol={{ span: 8 }}
             name="enumerator_id"
             label={
@@ -480,7 +508,13 @@ function SurveyCTOQuestions() {
               },
             },
           ]}
-          labelCol={{ span: 8 }}
+          labelCol={{
+            flex: "0 0 150px",
+            style: {
+              textAlign: "start",
+              marginRight: "10px",
+            },
+          }}
           wrapperCol={{ span: 8 }}
           name={`locations.${location_field}`}
           label={
@@ -574,7 +608,6 @@ function SurveyCTOQuestions() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
           <SCTOQuestionsButton
-            type="dashed"
             loading={loading}
             onClick={() => loadFormQuestions(true)}
             disabled={form_uid == undefined}

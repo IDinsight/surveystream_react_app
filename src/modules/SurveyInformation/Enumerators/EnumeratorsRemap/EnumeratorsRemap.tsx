@@ -8,12 +8,7 @@ import {
   HeadingText,
   StyledBreadcrumb,
 } from "./EnumeratorsRemap.styled";
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { Title } from "../../../../shared/Nav.styled";
 import { CustomBtn } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -40,12 +35,10 @@ import {
   setMappingErrorStatus,
 } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import {
-  ContinueButton,
-  FooterWrapper,
-} from "../../../../shared/FooterBar.styled";
+
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
   type: string;
@@ -368,6 +361,16 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           //TODO: add column config here if needed on merge
 
           dispatch(setMappingErrorStatus(false));
+
+          // Set any unresolved enumerator notifications to resolved
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 7,
+              resolution_status: "done",
+            })
+          );
+
           //route to home
           setScreenMode("manage");
         } else {

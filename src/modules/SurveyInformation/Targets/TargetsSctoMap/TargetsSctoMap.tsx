@@ -79,6 +79,9 @@ function TargetsSctoMap() {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -692,7 +695,7 @@ function TargetsSctoMap() {
       </HeaderContainer>
       {targetLoading ? (
         <FullScreenLoader loadScreenText="Kindly wait while we fetch targets from surveycto" />
-      ) : isLoading || quesLoading || locLoading ? (
+      ) : isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -727,8 +730,14 @@ function TargetsSctoMap() {
                                   !moduleQuestionnaire?.target_mapping_criteria.includes(
                                     "Location"
                                   )) ||
-                                item.key === "gender" ||
-                                item.key === "language"
+                                (item.key === "gender" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Gender"
+                                  )) ||
+                                (item.key === "language" &&
+                                  !moduleQuestionnaire?.target_mapping_criteria.includes(
+                                    "Language"
+                                  ))
                                   ? false
                                   : true,
                               message: "Kindly select column to map value!",

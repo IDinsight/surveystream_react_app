@@ -195,10 +195,6 @@ function DQChecksManage() {
         <span>
           <CustomLinkBtn
             type="link"
-            disabled={
-              // disable based on type_id - can enable when we have the edit page ready
-              [1, 10].includes(record?.type_id)
-            }
             onClick={() => handleEdit(record?.type_id)}
           >
             <EditOutlined />

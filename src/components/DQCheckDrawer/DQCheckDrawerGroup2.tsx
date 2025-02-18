@@ -170,6 +170,7 @@ function DQCheckDrawer({
             <Form.Item
               label="Select variable"
               tooltip="Choose variable from SCTO question list"
+              required
             />
           </Col>
           <Col span={12}>
@@ -282,6 +283,7 @@ function DQCheckDrawer({
                 <Form.Item
                   label="Measure:"
                   tooltip="Unit of measurement for the variable"
+                  required
                 />
               </Col>
               <Col span={12}>
@@ -309,6 +311,7 @@ function DQCheckDrawer({
                 <Form.Item
                   label="Multipler / Value:"
                   tooltip="Value that is considered for checks"
+                  required
                 />
               </Col>
               <Col span={12}>

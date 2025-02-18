@@ -20,8 +20,11 @@ import {
   MailOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
+import { getAllNotifications } from "./../../redux/notifications/notificationActions";
 
 import "./Header.css";
+import NotificationBell from "../NotificationBell";
+import { message } from "antd";
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -33,6 +36,11 @@ const Header = () => {
   const storedProfile = localStorage.getItem("userProfile");
   const reduxProfile = useAppSelector((state: RootState) => state.auth.profile);
   const userProfile = storedProfile ? JSON.parse(storedProfile) : reduxProfile;
+  const {
+    loading: isNotificationLoading,
+    error: notificationError,
+    notifications,
+  } = useAppSelector((state: RootState) => state.notifications);
 
   const isAuthenticated = () => {
     // Return true if authenticated, false otherwise
@@ -103,6 +111,25 @@ const Header = () => {
     setNavItems(filteredItems);
   }, [location]);
 
+  useEffect(() => {
+    if (userProfile?.user_uid) {
+      const fetchNotifications = async () => {
+        try {
+          await dispatch(getAllNotifications());
+        } catch (error) {
+          message.error("Failed to fetch notifications");
+        }
+      };
+
+      fetchNotifications();
+      const intervalId = setInterval(fetchNotifications, 15000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [userProfile?.user_uid, dispatch]);
+
   return (
     <header className="flex h-[70px] bg-geekblue-9">
       <div className="flex items-center">
@@ -143,10 +170,17 @@ const Header = () => {
         })}
       </div>
       <div className="nav-menu flex mr-2">
-        <div className="nav-menu-item justify-center w-40 px-2">
+        <div className="nav-menu-item justify-center w-40">
           <Link to="https://docs.surveystream.idinsight.io">
             <span className="!text-gray-2">Documentation</span>
           </Link>
+        </div>
+        <div className="w-16">
+          {isSignedIn() ? (
+            <>
+              <NotificationBell notifications={notifications} />
+            </>
+          ) : null}
         </div>
       </div>
       {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}

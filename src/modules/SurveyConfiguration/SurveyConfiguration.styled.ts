@@ -88,6 +88,7 @@ export const MainWrapper = styled.div<{ windowHeight: number }>`
   background-color: #f5f5f5;
   overflow-y: auto;
   height: ${({ windowHeight }) => Math.min(windowHeight - HEADER_HEIGHT)}px;
+  passing-bottom: "10px";
 `;
 
 export const StyledCard = styled(Card)`
@@ -132,4 +133,11 @@ export const SectionTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
   color: #262626;
+`;
+
+export const ToolTipText = styled.p`
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
 `;

@@ -91,6 +91,10 @@ function EditSurveyUsers() {
     (state: RootState) => state.userManagement.userList
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [userDetails, setUserDetails] = useState<any>({
     ...editUser,
     is_survey_admin:
@@ -410,7 +414,8 @@ function EditSurveyUsers() {
     isLocationDetailsLoading ||
     isModuleQuestionnaireLoading ||
     isBasicInformationLoading ||
-    isUserHierarchyLoading;
+    isUserHierarchyLoading ||
+    isSideMenuLoading;
 
   return (
     <>

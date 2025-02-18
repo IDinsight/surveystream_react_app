@@ -1,6 +1,7 @@
 import { Col, Row, Select, Tag, DatePicker, Input, Button } from "antd";
 import {
   DeleteFilled,
+  MinusSquareFilled,
   PlusCircleFilled,
   PlusSquareFilled,
 } from "@ant-design/icons";
@@ -242,7 +243,7 @@ function DQChecksFilter({
             </Button>
             <Button
               type="link"
-              icon={<PlusSquareFilled />}
+              icon={<MinusSquareFilled />}
               onClick={() => handleRemoveFilterGroup(groupIndex)}
               danger
             >

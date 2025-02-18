@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import SideMenu from "./SideMenu";
@@ -13,7 +13,6 @@ import {
   StyledCard,
   Title,
   MainWrapper,
-  StatusText,
   StatusWrapper,
   SectionTitle,
 } from "./SurveyConfiguration.styled";
@@ -21,10 +20,10 @@ import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { Link } from "react-router-dom";
-import { Result, Button, Tag, Progress } from "antd";
+import { Result, Button, Tag, Alert, Col, message } from "antd";
 import {
   InfoCircleFilled,
+  InfoCircleOutlined,
   LayoutFilled,
   MobileOutlined,
   PushpinFilled,
@@ -39,17 +38,20 @@ import {
   AudioOutlined,
   TableOutlined,
   MailOutlined,
-  SoundOutlined,
-  PictureOutlined,
   FormOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   CloseCircleOutlined,
   HourglassOutlined,
+  ExclamationCircleOutlined,
+  RiseOutlined,
+  IssuesCloseOutlined,
+  PauseCircleOutlined,
 } from "@ant-design/icons";
-import { userHasPermission } from "../../utils/helper";
+import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
+import SurveyState from "../../components/SurveyState";
 
 interface CheckboxProps {
   checked: boolean;
@@ -111,6 +113,12 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
 const SurveyConfiguration: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [errorModules, setErrorModules] = useState<
+    { section: string; item: string }[]
+  >([]);
+  const [noErrorModules, setNoErrorModules] = useState<
+    { section: string; item: string }[]
+  >([]);
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -127,6 +135,10 @@ const SurveyConfiguration: React.FC = () => {
     (state: RootState) => state.surveyConfig.surveyConfigs
   );
 
+  const completionStats = useAppSelector(
+    (state: RootState) => state.surveyConfig.completionStats
+  );
+
   const isLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
   );
@@ -138,17 +150,25 @@ const SurveyConfiguration: React.FC = () => {
     );
   };
 
+  const [isSurveyLoading, setIsSurveyLoading] = useState<boolean>(true);
+
   const renderStatus = (status: string) => {
     const colors: { [key: string]: string } = {
       Done: "green",
-      "In Progress": "orange",
+      "In Progress": "yellow",
+      "In Progress - Incomplete": "orange",
       Error: "red",
+      Live: "green",
+      Paused: "orange",
     };
     const color = colors[status];
     const icons: { [key: string]: any } = {
       Done: CheckCircleOutlined,
       "In Progress": SyncOutlined,
+      "In Progress - Incomplete": IssuesCloseOutlined,
       Error: CloseCircleOutlined,
+      Live: RiseOutlined,
+      Paused: PauseCircleOutlined,
     };
     const IconComponent = icons[status] || HourglassOutlined;
 
@@ -176,12 +196,15 @@ const SurveyConfiguration: React.FC = () => {
 
     return "";
   };
+
   const renderModuleIcon = (sectionTitle: string) => {
     const iconProps = { fontSize: "28px" };
 
     switch (sectionTitle) {
       case "Basic information":
-        return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
+        return (
+          <InfoCircleOutlined style={{ color: "#391085", ...iconProps }} />
+        );
       case "Module selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
 
@@ -202,7 +225,7 @@ const SurveyConfiguration: React.FC = () => {
       case "Target status mapping":
         return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Assign targets to surveyors":
-        return <MailFilled style={{ color: "#D4380D", ...iconProps }} />;
+        return <MailFilled style={{ color: "#cf1322", ...iconProps }} />;
       case "Emails":
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
       case "Assignments column configuration":
@@ -310,7 +333,7 @@ const SurveyConfiguration: React.FC = () => {
                     >
                       {renderModuleIcon(item.name)}
                     </div>
-                    {item.name}
+                    {item.name} {item.optional && "(Optional)"}
                     {renderStatus(item.status)}
                   </StyledCard>
                 </Link>
@@ -388,14 +411,51 @@ const SurveyConfiguration: React.FC = () => {
             (survey: any) => survey.survey_uid === parseInt(survey_uid)
           );
 
+          if (!surveyInfo) {
+            message.error("Survey not found");
+            navigate("/surveys");
+            return;
+          }
+
           // set the active survey
           dispatch(
-            setActiveSurvey({ survey_uid, survey_name: surveyInfo.survey_name })
+            setActiveSurvey({
+              survey_uid,
+              survey_name: surveyInfo?.survey_name || "",
+              state: surveyInfo?.state || "",
+            })
           );
         }
       });
     }
   }, [survey_uid]);
+
+  useEffect(() => {
+    const errors: { section: string; item: string }[] = [];
+    const noErrors: { section: string; item: string }[] = [];
+
+    Object.entries(surveyConfigs).forEach(([sectionTitle, sectionConfig]) => {
+      if (Array.isArray(sectionConfig)) {
+        sectionConfig.forEach((item: any) => {
+          if (item.status === "Error") {
+            errors.push({ section: sectionTitle, item: item.name });
+          } else {
+            if (checkPermissions(item.name)) {
+              noErrors.push({ section: sectionTitle, item: item.name });
+            }
+          }
+        });
+      } else if (sectionConfig.status === "Error") {
+        errors.push({ section: sectionTitle, item: "" });
+      } else {
+        if (checkPermissions(sectionTitle)) {
+          noErrors.push({ section: sectionTitle, item: "" });
+        }
+      }
+    });
+    setErrorModules(errors);
+    setNoErrorModules(noErrors);
+  }, [surveyConfigs]);
 
   const { height } = useWindowDimensions();
 
@@ -418,22 +478,182 @@ const SurveyConfiguration: React.FC = () => {
             }`;
           })()}
         </Title>
+        <SurveyState
+          survey_uid={survey_uid || ""}
+          survey_name={(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.survey_name ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
+              ""
+            );
+          })()}
+          state={(() => {
+            const activeSurveyData: any = localStorage.getItem("activeSurvey");
+            return (
+              activeSurvey?.state ||
+              (activeSurveyData && JSON.parse(activeSurveyData)?.state) ||
+              ""
+            );
+          })()}
+          error={errorModules.length > 0}
+          can_edit={isAdmin(userProfile, survey_uid)}
+        />
       </NavWrapper>
       {isLoading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ display: "flex" }}>
-          <SideMenu surveyProgress={surveyConfigs} windowHeight={height} />
-          <MainWrapper windowHeight={height}>
-            {Object.entries(surveyConfigs).map(
-              ([sectionTitle, sectionConfig], index) => (
-                <div key={index}>
-                  {renderSection(sectionTitle, sectionConfig)}
-                </div>
-              )
-            )}
-          </MainWrapper>
-        </div>
+        <>
+          {errorModules.length > 0 && (
+            <>
+              <Alert
+                message={`Modules in Error. ${
+                  activeSurvey?.state === "Active"
+                    ? "Survey will be paused until these errors are resolved."
+                    : ""
+                }`}
+                description={
+                  <span style={{ fontSize: "14px", font: "Lato" }}>
+                    The following modules are in error:
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      <Col span={4} style={{ flex: "1 1 50%" }}>
+                        <ul style={{ paddingLeft: "20px" }}>
+                          {errorModules
+                            .filter((_, index) => index % 2 === 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                      <Col span={5} style={{ flex: "1 1 50%" }}>
+                        <ul>
+                          {errorModules
+                            .filter((_, index) => index % 2 !== 0)
+                            .map((module, index) => (
+                              <li key={index}>
+                                <Link
+                                  to={
+                                    checkPermissions(module.item)
+                                      ? generateLink(
+                                          module.section,
+                                          module.item
+                                        )
+                                      : ""
+                                  }
+                                >
+                                  {module.item || module.section}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </Col>
+                    </div>
+                    {!isAdmin(userProfile, survey_uid) ? (
+                      <span>
+                        Access restricted to following modules until the errors
+                        are resolved.
+                        <div style={{ display: "flex", flexWrap: "wrap" }}>
+                          <Col span={4} style={{ flex: "1 1 50%" }}>
+                            <ul style={{ paddingLeft: "20px" }}>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 === 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                          <Col span={5} style={{ flex: "1 1 50%" }}>
+                            <ul>
+                              {noErrorModules
+                                .filter((_, index) => index % 2 !== 0)
+                                .map((module, index) => (
+                                  <li key={index}>
+                                    <Link
+                                      to={
+                                        checkPermissions(module.item)
+                                          ? generateLink(
+                                              module.section,
+                                              module.item
+                                            )
+                                          : ""
+                                      }
+                                    >
+                                      {module.item || module.section}
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          </Col>
+                        </div>
+                        <span>
+                          Kindly contact your Survey Admin to resolve the issues
+                          above to continue.
+                        </span>
+                      </span>
+                    ) : (
+                      <span>Kindly resolve issues in above modules.</span>
+                    )}
+                  </span>
+                }
+                type="error"
+                showIcon
+                icon={
+                  <ExclamationCircleOutlined
+                    style={{ fontSize: "24px", color: "#ff4d4f" }}
+                  />
+                }
+                style={{
+                  padding: "16px",
+                  borderRadius: "4px",
+                  backgroundColor: "#fff1f0",
+                  border: "1px solid #ffccc7",
+                }}
+              />
+            </>
+          )}
+          <div style={{ display: "flex" }}>
+            <SideMenu
+              surveyProgress={surveyConfigs}
+              completionStats={completionStats}
+              windowHeight={height}
+            />
+            <MainWrapper windowHeight={height}>
+              {Object.entries(surveyConfigs).map(
+                ([sectionTitle, sectionConfig], index) => (
+                  <div key={index}>
+                    {renderSection(sectionTitle, sectionConfig)}
+                  </div>
+                )
+              )}
+            </MainWrapper>
+          </div>
+        </>
       )}
     </>
   );
