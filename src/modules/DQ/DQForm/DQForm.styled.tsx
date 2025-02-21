@@ -41,3 +41,7 @@ export const DescriptionText = styled.span`
   line-height: 22px;
   color: #8c8c8c;
 `;
+
+export const SCTOLoadErrorArea = styled.div`
+  padding-right: 48px;
+`;
