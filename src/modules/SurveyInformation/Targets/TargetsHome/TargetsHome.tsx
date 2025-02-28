@@ -277,7 +277,6 @@ function TargetsHome() {
     }
 
     if (targetRes.payload.status == 200) {
-      message.success("Targets loaded successfully.");
       //create rowbox data
       const originalData = targetRes.payload.data.data;
       setTargetsCount(originalData.length);
@@ -354,7 +353,7 @@ function TargetsHome() {
         .map((column) => ({
           title: column,
           dataIndex: column,
-          width: 90,
+          width: "30px",
           ellipsis: true,
         })); // Filter out columns with all null values
 
@@ -371,7 +370,7 @@ function TargetsHome() {
               acc.push({
                 title: key,
                 dataIndex: `custom_fields.${key}`,
-                width: 90,
+                width: "30px",
                 ellipsis: true,
               });
             }
@@ -395,7 +394,7 @@ function TargetsHome() {
                 acc.push({
                   title: geoLevelUID,
                   dataIndex: `target_locations.${geoLevelUID}`,
-                  width: 90,
+                  width: "30px",
                   ellipsis: true,
                 });
               }
@@ -405,7 +404,7 @@ function TargetsHome() {
                 acc.push({
                   title: geoLevelNameField,
                   dataIndex: `target_locations.${geoLevelNameField}`,
-                  width: 90,
+                  width: "30px",
                   ellipsis: true,
                 });
               }
@@ -557,7 +556,7 @@ function TargetsHome() {
                   <Button
                     type="primary"
                     icon={<EditOutlined />}
-                    style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                    style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
                     onClick={onEditDataHandler}
                   >
                     Edit
@@ -567,7 +566,7 @@ function TargetsHome() {
                   onClick={handlerAddTargetBtn}
                   type="primary"
                   icon={<CloudUploadOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
                 >
                   Upload targets
                 </Button>
@@ -586,7 +585,6 @@ function TargetsHome() {
                 alignItems: "center",
                 padding: "8px 16px",
                 borderRadius: "5px",
-                marginRight: 80,
               }}
             >
               <CloudDownloadOutlined />
@@ -624,15 +622,11 @@ function TargetsHome() {
                   }}
                   columns={dataTableColumn.map((col: any) => ({
                     ...col,
-                    width: Math.max(
-                      col.title.length * 6,
-                      col.dataIndex.length * 6
-                    ),
-                    minWidth: 90,
+                    width: "30px",
                   }))}
                   dataSource={tableDataSource}
                   tableLayout="auto"
-                  scroll={{ x: "max-content", y: "calc(100vh - 30px)" }}
+                  scroll={{ x: "max-content" }}
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,
@@ -640,6 +634,7 @@ function TargetsHome() {
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                    style: { color: "#2F54EB" },
                   }}
                 />
                 {editData ? (

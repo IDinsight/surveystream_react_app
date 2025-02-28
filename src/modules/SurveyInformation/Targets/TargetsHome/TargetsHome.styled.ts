@@ -9,19 +9,18 @@ export const TargetsHomeFormWrapper = styled.div`
   font-family: "Lato", sans-serif;
   position: relative;
   min-height: 550px;
-  width: 70%;
+  width: 75%;
 `;
 
 export const TargetsTable = styled(Table)`
-  margin-bottom: 30px;
-  margin-right: 30px;
-  width: 90%;
+  margin-bottom: 10px;
+  width: 98%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
     height: 40px;
     font-family: "Lato", sans-serif;
-    width: 40px;
+    width: 30px;
     white-space: nowrap;
   }
   & th::before {
