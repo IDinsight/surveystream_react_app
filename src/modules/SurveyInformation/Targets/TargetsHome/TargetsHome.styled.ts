@@ -13,7 +13,7 @@ export const TargetsHomeFormWrapper = styled.div`
 `;
 
 export const TargetsTable = styled(Table)`
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   width: 98%;
   & th {
     color: #434343 !important;

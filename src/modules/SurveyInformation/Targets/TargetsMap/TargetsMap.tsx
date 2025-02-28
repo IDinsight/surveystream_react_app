@@ -840,6 +840,12 @@ function TargetsMap() {
                     )}
                   </div>
                 </Form>
+                <CustomBtn
+                  onClick={handleTargetsUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
+                  Continue
+                </CustomBtn>
               </>
             ) : (
               <>
@@ -953,12 +959,6 @@ function TargetsMap() {
                     Upload corrected CSV
                   </Button>
                 </div>
-                <CustomBtn
-                  onClick={handleTargetsUploadMapping}
-                  style={{ marginTop: 20 }}
-                >
-                  Continue
-                </CustomBtn>
               </>
             )}
           </TargetsMapFormWrapper>
