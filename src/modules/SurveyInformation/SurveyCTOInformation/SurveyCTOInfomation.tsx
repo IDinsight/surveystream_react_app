@@ -337,7 +337,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      on the SCTO server with API access.
+                      on the SurveyCTO server with API access.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
