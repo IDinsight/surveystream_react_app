@@ -202,8 +202,8 @@ function SurveyCTOInfomation() {
                         required
                         label={
                           <span>
-                            Main Form ID&nbsp;
-                            <StyledTooltip title="Input the form ID of the main SCTO form. Ex: agrifieldnet_main_form">
+                            Main form ID&nbsp;
+                            <StyledTooltip title="Input the form ID of the main SurveyCTO form. Ex: agrifieldnet_main_form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -215,7 +215,7 @@ function SurveyCTOInfomation() {
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a Main Form ID",
+                            message: "Please enter a main form ID",
                           },
                         ]}
                       >
@@ -226,8 +226,8 @@ function SurveyCTOInfomation() {
                         required
                         label={
                           <span>
-                            SCTO server name&nbsp;
-                            <StyledTooltip title="SurveyCTO server name Ex: dodieic. Please carefully consider the server you are sharing is the one cleared for use on your project.">
+                            SurveyCTO server name&nbsp;
+                            <StyledTooltip title="Input the SurveyCTO server name Ex: dodieic. Please ensure the server you are sharing is the one cleared for use on your project.">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -239,7 +239,7 @@ function SurveyCTOInfomation() {
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a SCTO server name",
+                            message: "Please enter a SurveyCTO server name",
                           },
                         ]}
                       >
@@ -255,7 +255,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Main form name&nbsp;
-                            <StyledTooltip title="Input the form name of the main SCTO form. Ex: AgriFieldNet main survey form">
+                            <StyledTooltip title="Input the form name of the main SurveyCTO form. Ex: AgriFieldNet main survey form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -264,7 +264,7 @@ function SurveyCTOInfomation() {
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a Main form name",
+                            message: "Please enter a main form name",
                           },
                         ]}
                         style={{ display: "block", width: "300px" }}
@@ -279,7 +279,7 @@ function SurveyCTOInfomation() {
                         style={{ display: "block", width: "300px" }}
                         label={
                           <span>
-                            Time zone of location of data collection&nbsp;
+                            Timezone of location of data collection&nbsp;
                             <StyledTooltip title="Select the timezone in which you will be conducting data collection. Ex: Asia/Kolkata">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
@@ -289,7 +289,7 @@ function SurveyCTOInfomation() {
                           {
                             required: true,
                             message:
-                              "Please enter a Time zone of location of data collection",
+                              "Please enter the timezone of location of data collection",
                           },
                         ]}
                       >
@@ -313,11 +313,11 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      Please share the SCTO key with{" "}
+                      The form is encrypted. If yes, please shared the key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via FlowCrypt/Dashlane.
+                      via FlowCrypt/Nordpass.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
@@ -337,8 +337,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      on the SCTO server. Please ensure the role has API access
-                      enabled.
+                      on the SurveyCTO server with API access.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
@@ -346,8 +345,8 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      I allow SurveyStream to connect to the SCTO server as per
-                      the requirements of modules selected.
+                      I allow SurveyStream to connect to the SurveyCTO server as
+                      per the requirements of modules selected.
                     </CheckboxSCTO>
                   </StyledFormItem>
                 </div>
