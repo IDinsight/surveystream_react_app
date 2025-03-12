@@ -57,8 +57,8 @@ export const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
   height: 55px;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 48px;
+  padding-right: 48px;
   border-top: 1px solid #00000026;
   border-bottom: 1px solid #00000026;
 `;
