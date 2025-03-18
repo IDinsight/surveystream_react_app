@@ -9,6 +9,8 @@ import { Form, Input, message, Radio, Space, Modal, Alert } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
+
 import {
   ContinueButton,
   FooterWrapper,
@@ -333,6 +335,9 @@ function TargetsConfig() {
                     </div>
                   </SCTOLoadErrorArea>
                 )}
+                <CustomBtn onClick={handleContinue} style={{ marginTop: 20 }}>
+                  Continue
+                </CustomBtn>
               </div>
               <Modal
                 title="Warning"
@@ -361,15 +366,12 @@ function TargetsConfig() {
             </>
           ) : null}
           {screenMode === "remap" ? (
-            <TargetsRemap setScreenMode={setScreenMode} />
+            <>
+              <TargetsRemap setScreenMode={setScreenMode} />
+            </>
           ) : null}
         </div>
       )}
-      <FooterWrapper>
-        {screenMode !== "remap" ? (
-          <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
-        ) : null}
-      </FooterWrapper>
     </>
   );
 }
