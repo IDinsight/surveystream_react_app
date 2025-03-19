@@ -79,6 +79,9 @@ function TargetsSctoMap() {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -692,7 +695,7 @@ function TargetsSctoMap() {
       </HeaderContainer>
       {targetLoading ? (
         <FullScreenLoader loadScreenText="Kindly wait while we fetch targets from surveycto" />
-      ) : isLoading || quesLoading || locLoading ? (
+      ) : isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -897,6 +900,7 @@ function TargetsSctoMap() {
                     display: "flex",
                     justifyContent: "space-between",
                     marginTop: 32,
+                    marginRight: "90%",
                   }}
                 >
                   <CustomBtn
@@ -914,7 +918,7 @@ function TargetsSctoMap() {
                       await handleTargetIDChange("preview");
                     }}
                     loading={targetLoading}
-                    style={{ marginRight: "10%" }}
+                    style={{ marginLeft: "5%" }}
                   >
                     Preview Data
                   </CustomBtn>

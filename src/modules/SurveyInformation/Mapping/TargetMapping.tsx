@@ -93,6 +93,10 @@ const TargetMapping = ({
     (state: RootState) => state.mapping
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   // Columns for mapped Pairs Table
   const mappedPairsColumns = [
     ...(criteria.includes("Location")
@@ -1183,7 +1187,11 @@ const TargetMapping = ({
     }
   }, [formUID, SurveyUID, criteria, pageNumber]);
 
-  const loading = loadingMappingConfig || loadingMappingData || mappingLoading;
+  const loading =
+    loadingMappingConfig ||
+    loadingMappingData ||
+    mappingLoading ||
+    isSideMenuLoading;
 
   if (loading) {
     return <FullScreenLoader />;

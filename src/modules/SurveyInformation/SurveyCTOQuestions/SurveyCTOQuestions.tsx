@@ -74,6 +74,10 @@ function SurveyCTOQuestions() {
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const fetchSurveyLocationGeoLevels = async () => {
     if (survey_uid != undefined) {
       await dispatch(getSurveyLocationGeoLevels({ survey_uid: survey_uid }));
@@ -103,6 +107,7 @@ function SurveyCTOQuestions() {
       );
 
       if (questionsRes.payload?.error) {
+        setHasError(true);
         if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
           errorMessages.push(
             "The resource is not found. Either the SCTO server name is wrong, or access is not given."
@@ -114,7 +119,7 @@ function SurveyCTOQuestions() {
         } else {
           errorMessages.push(questionsRes.payload?.error);
         }
-        setHasError(true);
+        setSurveyCTOErrorMessages(errorMessages);
       } else if (questionsRes.payload?.errors) {
         setHasError(true);
         // Check if the error message is an array
@@ -231,7 +236,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading) {
+    if (isLoading || isSideMenuLoading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {

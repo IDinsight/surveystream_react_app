@@ -145,6 +145,7 @@ export const updateEnumerator = createAsyncThunk(
         enumeratorUID,
         enumeratorData
       );
+      console.log("Response from updateEnumerator:", enumeratorData);
       if (response.status == 200) {
         dispatch(updateEnumeratorSuccess(response.data));
         return { ...response, success: true };

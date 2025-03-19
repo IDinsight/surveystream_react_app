@@ -1,13 +1,13 @@
 import { CheckCircleFilled } from "@ant-design/icons";
 
-interface TargetCountProps {
-  targetCount: number;
+interface SurveyStatusCountProps {
+  surveyStatusCount: number;
 }
 
-function TargetsCountBox({ targetCount }: TargetCountProps) {
+function SurveyStatusCount({ surveyStatusCount }: SurveyStatusCountProps) {
   return (
     <div style={{ display: "flex", gap: 16, marginLeft: 28 }}>
-      {targetCount ? (
+      {surveyStatusCount ? (
         <div
           style={{
             backgroundColor: "#F6FFED",
@@ -27,7 +27,7 @@ function TargetsCountBox({ targetCount }: TargetCountProps) {
               fontWeight: 500,
             }}
           >
-            {targetCount} targets
+            {surveyStatusCount} statuses
           </p>
         </div>
       ) : null}
@@ -35,4 +35,4 @@ function TargetsCountBox({ targetCount }: TargetCountProps) {
   );
 }
 
-export default TargetsCountBox;
+export default SurveyStatusCount;

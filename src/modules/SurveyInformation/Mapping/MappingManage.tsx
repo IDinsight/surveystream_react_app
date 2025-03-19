@@ -51,6 +51,10 @@ function MappingManage() {
     (state: RootState) => state.surveyConfig
   );
 
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [formUID, setFormUID] = useState<null | string>(null);
   const [criteria, setCriteria] = useState<string[]>([]);
 
@@ -79,7 +83,8 @@ function MappingManage() {
     }
   }, [moduleQuestionnaire, mapping_name]);
 
-  const isLoading = isSurveyCTOFormLoading || surveyConfigLoading;
+  const isLoading =
+    isSurveyCTOFormLoading || surveyConfigLoading || isSideMenuLoading;
 
   return (
     <>

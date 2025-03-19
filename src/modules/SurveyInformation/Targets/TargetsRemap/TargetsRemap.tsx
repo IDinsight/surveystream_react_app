@@ -39,9 +39,8 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 
 import { CSVLink } from "react-csv";
 import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
-import { ContinueButton } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 interface CSVError {
   type: string;
@@ -85,6 +84,9 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -554,7 +556,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
             <CloseOutlined /> Cancel
           </Button>
         </div>
-        {isLoading || quesLoading || locLoading ? (
+        {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
           <FullScreenLoader />
         ) : (
           <div>
@@ -877,9 +879,12 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     )}
                   </div>
                 </Form>
-                <ContinueButton onClick={handleTargetsUploadMapping}>
+                <CustomBtn
+                  onClick={handleTargetsUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               </>
             ) : (
               <>

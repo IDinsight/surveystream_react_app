@@ -1,18 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import {
   DescriptionContainer,
   EnumeratorsUploadFormWrapper,
@@ -64,6 +55,10 @@ function EnumeratorsUpload() {
 
   const isLoading = useAppSelector(
     (state: RootState) => state.enumerators.loading
+  );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
   );
 
   const errorTableColumn = [
@@ -148,7 +143,7 @@ function EnumeratorsUpload() {
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      {isLoading ? (
+      {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>

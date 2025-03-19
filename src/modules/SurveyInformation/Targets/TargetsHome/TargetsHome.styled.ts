@@ -5,23 +5,23 @@ export const TargetsHomeFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   padding-top: 10px;
-  padding-left: 50px;
+  padding-left: 30px;
   font-family: "Lato", sans-serif;
   position: relative;
   min-height: 550px;
-  width: 70%;
+  width: 75%;
 `;
 
 export const TargetsTable = styled(Table)`
   margin-bottom: 30px;
-  margin-right: 30px;
-  width: 90%;
+  width: 100%;
+  padding-right: 30px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
     height: 40px;
     font-family: "Lato", sans-serif;
-    width: 40px;
+    width: 30px;
     white-space: nowrap;
   }
   & th::before {

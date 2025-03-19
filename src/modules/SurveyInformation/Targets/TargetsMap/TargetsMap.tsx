@@ -42,7 +42,7 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
@@ -88,6 +88,9 @@ function TargetsMap() {
   );
 
   const isLoading = useAppSelector((state: RootState) => state.targets.loading);
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const quesLoading = useAppSelector(
     (state: RootState) => state.surveyConfig.loading
@@ -514,7 +517,7 @@ function TargetsMap() {
 
         <Title> {activeSurvey?.survey_name} </Title>
       </NavWrapper>
-      {isLoading || quesLoading || locLoading ? (
+      {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -837,6 +840,12 @@ function TargetsMap() {
                     )}
                   </div>
                 </Form>
+                <CustomBtn
+                  onClick={handleTargetsUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
+                  Continue
+                </CustomBtn>
               </>
             ) : (
               <>
@@ -955,12 +964,6 @@ function TargetsMap() {
           </TargetsMapFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton onClick={handleTargetsUploadMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

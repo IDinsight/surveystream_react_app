@@ -3,7 +3,7 @@ import { Form, Row, Col, Input, Select, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
 
 import SideMenu from "../SideMenu";
 import {
@@ -41,6 +41,11 @@ function SurveyCTOInfomation() {
   const activeSurvey = useAppSelector(
     (state: RootState) => state.surveys.activeSurvey
   );
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
+
   const [formData, setFormData] = useState<SurveyCTOForm | null>(null);
   const [loading, setLoading] = useState(false);
   const [surveyCTOForm, setSurveyCTOForm] = useState<SurveyCTOForm | null>(
@@ -62,6 +67,7 @@ function SurveyCTOInfomation() {
       encryption_key_shared: allValues.encryption_key_shared ?? false,
       server_access_role_granted: allValues.server_access_role_granted ?? false,
       server_access_allowed: allValues.server_access_allowed ?? false,
+      number_of_attempts: allValues.number_of_attempts ?? 0,
     };
 
     setFormData(formValues); // Update form data
@@ -179,6 +185,7 @@ function SurveyCTOInfomation() {
         server_access_role_granted:
           surveyCTOFormResPayload.server_access_role_granted,
         server_access_allowed: surveyCTOFormResPayload.server_access_allowed,
+        number_of_attempts: surveyCTOFormResPayload.number_of_attempts,
       };
       form.setFieldsValue(formFieldData);
       setFormData(formFieldData);
@@ -206,7 +213,7 @@ function SurveyCTOInfomation() {
         ></div>
       </HeaderContainer>
 
-      {isLoading || loading ? (
+      {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <>
@@ -224,8 +231,8 @@ function SurveyCTOInfomation() {
                         required
                         label={
                           <span>
-                            Main Form ID&nbsp;
-                            <StyledTooltip title="Input the form ID of the main SCTO form. Ex: agrifieldnet_main_form">
+                            Main form ID&nbsp;
+                            <StyledTooltip title="Input the form ID of the main SurveyCTO form. Ex: agrifieldnet_main_form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -233,11 +240,11 @@ function SurveyCTOInfomation() {
                         name="scto_form_id"
                         labelCol={{ span: 24 }}
                         wrapperCol={{ span: 24 }}
-                        style={{ display: "block" }}
+                        style={{ display: "block", width: "300px" }}
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a Main Form ID",
+                            message: "Please enter a main form ID",
                           },
                         ]}
                       >
@@ -248,8 +255,8 @@ function SurveyCTOInfomation() {
                         required
                         label={
                           <span>
-                            SCTO server name&nbsp;
-                            <StyledTooltip title="SurveyCTO server name Ex: dodieic. Please carefully consider the server you are sharing is the one cleared for use on your project.">
+                            SurveyCTO server name&nbsp;
+                            <StyledTooltip title="Input the SurveyCTO server name Ex: dodieic. Please ensure the server you are sharing is the one cleared for use on your project.">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -257,11 +264,11 @@ function SurveyCTOInfomation() {
                         name="scto_server_name"
                         labelCol={{ span: 24 }}
                         wrapperCol={{ span: 24 }}
-                        style={{ display: "block" }}
+                        style={{ display: "block", width: "300px" }}
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a SCTO server name",
+                            message: "Please enter a SurveyCTO server name",
                           },
                         ]}
                       >
@@ -277,7 +284,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Main form name&nbsp;
-                            <StyledTooltip title="Input the form name of the main SCTO form. Ex: AgriFieldNet main survey form">
+                            <StyledTooltip title="Input the form name of the main SurveyCTO form. Ex: AgriFieldNet main survey form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -286,7 +293,7 @@ function SurveyCTOInfomation() {
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a Main form name",
+                            message: "Please enter a main form name",
                           },
                         ]}
                         style={{ display: "block", width: "300px" }}
@@ -301,7 +308,7 @@ function SurveyCTOInfomation() {
                         style={{ display: "block", width: "300px" }}
                         label={
                           <span>
-                            Time zone of location of data collection&nbsp;
+                            Timezone of location of data collection&nbsp;
                             <StyledTooltip title="Select the timezone in which you will be conducting data collection. Ex: Asia/Kolkata">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
@@ -311,7 +318,7 @@ function SurveyCTOInfomation() {
                           {
                             required: true,
                             message:
-                              "Please enter a Time zone of location of data collection",
+                              "Please enter the timezone of location of data collection",
                           },
                         ]}
                       >
@@ -327,6 +334,35 @@ function SurveyCTOInfomation() {
                         </Select>
                       </StyledFormItem>
                     </Col>
+                    <Col span={10}>
+                      <StyledFormItem
+                        required
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        label={
+                          <span>
+                            Number of attempts&nbsp;
+                            <StyledTooltip title="The number of attempts allowed for a respondent before it is marked completed. Ex: 3">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        name="number_of_attempts"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter a Number of attempts",
+                          },
+                        ]}
+                        style={{ display: "block", width: "300px" }}
+                      >
+                        <Input
+                          type="number"
+                          style={{ width: "100%" }}
+                          min={1}
+                        />
+                      </StyledFormItem>
+                    </Col>
                   </Row>
                 </TwoColumnForm>
                 <div style={{ marginTop: "40px", display: "block" }}>
@@ -335,11 +371,11 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      Please share the SCTO key with{" "}
+                      The form is encrypted. If yes, please shared the key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via FlowCrypt/Dashlane.
+                      via FlowCrypt/Nordpass.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
@@ -359,8 +395,7 @@ function SurveyCTOInfomation() {
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      on the SCTO server. Please ensure the role has API access
-                      enabled.
+                      on the SurveyCTO server with API access.
                     </CheckboxSCTO>
                   </StyledFormItem>
                   <StyledFormItem
@@ -368,8 +403,8 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      I allow SurveyStream to connect to the SCTO server as per
-                      the requirements of modules selected.
+                      I allow SurveyStream to connect to the SurveyCTO server as
+                      per the requirements of modules selected.
                     </CheckboxSCTO>
                   </StyledFormItem>
                 </div>

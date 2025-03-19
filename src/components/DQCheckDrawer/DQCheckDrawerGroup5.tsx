@@ -3,6 +3,9 @@ import { ChecksSwitch } from "../../modules/DQ/DQChecks/DQChecks.styled";
 import DQChecksFilter from "../../modules/DQ/DQChecks/DQChecksFilter";
 import { Button, Col, Drawer, Form, Input, message, Row, Select } from "antd";
 import { CustomBtn } from "../../shared/Global.styled";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import DQChecksAssertion from "../../modules/DQ/DQChecks/DQChecksAssertion";
+import validateExpression from "./../../utils/parser";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
@@ -15,7 +18,7 @@ interface IDQCheckDrawerProps {
   moduleNames: any[];
 }
 
-function DQCheckDrawer({
+function DQCheckDrawer5({
   visible,
   typeID,
   onClose,
@@ -27,15 +30,12 @@ function DQCheckDrawer({
 }: IDQCheckDrawerProps) {
   const [localModuleNames, setlocalModuleNames] = useState<any>(moduleNames);
   const [filter, setFilter] = useState<any>([]);
+  const [assertion, setAssertion] = useState<any>([]);
+
   const [localData, setLocalData] = useState<any>({
     dq_check_id: null,
-    variable_name: "",
-    outliner_metric: null,
-    outliner_value: null,
-    hard_min: null,
-    hard_max: null,
-    soft_min: null,
-    soft_max: null,
+    variable_name: { question_name: "", alias: "A" },
+    other_variable_name: [],
     flag_description: "",
     is_active: true,
     module_name: "",
@@ -46,7 +46,7 @@ function DQCheckDrawer({
       field === "is_active" &&
       value === true &&
       data?.isDeleted &&
-      data?.questionName === localData.variable_name
+      data?.questionName === localData.variable_name.question_name
     ) {
       message.error(
         "This check's variable is deleted and cannot be activated. Please change the variable to activate this check."
@@ -54,7 +54,28 @@ function DQCheckDrawer({
       return;
     }
 
-    setLocalData((prev: any) => ({ ...prev, [field]: value }));
+    if (field === "variable_name") {
+      setLocalData((prev: any) => ({
+        ...prev,
+        [field]: { question_name: value, alias: "A" },
+      }));
+    } else {
+      setLocalData((prev: any) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
+  };
+
+  const handleOtherVariableChange = (index: number, value: any) => {
+    setLocalData((prev: any) => {
+      const otherVariableName = prev.other_variable_name;
+      otherVariableName[index].question_name = value;
+      return {
+        ...prev,
+        other_variable_name: otherVariableName,
+      };
+    });
   };
 
   const handleModeNameChange = (val: string) => {
@@ -65,33 +86,49 @@ function DQCheckDrawer({
   };
 
   const handleSave = () => {
-    if (!localData.variable_name) {
+    if (!localData.variable_name.question_name) {
       message.error("Please select a variable");
       return;
     }
 
-    if (typeID === "3") {
-      if (localData.outliner_metric === null) {
-        message.error("Please select a metric");
-        return;
-      }
+    if (assertion.length > 0) {
+      const variableNamesList = localData.other_variable_name.map(
+        (variable: any) => variable.alias
+      );
+      variableNamesList.push(localData.variable_name.alias);
 
-      if (localData.outliner_value === null) {
-        message.error("Please input a value");
-        return;
-      }
-    }
+      const isOtherVariableValid = assertion.every(
+        (group: { assert_group: { assertion: string }[] }) => {
+          return group.assert_group.every((variable: { assertion: string }) => {
+            const validation = validateExpression(variable.assertion);
+            if (!variable.assertion || !validation.valid) {
+              message.error(
+                !variable.assertion
+                  ? "Please provide a valid assertion condition."
+                  : validation.errors[0]
+              );
+              return false;
+            }
 
-    if (typeID === "2") {
-      if (
-        localData.hard_min === null &&
-        localData.soft_min === null &&
-        localData.soft_max === null &&
-        localData.hard_max === null
-      ) {
-        message.error(
-          "Please input at least one value for Hard Min, Soft Min, Soft Max, or Hard Max"
-        );
+            const missingVariables = validation.variables.filter(
+              (varName) => !variableNamesList.includes(varName)
+            );
+
+            if (missingVariables.length > 0) {
+              message.error(
+                `The following variables's alias are undefined: ${missingVariables.join(
+                  ", "
+                )}`
+              );
+              return false;
+            }
+
+            return true;
+          });
+        }
+      );
+
+      if (!isOtherVariableValid) {
         return;
       }
     }
@@ -111,7 +148,29 @@ function DQCheckDrawer({
 
     onSave({
       ...localData,
+      assertion: assertion,
       filters: filter,
+    });
+  };
+
+  const getNextAlias = () => {
+    const otherVariableName = localData.other_variable_name;
+    if (otherVariableName.length === 0) {
+      return "B";
+    }
+
+    const lastAlias = otherVariableName[otherVariableName.length - 1].alias;
+    return String.fromCharCode(lastAlias.charCodeAt(0) + 1);
+  };
+
+  const handleOtherVariableDelete = (index: number) => () => {
+    setLocalData((prev: any) => {
+      const otherVariableName = prev.other_variable_name;
+      otherVariableName.splice(index, 1);
+      return {
+        ...prev,
+        other_variable_name: otherVariableName,
+      };
     });
   };
 
@@ -119,32 +178,28 @@ function DQCheckDrawer({
     if (data) {
       setLocalData({
         dq_check_id: data.dqCheckUID,
-        variable_name: data.questionName,
+        variable_name: {
+          question_name: data.questionName,
+          alias: "A",
+        },
         flag_description: data.flagDescription,
         is_active: data.status === "Active",
         module_name: data.moduleName,
-        outliner_metric: data.outlinerMetric ?? null,
-        outliner_value: data.outlinerValue ?? null,
-        soft_min: data.softMin ?? null,
-        soft_max: data.softMax ?? null,
-        hard_min: data.hardMin ?? null,
-        hard_max: data.hardMax ?? null,
+        other_variable_name: data.otherVariable,
       });
 
       setFilter(data.filters);
+      setAssertion(data.assertions);
     } else {
       setLocalData({
-        variable_name: "",
+        variable_name: { question_name: "", alias: "A" },
+        other_variable_name: [],
         flag_description: "",
         is_active: true,
         module_name: "",
-        outliner_metric: null,
-        outliner_value: null,
-        soft_min: null,
-        soft_max: null,
-        hard_min: null,
-        hard_max: null,
       });
+      setFilter([]);
+      setAssertion([]);
     }
   }, [data]);
 
@@ -164,7 +219,6 @@ function DQCheckDrawer({
           checkedChildren="ACTIVE"
           unCheckedChildren="INACTIVE"
         />
-
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
@@ -173,17 +227,95 @@ function DQCheckDrawer({
               required
             />
           </Col>
-          <Col span={12}>
+          <Col span={12} style={{ display: "flex" }}>
             <Select
-              style={{ width: "100%" }}
+              style={{ width: "80%" }}
               showSearch
               placeholder="Select variable"
-              value={localData.variable_name}
+              value={localData.variable_name.question_name}
               options={questions.map((question: any) => ({
                 value: question.name,
                 label: question.label,
               }))}
               onChange={(value) => handleFieldChange("variable_name", value)}
+            />
+            <span style={{ marginLeft: 24, marginTop: 6 }}>Alias: A</span>
+          </Col>
+        </Row>
+        <Row style={{ marginTop: 8 }}>
+          <Col>
+            <Form.Item
+              label="Select other variables needed for the check:"
+              tooltip="Choose other variable from SCTO question list for logic checks"
+            />
+          </Col>
+        </Row>
+        {localData.other_variable_name?.map((variable: any, index: number) => (
+          <Row key={index}>
+            <Col span={8}>
+              <Form.Item
+                label={`Select variable ${index + 1}`}
+                tooltip="Choose variable from SCTO question list"
+                required
+              />
+            </Col>
+            <Col span={12} style={{ display: "flex" }}>
+              <Select
+                style={{ width: "80%" }}
+                showSearch
+                placeholder="Select variable"
+                value={variable.question_name}
+                options={questions.map((question: any) => ({
+                  value: question.name,
+                  label: question.label,
+                }))}
+                onChange={(value) => handleOtherVariableChange(index, value)}
+              />
+              <span style={{ marginLeft: "24px", marginTop: "6px" }}>
+                Alias: {variable.alias}
+              </span>
+            </Col>
+            <Button type="link" onClick={handleOtherVariableDelete(index)}>
+              <DeleteOutlined />
+            </Button>
+          </Row>
+        ))}
+        <Row>
+          <Col>
+            <Button
+              type="link"
+              onClick={() =>
+                setLocalData((prev: any) => {
+                  return {
+                    ...prev,
+                    other_variable_name: [
+                      ...prev.other_variable_name,
+                      {
+                        question_name: "",
+                        alias: getNextAlias(),
+                      },
+                    ],
+                  };
+                })
+              }
+            >
+              <PlusOutlined /> Add another variable
+            </Button>
+          </Col>
+        </Row>
+        <Row style={{ marginTop: 8 }}>
+          <Col>
+            <Form.Item
+              label="Assertions:"
+              tooltip="Assertions conditions for logic checks"
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <DQChecksAssertion
+              assertions={assertion}
+              setAssertions={setAssertion}
             />
           </Col>
         </Row>
@@ -204,128 +336,6 @@ function DQCheckDrawer({
             />
           </Col>
         </Row>
-        {typeID === "2" && (
-          <>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Hard Min:"
-                  tooltip="Hard minimum value for the variable"
-                />
-              </Col>
-              <Col span={12}>
-                <Input
-                  placeholder="Input value"
-                  value={localData.hard_min}
-                  onChange={(e) =>
-                    handleFieldChange("hard_min", e.target.value)
-                  }
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Soft Min:"
-                  tooltip="Soft minimum value for the variable"
-                />
-              </Col>
-              <Col span={12}>
-                <Input
-                  placeholder="Input value"
-                  value={localData.soft_min}
-                  onChange={(e) =>
-                    handleFieldChange("soft_min", e.target.value)
-                  }
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Soft Max:"
-                  tooltip="Soft maximum value for the variable"
-                />
-              </Col>
-              <Col span={12}>
-                <Input
-                  placeholder="Input value"
-                  value={localData.soft_max}
-                  onChange={(e) =>
-                    handleFieldChange("soft_max", e.target.value)
-                  }
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Hard Max:"
-                  tooltip="Hard maximum value for the variable"
-                />
-              </Col>
-              <Col span={12}>
-                <Input
-                  placeholder="Input value"
-                  value={localData.hard_max}
-                  onChange={(e) =>
-                    handleFieldChange("hard_max", e.target.value)
-                  }
-                />
-              </Col>
-            </Row>
-          </>
-        )}
-        {typeID === "3" && (
-          <>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Measure:"
-                  tooltip="Unit of measurement for the variable"
-                  required
-                />
-              </Col>
-              <Col span={12}>
-                <Select
-                  style={{ width: "100%" }}
-                  showSearch
-                  placeholder="Select metric"
-                  value={localData.outliner_metric}
-                  onChange={(value) =>
-                    handleFieldChange("outliner_metric", value)
-                  }
-                >
-                  <Select.Option value="interquartile_range">
-                    Interquartile Range
-                  </Select.Option>
-                  <Select.Option value="standard_deviation">
-                    Standard Deviation
-                  </Select.Option>
-                  <Select.Option value="percentile">Percentile</Select.Option>
-                </Select>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8}>
-                <Form.Item
-                  label="Multipler / Value:"
-                  tooltip="Value that is considered for checks"
-                  required
-                />
-              </Col>
-              <Col span={12}>
-                <Input
-                  placeholder="Input value"
-                  value={localData.outliner_value}
-                  onChange={(e) =>
-                    handleFieldChange("outliner_value", e.target.value)
-                  }
-                />
-              </Col>
-            </Row>
-          </>
-        )}
         <div>
           <Form.Item
             label="Filter before applying this check:"
@@ -393,4 +403,4 @@ function DQCheckDrawer({
   );
 }
 
-export default DQCheckDrawer;
+export default DQCheckDrawer5;

@@ -9,6 +9,8 @@ import { Form, Input, message, Radio, Space, Modal, Alert } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
+
 import {
   ContinueButton,
   FooterWrapper,
@@ -59,6 +61,10 @@ function TargetsConfig() {
     string[]
   >([]);
   const [screenMode, setScreenMode] = useState<string>("manage");
+
+  const { loading: isSideMenuLoading } = useAppSelector(
+    (state: RootState) => state.surveyConfig
+  );
 
   const fetchTargetConfig = async () => {
     setLoading(true);
@@ -234,7 +240,7 @@ function TargetsConfig() {
       <HeaderContainer>
         <Title>Targets: Configuration</Title>
       </HeaderContainer>
-      {loading ? (
+      {loading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
         <div style={{ display: "flex" }}>
@@ -349,6 +355,9 @@ function TargetsConfig() {
                     </div>
                   </SCTOLoadErrorArea>
                 )}
+                <CustomBtn onClick={handleContinue} style={{ marginTop: 20 }}>
+                  Continue
+                </CustomBtn>
               </div>
               <Modal
                 title="Warning"
@@ -377,15 +386,12 @@ function TargetsConfig() {
             </>
           ) : null}
           {screenMode === "remap" ? (
-            <TargetsRemap setScreenMode={setScreenMode} />
+            <>
+              <TargetsRemap setScreenMode={setScreenMode} />
+            </>
           ) : null}
         </div>
       )}
-      <FooterWrapper>
-        {screenMode !== "remap" ? (
-          <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
-        ) : null}
-      </FooterWrapper>
     </>
   );
 }
