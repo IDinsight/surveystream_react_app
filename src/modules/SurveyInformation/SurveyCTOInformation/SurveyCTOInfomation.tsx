@@ -4,11 +4,7 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { HeaderContainer, NavWrapper, Title } from "../../../shared/Nav.styled";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
+
 import SideMenu from "../SideMenu";
 import {
   CheckboxSCTO,
@@ -30,7 +26,6 @@ import {
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import HandleBackButton from "../../../components/HandleBackButton";
 import Container from "../../../components/Layout/Container";
 
 function SurveyCTOInfomation() {
@@ -69,6 +64,7 @@ function SurveyCTOInfomation() {
       encryption_key_shared: allValues.encryption_key_shared ?? false,
       server_access_role_granted: allValues.server_access_role_granted ?? false,
       server_access_allowed: allValues.server_access_allowed ?? false,
+      number_of_attempts: allValues.number_of_attempts ?? 0,
     };
 
     setFormData(formValues); // Update form data
@@ -158,6 +154,7 @@ function SurveyCTOInfomation() {
         server_access_role_granted:
           surveyCTOFormResPayload.server_access_role_granted,
         server_access_allowed: surveyCTOFormResPayload.server_access_allowed,
+        number_of_attempts: surveyCTOFormResPayload.number_of_attempts,
       };
       form.setFieldsValue(formFieldData);
       setFormData(formFieldData);
@@ -211,7 +208,7 @@ function SurveyCTOInfomation() {
                         name="scto_form_id"
                         labelCol={{ span: 24 }}
                         wrapperCol={{ span: 24 }}
-                        style={{ display: "block" }}
+                        style={{ display: "block", width: "300px" }}
                         rules={[
                           {
                             required: true,
@@ -235,7 +232,7 @@ function SurveyCTOInfomation() {
                         name="scto_server_name"
                         labelCol={{ span: 24 }}
                         wrapperCol={{ span: 24 }}
-                        style={{ display: "block" }}
+                        style={{ display: "block", width: "300px" }}
                         rules={[
                           {
                             required: true,
@@ -303,6 +300,35 @@ function SurveyCTOInfomation() {
                             </Select.Option>
                           ))}
                         </Select>
+                      </StyledFormItem>
+                    </Col>
+                    <Col span={10}>
+                      <StyledFormItem
+                        required
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        label={
+                          <span>
+                            Number of attempts&nbsp;
+                            <StyledTooltip title="The number of attempts allowed for a respondent before it is marked completed. Ex: 3">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        name="number_of_attempts"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter a Number of attempts",
+                          },
+                        ]}
+                        style={{ display: "block", width: "300px" }}
+                      >
+                        <Input
+                          type="number"
+                          style={{ width: "100%" }}
+                          min={1}
+                        />
                       </StyledFormItem>
                     </Col>
                   </Row>

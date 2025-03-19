@@ -1,12 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { NavWrapper, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -286,12 +281,6 @@ function TargetsUpload() {
           </TargetUploadFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton disabled={!fileUploaded} onClick={moveToMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }
