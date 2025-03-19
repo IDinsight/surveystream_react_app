@@ -1,7 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  HeaderContainer,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 
 import {
@@ -15,6 +19,7 @@ import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppSelector, useAppDispatch } from "../../../../redux/hooks";
+import Container from "../../../../components/Layout/Container";
 
 import { RootState } from "../../../../redux/store";
 import {
@@ -138,11 +143,11 @@ function EnumeratorsUpload() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Enumerators: Upload</Title>
+      </HeaderContainer>
 
-        <Title> {activeSurvey?.survey_name} </Title>
-      </NavWrapper>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -150,7 +155,6 @@ function EnumeratorsUpload() {
           <SideMenu />
           <EnumeratorsUploadFormWrapper>
             <div style={{ display: "flex" }}>
-              <Title>Enumerators: Upload csv</Title>
               <div
                 style={{
                   display: "flex",

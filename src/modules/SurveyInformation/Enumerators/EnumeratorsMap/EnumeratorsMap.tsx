@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Col, Form, Row, Select, message } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  HeaderContainer,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 
 import { CustomBtn } from "../../../../shared/Global.styled";
@@ -36,6 +40,7 @@ import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/sur
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import Container from "../../../../components/Layout/Container";
 
 interface CSVError {
   type: string;
@@ -461,20 +466,11 @@ function EnumeratorsMap() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Enumerators: Map CSV columns</Title>
+      </HeaderContainer>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
       {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -484,7 +480,6 @@ function EnumeratorsMap() {
             {!hasError ? (
               <>
                 <div>
-                  <Title>Enumerators: Map CSV columns</Title>
                   <DescriptionText>
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
