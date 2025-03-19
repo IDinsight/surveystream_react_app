@@ -51,7 +51,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
 import { LocationEditDrawer } from "./LocationEditDrawer";
-import { DescriptionText } from "../../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 import {
   createNotificationViaAction,
   resolveSurveyNotification,
@@ -631,14 +631,14 @@ function SurveyLocationUpload() {
                 </>
               )}
               {fileUploaded && !columnMatch ? (
-                <ContinueButton
+                <CustomBtn
                   loading={loading}
                   onClick={handleUploadContinue}
                   disabled={!fileUploaded}
                   style={{ marginTop: 24 }}
                 >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               ) : null}
             </SurveyLocationUploadFormWrapper>
             <Modal

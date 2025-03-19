@@ -383,11 +383,19 @@ function SurveyLocationHierarchy() {
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
                 <DescriptionText>Select the prime geo location</DescriptionText>
+
                 <StyledFormItem
+                  label="Prime geo location"
+                  required
+                  labelCol={{ span: 3 }}
+                  wrapperCol={{ span: 8 }}
+                  labelAlign="left"
                   name={`prime_geo_level`}
-                  style={{ width: "40%" }}
                 >
-                  <Select onChange={handlePrimeSelectChange}>
+                  <Select
+                    onChange={handlePrimeSelectChange}
+                    style={{ width: "94%" }}
+                  >
                     <Select.Option value="no_location">
                       No location mapping
                     </Select.Option>

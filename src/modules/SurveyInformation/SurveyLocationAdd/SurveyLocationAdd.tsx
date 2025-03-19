@@ -188,11 +188,11 @@ function SurveyLocationAdd() {
               title="Are you sure you want to delete this location level?"
               description={
                 <span>
-                  Deleting this location level will remove all associated data,
-                  including location mapped to enumerators, targets, users.
+                  This action will remove existing locations data, including
+                  locations mapped to enumerators, targets and supervisors.
                   <br />
-                  You will need to re-upload locations, enumerators, and targets
-                  after deletion.
+                  Kindly re-upload locations and update enumerators, targets and
+                  supervisors after deleting the location level.
                 </span>
               }
               onConfirm={() => handleDeleteGeoLevel(index)}
@@ -234,6 +234,7 @@ function SurveyLocationAdd() {
 
   const handleLocationAddContinue = async () => {
     try {
+      setLoading(true);
       if (survey_uid !== undefined) {
         const formValues = form.getFieldsValue();
 
@@ -271,8 +272,6 @@ function SurveyLocationAdd() {
         } else {
           dispatch(setSurveyLocationGeoLevels(updatedGeoLevels));
         }
-
-        setLoading(true);
 
         const surveyGeoLevelsData = updatedGeoLevels;
 
@@ -326,12 +325,11 @@ function SurveyLocationAdd() {
               title="Are you sure you want to add another location level?"
               description={
                 <span>
-                  Adding a new location level will remove existing location
-                  data, including enumerators and targets mapped to current
-                  locations.
+                  This action will remove existing location data, including
+                  locations mapped to enumerators, targets and supervisors.
                   <br />
-                  You will need to re-upload locations, enumerators, and targets
-                  after adding the new location level.
+                  Kindly re-upload locations and update enumerators, targets and
+                  supervisors after adding the new location level.
                 </span>
               }
               okText="Yes"
@@ -340,18 +338,17 @@ function SurveyLocationAdd() {
               placement="leftTop"
               overlayStyle={{ width: "30%" }}
             >
-              <AddAnotherButton type="dashed" style={{ width: "100%" }}>
+              <CustomBtn style={{ width: "100%", marginTop: "15px" }}>
                 <FileAddOutlined /> Add location level
-              </AddAnotherButton>
+              </CustomBtn>
             </Popconfirm>
           ) : (
-            <AddAnotherButton
-              type="dashed"
-              style={{ width: "100%" }}
+            <CustomBtn
+              style={{ width: "100%", marginTop: "15px" }}
               onClick={handleAddGeoLevel}
             >
               <FileAddOutlined /> Add location level
-            </AddAnotherButton>
+            </CustomBtn>
           )}
         </div>
       </HeaderContainer>
@@ -372,8 +369,10 @@ function SurveyLocationAdd() {
             </div>
             <CustomBtn
               onClick={async () => {
+                setLoading(true);
                 await createNotification();
                 await handleLocationAddContinue();
+                setLoading(false);
               }}
               loading={loading}
               disabled={numLocationFields === 0}
