@@ -352,7 +352,6 @@ function SurveyStatusMapping() {
                       color: "#8C8C8C",
                       fontSize: 14,
                       marginBottom: 0,
-                      marginRight: 60,
                     }}
                   >
                     Add or edit all possible survey status values for the

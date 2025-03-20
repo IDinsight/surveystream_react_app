@@ -217,26 +217,20 @@ function EnumeratorsUpload() {
                     <li>Gender</li>
                     <li>Enumerator type</li>
                     <li>
-                      Prime-Geo Location ID (If location is selected as a
-                      mapping criterion).
+                      Prime geo location ID (If location is selected as a
+                      mapping criterion)
                     </li>
-                    <li>
-                      Prime-Geo Location (If location is selected as a mapping
-                      criterion).
-                    </li>
-                    <li>
-                      Language (If language is selected as a mapping criterion).
-                    </li>
+                    <li>Language</li>
                   </ol>
                 </li>
                 <li>
                   You can also add custom columns are per the requirement of
-                  your survey - please ensure the column(s) is added in the csv
-                  file you will upload.
+                  your survey - please ensure the column(s) are added in the csv
+                  file.
                 </li>
                 <li>
-                  You can edit the enumerator data before and during (certain
-                  fields) data collection.
+                  You can edit the enumerator data before and during data
+                  collection.
                 </li>
                 <li>
                   You can add more enumerators before and during data

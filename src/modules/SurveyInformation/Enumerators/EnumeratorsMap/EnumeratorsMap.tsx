@@ -38,7 +38,6 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import Container from "../../../../components/Layout/Container";
 
@@ -147,7 +146,7 @@ function EnumeratorsMap() {
     },
     {
       title: "Address",
-      key: "address",
+      key: "home_address",
     },
     {
       title: "Gender",
@@ -164,7 +163,7 @@ function EnumeratorsMap() {
     "name",
     "email",
     "mobile_primary",
-    "address",
+    "home_address",
     "language",
     "gender",
     "enumerator_type",
@@ -414,19 +413,7 @@ function EnumeratorsMap() {
         setHasError(true);
       }
     } catch (error) {
-      console.log("error", error);
-      message.error("Failed to upload kindly check and try again");
-      setHasError(true);
-
-      const requiredErrors: any = {};
-      const formFields = enumeratorMappingForm.getFieldsValue();
-
-      for (const field in formFields) {
-        const errors = enumeratorMappingForm.getFieldError(field);
-        if (errors && errors.length > 0) {
-          requiredErrors[field] = true;
-        }
-      }
+      message.error("Please check the form for errors and try again.");
     }
   };
 
@@ -490,9 +477,8 @@ function EnumeratorsMap() {
                 >
                   <div>
                     <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
+                      Personal and contact details
                     </HeadingText>
-                    <HeadingText>Personal and contact details</HeadingText>
                     {personalDetailsField.map((item, idx) => {
                       return (
                         <Form.Item
@@ -502,13 +488,7 @@ function EnumeratorsMap() {
                           rules={[
                             {
                               required:
-                                (item.key === "language" &&
-                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
-                                    "Language"
-                                  )) ||
-                                item.key === "home_address"
-                                  ? false
-                                  : true,
+                                item.key === "home_address" ? false : true,
                               message: "Kindly select column to map value!",
                             },
                             {

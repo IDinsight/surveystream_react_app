@@ -72,7 +72,7 @@ function EnumeratorsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
@@ -555,7 +555,6 @@ function EnumeratorsHome() {
                     fontSize: "12px",
                     padding: "8px 16px",
                     borderRadius: "5px",
-                    marginRight: 80,
                   }}
                 >
                   <DownloadOutlined />
@@ -579,14 +578,15 @@ function EnumeratorsHome() {
                   rowSelection={rowSelection}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
-                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
+                  scroll={{ x: "max-content" }}
                   pagination={{
+                    position: ["topRight"],
                     pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
+                    pageSizeOptions: [5, 10, 25, 50, 100],
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                    position: ["topRight"],
+                    style: { color: "#2F54EB" },
                   }}
                 />
                 {editData ? (

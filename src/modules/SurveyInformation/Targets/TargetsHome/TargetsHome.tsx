@@ -67,7 +67,7 @@ function TargetsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [targetsLastUpdated, setTargetsLastUpdated] = useState<string>("");
@@ -630,7 +630,7 @@ function TargetsHome() {
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
+                    pageSizeOptions: [5, 10, 25, 50, 100],
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
