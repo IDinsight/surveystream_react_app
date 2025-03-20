@@ -585,12 +585,6 @@ function ManageSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText
-                style={{ marginRight: "auto", marginBottom: "0px" }}
-              >
-                Manage the users added to your survey here
-              </DescriptionText>
-              <div style={{ display: "flex" }}></div>
               <UsersTable
                 dataSource={filteredUserTableData}
                 rowSelection={rowSelection}

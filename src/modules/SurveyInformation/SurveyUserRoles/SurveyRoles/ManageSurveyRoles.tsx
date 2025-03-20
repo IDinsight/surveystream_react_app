@@ -328,13 +328,6 @@ function ManageSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText
-                style={{ marginRight: "auto", marginBottom: "0px" }}
-              >
-                Manage the roles related to your survey here
-              </DescriptionText>
-
-              <div style={{ display: "flex" }}></div>
               <RolesTable
                 columns={rolesTableColumn}
                 dataSource={rolesTableData}
