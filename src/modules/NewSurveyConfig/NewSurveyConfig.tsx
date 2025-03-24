@@ -116,6 +116,7 @@ function NewSurveyConfig() {
   const checkMappingChanged = () => {
     if (
       moduleQuestionnaireformData &&
+      moduleQuestionnaire &&
       moduleQuestionnaire.surveyor_mapping_criteria !==
         moduleQuestionnaireformData.surveyor_mapping_criteria
     ) {
@@ -135,6 +136,7 @@ function NewSurveyConfig() {
 
     if (
       moduleQuestionnaireformData &&
+      moduleQuestionnaire &&
       moduleQuestionnaire.target_mapping_criteria !==
         moduleQuestionnaireformData.target_mapping_criteria
     ) {
