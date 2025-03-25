@@ -9,11 +9,13 @@ export const BodyContainer = styled.div`
 export const MappingWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
-  padding-left: 80px;
-  padding-top: 23px;
-  padding-right: 70px;
+  padding-top: 10px;
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Lato", sans-serif;
-  width: 65%;
+  position: relative;
+  min-height: 550px;
+  width: 70%;
 `;
 
 export const FormItemLabel = styled.p`
@@ -49,10 +51,8 @@ export const DeleteButton = styled(Button)`
 `;
 
 export const MappingTable = styled(Table)`
-  overflow: auto;
-  width: 99%;
-  margin-top: 0px;
-  margin-bottom: 68px;
+  margin-bottom: 30px;
+  width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;

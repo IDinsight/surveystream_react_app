@@ -31,7 +31,6 @@ import EnumeratorsReupload from "./../EnumeratorsReupload";
 import EnumeratorsRemap from "../EnumeratorsRemap";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
-import { use } from "chai";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
 
 function EnumeratorsHome() {
@@ -73,7 +72,7 @@ function EnumeratorsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
@@ -322,15 +321,15 @@ function EnumeratorsHome() {
         // Only add location columns if surveyor_locations exist
         if (hasSurveyorLocations) {
           columnMappings.push({
-            // this title should be e.g. District Name or county name depending on the key location_name
-            title: `${primeLocationName} Name`,
-            dataIndex: "location",
+            title: `${primeLocationName} ID`,
+            dataIndex: "location_id",
             width: 150,
             ellipsis: false,
           });
           columnMappings.push({
-            title: `${primeLocationName} ID`,
-            dataIndex: "location_id",
+            // this title should be e.g. District Name or county name depending on the key location_name
+            title: `${primeLocationName} Name`,
+            dataIndex: "location",
             width: 150,
             ellipsis: false,
           });
@@ -508,7 +507,7 @@ function EnumeratorsHome() {
           dropped={droppedEnums}
           inactive={inactiveEnums}
         />
-        {screenMode == "manage" ? (
+        {!(isLoading || isSideMenuLoading) && screenMode == "manage" ? (
           <>
             <div
               style={{
@@ -556,7 +555,6 @@ function EnumeratorsHome() {
                     fontSize: "12px",
                     padding: "8px 16px",
                     borderRadius: "5px",
-                    marginRight: 80,
                   }}
                 >
                   <DownloadOutlined />
@@ -580,14 +578,15 @@ function EnumeratorsHome() {
                   rowSelection={rowSelection}
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
-                  scroll={{ x: 1000, y: "calc(100vh - 380px)" }}
+                  scroll={{ x: "max-content" }}
                   pagination={{
+                    position: ["topRight"],
                     pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
+                    pageSizeOptions: [5, 10, 25, 50, 100],
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                    position: ["topRight"],
+                    style: { color: "#2F54EB" },
                   }}
                 />
                 {editData ? (
@@ -622,10 +621,10 @@ function EnumeratorsHome() {
                       I want to add new enumerators / columns
                     </Radio>
                     <Radio value="overwrite" disabled={isEnumInUse}>
-                      <span> I want to start a fresh </span>
+                      <span> I want to start afresh </span>
                       <span style={{ color: "red" }}>
                         ( Enumerators uploaded previously will be removed.
-                        Existing Assignments data will be deleted. )
+                        Existing assignments data will be deleted. )
                       </span>
                     </Radio>
                   </Space>

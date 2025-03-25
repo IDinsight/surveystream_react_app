@@ -58,7 +58,7 @@ const SurveyorMapping = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [tablePageSize, setTablePageSize] = useState(5);
+  const [tablePageSize, setTablePageSize] = useState(10);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
@@ -1275,7 +1275,7 @@ const SurveyorMapping = ({
                 cancelText="No"
               >
                 <ResetButton
-                  style={{ marginLeft: "auto", marginRight: 30 }}
+                  style={{ marginLeft: "auto" }}
                   disabled={
                     criteria.includes("Manual")
                       ? true
@@ -1306,7 +1306,8 @@ const SurveyorMapping = ({
                     <MappingTable
                       columns={mappedPairsColumns}
                       dataSource={mappedPairsData}
-                      scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      //scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      scroll={{ x: "max-content" }}
                       pagination={false}
                     />
                   </div>
@@ -1397,7 +1398,7 @@ const SurveyorMapping = ({
               }}
             >
               <CustomBtn
-                style={{ marginLeft: "auto", marginRight: 30 }}
+                style={{ marginLeft: "auto" }}
                 onClick={handleOnEdit}
                 disabled={selectedSurveyorRows.length === 0}
               >
@@ -1421,14 +1422,16 @@ const SurveyorMapping = ({
                       columns={surveyorsMappingColumns}
                       dataSource={mappingTableData}
                       rowSelection={rowSelection}
-                      scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      // scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      scroll={{ x: "max-content" }}
                       pagination={{
                         position: ["topRight"],
                         pageSize: tablePageSize,
-                        pageSizeOptions: ["5", "10", "20", "50", "100"],
+                        pageSizeOptions: [5, 10, 25, 50, 100],
                         showSizeChanger: true,
-                        onShowSizeChange: (current, size) =>
-                          setTablePageSize(size),
+                        showQuickJumper: true,
+                        onShowSizeChange: (_, size) => setTablePageSize(size),
+                        style: { color: "#2F54EB" },
                       }}
                     />
                     {selectedSurveyorRows.length > 0 && (

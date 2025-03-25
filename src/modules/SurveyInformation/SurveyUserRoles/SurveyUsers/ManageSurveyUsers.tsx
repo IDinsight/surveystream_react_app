@@ -585,19 +585,17 @@ function ManageSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Manage the users added to your survey here
-              </DescriptionText>
-              <div style={{ display: "flex" }}></div>
               <UsersTable
                 dataSource={filteredUserTableData}
                 rowSelection={rowSelection}
                 pagination={{
+                  position: ["topRight"],
                   pageSize: paginationPageSize,
-                  pageSizeOptions: [10, 25, 50, 100],
+                  pageSizeOptions: [5, 10, 25, 50, 100],
                   showSizeChanger: true,
                   showQuickJumper: true,
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                  style: { color: "#2F54EB" },
                 }}
               >
                 {usersTableColumn.map((column) => (

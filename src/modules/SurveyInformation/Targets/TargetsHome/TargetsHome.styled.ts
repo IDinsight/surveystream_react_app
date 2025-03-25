@@ -5,17 +5,17 @@ export const TargetsHomeFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   padding-top: 10px;
-  padding-left: 30px;
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Lato", sans-serif;
   position: relative;
   min-height: 550px;
-  width: 75%;
+  width: 70%;
 `;
 
 export const TargetsTable = styled(Table)`
   margin-bottom: 30px;
   width: 100%;
-  padding-right: 30px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;

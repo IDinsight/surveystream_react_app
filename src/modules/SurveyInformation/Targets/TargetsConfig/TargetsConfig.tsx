@@ -236,26 +236,23 @@ function TargetsConfig() {
                   fontFamily: "Lato",
                 }}
               >
-                <div style={{ display: "flex" }}>
-                  <Title>Targets: Configuration</Title>
-                </div>
                 <Form
                   form={form}
                   layout="horizontal"
                   style={{
-                    paddingTop: "23px",
+                    paddingTop: "20px",
                     fontFamily: "Lato",
                     fontSize: "16px",
                   }}
                 >
                   <StyledFormItem
                     name="target_source"
-                    label="Select the source of Targets"
+                    label="Select the source of targets"
                     labelCol={{ span: 24 }}
                     rules={[
                       {
                         required: true,
-                        message: "Please Select the source of Targets",
+                        message: "Please select the source of targets",
                       },
                     ]}
                   >
@@ -266,7 +263,7 @@ function TargetsConfig() {
                       >
                         <Radio value="csv">Upload CSV</Radio>
                         <Radio value="scto">
-                          Connect to a SurveyCTO Dataset/Form
+                          Connect to a SurveyCTO dataset/form
                         </Radio>
                       </Space>
                     </Radio.Group>
@@ -276,12 +273,12 @@ function TargetsConfig() {
                     <>
                       <StyledFormItem
                         name="scto_input_type"
-                        label="Select Type of SurveyCTO Input"
+                        label="Select type of SurveyCTO input"
                         labelCol={{ span: 24 }}
                         rules={[
                           {
                             required: true,
-                            message: "Please Select Type of SurveyCTO Input",
+                            message: "Please select type of SurveyCTO input",
                           },
                         ]}
                       >
@@ -295,12 +292,12 @@ function TargetsConfig() {
                       <StyledFormItem
                         name="scto_input_id"
                         labelCol={{ span: 24 }}
-                        label="Enter the SurveyCTO Input ID"
+                        label="Enter the SurveyCTO dataset/form ID"
                         rules={[
                           {
                             required: true,
                             message:
-                              "Please Enter the SurveyCTO Dataset/Form ID",
+                              "Please enter the SurveyCTO dataset/form ID",
                           },
                         ]}
                       >
@@ -311,12 +308,12 @@ function TargetsConfig() {
                         valuePropName="checked"
                       >
                         <CheckboxSCTO>
-                          If SCTO Form is encrypted, please share the SCTO key
+                          The form is encrypted. If yes, please share the key
                           with{" "}
                           <a href="mail:surveystream.devs@idinsight.org">
                             surveystream.devs@idinsight.org
                           </a>{" "}
-                          via FlowCrypt/Dashlane.
+                          via FlowCrypt/Nordpass.
                         </CheckboxSCTO>
                       </StyledFormItem>
                     </>

@@ -67,7 +67,7 @@ function TargetsHome() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [dataTableColumn, setDataTableColumn] = useState<any>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [targetsLastUpdated, setTargetsLastUpdated] = useState<string>("");
@@ -630,7 +630,7 @@ function TargetsHome() {
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,
-                    pageSizeOptions: [10, 25, 50, 100],
+                    pageSizeOptions: [5, 10, 25, 50, 100],
                     showSizeChanger: true,
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
@@ -666,10 +666,10 @@ function TargetsHome() {
                       I want to add new targets / columns
                     </Radio>
                     <Radio value="overwrite" disabled={isTargetInUse}>
-                      I want to start afresh with new targets.
+                      <span> I want to start afresh </span>
                       <span style={{ color: "red" }}>
                         ( Targets uploaded previously will be removed. Existing
-                        Assignments data will be deleted. )
+                        assignments data will be deleted. )
                       </span>
                     </Radio>
                   </Space>

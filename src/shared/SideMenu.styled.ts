@@ -50,6 +50,7 @@ export const MenuItem = styled(Link)`
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
+  padding-left: 0rem;
   text-decoration: none;
   color: #4f46e5;
   ${css`

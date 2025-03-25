@@ -310,7 +310,7 @@ function SurveyCTOInfomation() {
                         label={
                           <span>
                             Number of attempts&nbsp;
-                            <StyledTooltip title="The number of attempts allowed for a respondent before it is marked completed. Ex: 3">
+                            <StyledTooltip title="Maximum number of attempts for a respondent before it is made non-assignable Ex: 7">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
@@ -339,7 +339,7 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      The form is encrypted. If yes, please shared the key with{" "}
+                      The form is encrypted. If yes, please share the key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
