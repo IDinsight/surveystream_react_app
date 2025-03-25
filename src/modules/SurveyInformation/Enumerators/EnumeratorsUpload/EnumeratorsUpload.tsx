@@ -145,7 +145,7 @@ function EnumeratorsUpload() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Enumerators: Upload</Title>
+        <Title>Enumerators: Upload CSV</Title>
       </HeaderContainer>
 
       {isLoading || isSideMenuLoading ? (
@@ -235,6 +235,11 @@ function EnumeratorsUpload() {
                 <li>
                   You can add more enumerators before and during data
                   collection.
+                </li>
+                <li>
+                  Once you upload the csv, do not hit refresh till you see the
+                  enumerators in the table view. Refreshing midway can cause
+                  information loss.
                 </li>
               </ol>
             </DescriptionContainer>

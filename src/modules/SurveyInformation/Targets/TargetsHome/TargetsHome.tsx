@@ -666,10 +666,10 @@ function TargetsHome() {
                       I want to add new targets / columns
                     </Radio>
                     <Radio value="overwrite" disabled={isTargetInUse}>
-                      I want to start afresh with new targets.
+                      <span> I want to start afresh </span>
                       <span style={{ color: "red" }}>
                         ( Targets uploaded previously will be removed. Existing
-                        Assignments data will be deleted. )
+                        assignments data will be deleted. )
                       </span>
                     </Radio>
                   </Space>

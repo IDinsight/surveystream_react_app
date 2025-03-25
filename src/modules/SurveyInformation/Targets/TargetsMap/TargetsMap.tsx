@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -43,7 +43,7 @@ import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
+import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
@@ -512,11 +512,11 @@ function TargetsMap() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Targets: Map CSV columns</Title>
+      </HeaderContainer>
 
-        <Title> {activeSurvey?.survey_name} </Title>
-      </NavWrapper>
       {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -526,7 +526,6 @@ function TargetsMap() {
             {!hasError && !hasWarning ? (
               <>
                 <div>
-                  <Title>Targets: Map CSV columns</Title>
                   <DescriptionText>
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
