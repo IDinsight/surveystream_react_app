@@ -339,7 +339,7 @@ function SurveyCTOInfomation() {
                     valuePropName="checked"
                   >
                     <CheckboxSCTO>
-                      The form is encrypted. If yes, please shared the key with{" "}
+                      The form is encrypted. If yes, please share the key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
