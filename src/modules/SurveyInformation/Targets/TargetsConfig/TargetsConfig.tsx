@@ -29,6 +29,7 @@ import Container from "../../../../components/Layout/Container";
 import { setuploadMode } from "../../../../redux/targets/targetSlice";
 import TargetsReupload from "../TargetsReupload/TargetsReupload";
 import TargetsRemap from "../TargetsRemap/TargetsRemap";
+import { createNotificationViaAction } from "../../../../redux/notifications/notificationActions";
 
 function TargetsConfig() {
   const activeSurvey = useAppSelector(
@@ -101,7 +102,24 @@ function TargetsConfig() {
       setLoading(false);
     }
   };
-
+  const createNotification = async (
+    survey_uid: any,
+    notifications: string[]
+  ) => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
+  };
   useEffect(() => {
     if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
       handleFormUID();
@@ -135,7 +153,9 @@ function TargetsConfig() {
           const isChanged = values[key] !== targetConfig[key];
           return isChanged;
         });
-
+        if (hasChanges && values.target_source === "csv") {
+          createNotification(survey_uid, ["Target config changed to CSV"]);
+        }
         if (
           hasChanges ||
           (values.target_source === "csv" &&

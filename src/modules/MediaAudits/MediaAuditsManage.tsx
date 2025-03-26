@@ -18,6 +18,7 @@ import {
   updateMediaAuditConfig,
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
+import { resolveSurveyNotification } from "../../redux/notifications/notificationActions";
 
 const { Option } = Select;
 
@@ -116,6 +117,13 @@ function MediaAuditsManage() {
       ).then((res) => {
         if (res.payload?.success) {
           message.success("Media Audit Config updated successfully.");
+          dispatch(
+            resolveSurveyNotification({
+              survey_uid: survey_uid,
+              module_id: 12,
+              resolution_status: "done",
+            })
+          );
           navigate(`/module-configuration/media-audits/${survey_uid}`);
         } else {
           message.error(res.payload?.message);
