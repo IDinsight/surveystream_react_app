@@ -164,7 +164,6 @@ function SurveyStatusMapping() {
     setEditingData(rowData);
     setEditingMode("edit");
   };
-
   const onAddMapping = () => {
     if (!sctoForm.form_uid) return;
 
@@ -183,7 +182,7 @@ function SurveyStatusMapping() {
     }
 
     // Check if survey status and survey status label already exists
-    targetStatusMapping.forEach((ele: any) => {
+    for (const ele of targetStatusMapping) {
       if (ele.survey_status === parseInt(editingData.survey_status)) {
         message.error(
           "Survey status already exists, please add unique survey status!"
@@ -200,7 +199,7 @@ function SurveyStatusMapping() {
         );
         return;
       }
-    });
+    }
 
     dispatch(
       updateTargetStatusMapping({
@@ -208,7 +207,7 @@ function SurveyStatusMapping() {
         data: [...targetStatusMapping, editingData],
       })
     ).then((res) => {
-      if (res.payload.data.success) {
+      if (res.payload.data && res.payload.data.success === true) {
         message.success("Mapping added successfully!");
         setEditingMode(null);
         setSelectedRowKeys([]);
