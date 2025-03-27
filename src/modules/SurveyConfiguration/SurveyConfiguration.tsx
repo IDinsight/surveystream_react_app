@@ -469,10 +469,10 @@ const SurveyConfiguration: React.FC = () => {
           <BackArrow />
         </BackLink>
         <Title>
-          Survey configuration
+          Survey Configuration
           {(() => {
             const activeSurveyData: any = localStorage.getItem("activeSurvey");
-            return ` : ${
+            return `: ${
               activeSurvey?.survey_name ||
               (activeSurveyData && JSON.parse(activeSurveyData)?.survey_name) ||
               ""
