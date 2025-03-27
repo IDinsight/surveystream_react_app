@@ -8,7 +8,7 @@ import { HeaderContainer } from "../../shared/Nav.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./AdminForm.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
-import { Button, Col, Input, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Input, Row, Select, message } from "antd";
 import {
   createAdminForm,
   getAdminForm,
@@ -149,7 +149,6 @@ function AdminFormManage() {
         ...prev,
         tz_name: surveyCTOForm?.tz_name,
         scto_server_name: surveyCTOForm?.scto_server_name,
-        encryption_key_shared: surveyCTOForm?.encryption_key_shared,
         server_access_role_granted: surveyCTOForm?.server_access_role_granted,
         server_access_allowed: surveyCTOForm?.server_access_allowed,
       }));
@@ -251,6 +250,26 @@ function AdminFormManage() {
                 />
               </Col>
             </Row>
+            <Row align={"middle"} style={{ marginBottom: 6 }}>
+              <Col>
+                <Checkbox
+                  checked={formFieldsData?.encryption_key_shared}
+                  onChange={(e) => {
+                    setFormFieldsData((prev: any) => ({
+                      ...prev,
+                      encryption_key_shared: e.target.checked,
+                    }));
+                  }}
+                >
+                  The form is encrypted. If yes, please share the key with{" "}
+                  <a href="mail:surveystream.devs@idinsight.org">
+                    surveystream.devs@idinsight.org
+                  </a>{" "}
+                  via FlowCrypt/Nordpass.
+                </Checkbox>
+              </Col>
+            </Row>
+
             <div>
               <Button
                 style={{ marginTop: 24, marginRight: 24 }}

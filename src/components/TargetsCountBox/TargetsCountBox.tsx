@@ -27,7 +27,7 @@ function TargetsCountBox({ targetCount }: TargetCountProps) {
               fontWeight: 500,
             }}
           >
-            Total Targets: {targetCount}
+            {targetCount} targets
           </p>
         </div>
       ) : null}

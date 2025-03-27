@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -42,8 +42,8 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 import { useState, useEffect } from "react";
 
 import { CSVLink } from "react-csv";
-import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
+import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 
 interface CSVError {
@@ -512,11 +512,11 @@ function TargetsMap() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Targets: Map CSV columns</Title>
+      </HeaderContainer>
 
-        <Title> {activeSurvey?.survey_name} </Title>
-      </NavWrapper>
       {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -526,7 +526,6 @@ function TargetsMap() {
             {!hasError && !hasWarning ? (
               <>
                 <div>
-                  <Title>Targets: Map CSV columns</Title>
                   <DescriptionText>
                     Select corresponding CSV column for the label on the left
                   </DescriptionText>
@@ -840,6 +839,12 @@ function TargetsMap() {
                     )}
                   </div>
                 </Form>
+                <CustomBtn
+                  onClick={handleTargetsUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
+                  Continue
+                </CustomBtn>
               </>
             ) : (
               <>
@@ -958,12 +963,6 @@ function TargetsMap() {
           </TargetsMapFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton onClick={handleTargetsUploadMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

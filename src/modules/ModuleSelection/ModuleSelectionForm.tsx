@@ -63,6 +63,9 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const modulesStatus = useAppSelector(
     (state: RootState) => state.moduleStatuses.moduleStatuses
   );
+  const isModuleStatusLoading = useAppSelector(
+    (state: RootState) => state.moduleStatuses.loading
+  );
   const isLoading = useAppSelector((state: RootState) => state.modules.loading);
 
   const [form] = useForm();
@@ -168,7 +171,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isModuleStatusLoading) {
     return <FullScreenLoader></FullScreenLoader>;
   }
 
@@ -265,7 +268,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                           onChange={() =>
                             handleCheckboxChange(module.module_id.toString())
                           }
-                          disabled={module.module_id === 10} // Disable Track productivity module
                           checked={isCardSelected(module.module_id.toString())}
                         >
                           I need this module in my survey

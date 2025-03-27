@@ -107,6 +107,7 @@ function SurveyCTOQuestions() {
       );
 
       if (questionsRes.payload?.error) {
+        setHasError(true);
         if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
           errorMessages.push(
             "The resource is not found. Either the SCTO server name is wrong, or access is not given."
@@ -118,7 +119,7 @@ function SurveyCTOQuestions() {
         } else {
           errorMessages.push(questionsRes.payload?.error);
         }
-        setHasError(true);
+        setSurveyCTOErrorMessages(errorMessages);
       } else if (questionsRes.payload?.errors) {
         setHasError(true);
         // Check if the error message is an array

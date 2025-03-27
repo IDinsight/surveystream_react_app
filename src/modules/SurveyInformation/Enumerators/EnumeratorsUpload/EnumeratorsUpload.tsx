@@ -2,17 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
 import {
-  BackArrow,
-  BackLink,
+  HeaderContainer,
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import {
   DescriptionContainer,
   EnumeratorsUploadFormWrapper,
@@ -24,6 +19,7 @@ import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppSelector, useAppDispatch } from "../../../../redux/hooks";
+import Container from "../../../../components/Layout/Container";
 
 import { RootState } from "../../../../redux/store";
 import {
@@ -147,11 +143,11 @@ function EnumeratorsUpload() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Enumerators: Upload CSV</Title>
+      </HeaderContainer>
 
-        <Title> {activeSurvey?.survey_name} </Title>
-      </NavWrapper>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -159,7 +155,6 @@ function EnumeratorsUpload() {
           <SideMenu />
           <EnumeratorsUploadFormWrapper>
             <div style={{ display: "flex" }}>
-              <Title>Enumerators: Upload csv</Title>
               <div
                 style={{
                   display: "flex",
@@ -222,30 +217,29 @@ function EnumeratorsUpload() {
                     <li>Gender</li>
                     <li>Enumerator type</li>
                     <li>
-                      Prime-Geo Location ID (If location is selected as a
-                      mapping criterion).
+                      Prime geo location ID (If location is selected as a
+                      mapping criterion)
                     </li>
-                    <li>
-                      Prime-Geo Location (If location is selected as a mapping
-                      criterion).
-                    </li>
-                    <li>
-                      Language (If language is selected as a mapping criterion).
-                    </li>
+                    <li>Language</li>
                   </ol>
                 </li>
                 <li>
                   You can also add custom columns are per the requirement of
-                  your survey - please ensure the column(s) is added in the csv
-                  file you will upload.
+                  your survey - please ensure the column(s) are added in the csv
+                  file.
                 </li>
                 <li>
-                  You can edit the enumerator data before and during (certain
-                  fields) data collection.
+                  You can edit the enumerator data before and during data
+                  collection.
                 </li>
                 <li>
                   You can add more enumerators before and during data
                   collection.
+                </li>
+                <li>
+                  Once you upload the csv, do not hit refresh till you see the
+                  enumerators in the table view. Refreshing midway can cause
+                  information loss.
                 </li>
               </ol>
             </DescriptionContainer>

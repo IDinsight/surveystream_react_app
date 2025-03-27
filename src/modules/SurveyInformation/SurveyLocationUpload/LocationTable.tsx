@@ -3,9 +3,7 @@ import { Table } from "antd";
 import styled from "styled-components";
 
 const LocationsTable = styled(Table)`
-  margin-top: 15px;
   margin-bottom: 68px;
-  margin-right: 50px;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
@@ -29,7 +27,7 @@ const LocationTable: React.FC<LocationTableProps> = ({
   transformedColumns,
   transformedData,
 }) => {
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
 
   return (
     <>
@@ -37,11 +35,13 @@ const LocationTable: React.FC<LocationTableProps> = ({
         columns={transformedColumns}
         dataSource={transformedData}
         pagination={{
+          position: ["topRight"],
           pageSize: paginationPageSize,
-          pageSizeOptions: [25, 50, 100],
+          pageSizeOptions: [5, 10, 25, 50, 100],
           showSizeChanger: true,
           showQuickJumper: true,
           onShowSizeChange: (_, size) => setPaginationPageSize(size),
+          style: { color: "#2F54EB" },
         }}
       />
     </>

@@ -51,7 +51,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { useCSVDownloader } from "react-papaparse";
 import { LocationEditDrawer } from "./LocationEditDrawer";
-import { DescriptionText } from "../../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 import {
   createNotificationViaAction,
   resolveSurveyNotification,
@@ -270,41 +270,6 @@ function SurveyLocationUpload() {
         return (
           <>
             <SelectItem
-              label={geo_level_name}
-              required
-              name={geo_level_name}
-              labelCol={{ span: 5 }}
-              wrapperCol={{ span: 5 }}
-              rules={[
-                {
-                  required: true,
-                  message: "Please select a column!",
-                },
-                {
-                  validator: (_: any, value: any) => {
-                    if (
-                      value &&
-                      Object.values(mappedColumnNames).filter(
-                        (name) => name === value
-                      ).length > 1
-                    ) {
-                      return Promise.reject("Please select a unique column!");
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-            >
-              <Select
-                placeholder="Choose column"
-                options={csvColumnNames.map((columnName, columnIndex) => ({
-                  label: columnName,
-                  value: `${columnName}`,
-                }))}
-                onChange={(value) => handleOnChange(value, `${geo_level_name}`)}
-              />
-            </SelectItem>
-            <SelectItem
               label={`${geo_level_name} ID`}
               required
               name={geo_level_name_id}
@@ -331,7 +296,7 @@ function SurveyLocationUpload() {
               ]}
             >
               <Select
-                placeholder="Choose another column"
+                placeholder="Choose ID column"
                 options={csvColumnNames.map((columnName, columnIndex) => ({
                   label: columnName,
                   value: `${columnName}`,
@@ -339,6 +304,41 @@ function SurveyLocationUpload() {
                 onChange={(value) =>
                   handleOnChange(value, `${geo_level_name_id}`)
                 }
+              />
+            </SelectItem>
+            <SelectItem
+              label={geo_level_name}
+              required
+              name={geo_level_name}
+              labelCol={{ span: 5 }}
+              wrapperCol={{ span: 5 }}
+              rules={[
+                {
+                  required: true,
+                  message: "Please select a column!",
+                },
+                {
+                  validator: (_: any, value: any) => {
+                    if (
+                      value &&
+                      Object.values(mappedColumnNames).filter(
+                        (name) => name === value
+                      ).length > 1
+                    ) {
+                      return Promise.reject("Please select a unique column!");
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Select
+                placeholder="Choose name column"
+                options={csvColumnNames.map((columnName, columnIndex) => ({
+                  label: columnName,
+                  value: `${columnName}`,
+                }))}
+                onChange={(value) => handleOnChange(value, `${geo_level_name}`)}
               />
             </SelectItem>
           </>
@@ -607,8 +607,8 @@ function SurveyLocationUpload() {
                     <>
                       <Form form={form}>
                         <DescriptionText>
-                          Match location table columns with locations created in
-                          “Add location” step
+                          Match location table columns with location levels
+                          created in “Add/Edit location levels” step
                         </DescriptionText>
 
                         {renderLocationMappingSelect()}
@@ -631,14 +631,14 @@ function SurveyLocationUpload() {
                 </>
               )}
               {fileUploaded && !columnMatch ? (
-                <ContinueButton
+                <CustomBtn
                   loading={loading}
                   onClick={handleUploadContinue}
                   disabled={!fileUploaded}
                   style={{ marginTop: 24 }}
                 >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               ) : null}
             </SurveyLocationUploadFormWrapper>
             <Modal

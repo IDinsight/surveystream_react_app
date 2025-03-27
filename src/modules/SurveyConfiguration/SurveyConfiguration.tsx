@@ -310,7 +310,8 @@ const SurveyConfiguration: React.FC = () => {
           <div style={{ flexWrap: "wrap", display: "flex" }}>
             {sectionConfig.map((item: any, i: number) => {
               const hasPermission = checkPermissions(item?.name);
-              return hasPermission ? (
+              // Hide the productivity module
+              return hasPermission && item?.name != "Track productivity" ? (
                 <Link
                   key={i}
                   style={{

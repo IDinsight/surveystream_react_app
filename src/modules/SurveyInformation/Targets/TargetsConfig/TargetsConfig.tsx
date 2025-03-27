@@ -9,6 +9,8 @@ import { Form, Input, message, Radio, Space, Modal, Alert } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
+
 import {
   ContinueButton,
   FooterWrapper,
@@ -27,6 +29,7 @@ import Container from "../../../../components/Layout/Container";
 import { setuploadMode } from "../../../../redux/targets/targetSlice";
 import TargetsReupload from "../TargetsReupload/TargetsReupload";
 import TargetsRemap from "../TargetsRemap/TargetsRemap";
+import { createNotificationViaAction } from "../../../../redux/notifications/notificationActions";
 
 function TargetsConfig() {
   const activeSurvey = useAppSelector(
@@ -99,7 +102,24 @@ function TargetsConfig() {
       setLoading(false);
     }
   };
-
+  const createNotification = async (
+    survey_uid: any,
+    notifications: string[]
+  ) => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
+  };
   useEffect(() => {
     if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
       handleFormUID();
@@ -133,7 +153,9 @@ function TargetsConfig() {
           const isChanged = values[key] !== targetConfig[key];
           return isChanged;
         });
-
+        if (hasChanges && values.target_source === "csv") {
+          createNotification(survey_uid, ["Target config changed to CSV"]);
+        }
         if (
           hasChanges ||
           (values.target_source === "csv" &&
@@ -234,26 +256,23 @@ function TargetsConfig() {
                   fontFamily: "Lato",
                 }}
               >
-                <div style={{ display: "flex" }}>
-                  <Title>Targets: Configuration</Title>
-                </div>
                 <Form
                   form={form}
                   layout="horizontal"
                   style={{
-                    paddingTop: "23px",
+                    paddingTop: "20px",
                     fontFamily: "Lato",
                     fontSize: "16px",
                   }}
                 >
                   <StyledFormItem
                     name="target_source"
-                    label="Select the source of Targets"
+                    label="Select the source of targets"
                     labelCol={{ span: 24 }}
                     rules={[
                       {
                         required: true,
-                        message: "Please Select the source of Targets",
+                        message: "Please select the source of targets",
                       },
                     ]}
                   >
@@ -264,7 +283,7 @@ function TargetsConfig() {
                       >
                         <Radio value="csv">Upload CSV</Radio>
                         <Radio value="scto">
-                          Connect to a SurveyCTO Dataset/Form
+                          Connect to a SurveyCTO dataset/form
                         </Radio>
                       </Space>
                     </Radio.Group>
@@ -274,12 +293,12 @@ function TargetsConfig() {
                     <>
                       <StyledFormItem
                         name="scto_input_type"
-                        label="Select Type of SurveyCTO Input"
+                        label="Select type of SurveyCTO input"
                         labelCol={{ span: 24 }}
                         rules={[
                           {
                             required: true,
-                            message: "Please Select Type of SurveyCTO Input",
+                            message: "Please select type of SurveyCTO input",
                           },
                         ]}
                       >
@@ -293,12 +312,12 @@ function TargetsConfig() {
                       <StyledFormItem
                         name="scto_input_id"
                         labelCol={{ span: 24 }}
-                        label="Enter the SurveyCTO Input ID"
+                        label="Enter the SurveyCTO dataset/form ID"
                         rules={[
                           {
                             required: true,
                             message:
-                              "Please Enter the SurveyCTO Dataset/Form ID",
+                              "Please enter the SurveyCTO dataset/form ID",
                           },
                         ]}
                       >
@@ -309,12 +328,12 @@ function TargetsConfig() {
                         valuePropName="checked"
                       >
                         <CheckboxSCTO>
-                          If SCTO Form is encrypted, please share the SCTO key
+                          The form is encrypted. If yes, please share the key
                           with{" "}
                           <a href="mail:surveystream.devs@idinsight.org">
                             surveystream.devs@idinsight.org
                           </a>{" "}
-                          via FlowCrypt/Dashlane.
+                          via FlowCrypt/Nordpass.
                         </CheckboxSCTO>
                       </StyledFormItem>
                     </>
@@ -333,6 +352,9 @@ function TargetsConfig() {
                     </div>
                   </SCTOLoadErrorArea>
                 )}
+                <CustomBtn onClick={handleContinue} style={{ marginTop: 20 }}>
+                  Continue
+                </CustomBtn>
               </div>
               <Modal
                 title="Warning"
@@ -361,15 +383,12 @@ function TargetsConfig() {
             </>
           ) : null}
           {screenMode === "remap" ? (
-            <TargetsRemap setScreenMode={setScreenMode} />
+            <>
+              <TargetsRemap setScreenMode={setScreenMode} />
+            </>
           ) : null}
         </div>
       )}
-      <FooterWrapper>
-        {screenMode !== "remap" ? (
-          <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
-        ) : null}
-      </FooterWrapper>
     </>
   );
 }

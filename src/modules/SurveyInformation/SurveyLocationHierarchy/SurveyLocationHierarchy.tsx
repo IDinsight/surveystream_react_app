@@ -1,4 +1,4 @@
-import { Form, Radio, Select, message } from "antd";
+import { Form, Radio, Select, Tooltip, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
@@ -27,7 +27,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import { set } from "lodash";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -382,12 +382,25 @@ function SurveyLocationHierarchy() {
             </div>
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
-                <DescriptionText>Select the prime geo location</DescriptionText>
+                <DescriptionText>
+                  Select the prime geo location{" "}
+                  <Tooltip title="This is the location level at which field supervisors will operate for data collection projects in which location is a mapping criteria. All field operation workflows like personnel mapping, target assignment, etc. will be defined at this location level.">
+                    <QuestionCircleOutlined />
+                  </Tooltip>{" "}
+                </DescriptionText>
+
                 <StyledFormItem
+                  label="Prime geo location"
+                  required
+                  labelCol={{ span: 3 }}
+                  wrapperCol={{ span: 8 }}
+                  labelAlign="left"
                   name={`prime_geo_level`}
-                  style={{ width: "40%" }}
                 >
-                  <Select onChange={handlePrimeSelectChange}>
+                  <Select
+                    onChange={handlePrimeSelectChange}
+                    style={{ width: "94%" }}
+                  >
                     <Select.Option value="no_location">
                       No location mapping
                     </Select.Option>

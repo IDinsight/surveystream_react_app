@@ -900,6 +900,7 @@ function TargetsSctoMap() {
                     display: "flex",
                     justifyContent: "space-between",
                     marginTop: 32,
+                    marginRight: "90%",
                   }}
                 >
                   <CustomBtn
@@ -917,7 +918,7 @@ function TargetsSctoMap() {
                       await handleTargetIDChange("preview");
                     }}
                     loading={targetLoading}
-                    style={{ marginRight: "10%" }}
+                    style={{ marginLeft: "5%" }}
                   >
                     Preview Data
                   </CustomBtn>
