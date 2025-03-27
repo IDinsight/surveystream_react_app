@@ -68,7 +68,7 @@ function DQChecksHome() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Data quality checks</Title>
+            <Title>Data Quality Checks</Title>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />

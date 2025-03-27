@@ -231,7 +231,7 @@ function DuplicateSurveyRoles() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Roles</Title>
+        <Title>Roles: Duplicate role</Title>
       </HeaderContainer>
       {isLoading ? (
         <FullScreenLoader />

@@ -515,7 +515,7 @@ function ManageSurveyUsers() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Users</Title>
+        <Title>Users</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>

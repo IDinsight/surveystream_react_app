@@ -170,11 +170,11 @@ function AdminFormManage() {
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: "Admin forms",
+                  title: "Admin Forms",
                   href: `/module-configuration/admin-forms/${survey_uid}`,
                 },
                 {
-                  title: "Form details",
+                  title: "Form Details",
                 },
               ]}
             />

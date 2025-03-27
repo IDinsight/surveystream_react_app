@@ -84,29 +84,29 @@ CustomCheckbox.propTypes = {
 };
 
 const sectionRoutes: { [key: string]: string } = {
-  "Basic information": "new-survey-config",
-  "Module selection": "module-selection",
+  "Background Details": "new-survey-config",
+  "Feature Selection": "module-selection",
   "Survey information": "survey-information",
   "Module configuration": "module-configuration",
 };
 
 const itemRoutes: { [key: string]: { [key: string]: string } } = {
   "Survey information": {
-    "SurveyCTO information": "survey-cto-information",
-    "User and role management": "survey-roles/roles",
-    "Survey locations": "location/upload",
+    "SurveyCTO Integration": "survey-cto-information",
+    "User and Role Management": "survey-roles/roles",
+    Locations: "location/upload",
     Enumerators: "enumerators",
     Targets: "targets",
-    "Target status mapping": "survey/status-mapping",
-    Mapping: "mapping/surveyor",
+    "Survey Status for Targets": "survey/status-mapping",
+    "Supervisor Mapping": "mapping/surveyor",
   },
   "Module configuration": {
-    "Assign targets to surveyors": "assignments",
-    "Assignments column configuration": "table-config",
+    Assignments: "assignments",
+    "Assignments Column Configuration": "table-config",
     Emails: "emails",
-    "Media (Audio/Photo) audits": "media-audits",
-    "Track data quality": "dq-forms",
-    "Admin forms": "admin-forms",
+    "Media Audits": "media-audits",
+    "Data Quality": "dq-forms",
+    "Admin Forms": "admin-forms",
   },
 };
 
@@ -201,18 +201,18 @@ const SurveyConfiguration: React.FC = () => {
     const iconProps = { fontSize: "28px" };
 
     switch (sectionTitle) {
-      case "Basic information":
+      case "Background Details":
         return (
           <InfoCircleOutlined style={{ color: "#391085", ...iconProps }} />
         );
-      case "Module selection":
+      case "Feature Selection":
         return <LayoutFilled style={{ color: "#7CB305", ...iconProps }} />;
 
-      case "Survey locations":
+      case "Locations":
         return <PushpinFilled style={{ color: "#FAAD14", ...iconProps }} />;
-      case "User and role management":
+      case "User and Role Management":
         return <UserOutlined style={{ color: "#D4380D", ...iconProps }} />;
-      case "SurveyCTO information":
+      case "SurveyCTO Integration":
         return <MobileOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Enumerators":
         return (
@@ -220,23 +220,23 @@ const SurveyConfiguration: React.FC = () => {
         );
       case "Targets":
         return <HomeFilled style={{ color: "#389E0D", ...iconProps }} />;
-      case "Mapping":
+      case "Supervisor Mapping":
         return <ControlOutlined style={{ color: "#531DAB", ...iconProps }} />;
-      case "Target status mapping":
+      case "Survey Status for Targets":
         return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
-      case "Assign targets to surveyors":
+      case "Assignments":
         return <MailFilled style={{ color: "#cf1322", ...iconProps }} />;
       case "Emails":
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
-      case "Assignments column configuration":
+      case "Assignments Column Configuration":
         return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
-      case "Track productivity":
+      case "Productivity Tracker":
         return <ProfileFilled style={{ color: "#FAAD14", ...iconProps }} />;
-      case "Track data quality":
+      case "Data Quality":
         return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
-      case "Media (Audio/Photo) audits":
+      case "Media Audits":
         return <AudioOutlined style={{ color: "#08979C", ...iconProps }} />;
-      case "Admin forms":
+      case "Admin Forms":
         return <FormOutlined style={{ color: "#8308cf", ...iconProps }} />;
       default:
         return <InfoCircleFilled style={{ color: "#FAAD14", ...iconProps }} />;
@@ -247,19 +247,19 @@ const SurveyConfiguration: React.FC = () => {
     let permission_name: string;
 
     switch (sectionTitle) {
-      case "Basic information":
+      case "Background Details":
         permission_name = "Survey Admin";
         break;
-      case "Module selection":
+      case "Feature Selection":
         permission_name = "Survey Admin";
         break;
-      case "Survey locations":
+      case "Locations":
         permission_name = "READ Survey Locations";
         break;
-      case "User and role management":
+      case "User and Role Management":
         permission_name = "Survey Admin";
         break;
-      case "SurveyCTO information":
+      case "SurveyCTO Integration":
         permission_name = "Survey Admin";
         break;
       case "Enumerators":
@@ -268,28 +268,28 @@ const SurveyConfiguration: React.FC = () => {
       case "Targets":
         permission_name = "READ Targets";
         break;
-      case "Mapping":
+      case "Supervisor Mapping":
         permission_name = "READ Mapping";
         break;
-      case "Target status mapping":
+      case "Survey Status for Targets":
         permission_name = "READ Target Status Mapping";
         break;
-      case "Assign targets to surveyors":
+      case "Assignments":
         permission_name = "READ Assignments";
         break;
-      case "Media (Audio/Photo) audits":
+      case "Media Audits":
         permission_name = "READ Media Files Config";
         break;
-      case "Assignments column configuration":
+      case "Assignments Column Configuration":
         permission_name = "READ Assignments";
         break;
       case "Emails":
         permission_name = "READ Emails";
         break;
-      case "Track productivity":
+      case "Productivity Tracker":
         permission_name = "READ Productivity";
         break;
-      case "Track data quality":
+      case "Data Quality":
         permission_name = "READ Data Quality";
         break;
       default:
@@ -311,7 +311,7 @@ const SurveyConfiguration: React.FC = () => {
             {sectionConfig.map((item: any, i: number) => {
               const hasPermission = checkPermissions(item?.name);
               // Hide the productivity module
-              return hasPermission && item?.name != "Track productivity" ? (
+              return hasPermission && item?.name != "Productivity Tracker" ? (
                 <Link
                   key={i}
                   style={{

@@ -30,7 +30,7 @@ function SideMenu() {
           <IconWrapper>
             <AuditOutlined />
           </IconWrapper>
-          Data quality forms
+          Data Quality Forms
         </MenuItem>
       ),
       key: "dqForms",
@@ -46,7 +46,7 @@ function SideMenu() {
           <IconWrapper>
             <FilterOutlined />
           </IconWrapper>
-          Data quality checks
+          Data Quality Checks
         </MenuItem>
       ),
       key: "dqChecks",

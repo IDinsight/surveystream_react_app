@@ -360,7 +360,7 @@ function SurveyLocationHierarchy() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey locations hierarchy</Title>
+        <Title>Location Level Hierarchy</Title>
 
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}

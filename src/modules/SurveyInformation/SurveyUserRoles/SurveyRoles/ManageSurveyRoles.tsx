@@ -292,7 +292,7 @@ function ManageSurveyRoles() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Roles</Title>
+        <Title>Roles</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>

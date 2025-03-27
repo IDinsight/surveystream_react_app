@@ -52,7 +52,7 @@ function AdminFormHome() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Admin forms</Title>
+            <Title>Admin Forms</Title>
           </HeaderContainer>
           <BodyContainer>
             <p style={{ color: "#8C8C8C", fontSize: 14 }}>
