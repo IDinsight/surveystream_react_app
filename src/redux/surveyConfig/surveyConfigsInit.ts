@@ -7,7 +7,7 @@ export const surveyConfigs: Record<string, any> = {
     status: "Not Started",
     optional: false,
   },
-  "Survey information": [
+  "Survey Information": [
     {
       name: "SurveyCTO Integration",
       status: "Not Started",
@@ -44,7 +44,7 @@ export const surveyConfigs: Record<string, any> = {
       optional: true,
     },
   ],
-  "Module configuration": [],
+  "Module Configuration": [],
 };
 
 export const completionStats = {

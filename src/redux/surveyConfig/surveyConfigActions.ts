@@ -97,17 +97,17 @@ export const getSurveyConfig = createAsyncThunk(
         );
         let transformedModules: any = [];
         if (
-          surveyConfig?.data["Module configuration"] &&
-          surveyConfig?.data["Module configuration"].length > 0
+          surveyConfig?.data["Module Configuration"] &&
+          surveyConfig?.data["Module Configuration"].length > 0
         ) {
           // Filter and transform modules
-          const moduleIds = surveyConfig?.data["Module configuration"].map(
+          const moduleIds = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.module_id
           );
-          const moduleStatus = surveyConfig?.data["Module configuration"].map(
+          const moduleStatus = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.status
           );
-          const moduleOptional = surveyConfig?.data["Module configuration"].map(
+          const moduleOptional = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.optional
           );
 
@@ -128,14 +128,14 @@ export const getSurveyConfig = createAsyncThunk(
           fetchSurveysConfigSuccess({
             surveyConfigs: {
               ...transformedConfigs,
-              "Module configuration": transformedModules,
+              "Module Configuration": transformedModules,
             },
             completionStats: completionStats,
           })
         );
         return {
           ...transformedConfigs,
-          "Module configuration": transformedModules,
+          "Module Configuration": transformedModules,
           success: true,
         };
       }

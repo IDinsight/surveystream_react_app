@@ -86,12 +86,12 @@ CustomCheckbox.propTypes = {
 const sectionRoutes: { [key: string]: string } = {
   "Background Details": "new-survey-config",
   "Feature Selection": "module-selection",
-  "Survey information": "survey-information",
-  "Module configuration": "module-configuration",
+  "Survey Information": "survey-information",
+  "Module Configuration": "module-configuration",
 };
 
 const itemRoutes: { [key: string]: { [key: string]: string } } = {
-  "Survey information": {
+  "Survey Information": {
     "SurveyCTO Integration": "survey-cto-information",
     "User and Role Management": "survey-roles/roles",
     Locations: "location/upload",
@@ -100,7 +100,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     "Survey Status for Targets": "survey/status-mapping",
     "Supervisor Mapping": "mapping/surveyor",
   },
-  "Module configuration": {
+  "Module Configuration": {
     Assignments: "assignments",
     "Assignments Column Configuration": "table-config",
     Emails: "emails",
