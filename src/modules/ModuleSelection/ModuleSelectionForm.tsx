@@ -186,8 +186,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
         }}
       >
         <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
-          <Title>Module selection </Title>
-
           <p style={{ fontSize: 14 }}>
             Please start by selecting modules you’ll use in your survey
           </p>

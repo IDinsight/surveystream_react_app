@@ -53,7 +53,7 @@ function DQFormHome() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Data quality forms</Title>
+            <Title>Data Quality Forms</Title>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />

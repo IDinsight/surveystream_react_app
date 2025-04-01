@@ -60,11 +60,11 @@ function DQChecksEdit() {
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: "Data quality checks",
+                  title: "Data Quality Checks",
                   href: `/module-configuration/dq-checks/${survey_uid}/manage?form_uid=${form_uid}`,
                 },
                 {
-                  title: `${checkName} checks`,
+                  title: `${checkName} Checks`,
                 },
               ]}
             />

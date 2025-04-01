@@ -206,7 +206,7 @@ function SurveyCTOInfomation() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>SurveyCTO information</Title>
+        <Title>SurveyCTO Main Form</Title>
 
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}

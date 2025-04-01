@@ -516,7 +516,7 @@ function SurveyLocationUpload() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey locations upload</Title>
+        <Title>Upload Locations</Title>
 
         <div style={{ display: "flex", marginLeft: "auto" }}>
           {!hasError && fileUploaded && columnMatch ? (

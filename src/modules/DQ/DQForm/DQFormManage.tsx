@@ -171,11 +171,11 @@ function DQFormManage() {
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: "Data quality forms",
+                  title: "Data Quality Forms",
                   href: `/module-configuration/dq-forms/${survey_uid}`,
                 },
                 {
-                  title: "Form details",
+                  title: "Form Details",
                 },
               ]}
             />

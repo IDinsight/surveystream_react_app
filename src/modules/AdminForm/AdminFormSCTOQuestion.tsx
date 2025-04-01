@@ -365,11 +365,11 @@ function AdminFormSCTOQuestion() {
             style={{ fontSize: "16px", color: "#000" }}
             items={[
               {
-                title: "Admin forms",
+                title: "Admin Forms",
                 href: `/module-configuration/admin-forms/${survey_uid}`,
               },
               {
-                title: "Form details",
+                title: "Form Details",
                 href: `/module-configuration/admin-forms/${survey_uid}/manage?admin_form_uid=${admin_form_uid}`,
               },
               {

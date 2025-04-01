@@ -19,7 +19,7 @@ export const moduleDescriptions: Module[] = [
   // },
   {
     module_id: 9,
-    title: "Assign targets to surveyors",
+    title: "Assignments",
     link: "https://docs.google.com/document/d/19tgToMhODhYouO5hzWdDqUZKugrXXlrQnADVUU-IIBM/edit",
     description:
       "<ul><li>Assign targets to enumerators</li><li>Rebalance targets, handle surveyor drop-outs and perform reassignments</li><li>Communicate assignments to enumerators via emails with multi-language support</li></ul>",
@@ -27,7 +27,7 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 16,
-    title: "Assignments column configuration",
+    title: "Assignments Column Configuration",
     link: "",
     description: "<ul><li>Configure assignments columns/li></ul>",
     icon: FileSearchOutlined,
@@ -41,7 +41,7 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 10,
-    title: "Track productivity",
+    title: "Productivity Tracker",
     link: "https://docs.google.com/document/d/1vG09sa1rdntl1XZgfKmXcWBzcEhqJcsj_KAtn4kfABw/edit?usp=sharing",
     description:
       "<ul><li>Define productivity metrics to track</li><li>Choose your platform for productivity tracking: Superset or Google Sheets</li></ul>",
@@ -49,7 +49,7 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 11,
-    title: "Track data quality",
+    title: "Data Quality",
     link: "https://docs.google.com/document/d/1tfLmq66S9Xkkfvztd2AvlKQp6FLbDZswxtZQrpU97qI/edit?usp=sharing",
     description:
       "<ul><li>Set up data quality tracking based on rule-based checks</li><li>Choose your platform for data quality tracking: Superset or Google Sheets</li></ul>",
@@ -57,7 +57,7 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 12,
-    title: "Media (Audio/Photo) audits",
+    title: "Media Audits",
     link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
     description:
       "<ul><li>Assign audio recordings or photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
@@ -65,7 +65,7 @@ export const moduleDescriptions: Module[] = [
   },
   {
     module_id: 18,
-    title: "Admin forms",
+    title: "Admin Forms",
     link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
     description:
       "<ul><li>Add details of enumerator forms like bikelog form or account details form</li><li>Select added forms in Media (Photo/Audio) Audits</li></ul>",

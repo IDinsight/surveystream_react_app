@@ -306,7 +306,7 @@ function SurveyStatusMapping() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Target status mapping</Title>
+            <Title>Survey Status for Targets</Title>
             {isFormConfirmed ? (
               <>
                 <SurveyStatusCount

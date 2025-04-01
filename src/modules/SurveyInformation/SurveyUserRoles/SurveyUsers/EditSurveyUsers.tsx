@@ -447,7 +447,7 @@ function EditSurveyUsers() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Users - Edit user</Title>
+        <Title>Users: Edit user</Title>
       </HeaderContainer>
       {isLoading || isuserManagementLoading || rolesLoading ? (
         <FullScreenLoader />

@@ -431,7 +431,7 @@ function AddSurveyUsers() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Users - Add new user</Title>
+        <Title>Users: Add new user</Title>
       </HeaderContainer>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />

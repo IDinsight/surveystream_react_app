@@ -273,7 +273,7 @@ function SurveyRoleHierarchy() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Roles Hierarchy</Title>
+        <Title>Roles: Edit role hierarchy</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>

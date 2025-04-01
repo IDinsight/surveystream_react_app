@@ -198,7 +198,7 @@ function MediaAuditsManage() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Media Audit Config</Title>
+            <Title>Media Audits</Title>
           </HeaderContainer>
           <BodyContainer>
             {mediaConfigUID ? (

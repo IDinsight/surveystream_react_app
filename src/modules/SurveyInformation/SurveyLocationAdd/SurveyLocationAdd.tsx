@@ -316,7 +316,7 @@ function SurveyLocationAdd() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey location levels</Title>
+        <Title>Add/edit Location Levels</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
