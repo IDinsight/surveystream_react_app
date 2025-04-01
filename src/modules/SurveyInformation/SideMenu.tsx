@@ -15,6 +15,7 @@ import {
   BuildOutlined,
   HomeOutlined,
   InsertRowRightOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import {
   SideMenuWrapper,
@@ -425,7 +426,7 @@ function SideMenu() {
           to={`/survey-information/admin-forms/${survey_uid}`}
         >
           <IconWrapper>
-            <UsergroupAddOutlined />
+            <FormOutlined />
           </IconWrapper>
           Admin Forms
         </MenuItem>
