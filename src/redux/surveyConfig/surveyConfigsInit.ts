@@ -43,6 +43,11 @@ export const surveyConfigs: Record<string, any> = {
       status: "Not Started",
       optional: true,
     },
+    {
+      name: "Admin Forms",
+      status: "Not Started",
+      optional: true,
+    },
   ],
   "Module Configuration": [],
 };

@@ -99,6 +99,7 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Targets: "targets",
     "Survey Status for Targets": "survey/status-mapping",
     "Supervisor Mapping": "mapping/surveyor",
+    "Admin Forms": "admin-forms",
   },
   "Module Configuration": {
     Assignments: "assignments",
@@ -106,7 +107,6 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
     Emails: "emails",
     "Media Audits": "media-audits",
     "Data Quality": "dq-forms",
-    "Admin Forms": "admin-forms",
   },
 };
 
