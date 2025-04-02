@@ -197,24 +197,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     setScreenMode("reupload");
   };
 
-  const fetchSurveyModuleQuestionnaire = async (
-    survey_uid: any,
-    locationBatchField: any
-  ) => {
-    if (survey_uid) {
-      const moduleQQuestionnaireRes = await dispatch(
-        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
-      );
-      if (
-        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
-          "Location"
-        )
-      ) {
-        setLocationBatchField([...locationBatchField, "location_id_column"]);
-      }
-    }
-  };
-
   const handleFormUID = async (survey_uid: any, form_uid: any) => {
     if (form_uid == "" || form_uid == undefined) {
       try {
@@ -399,28 +381,62 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Redirect to upload if missing csvHeaders and cannot perform mapping
+        // Handle CSV headers validation if not already done
         if (csvHeaders.length < 1) {
           message.error("csvHeaders not found; kindly reupload the CSV file");
           navigate(`/survey-information/enumerators/${survey_uid}/${form_uid}`);
           return;
         }
 
-        const keysToExclude = [...personalDetailsField.map((item) => item.key)];
+        // Only initialize form if enumeratorColumnMapping exists and form is empty
+        const currentFormValues = enumeratorMappingForm.getFieldsValue();
+        if (
+          enumeratorColumnMapping &&
+          Object.keys(currentFormValues).length === 0
+        ) {
+          enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
+        }
 
-        const extraHeaders = csvHeaders.filter(
-          (item) => !keysToExclude.includes(item)
-        );
+        // Only fetch module questionnaire if not already loaded
+        if (survey_uid && !moduleQuestionnaire?.surveyor_mapping_criteria) {
+          const moduleQQuestionnaireRes = await dispatch(
+            getSurveyModuleQuestionnaire({ survey_uid })
+          );
 
-        setExtraCSVHeader(extraHeaders);
-        await handleFormUID(survey_uid, form_uid);
-        await fetchSurveyModuleQuestionnaire(survey_uid, locationBatchField);
+          // Update location batch field if criteria includes Location
+          if (
+            moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria?.includes(
+              "Location"
+            ) &&
+            locationBatchField.length === 0
+          ) {
+            setLocationBatchField([
+              ...locationBatchField,
+              "location_id_column",
+            ]);
+          }
+        }
 
-        // Set default values for the form
-        enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
+        // Only update extra CSV headers if not already set
+        if (extraCSVHeader.length === 0) {
+          const keysToExclude = [
+            ...personalDetailsField.map((item) => item.key),
+            ...locationBatchField,
+          ];
+
+          const extraHeaders = csvHeaders.filter(
+            (item) => !keysToExclude.includes(item)
+          );
+
+          setExtraCSVHeader(extraHeaders);
+        }
+
+        // Handle form UID if not already done
+        if (!form_uid) {
+          await handleFormUID(survey_uid, form_uid);
+        }
       } catch (error) {
-        // Handle errors appropriately
-        console.error("Error in useEffect:", error);
+        console.error("Error in initialization:", error);
       }
     };
 
