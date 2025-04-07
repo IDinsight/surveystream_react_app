@@ -8,6 +8,7 @@ import {
   HelpListItem,
   ToolTipText,
 } from "./SurveyConfiguration.styled";
+import { SelectOutlined } from "@ant-design/icons";
 
 interface SurveyProgress {
   [key: string]: string[] | any;
@@ -106,22 +107,20 @@ function SideMenu({
     <SideMenuWrapper windowHeight={windowHeight}>
       <StepCard title="Configuration completion">
         <StepsWrapper>
-          <Tooltip title={getTooltipTitle()}>
-            <Progress
-              type="line"
-              steps={numModules || 10}
-              percent={100}
-              size={[size, 10]}
-              showInfo={false}
-              trailColor={"#d9d9d9"}
-              strokeColor={Array.from(
-                { length: completionStats?.num_modules },
-                (_, index) => {
-                  return getStrokeColor(index + 1);
-                }
-              )}
-            />
-          </Tooltip>
+          <Progress
+            type="line"
+            steps={numModules || 10}
+            percent={100}
+            size={[size, 10]}
+            showInfo={false}
+            trailColor={"#d9d9d9"}
+            strokeColor={Array.from(
+              { length: completionStats?.num_modules },
+              (_, index) => {
+                return getStrokeColor(index + 1);
+              }
+            )}
+          />
         </StepsWrapper>
         <div
           style={{
@@ -130,7 +129,53 @@ function SideMenu({
             fontSize: "12px",
           }}
         >
-          The survey progress updates as you finish steps on the right
+          {numCompleted + numInProgress == numModules ? (
+            <span>Congratulations! All {numModules} modules are complete.</span>
+          ) : null}
+          {numNotStarted == numModules ? (
+            <span>Get started! {numModules} modules to configure.</span>
+          ) : null}
+          {numCompleted + numInProgress < numModules ? (
+            <span>
+              Keep going! {numModules - numCompleted - numInProgress} out of{" "}
+              {numModules} modules remaining:
+              <ol
+                style={{
+                  paddingTop: "0px",
+                  paddingLeft: "20px",
+                  listStyleType: "circle",
+                }}
+              >
+                {numInProgressIncomplete ? (
+                  <li>
+                    {numInProgressIncomplete} module
+                    {numInProgressIncomplete <= 1 ? "" : "s"} incomplete
+                  </li>
+                ) : null}
+                {numError ? (
+                  <li>
+                    {numError} module{numError <= 1 ? "" : "s"} with errors
+                  </li>
+                ) : null}
+                {numNotStarted ? (
+                  <li>
+                    {numNotStarted} module{numNotStarted <= 1 ? "" : "s"} not
+                    started
+                  </li>
+                ) : null}
+              </ol>
+            </span>
+          ) : null}
+          {numOptional ? (
+            <span style={{ display: "block", marginTop: "5px" }}>
+              Note: {numOptional} optional module
+              {numOptional > 1 ? "s are" : " is"} not included in the progress
+              bar.
+            </span>
+          ) : null}
+          <span style={{ display: "block", marginTop: "5px" }}>
+            The survey progress updates as you finish steps on the right.
+          </span>
         </div>
       </StepCard>
 
@@ -145,6 +190,10 @@ function SideMenu({
               rel="noreferrer"
             >
               docs
+              <SelectOutlined
+                rotate={90}
+                style={{ marginLeft: "3px", padding: "0px", fontSize: "15px" }}
+              />{" "}
             </a>
           </HelpListItem>
         </HelpList>

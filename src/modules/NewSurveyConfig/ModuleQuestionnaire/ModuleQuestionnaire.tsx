@@ -13,6 +13,7 @@ import { RootState } from "../../../redux/store";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import { SelectOutlined } from "@ant-design/icons";
 
 interface IModuleQuestionnaire {
   setFormData: (formData: SurveyModuleQuestionnaireData) => void;
@@ -168,8 +169,11 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({ setFormData }) => {
             }}
           >
             Learn more
+            <SelectOutlined
+              rotate={90}
+              style={{ marginLeft: "3px", padding: "0px", fontSize: "15px" }}
+            />{" "}
           </a>
-          .
         </p>
         <Form form={form} onValuesChange={handleFormValuesChange}>
           {Questionnaire()}
