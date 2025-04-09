@@ -59,8 +59,8 @@ export const HelpListItem = styled.li`
 `;
 
 export const StepsWrapper = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
 `;
 
 export const StepCard = styled(Card)`

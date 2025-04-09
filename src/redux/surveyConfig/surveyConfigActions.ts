@@ -104,6 +104,9 @@ export const getSurveyConfig = createAsyncThunk(
           const moduleIds = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.module_id
           );
+          const moduleNames = surveyConfig?.data["Module Configuration"].map(
+            (module: any) => module.name
+          );
           const moduleStatus = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.status
           );
@@ -117,7 +120,7 @@ export const getSurveyConfig = createAsyncThunk(
               const index = moduleIds.indexOf(module.module_id);
               return {
                 module_id: moduleIds[index],
-                name: module.title,
+                name: moduleNames[index],
                 status: moduleStatus[index],
                 optional: moduleOptional[index],
               };

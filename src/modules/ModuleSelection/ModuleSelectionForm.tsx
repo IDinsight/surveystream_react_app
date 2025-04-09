@@ -20,6 +20,7 @@ import Icon, {
   ArrowRightOutlined,
   FileSearchOutlined,
   InfoCircleFilled,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchModules } from "../../redux/moduleSelection/modulesActions";
@@ -36,6 +37,7 @@ import {
   fetchModuleStatuses,
 } from "../../redux/moduleSelection/moduleStatusActions";
 import { useNavigate, useParams } from "react-router-dom";
+import { DescriptionText } from "../../shared/Global.styled";
 
 const { Meta } = Card;
 
@@ -186,31 +188,33 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
         }}
       >
         <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
-          <p style={{ fontSize: 14 }}>
-            Please start by selecting modules you’ll use in your survey
-          </p>
-
-          <InfoCard>
-            <Meta
-              avatar={<InfoCircleFilled />}
-              description={
-                <>
-                  <div>New to SurveyStream?</div>
-                  <div>
-                    <a
-                      href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
-                      target="__blank"
-                      style={{ color: "#1D39C4" }}
-                    >
-                      {" "}
-                      Click here{" "}
-                    </a>{" "}
-                    to visit documentation before configuring your first survey
-                  </div>
-                </>
-              }
-            />
-          </InfoCard>
+          <DescriptionText>
+            <p style={{ fontSize: 14, width: "80%" }}>
+              Select features you will be using in your survey. You can update
+              these later if the design of your survey changes.{" "}
+              <a
+                href="https://docs.surveystream.idinsight.io/features_at_a_glance"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#2F80ED",
+                  fontSize: "14px",
+                  fontFamily: '"Lato", sans-serif',
+                }}
+              >
+                Read more on how to select features for your survey{" "}
+                <SelectOutlined
+                  rotate={90}
+                  style={{
+                    marginLeft: "3px",
+                    padding: "0px",
+                    fontSize: "15px",
+                  }}
+                />
+              </a>
+              .
+            </p>{" "}
+          </DescriptionText>
           <div>
             {!isLoading ? (
               <>
@@ -246,7 +250,14 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                               onClick={() => window.open(module.link, "_blank")}
                             >
                               Learn more{" "}
-                              <ArrowRightOutlined style={{ marginLeft: 4 }} />
+                              <SelectOutlined
+                                rotate={90}
+                                style={{
+                                  marginLeft: "3px",
+                                  padding: "0px",
+                                  fontSize: "15px",
+                                }}
+                              />
                             </LearnMoreLink>
                           </TitleContainer>
                         }
@@ -268,12 +279,12 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                           }
                           checked={isCardSelected(module.module_id.toString())}
                         >
-                          I need this module in my survey
+                          Use this feature in my survey
                         </Checkbox>
                       </CheckboxContainer>
                     </SelectionCard>
                   ))}
-                  <CustomizationCard>
+                  {/* <CustomizationCard>
                     <Meta
                       title={
                         <TitleContainer style={{ color: "#2f54eb" }}>
@@ -306,7 +317,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                         </TitleContainer>
                       }
                     />
-                  </CustomizationCard>
+                  </CustomizationCard> */}
                 </SelectionForm>
               </>
             ) : null}
