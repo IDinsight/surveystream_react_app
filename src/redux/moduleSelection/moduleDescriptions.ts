@@ -31,13 +31,6 @@ export const moduleDescriptions: Module[] = [
     icon: SwapOutlined,
   },
   {
-    module_id: 16,
-    title: "Assignments Column Configuration",
-    link: "",
-    description: "<ul><li>Configure assignments columns/li></ul>",
-    icon: FileSearchOutlined,
-  },
-  {
     module_id: 15,
     title: "Emails",
     link: "https://docs.surveystream.idinsight.io/email_automation",
