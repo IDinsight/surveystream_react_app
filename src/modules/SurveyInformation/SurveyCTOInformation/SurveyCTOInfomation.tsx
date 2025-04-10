@@ -28,6 +28,7 @@ import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
+import { SelectOutlined } from "@ant-design/icons";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -65,8 +66,8 @@ function SurveyCTOInfomation() {
       tz_name: allValues.tz_name,
       scto_server_name: allValues.scto_server_name ?? "",
       encryption_key_shared: allValues.encryption_key_shared ?? false,
-      server_access_role_granted: allValues.server_access_role_granted ?? false,
-      server_access_allowed: allValues.server_access_allowed ?? false,
+      server_access_role_granted: true, // Removing checkbox for this and setting it to true
+      server_access_allowed: allValues.server_access_allowed,
       number_of_attempts: allValues.number_of_attempts ?? 0,
     };
 
@@ -221,36 +222,32 @@ function SurveyCTOInfomation() {
             <SideMenu />
             <SCTOInformationFormWrapper>
               <DescriptionText>
-                Please fill out the SurveyCTO form details
+                Connect your SurveyCTO account to sync form submission data.{" "}
+                <a
+                  href="https://docs.surveystream.idinsight.io/basic_information#module-questionnaire"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "#2F80ED",
+                    fontSize: "14px",
+                    fontFamily: '"Lato", sans-serif',
+                  }}
+                >
+                  Learn more
+                  <SelectOutlined
+                    rotate={90}
+                    style={{
+                      marginLeft: "3px",
+                      padding: "0px",
+                      fontSize: "15px",
+                    }}
+                  />{" "}
+                </a>
               </DescriptionText>
               <Form form={form} onValuesChange={handleFormValuesChange}>
                 <TwoColumnForm>
                   <Row gutter={36}>
                     <Col span={10}>
-                      <StyledFormItem
-                        required
-                        label={
-                          <span>
-                            Main form ID&nbsp;
-                            <StyledTooltip title="Input the form ID of the main SurveyCTO form. Ex: agrifieldnet_main_form">
-                              <QuestionCircleOutlined />
-                            </StyledTooltip>
-                          </span>
-                        }
-                        name="scto_form_id"
-                        labelCol={{ span: 24 }}
-                        wrapperCol={{ span: 24 }}
-                        style={{ display: "block", width: "300px" }}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter a main form ID",
-                          },
-                        ]}
-                      >
-                        <Input style={{ width: "100%" }} />
-                      </StyledFormItem>
-
                       <StyledFormItem
                         required
                         label={
@@ -274,29 +271,26 @@ function SurveyCTOInfomation() {
                       >
                         <Input style={{ width: "100%" }} />
                       </StyledFormItem>
-                    </Col>
-
-                    <Col span={10}>
                       <StyledFormItem
                         required
-                        labelCol={{ span: 24 }}
-                        wrapperCol={{ span: 24 }}
                         label={
                           <span>
-                            Main form name&nbsp;
-                            <StyledTooltip title="Input the form name of the main SurveyCTO form. Ex: AgriFieldNet main survey form">
+                            Main form ID&nbsp;
+                            <StyledTooltip title="Input the form ID of the main SurveyCTO form. Ex: agrifieldnet_main_form">
                               <QuestionCircleOutlined />
                             </StyledTooltip>
                           </span>
                         }
-                        name="form_name"
+                        name="scto_form_id"
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        style={{ display: "block", width: "300px" }}
                         rules={[
                           {
                             required: true,
-                            message: "Please enter a main form name",
+                            message: "Please enter a main form ID",
                           },
                         ]}
-                        style={{ display: "block", width: "300px" }}
                       >
                         <Input style={{ width: "100%" }} />
                       </StyledFormItem>
@@ -334,7 +328,41 @@ function SurveyCTOInfomation() {
                         </Select>
                       </StyledFormItem>
                     </Col>
+
+                    <Col span={2}></Col>
                     <Col span={10}>
+                      <StyledFormItem
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        style={{
+                          display: "block",
+                          height: "71px",
+                          width: "300px",
+                        }}
+                      ></StyledFormItem>
+                      <StyledFormItem
+                        required
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        label={
+                          <span>
+                            Main form name&nbsp;
+                            <StyledTooltip title="Input the form name of the main SurveyCTO form. Ex: AgriFieldNet main survey form">
+                              <QuestionCircleOutlined />
+                            </StyledTooltip>
+                          </span>
+                        }
+                        name="form_name"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter a main form name",
+                          },
+                        ]}
+                        style={{ display: "block", width: "300px" }}
+                      >
+                        <Input style={{ width: "100%" }} />
+                      </StyledFormItem>
                       <StyledFormItem
                         required
                         labelCol={{ span: 24 }}
@@ -365,25 +393,24 @@ function SurveyCTOInfomation() {
                     </Col>
                   </Row>
                 </TwoColumnForm>
-                <div style={{ marginTop: "40px", display: "block" }}>
+                <div style={{ marginTop: "30px", display: "block" }}>
                   <StyledFormItem
                     name="encryption_key_shared"
                     valuePropName="checked"
                   >
-                    <CheckboxSCTO>
-                      The form is encrypted. If yes, please share the key with{" "}
+                    <CheckboxSCTO>The form is encrypted.</CheckboxSCTO>
+                  </StyledFormItem>
+                </div>
+                <div style={{ marginTop: "30px", display: "block" }}>
+                  Grant access to your SurveyCTO server:
+                  <ol>
+                    <li>
+                      {" "}
+                      Ensure{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      via FlowCrypt/Nordpass.
-                    </CheckboxSCTO>
-                  </StyledFormItem>
-                  <StyledFormItem
-                    name="server_access_role_granted"
-                    valuePropName="checked"
-                  >
-                    <CheckboxSCTO>
-                      Please grant{" "}
+                      has{" "}
                       <a
                         href="https://docs.surveycto.com/04-monitoring-and-management/01-the-basics/00b.managing-user-roles.html"
                         target="_blank"
@@ -391,16 +418,34 @@ function SurveyCTOInfomation() {
                       >
                         Data Manager
                       </a>{" "}
-                      access to{" "}
+                      access to the SurveyCTO server with API access enabled.
+                    </li>
+                    <li>
+                      If the form is encrypted, share the encryption key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
-                      on the SurveyCTO server with API access.
-                    </CheckboxSCTO>
-                  </StyledFormItem>
+                      via FlowCrypt/Nordpass.
+                    </li>
+                  </ol>
+                </div>
+
+                <div style={{ marginTop: "30px", display: "block" }}>
                   <StyledFormItem
                     name="server_access_allowed"
                     valuePropName="checked"
+                    rules={[
+                      {
+                        validator: (_, value) =>
+                          value
+                            ? Promise.resolve()
+                            : Promise.reject(
+                                new Error(
+                                  "Please give consent for SurveyStream to connect to the SurveyCTO server."
+                                )
+                              ),
+                      },
+                    ]}
                   >
                     <CheckboxSCTO>
                       I allow SurveyStream to connect to the SurveyCTO server as

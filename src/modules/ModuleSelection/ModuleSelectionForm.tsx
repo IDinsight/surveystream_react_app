@@ -9,7 +9,6 @@ import {
   LearnMoreLink,
   CardTitle,
   CheckboxContainer,
-  CustomizationCard,
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
 import { useForm } from "antd/es/form/Form";
@@ -284,40 +283,6 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                       </CheckboxContainer>
                     </SelectionCard>
                   ))}
-                  {/* <CustomizationCard>
-                    <Meta
-                      title={
-                        <TitleContainer style={{ color: "#2f54eb" }}>
-                          <CardTitle style={{ color: "#2f54eb" }}>
-                            <FileSearchOutlined
-                              style={{ marginRight: 8, color: "#434343" }}
-                            />
-                            <a
-                              onClick={() =>
-                                window.open(
-                                  "https://forms.gle/81zvXSZutnE4GHwB6",
-                                  "_blank"
-                                )
-                              }
-                            >
-                              Request customization support
-                            </a>
-                          </CardTitle>
-                          <LearnMoreLink
-                            onClick={() =>
-                              window.open(
-                                "https://forms.gle/81zvXSZutnE4GHwB6",
-                                "_blank"
-                              )
-                            }
-                          >
-                            Learn more{" "}
-                            <ArrowRightOutlined style={{ marginLeft: 4 }} />
-                          </LearnMoreLink>
-                        </TitleContainer>
-                      }
-                    />
-                  </CustomizationCard> */}
                 </SelectionForm>
               </>
             ) : null}
