@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import Container from "../../components/Layout/Container";
-import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import Container from "../../../components/Layout/Container";
+import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
-import { HeaderContainer } from "../../shared/Nav.styled";
+import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
   BodyContainer,
   CustomBtn,
@@ -12,19 +12,20 @@ import {
   FormItemLabel,
   SCTOLoadErrorArea,
 } from "./AdminForm.styled";
-import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
-import { RootState } from "../../redux/store";
+import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
+import { RootState } from "../../../redux/store";
 import { Button, Col, Row, Select, Tooltip, message, Alert } from "antd";
-import { getCTOFormQuestions } from "../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
-import { userHasPermission } from "../../utils/helper";
+import { getCTOFormQuestions } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
+import { userHasPermission } from "../../../utils/helper";
 import {
   getAdminForm,
   createSCTOFormMapping,
   getSCTOFormMapping,
   updateSCTOFormMapping,
-} from "../../redux/adminForm/adminFormActions";
+} from "../../../redux/adminForm/adminFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Breadcrumb } from "antd";
+import SideMenu from "../SideMenu";
 
 function AdminFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -201,7 +202,7 @@ function AdminFormSCTOQuestion() {
       ).then((res) => {
         if (res.payload?.success) {
           message.success("SCTO form mapping created successfully.");
-          navigate(`/module-configuration/admin-forms/${survey_uid}`);
+          navigate(`/survey-information/admin-forms/${survey_uid}`);
         } else {
           message.error(res.payload?.message);
         }
@@ -216,7 +217,7 @@ function AdminFormSCTOQuestion() {
       ).then((res) => {
         if (res.payload?.success) {
           message.success("SCTO form mapping updated successfully.");
-          navigate(`/module-configuration/admin-forms/${survey_uid}`);
+          navigate(`/survey-information/admin-forms/${survey_uid}`);
         } else {
           message.error(res.payload?.message);
         }
@@ -337,7 +338,7 @@ function AdminFormSCTOQuestion() {
           <Button
             style={{}}
             onClick={() =>
-              navigate(`/module-configuration/admin-forms/${survey_uid}`)
+              navigate(`/survey-information/admin-forms/${survey_uid}`)
             }
           >
             Cancel
@@ -366,11 +367,11 @@ function AdminFormSCTOQuestion() {
             items={[
               {
                 title: "Admin Forms",
-                href: `/module-configuration/admin-forms/${survey_uid}`,
+                href: `/survey-information/admin-forms/${survey_uid}`,
               },
               {
                 title: "Form Details",
-                href: `/module-configuration/admin-forms/${survey_uid}/manage?admin_form_uid=${admin_form_uid}`,
+                href: `/survey-information/admin-forms/${survey_uid}/manage?admin_form_uid=${admin_form_uid}`,
               },
               {
                 title: "SurveyCTO Questions",
@@ -389,28 +390,31 @@ function AdminFormSCTOQuestion() {
         {isFormNameLoading ? (
           <FullScreenLoader />
         ) : (
-          <BodyContainer>
-            <p>Form ID: {formIdName}</p>
-            <DescriptionText>
-              This step has 3 pre-requisites:
-              <ol>
-                <li>
-                  Data Manager access to the SCTO server has been provided to
-                  surveystream.devs@idinsight.org
-                </li>
-                <li>
-                  You can see surveystream.devs@idinsight.org as an active user
-                  on SCTO
-                </li>
-                <li>
-                  The form ID shared will be the form used for data collection,
-                  the form has been deployed, and the variable names will not
-                  change.
-                </li>
-              </ol>
-            </DescriptionText>
-            {renderQuestionsSelectArea()}
-          </BodyContainer>
+          <div style={{ display: "flex" }}>
+            <SideMenu />
+            <BodyContainer>
+              <p>Form ID: {formIdName}</p>
+              <DescriptionText>
+                This step has 3 pre-requisites:
+                <ol>
+                  <li>
+                    Data Manager access to the SCTO server has been provided to
+                    surveystream.devs@idinsight.org
+                  </li>
+                  <li>
+                    You can see surveystream.devs@idinsight.org as an active
+                    user on SCTO
+                  </li>
+                  <li>
+                    The form ID shared will be the form used for data
+                    collection, the form has been deployed, and the variable
+                    names will not change.
+                  </li>
+                </ol>
+              </DescriptionText>
+              {renderQuestionsSelectArea()}
+            </BodyContainer>
+          </div>
         )}
       </>
     </>

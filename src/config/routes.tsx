@@ -51,9 +51,9 @@ import DQChecksEdit from "../modules/DQ/DQChecks/DQChecksEdit";
 import ConfigureEmails from "../modules/Emails/ConfigureEmails/ConfigureEmails";
 import Emails from "../modules/Emails/Emails";
 import TableConfig from "../modules/Assignments/TableConfig/TableConfig";
-import AdminFormHome from "../modules/AdminForm";
-import AdminFormManage from "../modules/AdminForm/AdminFormManage";
-import AdminFormSCTOQuestion from "../modules/AdminForm/AdminFormSCTOQuestion";
+import AdminFormHome from "../modules/SurveyInformation/AdminForm";
+import AdminFormManage from "../modules/SurveyInformation/AdminForm/AdminFormManage";
+import AdminFormSCTOQuestion from "../modules/SurveyInformation/AdminForm/AdminFormSCTOQuestion";
 import MappingManage from "../modules/SurveyInformation/Mapping/MappingManage";
 import Notifications from "../modules/Notifications";
 import React from "react";
@@ -478,15 +478,15 @@ const AppRoutes = () => {
         }
       >
         <Route
-          path="/module-configuration/admin-forms/:survey_uid?"
+          path="/survey-information/admin-forms/:survey_uid?"
           element={<AdminFormHome />}
         />
         <Route
-          path="/module-configuration/admin-forms/:survey_uid/manage"
+          path="/survey-information/admin-forms/:survey_uid/manage"
           element={<AdminFormManage />}
         />
         <Route
-          path="/module-configuration/admin-forms/:survey_uid/scto-questions/:admin_form_uid"
+          path="/survey-information/admin-forms/:survey_uid/scto-questions/:admin_form_uid"
           element={<AdminFormSCTOQuestion />}
         />
       </Route>

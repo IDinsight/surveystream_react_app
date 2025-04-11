@@ -15,6 +15,7 @@ import {
   BuildOutlined,
   HomeOutlined,
   InsertRowRightOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import {
   SideMenuWrapper,
@@ -40,6 +41,9 @@ function SideMenu() {
   };
   const { role_uid } = useParams<{ role_uid?: string }>() ?? {
     role_uid: "",
+  };
+  const { admin_form_uid } = useParams<{ admin_form_uid?: string }>() ?? {
+    admin_form_uid: "",
   };
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
@@ -408,6 +412,26 @@ function SideMenu() {
         </MenuItem>
       ),
       key: "targetStatusMapping",
+    },
+    {
+      label: (
+        <MenuItem
+          className={`${
+            isActive(`/survey-information/admin-forms/${survey_uid}`) ||
+            isActive(`/survey-information/admin-forms/${survey_uid}/manage`) ||
+            isActive(
+              `/survey-information/admin-forms/${survey_uid}/scto-questions/${admin_form_uid}`
+            )
+          }`}
+          to={`/survey-information/admin-forms/${survey_uid}`}
+        >
+          <IconWrapper>
+            <FormOutlined />
+          </IconWrapper>
+          Admin Forms
+        </MenuItem>
+      ),
+      key: "adminForms",
     },
   ];
 
