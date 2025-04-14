@@ -426,7 +426,6 @@ function Assignments() {
     tz_name: string,
     convert_timezone: boolean
   ) => {
-    console.log(date, tz_name);
     const options: Intl.DateTimeFormatOptions = {
       weekday: "short",
       day: "numeric",
