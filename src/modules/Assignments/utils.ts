@@ -225,7 +225,6 @@ export const buildColumnDefinition = (
 
     if (
       keyArray[0] === "target_locations" ||
-      keyArray[0] === "surveyor_locations" ||
       keyArray[0] === "form_productivity"
     ) {
       columnDefinition = {
@@ -236,6 +235,58 @@ export const buildColumnDefinition = (
           _.get(record, keyArray) === value,
         render: (val: string, record: any) => _.get(record, keyArray) || null,
         sorter: defaultSorter(keyArray),
+      };
+    }
+    if (keyArray[0] === "surveyor_locations") {
+      // Custom filter values for surveyor locations
+      const locationFilterValues = (() => {
+        const allLocations = dataSource?.flatMap((item: any) => {
+          return (
+            item.surveyor_locations?.map(
+              (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+            ) || []
+          );
+        });
+
+        // Deduplicate locations
+        const uniqueLocations = [...new Set(allLocations)].filter(
+          (loc) => loc !== ""
+        );
+        return uniqueLocations.map((loc) => ({ text: loc, value: loc }));
+      })();
+
+      columnDefinition = {
+        ...columnDefinition,
+        dataIndex: keyArray[0],
+        filters: locationFilterValues,
+        onFilter: (value: string | number, record: any) => {
+          const locations = record.surveyor_locations?.map(
+            (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+          );
+
+          return locations?.includes(value) || false;
+        },
+        render: (val: string, record: any) => {
+          const locations = record.surveyor_locations?.map(
+            (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+          );
+          return locations?.join(", ") || null;
+        },
+        sorter: (a: any, b: any) => {
+          const aLocs =
+            a.surveyor_locations
+              ?.map(
+                (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+              )
+              .join(", ") || "";
+          const bLocs =
+            b.surveyor_locations
+              ?.map(
+                (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+              )
+              .join(", ") || "";
+          return aLocs.localeCompare(bLocs);
+        },
       };
     }
 
