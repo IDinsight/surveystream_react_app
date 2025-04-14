@@ -30,7 +30,7 @@ import {
   UserOutlined,
   InsertRowRightOutlined,
   HomeFilled,
-  MailFilled,
+  SwapOutlined,
   ProfileFilled,
   ReadFilled,
   ControlOutlined,
@@ -47,6 +47,7 @@ import {
   RiseOutlined,
   IssuesCloseOutlined,
   PauseCircleOutlined,
+  FileSearchOutlined,
 } from "@ant-design/icons";
 import { userHasPermission, isAdmin } from "../../utils/helper";
 import { GlobalStyle } from "../../shared/Global.styled";
@@ -103,7 +104,6 @@ const itemRoutes: { [key: string]: { [key: string]: string } } = {
   },
   "Module Configuration": {
     Assignments: "assignments",
-    "Assignments Column Configuration": "table-config",
     Emails: "emails",
     "Media Audits": "media-audits",
     "Data Quality": "dq-forms",
@@ -225,15 +225,15 @@ const SurveyConfiguration: React.FC = () => {
       case "Survey Status for Targets":
         return <BuildFilled style={{ color: "#D4380D", ...iconProps }} />;
       case "Assignments":
-        return <MailFilled style={{ color: "#cf1322", ...iconProps }} />;
+        return <SwapOutlined style={{ color: "#cf1322", ...iconProps }} />;
       case "Emails":
         return <MailOutlined style={{ color: "#389E0D", ...iconProps }} />;
-      case "Assignments Column Configuration":
-        return <TableOutlined style={{ color: "#1D39C4", ...iconProps }} />;
       case "Productivity Tracker":
         return <ProfileFilled style={{ color: "#FAAD14", ...iconProps }} />;
       case "Data Quality":
-        return <ReadFilled style={{ color: "#7CB305", ...iconProps }} />;
+        return (
+          <FileSearchOutlined style={{ color: "#7CB305", ...iconProps }} />
+        );
       case "Media Audits":
         return <AudioOutlined style={{ color: "#08979C", ...iconProps }} />;
       case "Admin Forms":
@@ -279,9 +279,6 @@ const SurveyConfiguration: React.FC = () => {
         break;
       case "Media Audits":
         permission_name = "READ Media Files Config";
-        break;
-      case "Assignments Column Configuration":
-        permission_name = "READ Assignments";
         break;
       case "Emails":
         permission_name = "READ Emails";

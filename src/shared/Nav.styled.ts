@@ -32,6 +32,10 @@ export const BackLink = styled.a`
   align-items: center;
   text-decoration: none;
   margin-right: 10px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 export const BackArrow = styled(ArrowLeftOutlined)`

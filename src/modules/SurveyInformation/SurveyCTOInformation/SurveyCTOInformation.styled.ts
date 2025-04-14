@@ -6,6 +6,7 @@ export const SCTOInformationFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-left: 80px;
   padding-top: 23px;
+  padding-bottom: 23px;
   font-family: "Lato", sans-serif;
 `;
 

@@ -1,6 +1,5 @@
 import { properCase } from "../../utils/helper";
 import { Modal, message, Tooltip } from "antd";
-
 import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +7,10 @@ import { WarningOutlined, QuestionOutlined } from "@ant-design/icons";
 import { putSurveyState } from "../../redux/surveyConfig/surveyConfigActions";
 import { getSurveyConfig } from "../../redux/surveyConfig/surveyConfigActions";
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
+import {
+  DraftActiveSwitch,
+  PastDraftSwitch,
+} from "../../modules/SurveyConfiguration/SurveyConfiguration.styled";
 
 interface ISurveyStateProps {
   survey_uid: string;
@@ -147,67 +150,67 @@ function SurveyState({
           }
           overlayInnerStyle={{ fontSize: "13px" }}
         >
-          <div
-            style={{
-              backgroundColor: getbgColor(state, false),
-              padding: "4px 12px",
-              display: "flex",
-              alignItems: "center",
-              height: 12,
-              borderRadius: 24,
-              border: "1px solid " + getBorderAndFontColor(state, false),
-              transition:
-                "background-color 0.3s, border-color 0.3s, box-shadow 0.3s",
-              color: getBorderAndFontColor(state, false),
-            }}
-            onMouseEnter={(e) => {
-              if (can_edit) {
-                e.currentTarget.style.backgroundColor = getbgColor(state, true);
-                e.currentTarget.style.cursor = "pointer";
-                e.currentTarget.style.boxShadow =
-                  "0px 4px 8px rgba(0, 0, 0, 0.1)";
-                e.currentTarget.style.border =
-                  "1px solid " + getBorderAndFontColor(state, true);
-                e.currentTarget.style.color = getBorderAndFontColor(
-                  state,
-                  true
-                );
-              } else {
-                e.currentTarget.style.cursor = "not-allowed";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = getbgColor(state, false);
-              e.currentTarget.style.cursor = "default";
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.border =
-                "1px solid " + getBorderAndFontColor(state, false);
-              e.currentTarget.style.color = getBorderAndFontColor(state, false);
-            }}
-            {...(can_edit ? { onClick: handleChangeState } : {})}
-          >
-            <p
+          {state === "Draft" || state === "Active" ? (
+            <DraftActiveSwitch
+              defaultChecked
               style={{
-                marginLeft: 8,
-                marginRight: 8,
-                fontFamily: "Lato",
-                fontSize: 14,
-                fontWeight: 500,
+                height: 24,
+                backgroundColor: getbgColor(state, false),
+                border: "1px solid " + getBorderAndFontColor(state, false),
+                color: getBorderAndFontColor(state, false),
               }}
-              onMouseEnter={(e) => {
+              checked={state === "Active"}
+              checkedChildren={
+                <span style={{ color: getBorderAndFontColor(state, false) }}>
+                  {properCase(state)}
+                </span>
+              }
+              unCheckedChildren={
+                <span style={{ color: getBorderAndFontColor(state, false) }}>
+                  {properCase(state)}
+                </span>
+              }
+              onChange={() => {
                 if (can_edit) {
-                  e.currentTarget.style.cursor = "pointer";
+                  handleChangeState();
                 } else {
-                  e.currentTarget.style.cursor = "not-allowed";
+                  message.error(
+                    "You do not have permission to change the state of this survey."
+                  );
                 }
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.cursor = "default";
+            />
+          ) : (
+            <PastDraftSwitch
+              defaultChecked
+              style={{
+                height: 24,
+                backgroundColor: getbgColor(state, false),
+                border: "1px solid " + getBorderAndFontColor(state, false),
+                color: getBorderAndFontColor(state, false),
               }}
-            >
-              {properCase(state)}
-            </p>
-          </div>
+              checked={state === "Past"}
+              checkedChildren={
+                <span style={{ color: getBorderAndFontColor(state, false) }}>
+                  {properCase(state)}
+                </span>
+              }
+              unCheckedChildren={
+                <span style={{ color: getBorderAndFontColor(state, false) }}>
+                  {properCase(state)}
+                </span>
+              }
+              onChange={() => {
+                if (can_edit) {
+                  handleChangeState();
+                } else {
+                  message.error(
+                    "You do not have permission to change the state of this survey."
+                  );
+                }
+              }}
+            />
+          )}
         </Tooltip>
       ) : null}
       {contextHolder}

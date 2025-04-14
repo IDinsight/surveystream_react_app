@@ -10,6 +10,7 @@ import {
   ClearOutlined,
   UploadOutlined,
   UserAddOutlined,
+  TableOutlined,
 } from "@ant-design/icons";
 import NotebooksImg from "./../../assets/notebooks.svg";
 import AssignmentsTab from "./AssignmentsTab/AssignmentsTab";
@@ -69,6 +70,12 @@ function Assignments() {
     userProfile,
     survey_uid,
     "WRITE Assignments Upload"
+  );
+
+  const canUserEditColumns = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Assignments"
   );
 
   // State variables for component
@@ -510,6 +517,18 @@ function Assignments() {
                   style={{ marginLeft: "16px" }}
                   onClick={onClear}
                 ></Button>
+              </Tooltip>
+              <Tooltip title="Edit column configuration">
+                <Button
+                  disabled={!canUserEditColumns}
+                  icon={<TableOutlined />}
+                  style={{ marginLeft: "16px" }}
+                  onClick={() => {
+                    navigate(
+                      `/module-configuration/table-config/${survey_uid}`
+                    );
+                  }}
+                />
               </Tooltip>
             </HeaderContainer>
 

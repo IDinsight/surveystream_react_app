@@ -5,6 +5,11 @@ import {
   SendOutlined,
   UnorderedListOutlined,
   UsergroupAddOutlined,
+  MailFilled,
+  MailOutlined,
+  SwapOutlined,
+  AudioOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 // Assuming the module descriptions are stored in the `moduleDescriptions` array
 export const moduleDescriptions: Module[] = [
@@ -20,55 +25,49 @@ export const moduleDescriptions: Module[] = [
   {
     module_id: 9,
     title: "Assignments",
-    link: "https://docs.google.com/document/d/19tgToMhODhYouO5hzWdDqUZKugrXXlrQnADVUU-IIBM/edit",
+    link: "https://docs.surveystream.idinsight.io/assignments",
     description:
-      "<ul><li>Assign targets to enumerators</li><li>Rebalance targets, handle surveyor drop-outs and perform reassignments</li><li>Communicate assignments to enumerators via emails with multi-language support</li></ul>",
-    icon: SendOutlined,
-  },
-  {
-    module_id: 16,
-    title: "Assignments Column Configuration",
-    link: "",
-    description: "<ul><li>Configure assignments columns/li></ul>",
-    icon: FileSearchOutlined,
+      "<ul><li>Choose one or more targets to assign to an enumerator.</li><li>Delegate assignment tasks to field supervisors using criteria like location, language or through manual mapping.</li><li>Mark surveyors as dropout to release their targets for reassignment to active surveyors.</li></ul>",
+    icon: SwapOutlined,
   },
   {
     module_id: 15,
     title: "Emails",
-    link: "",
-    description: "<ul><li>Configure emails to enumerators</li></ul>",
-    icon: FileSearchOutlined,
+    link: "https://docs.surveystream.idinsight.io/email_automation",
+    description:
+      "<ul><li>Manage surveyor communications with scheduled emails containing personalized information like assignments or reimbursement details.</li><li>Add and edit email schedules.</li><li>Multilingual support.</li></ul>",
+    icon: MailOutlined,
   },
   {
     module_id: 10,
-    title: "Productivity Tracker",
-    link: "https://docs.google.com/document/d/1vG09sa1rdntl1XZgfKmXcWBzcEhqJcsj_KAtn4kfABw/edit?usp=sharing",
+    title: "Productivity Dashboard",
+    link: "https://docs.surveystream.idinsight.io/dashboards",
     description:
-      "<ul><li>Define productivity metrics to track</li><li>Choose your platform for productivity tracking: Superset or Google Sheets</li></ul>",
+      "<ul><li>Standard productivity metrics are provided that can be filtered and/or aggregated by dimensions like location, enumerator or gender.</li><li>Dashboards can be customized by users (requires SQL knowledge) or by the SurveyStream team (staff costs apply)</li></ul>",
     icon: PieChartOutlined,
   },
   {
     module_id: 11,
-    title: "Data Quality",
-    link: "https://docs.google.com/document/d/1tfLmq66S9Xkkfvztd2AvlKQp6FLbDZswxtZQrpU97qI/edit?usp=sharing",
+    title: "Data Quality Dashboard",
+    link: "https://docs.surveystream.idinsight.io/dashboards",
     description:
-      "<ul><li>Set up data quality tracking based on rule-based checks</li><li>Choose your platform for data quality tracking: Superset or Google Sheets</li></ul>",
-    icon: UnorderedListOutlined,
+      "<ul><li>Easily configure high frequency checks (HFCs) to validate incoming survey data.</li><li>Standard data quality metrics are provided that can be filtered and/or aggregated by dimensions like location, enumerator or gender.</li><li>Dashboards can be customized by users (requires SQL knowledge) or by the SurveyStream team (staff costs apply).</li></ul>",
+    icon: FileSearchOutlined,
   },
   {
     module_id: 12,
     title: "Media Audits",
-    link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
+    link: "https://docs.surveystream.idinsight.io/media_audits",
     description:
-      "<ul><li>Assign audio recordings or photos for audits</li><li>Note: This feature runs on Google sheets</li></ul>",
-    icon: FileSearchOutlined,
+      "<ul><li>Make audio and photo files from SurveyCTO and Exotel easily available for auditing purposes.</li></ul>",
+    icon: AudioOutlined,
   },
   {
     module_id: 18,
     title: "Admin Forms",
-    link: "https://docs.google.com/document/d/1yf8hV-eC1mOgAAzwBFMIv3B_V_6RHuZFvrt0NpoZUNE/edit#heading=h.p9bv54vbzw1p",
+    link: "https://docs.surveystream.idinsight.io/admin_forms",
     description:
-      "<ul><li>Add details of enumerator forms like bikelog form or account details form</li><li>Select added forms in Media (Photo/Audio) Audits</li></ul>",
-    icon: FileSearchOutlined,
+      "<ul><li>Integrate SurveyCTO forms that your team uses for administrative purposes like fuel consumption logs or sharing account details.</li><li>Use with the Media Audits feature to easily review photos uploaded by enumerators.</li></ul>",
+    icon: FormOutlined,
   },
 ];

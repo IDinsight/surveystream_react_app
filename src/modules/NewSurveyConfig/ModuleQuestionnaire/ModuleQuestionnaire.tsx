@@ -13,6 +13,7 @@ import { RootState } from "../../../redux/store";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../shared/Global.styled";
+import { SelectOutlined } from "@ant-design/icons";
 
 interface IModuleQuestionnaire {
   setFormData: (formData: SurveyModuleQuestionnaireData) => void;
@@ -151,10 +152,28 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({ setFormData }) => {
             color: "#8C8C8C",
             fontSize: "14px",
             fontFamily: '"Lato", sans-serif',
+            width: "750px",
           }}
         >
-          Please fill out the questionnaire to help us recommend useful
-          SurveyStream modules for your survey
+          Please answer the following questions to help SurveyStream determine
+          the specific configuration steps and data validations that will be
+          needed for your survey.{" "}
+          <a
+            href="https://docs.surveystream.idinsight.io/basic_information#module-questionnaire"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#2F80ED",
+              fontSize: "14px",
+              fontFamily: '"Lato", sans-serif',
+            }}
+          >
+            Learn more
+            <SelectOutlined
+              rotate={90}
+              style={{ marginLeft: "3px", padding: "0px", fontSize: "15px" }}
+            />{" "}
+          </a>
         </p>
         <Form form={form} onValuesChange={handleFormValuesChange}>
           {Questionnaire()}

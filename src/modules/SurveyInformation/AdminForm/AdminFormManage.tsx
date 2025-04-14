@@ -264,7 +264,8 @@ function AdminFormManage() {
                       }));
                     }}
                   >
-                    The form is encrypted. If yes, please share the key with{" "}
+                    The SurveyCTO form is encrypted. If yes, please share the
+                    key with{" "}
                     <a href="mail:surveystream.devs@idinsight.org">
                       surveystream.devs@idinsight.org
                     </a>{" "}

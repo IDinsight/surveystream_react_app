@@ -415,8 +415,8 @@ function NewSurveyConfig() {
         <div style={{ display: "flex", marginBottom: "15px" }}>
           <Title style={{ marginTop: "revert" }}>
             {stepIndex["sidebar"] === 0
-              ? "Basic Information"
-              : "Module Questionnaire"}
+              ? "Background Details / Basic Information"
+              : "Background Details / Module Questionnaire"}
           </Title>
         </div>
       </HeaderContainer>
