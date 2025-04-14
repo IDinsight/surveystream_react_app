@@ -398,7 +398,9 @@ function SurveyCTOInfomation() {
                     name="encryption_key_shared"
                     valuePropName="checked"
                   >
-                    <CheckboxSCTO>The form is encrypted.</CheckboxSCTO>
+                    <CheckboxSCTO>
+                      The SurveyCTO form is encrypted.
+                    </CheckboxSCTO>
                   </StyledFormItem>
                 </div>
                 <div style={{ marginTop: "30px", display: "block" }}>
@@ -421,7 +423,8 @@ function SurveyCTOInfomation() {
                       access to the SurveyCTO server with API access enabled.
                     </li>
                     <li>
-                      If the form is encrypted, share the encryption key with{" "}
+                      If the SurveyCTO form is encrypted, share the encryption
+                      key with{" "}
                       <a href="mail:surveystream.devs@idinsight.org">
                         surveystream.devs@idinsight.org
                       </a>{" "}
@@ -448,8 +451,7 @@ function SurveyCTOInfomation() {
                     ]}
                   >
                     <CheckboxSCTO>
-                      I allow SurveyStream to connect to the SurveyCTO server as
-                      per the requirements of modules selected.
+                      I allow SurveyStream to connect to my SurveyCTO server.
                     </CheckboxSCTO>
                   </StyledFormItem>
                 </div>

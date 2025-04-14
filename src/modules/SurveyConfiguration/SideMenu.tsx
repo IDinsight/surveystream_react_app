@@ -163,10 +163,10 @@ function SideMenu({
                 }}
               >
                 {numInProgressIncomplete ? (
-                  <li>Incomplete - {numInProgressIncomplete}</li>
+                  <li>Incomplete: {numInProgressIncomplete}</li>
                 ) : null}
-                {numError ? <li>Error - {numError}</li> : null}
-                {numNotStarted ? <li>Not Started - {numNotStarted}</li> : null}
+                {numError ? <li>Error: {numError}</li> : null}
+                {numNotStarted ? <li>Not Started: {numNotStarted}</li> : null}
               </ol>
             </span>
           ) : null}
