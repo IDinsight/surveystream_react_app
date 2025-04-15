@@ -69,13 +69,25 @@ export const getDataFromFilters = (
         then we need to concat the results of Uttar Pradesh and Odisha.
       */
       const tempArr: any = [];
-      filters[k].forEach((val: any) => {
-        tempArr.push(
-          ...arr.filter(
-            (obj: any) => getNestedObjectValue(obj, key_reference[k]) === val
-          )
-        );
-      });
+      if (key_reference[k][0] === "surveyor_locations") {
+        arr.forEach((obj: any) => {
+          const locations = obj.surveyor_locations?.map(
+            (locList: any) =>
+              _.get(locList[key_reference[k][1]], key_reference[k][2]) || ""
+          );
+          if (filters[k].some((filter: any) => locations?.includes(filter))) {
+            tempArr.push(obj);
+          }
+        });
+      } else {
+        filters[k].forEach((val: any) => {
+          tempArr.push(
+            ...arr.filter(
+              (obj: any) => getNestedObjectValue(obj, key_reference[k]) === val
+            )
+          );
+        });
+      }
 
       /*
         If filterArr has length then It means we already appiled some filters
@@ -171,7 +183,6 @@ export const buildColumnDefinition = (
     key: colKey,
     sorter: defaultSorter([colKey]),
     filters: getFilterValues(dataSource, [colKey]),
-    filteredValue: dataFilter?.[colKey] || null,
     onFilter: (val: string, record: any) => record[colKey] === val,
     filterSearch: true,
   };
@@ -243,7 +254,8 @@ export const buildColumnDefinition = (
         const allLocations = dataSource?.flatMap((item: any) => {
           return (
             item.surveyor_locations?.map(
-              (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+              (locList: any) =>
+                _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
             ) || []
           );
         });
@@ -261,28 +273,33 @@ export const buildColumnDefinition = (
         filters: locationFilterValues,
         onFilter: (value: string | number, record: any) => {
           const locations = record.surveyor_locations?.map(
-            (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+            (locList: any) =>
+              _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
           );
 
           return locations?.includes(value) || false;
         },
         render: (val: string, record: any) => {
           const locations = record.surveyor_locations?.map(
-            (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+            (locList: any) =>
+              _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
           );
-          return locations?.join(", ") || null;
+          const locationSet = new Set(locations);
+          return Array.from(locationSet).join(", ") || null;
         },
         sorter: (a: any, b: any) => {
           const aLocs =
             a.surveyor_locations
               ?.map(
-                (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+                (locList: any) =>
+                  _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
               )
               .join(", ") || "";
           const bLocs =
             b.surveyor_locations
               ?.map(
-                (locList: any) => _.get(locList[0], keyArray.slice(2)) || ""
+                (locList: any) =>
+                  _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
               )
               .join(", ") || "";
           return aLocs.localeCompare(bLocs);
