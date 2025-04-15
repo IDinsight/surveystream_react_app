@@ -1075,7 +1075,12 @@ const SurveyorMapping = ({
       });
     }
 
-    return userList.map((user: any) => (
+    // Filter out duplicates by user_uid
+    const uniqueUsers = Array.from(
+      new Map(userList.map((user: any) => [user.user_uid, user])).values()
+    );
+
+    return uniqueUsers.map((user: any) => (
       <Option key={user.user_uid} value={user.user_uid}>
         {user.user_name}
       </Option>
