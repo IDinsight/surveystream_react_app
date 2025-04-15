@@ -39,6 +39,7 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { fetchSurveyModuleQuestionnaire } from "@/redux/surveyConfig/apiService";
 
 interface CSVError {
   type: string;
@@ -378,6 +379,34 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     }
   };
 
+  const fetchSurveyModuleQuestionnaire = async () => {
+    // Only fetch module questionnaire if not already loaded
+    if (
+      survey_uid &&
+      moduleQuestionnaire?.surveyor_mapping_criteria &&
+      moduleQuestionnaire?.surveyor_mapping_criteria?.includes("Location") &&
+      locationBatchField.length === 0
+    ) {
+      setLocationBatchField([...locationBatchField, "location_id_column"]);
+      return;
+    }
+    if (survey_uid && !moduleQuestionnaire?.surveyor_mapping_criteria) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid })
+      );
+
+      // Update location batch field if criteria includes Location
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria?.includes(
+          "Location"
+        ) &&
+        locationBatchField.length === 0
+      ) {
+        setLocationBatchField([...locationBatchField, "location_id_column"]);
+      }
+      return;
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -397,26 +426,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
         }
 
-        // Only fetch module questionnaire if not already loaded
-        if (survey_uid && !moduleQuestionnaire?.surveyor_mapping_criteria) {
-          const moduleQQuestionnaireRes = await dispatch(
-            getSurveyModuleQuestionnaire({ survey_uid })
-          );
-
-          // Update location batch field if criteria includes Location
-          if (
-            moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria?.includes(
-              "Location"
-            ) &&
-            locationBatchField.length === 0
-          ) {
-            setLocationBatchField([
-              ...locationBatchField,
-              "location_id_column",
-            ]);
-          }
-        }
-
         // Only update extra CSV headers if not already set
         if (extraCSVHeader.length === 0) {
           const keysToExclude = [
@@ -430,6 +439,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
           setExtraCSVHeader(extraHeaders);
         }
+        await fetchSurveyModuleQuestionnaire();
 
         // Handle form UID if not already done
         if (!form_uid) {
