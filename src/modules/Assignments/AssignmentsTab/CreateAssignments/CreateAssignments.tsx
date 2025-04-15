@@ -256,7 +256,6 @@ function CreateAssignments() {
           formUID: formID,
           formData: assignmentPayload,
           callFn: (response: any) => {
-            console.log("Response:", response);
             // Handle empty/error response case
             if (!response || (!response.success && !response.data)) {
               message.error("Error updating assignments. Please try again.");

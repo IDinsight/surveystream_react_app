@@ -147,7 +147,6 @@ function RowEditingModal({
             );
       }
     } catch (error: any) {
-      console.error("Update error:", error);
       message.error(error.message || "Failed to update, please try again");
     }
   };
@@ -220,7 +219,6 @@ function RowEditingModal({
   };
 
   // Get the current location value once when modal opens
-  console.log(data[0].surveyor_locations);
   const currentLocation =
     data[0].surveyor_locations
       ?.flatMap((locList: any[]) =>
@@ -234,7 +232,6 @@ function RowEditingModal({
       .join(", ") ||
     data[0].location ||
     "";
-  console.log("Current Location:", currentLocation);
   // Convert currentLocation string to array for initial state
   const locationList = currentLocation
     .split(",")
