@@ -27,7 +27,7 @@ export const PreviewBtn = styled(Button)`
   font-family: "Lato", sans-serif;
 
   &:hover {
-    background-color: #597ef7;
+    background-color: #597ef7 !important;
     color: white !important;
   }
 `;
@@ -46,7 +46,7 @@ export const SubmitBtn = styled(Button)`
   font-family: "Lato", sans-serif;
 
   &:hover {
-    background-color: #597ef7;
+    background-color: #597ef7 !important;
     color: white !important;
   }
 `;
