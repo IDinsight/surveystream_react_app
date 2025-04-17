@@ -39,6 +39,7 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { fetchSurveyModuleQuestionnaire } from "@/redux/surveyConfig/apiService";
 
 interface CSVError {
   type: string;
@@ -195,24 +196,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const moveToUpload = () => {
     dispatch(setMappingErrorStatus(false));
     setScreenMode("reupload");
-  };
-
-  const fetchSurveyModuleQuestionnaire = async (
-    survey_uid: any,
-    locationBatchField: any
-  ) => {
-    if (survey_uid) {
-      const moduleQQuestionnaireRes = await dispatch(
-        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
-      );
-      if (
-        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria.includes(
-          "Location"
-        )
-      ) {
-        setLocationBatchField([...locationBatchField, "location_id_column"]);
-      }
-    }
   };
 
   const handleFormUID = async (survey_uid: any, form_uid: any) => {
@@ -396,31 +379,74 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     }
   };
 
+  const fetchSurveyModuleQuestionnaire = async () => {
+    // Only fetch module questionnaire if not already loaded
+    if (
+      survey_uid &&
+      moduleQuestionnaire?.surveyor_mapping_criteria &&
+      moduleQuestionnaire?.surveyor_mapping_criteria?.includes("Location") &&
+      locationBatchField.length === 0
+    ) {
+      setLocationBatchField([...locationBatchField, "location_id_column"]);
+      return;
+    }
+    if (survey_uid && !moduleQuestionnaire?.surveyor_mapping_criteria) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid })
+      );
+
+      // Update location batch field if criteria includes Location
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.surveyor_mapping_criteria?.includes(
+          "Location"
+        ) &&
+        locationBatchField.length === 0
+      ) {
+        setLocationBatchField([...locationBatchField, "location_id_column"]);
+      }
+      return;
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Redirect to upload if missing csvHeaders and cannot perform mapping
+        // Handle CSV headers validation if not already done
         if (csvHeaders.length < 1) {
           message.error("csvHeaders not found; kindly reupload the CSV file");
           navigate(`/survey-information/enumerators/${survey_uid}/${form_uid}`);
           return;
         }
 
-        const keysToExclude = [...personalDetailsField.map((item) => item.key)];
+        // Only initialize form if enumeratorColumnMapping exists and form is empty
+        const currentFormValues = enumeratorMappingForm.getFieldsValue();
+        if (
+          enumeratorColumnMapping &&
+          Object.keys(currentFormValues).length === 0
+        ) {
+          enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
+        }
 
-        const extraHeaders = csvHeaders.filter(
-          (item) => !keysToExclude.includes(item)
-        );
+        // Only update extra CSV headers if not already set
+        if (extraCSVHeader.length === 0) {
+          const keysToExclude = [
+            ...personalDetailsField.map((item) => item.key),
+            ...locationBatchField,
+          ];
 
-        setExtraCSVHeader(extraHeaders);
-        await handleFormUID(survey_uid, form_uid);
-        await fetchSurveyModuleQuestionnaire(survey_uid, locationBatchField);
+          const extraHeaders = csvHeaders.filter(
+            (item) => !keysToExclude.includes(item)
+          );
 
-        // Set default values for the form
-        enumeratorMappingForm.setFieldsValue({ ...enumeratorColumnMapping });
+          setExtraCSVHeader(extraHeaders);
+        }
+        await fetchSurveyModuleQuestionnaire();
+
+        // Handle form UID if not already done
+        if (!form_uid) {
+          await handleFormUID(survey_uid, form_uid);
+        }
       } catch (error) {
-        // Handle errors appropriately
-        console.error("Error in useEffect:", error);
+        console.error("Error in initialization:", error);
       }
     };
 
