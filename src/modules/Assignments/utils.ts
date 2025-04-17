@@ -111,11 +111,28 @@ export const performSearch = (
   const searchKeys: string[] = Object.keys(key_reference);
   return arr?.filter((obj: any) => {
     for (let i = 0; i < searchKeys.length; i++) {
-      const val = getNestedObjectValue(obj, key_reference[searchKeys[i]]);
-      if (val) {
-        const columnValue = val.toString().toLowerCase();
-        if (columnValue && columnValue.indexOf(searchTerm.toLowerCase()) > -1)
+      if (searchKeys[i].startsWith("surveyor_locations")) {
+        const locations = obj.surveyor_locations?.map(
+          (locList: { [key: string]: any }) =>
+            _.get(
+              locList[key_reference[searchKeys[i]][1]],
+              key_reference[searchKeys[i]][2]
+            ) || ""
+        );
+        if (
+          [...new Set(locations)].some((loc: any) =>
+            loc.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ) {
           return true;
+        }
+      } else {
+        const val = getNestedObjectValue(obj, key_reference[searchKeys[i]]);
+        if (val) {
+          const columnValue = val.toString().toLowerCase();
+          if (columnValue && columnValue.indexOf(searchTerm.toLowerCase()) > -1)
+            return true;
+        }
       }
     }
     return false;
