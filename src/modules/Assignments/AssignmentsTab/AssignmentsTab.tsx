@@ -27,11 +27,11 @@ function AssignmentsTab({
     the value of a column differently
   */
   const mainTableSpecialAttrs: any = {
-    last_attempt_survey_status_label: {
+    final_survey_status_label: {
       render(value: any, record: any) {
         const color = record.webapp_tag_color || "gold";
         return (
-          <Tag color={color} key={value}>
+          <Tag color={color} key={value} style={{ whiteSpace: "break-spaces" }}>
             {value}
           </Tag>
         );

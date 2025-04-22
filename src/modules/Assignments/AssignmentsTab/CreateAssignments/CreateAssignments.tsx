@@ -294,7 +294,7 @@ function CreateAssignments() {
               }
               setAssignmentResponseData(response.data);
 
-              if (response.data?.email_schedule.length > 0) {
+              if (response.data?.email_schedule?.length > 0) {
                 const pendingEmails = response.data?.email_schedule.find(
                   (email: any) => email.schedule_time != "No pending schedules"
                 );
