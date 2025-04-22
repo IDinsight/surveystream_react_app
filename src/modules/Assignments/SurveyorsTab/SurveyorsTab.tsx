@@ -13,7 +13,6 @@ function SurveyorsTab({
   setColumn,
 }: ISurveyorsTabProps) {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
-
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
   };

@@ -254,7 +254,6 @@ function Assignments() {
       if (value === null) return true;
       return false;
     });
-
     // Create array that will hold all the records we want to filter to
     let filterArr: any = [];
 
@@ -265,7 +264,6 @@ function Assignments() {
       filterArr = getDataFromFilters(filters, getTabData(), keyRefs);
     }
     setMainData(filterArr);
-
     if (isReset) {
       setDataFilter(null);
       if (searchedData?.length && searchValue !== "") {
@@ -426,7 +424,6 @@ function Assignments() {
     tz_name: string,
     convert_timezone: boolean
   ) => {
-    console.log(date, tz_name);
     const options: Intl.DateTimeFormatOptions = {
       weekday: "short",
       day: "numeric",

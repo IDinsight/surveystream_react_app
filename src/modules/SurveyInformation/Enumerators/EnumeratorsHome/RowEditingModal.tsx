@@ -81,16 +81,18 @@ function RowEditingModal({
       const updateData = await editForm.getFieldsValue();
       const originalData = data;
 
-      // If location is being updated, modify surveyor_locations
-      if (updateData.location) {
-        // Find the selected location from locations array
-        const selectedLocation = locations.find(
-          (loc: any) => loc.location_name === updateData.location
+      // If locations are being updated, modify surveyor_locations
+      if (updateData.location && Array.isArray(updateData.location)) {
+        // Find all selected locations from locations array
+        const selectedLocations = locations.filter((loc: any) =>
+          updateData.location.includes(loc.location_name)
         );
 
-        if (selectedLocation) {
-          // Update the data with new surveyor_locations
-          updateData.location_uid = selectedLocation.location_uid;
+        if (selectedLocations.length > 0) {
+          // Create array of location objects with required properties and join location_uids
+          updateData.location_uid = selectedLocations
+            .map((loc: any) => loc.location_uid)
+            .join(";");
         }
       }
 
@@ -145,7 +147,6 @@ function RowEditingModal({
             );
       }
     } catch (error: any) {
-      console.error("Update error:", error);
       message.error(error.message || "Failed to update, please try again");
     }
   };
@@ -219,12 +220,22 @@ function RowEditingModal({
 
   // Get the current location value once when modal opens
   const currentLocation =
-    data[0].surveyor_locations?.find(
-      (loc: any) => loc.geo_level_uid === locations[0]?.geo_level_uid
-    )?.location_name ||
+    data[0].surveyor_locations
+      ?.flatMap((locList: any[]) =>
+        locList.filter((loc: any) =>
+          locations.some(
+            (location) => location.geo_level_uid === loc.geo_level_uid
+          )
+        )
+      )
+      .map((loc: any) => loc.location_name)
+      .join(", ") ||
     data[0].location ||
     "";
-
+  // Convert currentLocation string to array for initial state
+  const locationList = currentLocation
+    .split(",")
+    .map((loc: string) => loc.trim());
   const setupFormData = () => {
     const initialData: DataItem = {};
     fields.forEach((field) => {
@@ -232,7 +243,7 @@ function RowEditingModal({
         initialData[field.label] =
           data[0]["custom_fields"][field.labelKey] || "";
       } else if (field.labelKey === "location") {
-        initialData.location = currentLocation;
+        initialData.location = locationList;
       } else {
         initialData[field.labelKey] = data[0][field.labelKey] || "";
       }
@@ -307,7 +318,12 @@ function RowEditingModal({
                   ]}
                 >
                   {field.labelKey === `location` ? (
-                    <Select style={{ width: "100%" }} loading={isLoading}>
+                    <Select
+                      mode="multiple"
+                      style={{ width: "100%" }}
+                      loading={isLoading}
+                      defaultValue={currentLocation}
+                    >
                       {!isLoading &&
                       Array.isArray(locations) &&
                       locations.length > 0 ? (
