@@ -14,6 +14,7 @@ interface EmailContentEditorProps {
   standalone?: boolean;
   disableEdit?: boolean;
   validVariables: string[] | undefined;
+  onChange?: (content: string) => void; // Add this line
 }
 
 function EmailContentEditor({
@@ -25,6 +26,7 @@ function EmailContentEditor({
   standalone = false,
   disableEdit = false,
   validVariables,
+  onChange, // Add this line
 }: EmailContentEditorProps) {
   const [val, setVal] = useState(value || "");
 
@@ -52,6 +54,14 @@ function EmailContentEditor({
     }, 750),
     []
   );
+
+  // Handle content change
+  const handleChange = (content: string) => {
+    setVal(content);
+    if (onChange) {
+      onChange(content);
+    }
+  };
 
   // Setting the field value on content change in editor
   useEffect(() => {
@@ -146,7 +156,7 @@ function EmailContentEditor({
         style={{ height: "200px", marginBottom: "30px" }}
         theme="snow"
         value={val}
-        onChange={(val) => setVal(val)}
+        onChange={handleChange}
         modules={modules}
         onChangeSelection={handleSelectionChange}
         readOnly={disableEdit}
