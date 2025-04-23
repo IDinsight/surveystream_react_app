@@ -56,6 +56,7 @@ import {
   createNotificationViaAction,
   resolveSurveyNotification,
 } from "../../../redux/notifications/notificationActions";
+import { SelectOutlined } from "@ant-design/icons";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -578,7 +579,29 @@ function SurveyLocationUpload() {
             <SurveyLocationUploadFormWrapper>
               {!fileUploaded ? (
                 <>
-                  <DescriptionText>Upload locations CSV sheet</DescriptionText>
+                  <DescriptionText>
+                    Upload a .csv file containing the locations for your survey.{" "}
+                    <a
+                      href="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#2F80ED",
+                        fontSize: "14px",
+                        fontFamily: '"Lato", sans-serif',
+                      }}
+                    >
+                      Learn more
+                      <SelectOutlined
+                        rotate={90}
+                        style={{
+                          marginLeft: "3px",
+                          padding: "0px",
+                          fontSize: "15px",
+                        }}
+                      />{" "}
+                    </a>
+                  </DescriptionText>
                   <a
                     href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
                     target="__blank"
