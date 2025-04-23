@@ -58,7 +58,9 @@ function MediaAuditsManage() {
     form_uid: null,
     file_type: null,
     source: null,
+    format: null,
     scto_fields: [],
+    media_fields: [],
     mapping_criteria: "",
   });
 
@@ -171,7 +173,9 @@ function MediaAuditsManage() {
               form_uid: data.form_uid,
               file_type: data.file_type,
               source: data.source,
+              format: data.format,
               scto_fields: data.scto_fields,
+              media_fields: data.media_fields,
               mapping_criteria: data.mapping_criteria,
             }));
           } else {
@@ -309,6 +313,36 @@ function MediaAuditsManage() {
                 </Select>
               </Col>
             </Row>
+            {formFieldsData?.source === "SurveyCTO" && (
+              <Row align="middle" style={{ marginBottom: 6 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Select output type{" "}
+                    <Tooltip title="Long format is 1 row per media file. Wide format is 1 row per submission.">
+                      <InfoCircleOutlined />
+                    </Tooltip>{" "}
+                    :
+                  </FormItemLabel>
+                </Col>
+                <Col span={8}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Long / Wide"
+                    value={formFieldsData?.format}
+                    disabled={!canUserWrite}
+                    onSelect={(val: any) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        format: val,
+                      }));
+                    }}
+                  >
+                    <Select.Option value="long">Long</Select.Option>
+                    <Select.Option value="wide">Wide</Select.Option>
+                  </Select>
+                </Col>
+              </Row>
+            )}
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
@@ -345,6 +379,47 @@ function MediaAuditsManage() {
                 />
               </Col>
             </Row>
+            {formFieldsData?.format === "wide" && (
+              <Row align="middle" style={{ marginBottom: 6 }}>
+                <Col span={6}>
+                  <FormItemLabel>
+                    <span style={{ color: "red" }}>*</span> Select media
+                    variables{" "}
+                    <Tooltip title="The columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                      <InfoCircleOutlined />
+                    </Tooltip>{" "}
+                    :
+                  </FormItemLabel>
+                </Col>
+                <Col span={8} style={{ display: "flex" }}>
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Multi select"
+                    options={questions}
+                    mode="multiple"
+                    allowClear
+                    value={formFieldsData?.media_fields}
+                    disabled={!canUserWrite}
+                    onChange={(val) => {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        media_fields: val,
+                      }));
+                    }}
+                  ></Select>
+                  )
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 28 }} spin />
+                    }
+                    style={{
+                      marginLeft: 24,
+                      display: isQuestionLoading ? "block" : "none",
+                    }}
+                  />
+                </Col>
+              </Row>
+            )}
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
