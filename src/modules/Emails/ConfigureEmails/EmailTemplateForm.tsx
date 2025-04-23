@@ -412,12 +412,19 @@ const EmailTemplateForm = ({
                           rules={[
                             {
                               required: true,
-                              message: "Please enter content",
+                              validator: (_, value) => {
+                                if (
+                                  !value ||
+                                  value === "<p><br></p>" ||
+                                  value === "<p></p>"
+                                ) {
+                                  return Promise.reject("Please enter content");
+                                }
+                                return Promise.resolve();
+                              },
                             },
                           ]}
                           tooltip="Enter the content of the email template"
-                          getValueProps={(value) => ({ value })}
-                          getValueFromEvent={(content) => content}
                         >
                           <EmailContentEditor
                             quillRef={formStates[formIndex].quillRef}
@@ -437,6 +444,12 @@ const EmailTemplateForm = ({
                             ])}
                             disableEdit={disabledIndices.includes(formIndex)}
                             validVariables={validVariables[formIndex]}
+                            onChange={(content) => {
+                              form.setFieldValue(
+                                ["templates", name, "content"],
+                                content
+                              );
+                            }}
                           />
                         </Form.Item>
                         <EmailTableCard
