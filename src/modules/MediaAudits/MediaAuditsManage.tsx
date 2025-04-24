@@ -54,6 +54,9 @@ function MediaAuditsManage() {
 
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [questionWithRepeatGroup, setQuestionWithRepeatGroup] = useState<any[]>(
+    []
+  );
   const [formFieldsData, setFormFieldsData] = useState<any>({
     form_uid: null,
     file_type: null,
@@ -94,10 +97,46 @@ function MediaAuditsManage() {
         });
         setQuestions(questions);
       }
+      const repeatGroupRes = await dispatch(
+        await getCTOFormQuestions({
+          formUid,
+          refresh: false,
+          include_repeat_groups: true,
+        })
+      );
+
+      if (repeatGroupRes.payload?.error) {
+        let errorMsg = "";
+        if (
+          repeatGroupRes.payload?.error.includes("ResourceNotFoundException")
+        ) {
+          errorMsg =
+            "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
+        } else if (repeatGroupRes.payload?.error.includes("Client Error")) {
+          errorMsg = "Either Form ID is wrong or access is not given.";
+        } else {
+          errorMsg = repeatGroupRes.payload?.error;
+        }
+
+        message.error(errorMsg);
+      }
+      if (repeatGroupRes.payload?.questions) {
+        const repeatGroupQuestions: any = [];
+        repeatGroupRes.payload?.questions.forEach((question: any) => {
+          repeatGroupQuestions.push({
+            label: question.question_name,
+            value: question.question_name,
+          });
+        });
+        setQuestionWithRepeatGroup(repeatGroupQuestions);
+      }
     } else {
       message.error("There is problem with main STCO form uid.");
     }
     setIsQuestionLoading(false);
+    const questionsInRepeatGroups = questionWithRepeatGroup.filter(
+      (q) => !questions.find((mainQ) => mainQ.value === q.value)
+    );
   };
 
   const handleSave = () => {
@@ -395,7 +434,7 @@ function MediaAuditsManage() {
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Multi select"
-                    options={questions}
+                    options={questionWithRepeatGroup}
                     mode="multiple"
                     allowClear
                     value={formFieldsData?.media_fields}
