@@ -1,11 +1,11 @@
 import { SelectOutlined } from "@ant-design/icons";
 
-interface ILearnMoreProps {
+interface IDescriptionDocsLinkProps {
   link: string;
   text?: string;
 }
 
-function LearnMore({ link, text }: ILearnMoreProps) {
+function DescriptionDocsLink({ link, text }: IDescriptionDocsLinkProps) {
   return (
     <a
       href={link}
@@ -30,4 +30,4 @@ function LearnMore({ link, text }: ILearnMoreProps) {
   );
 }
 
-export default LearnMore;
+export default DescriptionDocsLink;

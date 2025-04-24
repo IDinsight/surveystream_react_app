@@ -27,7 +27,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import LearnMore from "../../../components/LearnMore/LearnMore";
+import DescriptionDocsLink from "../../../components/DescriptionDocsLink/DescriptionDocsLink";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -374,7 +374,7 @@ function SurveyLocationHierarchy() {
           <SurveyLocationHierarchyFormWrapper>
             <DescriptionText>
               Define the location hierarchy for your survey.{" "}
-              <LearnMore link="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy" />
+              <DescriptionDocsLink link="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy" />
             </DescriptionText>
             <DescriptionText>
               For each location, select the location immediately above it in the
@@ -389,7 +389,7 @@ function SurveyLocationHierarchy() {
 
             <DescriptionText>
               Select the prime geo location for your survey.{" "}
-              <LearnMore link="https://docs.surveystream.idinsight.io/locations_configuration#prime-geo-level" />
+              <DescriptionDocsLink link="https://docs.surveystream.idinsight.io/locations_configuration#prime-geo-level" />
             </DescriptionText>
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
