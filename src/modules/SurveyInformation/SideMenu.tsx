@@ -123,7 +123,7 @@ function SideMenu() {
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Add/edit Location Levels
+              Add/ Edit Location Levels
             </MenuItem>
           ),
           key: "surveyLocationAdd",

@@ -327,7 +327,7 @@ export const buildColumnDefinition = (
     if (keyArray[0] === "custom_fields") {
       columnDefinition = {
         ...columnDefinition,
-        dataIndex: keyArray[0],
+        dataIndex: keyArray,
         filters: getFilterValues(dataSource, keyArray),
         onFilter: (value: string | number, record: any) =>
           _.get(record, keyArray) === value,

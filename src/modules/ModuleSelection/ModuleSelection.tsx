@@ -14,7 +14,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { GlobalStyle } from "../../shared/Global.styled";
-import HandleBackButton from "../../components/HandleBackButton";
 
 function ModuleSelection() {
   const [form] = Form.useForm();

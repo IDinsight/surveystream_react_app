@@ -100,7 +100,7 @@ export const CardTitle = styled.div`
   font-weight: 500;
 `;
 
-export const LearnMoreLink = styled.span`
+export const FeatureDocsLink = styled.span`
   display: flex;
   align-items: center;
   cursor: pointer;

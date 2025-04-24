@@ -24,6 +24,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 import { useEffect, useState } from "react";
 import {
   getCTOFormQuestions,
@@ -144,7 +145,7 @@ function SurveyCTOQuestions() {
         if (refreshRes.payload?.message) {
           setHasError(true);
           setSurveyCTOErrorMessages([
-            'Could not find SCTO form questions, please click the "Load questions from SCTO" button to retry.',
+            'Could not find SurveyCTO form questions, please click the "Load SurveyCTO form definition" button to retry.',
           ]);
         }
       }
@@ -236,7 +237,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading || isSideMenuLoading) {
+    if (isLoading || isSideMenuLoading || loading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {
@@ -264,7 +265,6 @@ function SurveyCTOQuestions() {
     if (!hasError && !isLoading) {
       return (
         <QuestionsForm form={form} onFieldsChange={handleFormChange}>
-          <QuestionsFormTitle>Questions to be mapped</QuestionsFormTitle>
           <StyledFormItem
             initialValue={surveyCTOQuestionsForm?.survey_status}
             rules={[
@@ -608,43 +608,39 @@ function SurveyCTOQuestions() {
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
-          <SCTOQuestionsButton
-            loading={loading}
+          <CustomBtn
+            style={{ marginTop: "20px" }}
             onClick={() => loadFormQuestions(true)}
             disabled={form_uid == undefined}
           >
-            Load questions from SCTO form
-          </SCTOQuestionsButton>
+            Load SurveyCTO form definition
+          </CustomBtn>
         </div>
       </HeaderContainer>
       <div style={{ display: "flex" }}>
         <SideMenu />
         <MainWrapper>
           <DescriptionWrap>
-            <DescriptionText>
-              This step has 3 pre-requisites:
-              <ol>
-                <li>
-                  Data Manager access to the SCTO server has been provided to
-                  surveystream.devs@idinsight.org
-                </li>
-                <li>
-                  You can see surveystream.devs@idinsight.org as an active user
-                  on SCTO
-                </li>
-                <li>
-                  The main form ID shared will be the form used for main data
-                  collection, the form has been deployed, and the variable names
-                  will not change.
-                </li>
-              </ol>
+            <DescriptionText style={{ width: "90%" }}>
+              Match key fields in your SurveyCTO form to SurveyStream system
+              variables.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/surveycto_integration#main-form-requirements" />
+            </DescriptionText>
+            <DescriptionText style={{ width: "90%" }}>
+              Before proceeding with the mapping, ensure that
+              surveystream.devs@idinsight.org is an active user on SurveyCTO.
             </DescriptionText>
           </DescriptionWrap>
           {renderQuestionsSelectArea()}
-          {isLoading ? (
+
+          {isLoading || loading ? (
             " "
           ) : (
             <div>
+              <DescriptionText style={{ width: "90%" }}>
+                Kindly revisit this page to update the mapping if the form
+                variables change in the future.
+              </DescriptionText>
               <Button
                 onClick={() =>
                   navigate(
