@@ -30,7 +30,7 @@ import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import DescriptionDocsLink from "../../../components/DescriptionDocsLink/DescriptionDocsLink";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -362,7 +362,7 @@ function SurveyLocationAdd() {
             <DescriptionText>
               Add the location levels for your survey (for example, State,
               District and Block).{" "}
-              <DescriptionDocsLink link="https://docs.surveystream.idinsight.io/locations_configuration#location-level" />
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/locations_configuration#location-level" />
             </DescriptionText>
             <DescriptionText>
               In the next step, you will be asked to define the hierarchy among

@@ -13,7 +13,7 @@ import { RootState } from "../../../redux/store";
 import { getSurveyModuleQuestionnaire } from "../../../redux/surveyConfig/surveyConfigActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../shared/Global.styled";
-import DescriptionDocsLink from "../../../components/DescriptionDocsLink/DescriptionDocsLink";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 interface IModuleQuestionnaire {
   setFormData: (formData: SurveyModuleQuestionnaireData) => void;
@@ -158,7 +158,7 @@ const ModuleQuestionnaire: FC<IModuleQuestionnaire> = ({ setFormData }) => {
           Please answer the following questions to help SurveyStream determine
           the specific configuration steps and data validations that will be
           needed for your survey.{" "}
-          <DescriptionDocsLink link="https://docs.surveystream.idinsight.io/basic_information#module-questionnaire" />
+          <DescriptionLink link="https://docs.surveystream.idinsight.io/basic_information#module-questionnaire" />
         </p>
         <Form form={form} onValuesChange={handleFormValuesChange}>
           {Questionnaire()}

@@ -37,7 +37,7 @@ import {
 } from "../../redux/moduleSelection/moduleStatusActions";
 import { useNavigate, useParams } from "react-router-dom";
 import { DescriptionText } from "../../shared/Global.styled";
-import DescriptionDocsLink from "../../components/DescriptionDocsLink";
+import DescriptionLink from "../../components/DescriptionLink";
 
 const { Meta } = Card;
 
@@ -192,7 +192,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             <p style={{ fontSize: 14, width: "80%" }}>
               Select features you will be using in your survey. You can update
               these later if the design of your survey changes.{" "}
-              <DescriptionDocsLink
+              <DescriptionLink
                 link="https://docs.surveystream.idinsight.io/features_at_a_glance"
                 text="Read more on how to select features for your survey"
               />

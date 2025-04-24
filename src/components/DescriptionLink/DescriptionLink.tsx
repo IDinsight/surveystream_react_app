@@ -1,11 +1,11 @@
 import { SelectOutlined } from "@ant-design/icons";
 
-interface IDescriptionDocsLinkProps {
+interface IDescriptionLinkProps {
   link: string;
   text?: string;
 }
 
-function DescriptionDocsLink({ link, text }: IDescriptionDocsLinkProps) {
+function DescriptionLink({ link, text }: IDescriptionLinkProps) {
   return (
     <a
       href={link}
@@ -30,4 +30,4 @@ function DescriptionDocsLink({ link, text }: IDescriptionDocsLinkProps) {
   );
 }
 
-export default DescriptionDocsLink;
+export default DescriptionLink;

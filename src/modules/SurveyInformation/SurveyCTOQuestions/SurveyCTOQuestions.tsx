@@ -24,7 +24,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import DescriptionDocsLink from "../../../components/DescriptionDocsLink/DescriptionDocsLink";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 import { useEffect, useState } from "react";
 import {
   getCTOFormQuestions,
@@ -624,7 +624,7 @@ function SurveyCTOQuestions() {
             <DescriptionText style={{ width: "90%" }}>
               Match key fields in your SurveyCTO form to SurveyStream system
               variables.{" "}
-              <DescriptionDocsLink link="https://docs.surveystream.idinsight.io/surveycto_integration#main-form-requirements" />
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/surveycto_integration#main-form-requirements" />
             </DescriptionText>
             <DescriptionText style={{ width: "90%" }}>
               Before proceeding with the mapping, ensure that
