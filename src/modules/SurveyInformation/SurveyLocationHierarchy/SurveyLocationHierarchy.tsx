@@ -27,7 +27,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import { QuestionCircleOutlined, SelectOutlined } from "@ant-design/icons";
+import LearnMore from "../../../components/LearnMore/LearnMore";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -374,26 +374,7 @@ function SurveyLocationHierarchy() {
           <SurveyLocationHierarchyFormWrapper>
             <DescriptionText>
               Define the location hierarchy for your survey.{" "}
-              <a
-                href="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: "#2F80ED",
-                  fontSize: "14px",
-                  fontFamily: '"Lato", sans-serif',
-                }}
-              >
-                Learn more
-                <SelectOutlined
-                  rotate={90}
-                  style={{
-                    marginLeft: "3px",
-                    padding: "0px",
-                    fontSize: "15px",
-                  }}
-                />{" "}
-              </a>
+              <LearnMore link="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy" />
             </DescriptionText>
             <DescriptionText>
               For each location, select the location immediately above it in the
@@ -405,15 +386,13 @@ function SurveyLocationHierarchy() {
                 {renderHierarchyGeoLevelsField()}
               </DynamicItemsForm>
             </div>
+
+            <DescriptionText>
+              Select the prime geo location for your survey.{" "}
+              <LearnMore link="https://docs.surveystream.idinsight.io/locations_configuration#prime-geo-level" />
+            </DescriptionText>
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
-                <DescriptionText>
-                  Select the prime geo location for your survey.{" "}
-                  <Tooltip title="This is the location level at which field supervisors will operate for data collection projects in which location is a mapping criteria. All field operation workflows like personnel mapping, target assignment, etc. will be defined at this location level.">
-                    <QuestionCircleOutlined />
-                  </Tooltip>{" "}
-                </DescriptionText>
-
                 <StyledFormItem
                   label="Prime geo location"
                   required

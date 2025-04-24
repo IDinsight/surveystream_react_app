@@ -28,7 +28,7 @@ import { SurveyCTOForm } from "../../../redux/surveyCTOInformation/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import { SelectOutlined } from "@ant-design/icons";
+import LearnMore from "../../../components/LearnMore/LearnMore";
 
 function SurveyCTOInfomation() {
   const [form] = Form.useForm();
@@ -223,26 +223,7 @@ function SurveyCTOInfomation() {
             <SCTOInformationFormWrapper>
               <DescriptionText>
                 Connect your SurveyCTO account to sync form submission data.{" "}
-                <a
-                  href="https://docs.surveystream.idinsight.io/basic_information#module-questionnaire"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: "#2F80ED",
-                    fontSize: "14px",
-                    fontFamily: '"Lato", sans-serif',
-                  }}
-                >
-                  Learn more
-                  <SelectOutlined
-                    rotate={90}
-                    style={{
-                      marginLeft: "3px",
-                      padding: "0px",
-                      fontSize: "15px",
-                    }}
-                  />{" "}
-                </a>
+                <LearnMore link="https://docs.surveystream.idinsight.io/surveycto_integration" />
               </DescriptionText>
               <Form form={form} onValuesChange={handleFormValuesChange}>
                 <TwoColumnForm>

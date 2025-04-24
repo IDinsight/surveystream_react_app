@@ -24,6 +24,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import LearnMore from "../../../components/LearnMore/LearnMore";
 import { useEffect, useState } from "react";
 import {
   getCTOFormQuestions,
@@ -41,7 +42,6 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
-import { WarningOutlined, SelectOutlined } from "@ant-design/icons";
 
 function SurveyCTOQuestions() {
   const [form] = Form.useForm();
@@ -237,7 +237,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading || isSideMenuLoading) {
+    if (isLoading || isSideMenuLoading || loading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {
@@ -609,7 +609,6 @@ function SurveyCTOQuestions() {
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
           <CustomBtn
-            loading={loading}
             style={{ marginTop: "20px" }}
             onClick={() => loadFormQuestions(true)}
             disabled={form_uid == undefined}
@@ -625,26 +624,7 @@ function SurveyCTOQuestions() {
             <DescriptionText style={{ width: "90%" }}>
               Match key fields in your SurveyCTO form to SurveyStream system
               variables.{" "}
-              <a
-                href="https://docs.surveystream.idinsight.io/surveycto_integration#main-form-requirements"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: "#2F80ED",
-                  fontSize: "14px",
-                  fontFamily: '"Lato", sans-serif',
-                }}
-              >
-                Learn more
-                <SelectOutlined
-                  rotate={90}
-                  style={{
-                    marginLeft: "3px",
-                    padding: "0px",
-                    fontSize: "15px",
-                  }}
-                />{" "}
-              </a>
+              <LearnMore link="https://docs.surveystream.idinsight.io/surveycto_integration#main-form-requirements" />
             </DescriptionText>
             <DescriptionText style={{ width: "90%" }}>
               Before proceeding with the mapping, ensure that
@@ -652,10 +632,15 @@ function SurveyCTOQuestions() {
             </DescriptionText>
           </DescriptionWrap>
           {renderQuestionsSelectArea()}
-          {isLoading ? (
+
+          {isLoading || loading ? (
             " "
           ) : (
             <div>
+              <DescriptionText style={{ width: "90%" }}>
+                Kindly revisit this page to update the mapping if the form
+                variables change in the future.
+              </DescriptionText>
               <Button
                 onClick={() =>
                   navigate(

@@ -6,7 +6,7 @@ import {
   SelectionForm,
   SelectionCard,
   TitleContainer,
-  LearnMoreLink,
+  FeatureDocsLink,
   CardTitle,
   CheckboxContainer,
 } from "./ModuleSelectionForm.styled";
@@ -37,6 +37,7 @@ import {
 } from "../../redux/moduleSelection/moduleStatusActions";
 import { useNavigate, useParams } from "react-router-dom";
 import { DescriptionText } from "../../shared/Global.styled";
+import LearnMore from "../../components/LearnMore";
 
 const { Meta } = Card;
 
@@ -191,27 +192,10 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
             <p style={{ fontSize: 14, width: "80%" }}>
               Select features you will be using in your survey. You can update
               these later if the design of your survey changes.{" "}
-              <a
-                href="https://docs.surveystream.idinsight.io/features_at_a_glance"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: "#2F80ED",
-                  fontSize: "14px",
-                  fontFamily: '"Lato", sans-serif',
-                }}
-              >
-                Read more on how to select features for your survey{" "}
-                <SelectOutlined
-                  rotate={90}
-                  style={{
-                    marginLeft: "3px",
-                    padding: "0px",
-                    fontSize: "15px",
-                  }}
-                />
-              </a>
-              .
+              <LearnMore
+                link="https://docs.surveystream.idinsight.io/features_at_a_glance"
+                text="Read more on how to select features for your survey"
+              />
             </p>{" "}
           </DescriptionText>
           <div>
@@ -245,7 +229,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                               />
                               <div>{module.title}</div>
                             </CardTitle>
-                            <LearnMoreLink
+                            <FeatureDocsLink
                               onClick={() => window.open(module.link, "_blank")}
                             >
                               Learn more{" "}
@@ -257,7 +241,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                                   fontSize: "15px",
                                 }}
                               />
-                            </LearnMoreLink>
+                            </FeatureDocsLink>
                           </TitleContainer>
                         }
                         description={
