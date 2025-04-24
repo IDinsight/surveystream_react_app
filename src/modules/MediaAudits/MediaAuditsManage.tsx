@@ -423,7 +423,7 @@ function MediaAuditsManage() {
                   <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> Select media
                     variables{" "}
-                    <Tooltip title="The columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                    <Tooltip title="Select variables containing media fields, the columns on the Google Sheet will be displayed in the same order as the variables are selected.">
                       <InfoCircleOutlined />
                     </Tooltip>{" "}
                     :
