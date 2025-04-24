@@ -256,62 +256,65 @@ function CreateAssignments() {
           formUID: formID,
           formData: assignmentPayload,
           callFn: (response: any) => {
-            if (response.success) {
+            // Handle empty/error response case
+            if (!response || (!response.success && !response.data)) {
+              message.error("Error updating assignments. Please try again.");
+              return;
+            }
+
+            // Success case
+            if (response.success || response.message === "success") {
+              // Process email schedule data if it exists
               if (response.data?.email_schedule) {
-                // Add a nicely formatted schedule_time value for each email configuration in the response
-                response.data.email_schedule.map((email: any) => {
-                  if (!email.schedule_date || !email.time) {
-                    email.schedule_time = "No pending schedules";
-                  } else {
+                response.data.email_schedule = response.data.email_schedule.map(
+                  (email: any) => {
+                    if (!email.schedule_date || !email.time) {
+                      return {
+                        ...email,
+                        schedule_time: "No pending schedules",
+                      };
+                    }
+
                     const parsedDate = new Date(email.schedule_date);
-
-                    const year = parsedDate.getFullYear();
-                    const month = parsedDate.getMonth() + 1;
-                    const day = parsedDate.getDate();
                     const [hour, minute] = email.time.split(":");
-
                     const nextDate = new Date(
-                      year,
-                      month - 1,
-                      day,
-                      hour,
-                      minute,
-                      0,
-                      0
+                      parsedDate.getFullYear(),
+                      parsedDate.getMonth(),
+                      parsedDate.getDate(),
+                      parseInt(hour),
+                      parseInt(minute)
                     );
-                    const formattedDate = `${nextDate.getFullYear()}-${(
-                      nextDate.getMonth() + 1
-                    )
-                      .toString()
-                      .padStart(2, "0")}-${nextDate
-                      .getDate()
-                      .toString()
-                      .padStart(2, "0")}`;
 
-                    email.schedule_time = formattedDate;
+                    return {
+                      ...email,
+                      schedule_time: nextDate.toISOString().split("T")[0],
+                    };
                   }
-                });
+                );
               }
+
               setAssignmentResponseData(response.data);
 
+              // Check for pending emails
               if (response.data?.email_schedule?.length > 0) {
-                const pendingEmails = response.data?.email_schedule.find(
-                  (email: any) => email.schedule_time != "No pending schedules"
+                const hasPendingEmails = response.data.email_schedule.some(
+                  (email: any) => email.schedule_time !== "No pending schedules"
                 );
-                if (pendingEmails) {
-                  setPendingEmailExists(true);
-                }
+                setPendingEmailExists(hasPendingEmails);
               }
 
               message.success("Assignments updated successfully", 2, () => {
                 setStepIndex((prev: number) => prev + 1);
               });
             } else {
-              message.error("Error: " + response.message);
+              message.error(
+                `Error: ${response.message || "Unknown error occurred"}`
+              );
             }
           },
         })
       );
+
       setStepLoading(false);
     } else if (stepIndex === 2) {
       if (!emailMode || emailMode == "email_time_no") {

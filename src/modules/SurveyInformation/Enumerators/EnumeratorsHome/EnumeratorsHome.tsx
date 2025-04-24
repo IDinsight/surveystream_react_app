@@ -284,24 +284,32 @@ function EnumeratorsHome() {
             if (
               Object.prototype.hasOwnProperty.call(originalData[0], key) &&
               key !== "custom_fields" &&
+              key !== "surveyor_locations" &&
               !columnsToExclude.includes(key)
             ) {
               columnMapping[key] = key;
-            } else if (key === "surveyor_locations") {
-              columnMapping["location"] = "location";
-              columnMapping["location_id"] = "location_id";
-              columnMapping["location_name"] = "location_name";
             }
           }
+
+          if (
+            originalData[0].surveyor_locations &&
+            originalData[0].surveyor_locations.length > 0
+          ) {
+            columnMapping["location"] = "location";
+            columnMapping["location_id"] = "location_id";
+          }
+
           dispatch(setEnumeratorColumnMapping(columnMapping));
         }
         // Check if any enumerator has surveyor_locations
+        // Handle surveyor_locations separately
         const hasSurveyorLocations = originalData.some(
           (enumerator: any) => enumerator.surveyor_locations?.length > 0
         );
-        const primeLocationName = originalData[0].surveyor_locations?.find(
+        const primeLocationName = originalData[0].surveyor_locations?.[0]?.find(
           (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
         )?.geo_level_name;
+
         setPrimeLocationName(primeLocationName);
         // Define column mappings
         let columnMappings = Object.keys(originalData[0])
@@ -336,18 +344,42 @@ function EnumeratorsHome() {
         }
 
         // Map the data with locations
-        const updatedData = originalData.map((enumerator: any) => {
+        interface Location {
+          geo_level_uid: number;
+          location_name: string;
+          location_uid: string;
+          location_id: string;
+        }
+
+        interface Enumerator {
+          surveyor_locations: Location[][];
+          [key: string]: any;
+        }
+
+        const updatedData = originalData.map((enumerator: Enumerator) => {
           const surveyorLocations = enumerator.surveyor_locations || [];
 
-          const matchingLocation = surveyorLocations.find(
-            (location: any) => location.geo_level_uid === PrimeGeoLevelUID
+          // Flatten the array of surveyor locations arrays
+          const flattenedLocations = ([] as Location[]).concat(
+            ...surveyorLocations
+          );
+
+          // Find all matching locations
+          const matchingLocations = flattenedLocations.filter(
+            (location: Location) => location.geo_level_uid === PrimeGeoLevelUID
           );
 
           return {
             ...enumerator,
-            location: matchingLocation?.location_name || null,
-            location_uid: matchingLocation?.location_uid || null,
-            location_id: matchingLocation?.location_id || null,
+            location:
+              matchingLocations.map((loc) => loc.location_name).join(", ") ||
+              null,
+            location_uid:
+              matchingLocations.map((loc) => loc.location_uid).join(", ") ||
+              null,
+            location_id:
+              matchingLocations.map((loc) => loc.location_id).join(", ") ||
+              null,
           };
         });
 

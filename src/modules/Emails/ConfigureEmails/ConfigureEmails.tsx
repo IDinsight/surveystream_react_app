@@ -69,11 +69,11 @@ function ConfigureEmails() {
       if (emailConfigUid) {
         setConfigUid(emailConfigUid);
         setStepIndex((prev: number) => prev + 1);
+        fetchEmailConfigs();
         setStepLoading(false);
         return;
       } else {
         setStepLoading(false);
-
         message.error("The email config is not selected or configured");
         return;
       }
