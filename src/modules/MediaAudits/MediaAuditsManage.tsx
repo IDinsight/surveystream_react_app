@@ -134,9 +134,6 @@ function MediaAuditsManage() {
       message.error("There is problem with main STCO form uid.");
     }
     setIsQuestionLoading(false);
-    const questionsInRepeatGroups = questionWithRepeatGroup.filter(
-      (q) => !questions.find((mainQ) => mainQ.value === q.value)
-    );
   };
 
   const handleSave = () => {
@@ -397,7 +394,9 @@ function MediaAuditsManage() {
                 <Select
                   style={{ width: "100%" }}
                   placeholder="Multi select"
-                  options={questions}
+                  options={questions.filter(
+                    (q) => !formFieldsData?.media_fields?.includes(q.value)
+                  )}
                   mode="multiple"
                   allowClear
                   value={formFieldsData?.scto_fields}
@@ -434,7 +433,9 @@ function MediaAuditsManage() {
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Multi select"
-                    options={questionWithRepeatGroup}
+                    options={questionWithRepeatGroup.filter(
+                      (q) => !formFieldsData?.scto_fields?.includes(q.value)
+                    )}
                     mode="multiple"
                     allowClear
                     value={formFieldsData?.media_fields}
@@ -446,7 +447,6 @@ function MediaAuditsManage() {
                       }));
                     }}
                   ></Select>
-                  )
                   <Spin
                     indicator={
                       <LoadingOutlined style={{ fontSize: 28 }} spin />
