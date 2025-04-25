@@ -51,6 +51,9 @@ function EmailContentEditor({
       form.setFieldsValue({
         [pathArr.join(".")]: val,
       });
+      if (onChange) {
+        onChange(val); // Call the onChange prop if provided
+      }
     }, 750),
     []
   );
@@ -58,9 +61,6 @@ function EmailContentEditor({
   // Handle content change
   const handleChange = (content: string) => {
     setVal(content);
-    if (onChange) {
-      onChange(content);
-    }
   };
 
   // Setting the field value on content change in editor
