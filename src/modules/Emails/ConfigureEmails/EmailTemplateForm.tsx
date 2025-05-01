@@ -110,6 +110,14 @@ const EmailTemplateForm = ({
             hasInvalidVariable = true;
           }
 
+          // Create sets to track unique variables and tables
+          const uniqueVariables = new Map();
+
+          // Deduplicate variables and tables
+          formStates[i].insertedVariables.forEach((variable: any) => {
+            uniqueVariables.set(variable.variable_name, variable);
+          });
+
           templatePayload.push({
             language: template.language,
             subject: template.subject,
@@ -117,7 +125,7 @@ const EmailTemplateForm = ({
               /<span class="valid-variable-blot"[^>]*>(.*?)<\/span>/g,
               "$1"
             ),
-            variable_list: formStates[i].insertedVariables,
+            variable_list: Array.from(uniqueVariables.values()),
             table_list: formStates[i].tableList,
           });
         }

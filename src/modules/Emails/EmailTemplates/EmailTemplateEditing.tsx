@@ -125,6 +125,12 @@ function EmailTemplateEditing({
         setLoading(false);
         return;
       }
+      const uniqueVariables = new Map();
+
+      // Deduplicate variables and tables
+      insertedVariables.forEach((variable: any) => {
+        uniqueVariables.set(variable.variable_name, variable);
+      });
 
       const emailTemplatePayload = {
         email_config_uid: email_config_uid,
@@ -134,7 +140,7 @@ function EmailTemplateEditing({
           "$1"
         ),
         language: fieldValues.language,
-        variable_list: insertedVariables,
+        variable_list: uniqueVariables,
         table_list: tableList,
       };
 
