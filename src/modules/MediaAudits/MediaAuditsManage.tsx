@@ -19,6 +19,7 @@ import {
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
 import { resolveSurveyNotification } from "../../redux/notifications/notificationActions";
+import { set } from "lodash";
 
 const { Option } = Select;
 
@@ -123,10 +124,17 @@ function MediaAuditsManage() {
       if (repeatGroupRes.payload?.questions) {
         const repeatGroupQuestions: any = [];
         repeatGroupRes.payload?.questions.forEach((question: any) => {
-          repeatGroupQuestions.push({
-            label: question.question_name,
-            value: question.question_name,
-          });
+          if (question.is_repeat_group) {
+            repeatGroupQuestions.push({
+              label: question.question_name + "_*",
+              value: question.question_name,
+            });
+          } else {
+            repeatGroupQuestions.push({
+              label: question.question_name,
+              value: question.question_name,
+            });
+          }
         });
         setQuestionWithRepeatGroup(repeatGroupQuestions);
       }
@@ -338,9 +346,18 @@ function MediaAuditsManage() {
                   placeholder="SCTO form / Exotel"
                   value={formFieldsData?.source}
                   disabled={!canUserWrite}
-                  onSelect={(val) =>
-                    setFormFieldsData((prev: any) => ({ ...prev, source: val }))
-                  }
+                  onSelect={(val) => {
+                    setFormFieldsData((prev: any) => ({
+                      ...prev,
+                      source: val,
+                    }));
+                    if (val === "Exotel") {
+                      setFormFieldsData((prev: any) => ({
+                        ...prev,
+                        format: "long",
+                      }));
+                    }
+                  }}
                 >
                   <Select.Option value="SurveyCTO">SCTO form</Select.Option>
                   {formFieldsData.file_type === "audio" ? (
@@ -349,36 +366,36 @@ function MediaAuditsManage() {
                 </Select>
               </Col>
             </Row>
-            {formFieldsData?.source === "SurveyCTO" && (
-              <Row align="middle" style={{ marginBottom: 6 }}>
-                <Col span={6}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Select output type{" "}
-                    <Tooltip title="Long format is 1 row per media file. Wide format is 1 row per submission.">
-                      <InfoCircleOutlined />
-                    </Tooltip>{" "}
-                    :
-                  </FormItemLabel>
-                </Col>
-                <Col span={8}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="Long / Wide"
-                    value={formFieldsData?.format}
-                    disabled={!canUserWrite}
-                    onSelect={(val: any) => {
-                      setFormFieldsData((prev: any) => ({
-                        ...prev,
-                        format: val,
-                      }));
-                    }}
-                  >
-                    <Select.Option value="long">Long</Select.Option>
-                    <Select.Option value="wide">Wide</Select.Option>
-                  </Select>
-                </Col>
-              </Row>
-            )}
+            <Row align="middle" style={{ marginBottom: 6 }}>
+              <Col span={6}>
+                <FormItemLabel>
+                  <span style={{ color: "red" }}>*</span> Select output type{" "}
+                  <Tooltip title="Long format is 1 row per media file. Wide format is 1 row per submission.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
+                </FormItemLabel>
+              </Col>
+              <Col span={8}>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Long / Wide"
+                  value={formFieldsData?.format}
+                  disabled={
+                    !canUserWrite || formFieldsData?.source !== "SurveyCTO"
+                  }
+                  onSelect={(val: any) => {
+                    setFormFieldsData((prev: any) => ({
+                      ...prev,
+                      format: val,
+                    }));
+                  }}
+                >
+                  <Select.Option value="long">Long</Select.Option>
+                  <Select.Option value="wide">Wide</Select.Option>
+                </Select>
+              </Col>
+            </Row>
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
@@ -417,48 +434,47 @@ function MediaAuditsManage() {
                 />
               </Col>
             </Row>
-            {formFieldsData?.format === "wide" && (
-              <Row align="middle" style={{ marginBottom: 6 }}>
-                <Col span={6}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Select media
-                    variables{" "}
-                    <Tooltip title="Select variables containing media fields, the columns on the Google Sheet will be displayed in the same order as the variables are selected.">
-                      <InfoCircleOutlined />
-                    </Tooltip>{" "}
-                    :
-                  </FormItemLabel>
-                </Col>
-                <Col span={8} style={{ display: "flex" }}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="Multi select"
-                    options={questionWithRepeatGroup.filter(
-                      (q) => !formFieldsData?.scto_fields?.includes(q.value)
-                    )}
-                    mode="multiple"
-                    allowClear
-                    value={formFieldsData?.media_fields}
-                    disabled={!canUserWrite}
-                    onChange={(val) => {
-                      setFormFieldsData((prev: any) => ({
-                        ...prev,
-                        media_fields: val,
-                      }));
-                    }}
-                  ></Select>
-                  <Spin
-                    indicator={
-                      <LoadingOutlined style={{ fontSize: 28 }} spin />
-                    }
-                    style={{
-                      marginLeft: 24,
-                      display: isQuestionLoading ? "block" : "none",
-                    }}
-                  />
-                </Col>
-              </Row>
-            )}
+            <Row align="middle" style={{ marginBottom: 6 }}>
+              <Col span={6}>
+                <FormItemLabel>
+                  <span style={{ color: "red" }}>*</span> Select media variables{" "}
+                  <Tooltip title="Select variables containing media fields, the columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
+                </FormItemLabel>
+              </Col>
+              <Col span={8} style={{ display: "flex" }}>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Multi select"
+                  options={questionWithRepeatGroup.filter(
+                    (q) => !formFieldsData?.scto_fields?.includes(q.value)
+                  )}
+                  mode="multiple"
+                  allowClear
+                  value={formFieldsData?.media_fields}
+                  disabled={
+                    !canUserWrite ||
+                    formFieldsData?.format !== "wide" ||
+                    formFieldsData?.source !== "SurveyCTO"
+                  }
+                  onChange={(val) => {
+                    setFormFieldsData((prev: any) => ({
+                      ...prev,
+                      media_fields: val,
+                    }));
+                  }}
+                ></Select>
+                <Spin
+                  indicator={<LoadingOutlined style={{ fontSize: 28 }} spin />}
+                  style={{
+                    marginLeft: 24,
+                    display: isQuestionLoading ? "block" : "none",
+                  }}
+                />
+              </Col>
+            </Row>
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
