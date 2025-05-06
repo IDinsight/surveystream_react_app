@@ -274,7 +274,7 @@ function SurveyLocationUpload() {
               label={`${geo_level_name} ID`}
               required
               name={geo_level_name_id}
-              labelCol={{ span: 5 }}
+              labelCol={{ span: 2 }}
               wrapperCol={{ span: 5 }}
               rules={[
                 {
@@ -298,6 +298,9 @@ function SurveyLocationUpload() {
             >
               <Select
                 placeholder="Choose ID column"
+                filterOption={true}
+                showSearch={true}
+                allowClear={true}
                 options={csvColumnNames.map((columnName, columnIndex) => ({
                   label: columnName,
                   value: `${columnName}`,
@@ -311,7 +314,7 @@ function SurveyLocationUpload() {
               label={geo_level_name}
               required
               name={geo_level_name}
-              labelCol={{ span: 5 }}
+              labelCol={{ span: 2 }}
               wrapperCol={{ span: 5 }}
               rules={[
                 {
@@ -335,6 +338,9 @@ function SurveyLocationUpload() {
             >
               <Select
                 placeholder="Choose name column"
+                filterOption={true}
+                showSearch={true}
+                allowClear={true}
                 options={csvColumnNames.map((columnName, columnIndex) => ({
                   label: columnName,
                   value: `${columnName}`,
