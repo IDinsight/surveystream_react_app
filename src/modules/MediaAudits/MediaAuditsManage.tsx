@@ -19,7 +19,7 @@ import {
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
 import { resolveSurveyNotification } from "../../redux/notifications/notificationActions";
-import { set } from "lodash";
+import { getTargetsColumnConfig } from "../../redux/targets/targetActions";
 
 const { Option } = Select;
 
@@ -58,6 +58,8 @@ function MediaAuditsManage() {
   const [questionWithRepeatGroup, setQuestionWithRepeatGroup] = useState<any[]>(
     []
   );
+  const [mappingOPtions, setMappingOptions] = useState<any[]>([]);
+
   const [formFieldsData, setFormFieldsData] = useState<any>({
     form_uid: null,
     file_type: null,
@@ -137,6 +139,37 @@ function MediaAuditsManage() {
           }
         });
         setQuestionWithRepeatGroup(repeatGroupQuestions);
+      }
+      // Only fetch mapping criteria if it's not an admin form
+      if (!adminForms.some((form: any) => form.form_uid === formUid)) {
+        const mappingCriteriaRes = await dispatch(
+          getTargetsColumnConfig({
+            formUID: formUid,
+          })
+        );
+        if (mappingCriteriaRes.payload?.success) {
+          const mappingOptions: any = [];
+          mappingCriteriaRes.payload.data.data.file_columns.forEach(
+            (column: any) => {
+              if (column.column_name === "language" && column.column_source) {
+                mappingOptions.push({
+                  label: "Language",
+                  value: "language",
+                });
+              }
+              if (
+                column.column_name === "bottom_geo_level_location" &&
+                column.column_source
+              ) {
+                mappingOptions.push({
+                  label: "Location",
+                  value: "location",
+                });
+              }
+            }
+          );
+          setMappingOptions(mappingOptions);
+        }
       }
     } else {
       message.error("There is problem with main STCO form uid.");
@@ -505,8 +538,11 @@ function MediaAuditsManage() {
                   }
                 >
                   <Select.Option value={null}>Not required</Select.Option>
-                  <Select.Option value="location">Location</Select.Option>
-                  <Select.Option value="language">Language</Select.Option>
+                  {mappingOPtions.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Col>
             </Row>
