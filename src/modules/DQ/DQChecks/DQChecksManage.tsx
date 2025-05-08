@@ -74,6 +74,7 @@ function DQChecksManage() {
     form_uid: form_uid,
     survey_status_filter: [],
     group_by_module_name: false,
+    drop_duplicates: true,
   });
 
   const [dqChecksTableData, setDQChecksTableData] = useState<any[]>([]);
@@ -114,6 +115,7 @@ function DQChecksManage() {
     setFormSurveyStatusData((prev: any) => ({
       ...prev,
       group_by_module_name: dqConfig?.group_by_module_name ?? false,
+      drop_duplicates: dqConfig?.drop_duplicates ?? true,
     }));
   }, [targetStatusMapping, dqConfig]);
 
@@ -156,6 +158,7 @@ function DQChecksManage() {
           form_uid: form_uid,
           survey_status_filter: formSurveyStatusData.survey_status_filter,
           group_by_module_name: formSurveyStatusData.group_by_module_name,
+          drop_duplicates: formSurveyStatusData.drop_duplicates,
         },
       })
     ).then((res) => {
@@ -301,6 +304,27 @@ function DQChecksManage() {
                                 Group DQ check outputs by module name
                               </CheckboxDQ>
                               <Tooltip title="Selecting this option will enable 'Module Name' input on all checks. This column will then be included in the outputs and can be used to filter and group the results.">
+                                <QuestionCircleOutlined />
+                              </Tooltip>{" "}
+                            </FormItemLabel>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col>
+                            <FormItemLabel>
+                              <CheckboxDQ
+                                checked={formSurveyStatusData?.drop_duplicates}
+                                disabled={!canUserWrite}
+                                onChange={(e) => {
+                                  setFormSurveyStatusData((prev: any) => ({
+                                    ...prev,
+                                    drop_duplicates: e.target.checked,
+                                  }));
+                                }}
+                              >
+                                Drop duplicates by target ID
+                              </CheckboxDQ>
+                              <Tooltip title="Selecting this option will drop duplicates by target ID before running the checks, keeping just the last submission with the selected survey status for each target. This is useful when you want to run the checks only on the latest submission for each target.">
                                 <QuestionCircleOutlined />
                               </Tooltip>{" "}
                             </FormItemLabel>
