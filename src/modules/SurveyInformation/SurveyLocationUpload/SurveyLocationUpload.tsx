@@ -14,10 +14,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
-import {
-  FooterWrapper,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
   IconText,
@@ -99,6 +95,7 @@ function SurveyLocationUpload() {
 
   const [addLocationsModal, setAddLocationsModal] = useState(false);
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
+  const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
 
   const resetFilters = async () => {
     fetchSurveyLocations();
@@ -156,60 +153,38 @@ function SurveyLocationUpload() {
       setColumnMatch(true);
       setFileUploaded(true);
 
-      const columns = [
-        ...(surveyLocations?.ordered_columns ?? []),
-        "edit_location",
-      ];
+      const columns = [...(surveyLocations?.ordered_columns ?? [])];
       const data = surveyLocations?.records;
 
       setTransformedColumns(() =>
-        columns.map((label: string) => {
-          if (label === "edit_location") {
-            return {
-              title: "Edit",
-              dataIndex: "edit",
-              key: "edit",
-              width: "12px",
-              render: (_: any, record: any) => (
-                <EditTwoTone
-                  onClick={() => {
-                    setDrawerVisible(true);
-                    setSelectedRecord(record); // Set the selected record
-                  }}
-                />
-              ),
-            };
-          } else {
-            return {
-              title: label,
-              dataIndex: label.toLocaleLowerCase(),
-              key: label.toLocaleLowerCase(),
-              filters: [
-                ...new Set(
-                  surveyLocations.records.map(
-                    (record: Record<string, string | number>) => record[label]
-                  )
-                ),
-              ].map((value: any) => ({
-                text: value.toString(),
-                value: value.toString(),
-              })),
-              sorter: (
-                a: Record<string, string | number>,
-                b: Record<string, string | number>
-              ) =>
-                a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
-                  ? -1
-                  : 1,
-              onFilter: (
-                value: string | number,
-                record: Record<string, string | number>
-              ) => {
-                return record[label.toLocaleLowerCase()] === value;
-              },
-            };
-          }
-        })
+        columns.map((label: string) => ({
+          title: label,
+          dataIndex: label.toLocaleLowerCase(),
+          key: label.toLocaleLowerCase(),
+          filters: [
+            ...new Set(
+              surveyLocations.records.map(
+                (record: Record<string, string | number>) => record[label]
+              )
+            ),
+          ].map((value: any) => ({
+            text: value.toString(),
+            value: value.toString(),
+          })),
+          sorter: (
+            a: Record<string, string | number>,
+            b: Record<string, string | number>
+          ) =>
+            a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
+              ? -1
+              : 1,
+          onFilter: (
+            value: string | number,
+            record: Record<string, string | number>
+          ) => {
+            return record[label.toLocaleLowerCase()] === value;
+          },
+        }))
       );
 
       setTransformedData(() =>
@@ -255,7 +230,6 @@ function SurveyLocationUpload() {
   };
 
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
 
   const closeDrawer = async () => {
     setDrawerVisible(false);
@@ -534,6 +508,18 @@ function SurveyLocationUpload() {
                 justifyContent: "space-between",
               }}
             >
+              {selectedRecord && (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setDrawerVisible(true);
+                  }}
+                  icon={<EditTwoTone />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                >
+                  Edit locations
+                </Button>
+              )}
               <Button
                 type="primary"
                 onClick={handlerAddLocationButton}
@@ -639,7 +625,6 @@ function SurveyLocationUpload() {
                           Match location table columns with location levels
                           created in “Add/Edit location levels” step
                         </DescriptionText>
-
                         {renderLocationMappingSelect()}
                       </Form>
                     </>
@@ -650,6 +635,22 @@ function SurveyLocationUpload() {
                           <LocationTable
                             transformedColumns={transformedColumns}
                             transformedData={transformedData}
+                            rowSelection={{
+                              hideSelectAll: true,
+                              type: "checkbox",
+                              selectedRowKeys: selectedRecord
+                                ? [selectedRecord.key]
+                                : [],
+                              onChange: (
+                                selectedRowKeys: React.Key[],
+                                selectedRows: any[]
+                              ) => {
+                                // Only keep the most recently selected row
+                                const lastSelectedRow =
+                                  selectedRows[selectedRows.length - 1] || null;
+                                setSelectedRecord(lastSelectedRow);
+                              },
+                            }}
                           />
                         </>
                       ) : (
