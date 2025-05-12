@@ -14,9 +14,8 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import { SurveyLocationFormWrapper } from "./SurveyLocationAdd.styled";
 import {
-  AddAnotherButton,
   DynamicItemsForm,
-  StyledFormItem,
+  CustomStyledFormItem,
 } from "../SurveyInformation.styled";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
@@ -27,13 +26,6 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
 import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
-import styled from "styled-components";
-
-const CustomStyledFormItem = styled(StyledFormItem)`
-  && .ant-form-item-label {
-    line-height: 2;
-  }
-`;
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
