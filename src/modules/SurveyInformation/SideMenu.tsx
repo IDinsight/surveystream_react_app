@@ -459,6 +459,9 @@ function SideMenu() {
     } else if (item?.key === "targetStatusMapping") {
       module_name = "Survey Status for Targets";
       permission_name = "READ Target Status Mapping";
+    } else if (item?.key === "adminForms") {
+      module_name = "Admin Forms";
+      permission_name = "READ Admin Forms";
     } else {
       return true;
     }
@@ -489,6 +492,7 @@ function SideMenu() {
     if (path.includes("survey-roles/")) return "surveyRolesAndUsers";
     if (path.includes("survey-users/")) return "surveyRolesAndUsers";
     if (path.includes("mapping/")) return "supervisorMapping";
+    if (path.includes("admin-forms/")) return "adminForms";
     return "";
   };
 

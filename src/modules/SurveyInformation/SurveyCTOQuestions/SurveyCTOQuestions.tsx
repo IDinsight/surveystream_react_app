@@ -237,7 +237,7 @@ function SurveyCTOQuestions() {
   };
 
   const renderQuestionsSelectArea = () => {
-    if (isLoading || isSideMenuLoading || loading) {
+    if (isLoading || isSideMenuLoading) {
       return <FullScreenLoader />;
     }
     if (!isLoading && hasError) {
@@ -633,7 +633,7 @@ function SurveyCTOQuestions() {
           </DescriptionWrap>
           {renderQuestionsSelectArea()}
 
-          {isLoading || loading ? (
+          {isLoading ? (
             " "
           ) : (
             <div>
