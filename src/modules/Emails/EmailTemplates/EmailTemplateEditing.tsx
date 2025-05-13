@@ -396,25 +396,27 @@ function EmailTemplateEditing({
           Save Changes
         </Button>
       </div>
-      <EmailTableModel
-        open={insertTableModelOpen}
-        setOpen={setInsertTableModelOpen}
-        configUID={emailTemplateConfig.email_config_uid}
-        tableList={tableList}
-        setTableList={(value: any) => {
-          const newTableList = [...tableList];
-          if (editingIndex !== null) {
-            newTableList[editingIndex] = value;
-          } else {
-            newTableList.push(value);
-          }
 
-          setTableList(newTableList);
-        }}
-        editingIndex={editingIndex}
-        setEditingIndex={setEditingIndex}
-        insertText={(text: string) => insertText(text)}
-      />
+      {insertTableModelOpen && (
+        <EmailTableModel
+          open={insertTableModelOpen}
+          setOpen={setInsertTableModelOpen}
+          configUID={emailTemplateConfig.email_config_uid}
+          tableList={tableList}
+          setTableList={(value: any) => {
+            const newTableList = [...tableList];
+            if (editingIndex !== null) {
+              newTableList[editingIndex] = value;
+            } else {
+              newTableList.push(value);
+            }
+            setTableList(newTableList);
+          }}
+          editingIndex={editingIndex}
+          setEditingIndex={setEditingIndex}
+          insertText={(text: string) => insertText(text)}
+        />
+      )}
     </Form>
   );
 }

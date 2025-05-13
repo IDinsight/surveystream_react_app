@@ -13,15 +13,11 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
 import Container from "../../components/Layout/Container";
 import SideMenu from "./SideMenu";
-import {
-  getEmailConfigs,
-  getEmailDetails,
-} from "../../redux/emails/emailsActions";
+import { getEmailDetails } from "../../redux/emails/emailsActions";
 import ManualTriggers from "./ManualTriggers/ManualTriggers";
 import { getEnumerators } from "../../redux/enumerators/enumeratorsActions";
 import ManualEmailTriggerForm from "./ManualTriggers/ManualTriggerForm";
 import EmailTemplates from "./EmailTemplates/EmailTemplates";
-import { config } from "cypress/types/bluebird";
 
 const { Content } = Layout;
 function Emails() {
@@ -91,6 +87,8 @@ function Emails() {
         setSchedulesData(sortedEmailConfigs);
       } else {
         message.error("Could not fetch email configurations for this survey");
+        setEmailConfigData([]);
+        setSchedulesData([]);
       }
     } else {
       message.error(

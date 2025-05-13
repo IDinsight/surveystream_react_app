@@ -21,7 +21,6 @@ import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
-import { has } from "lodash";
 
 const { Option } = Select;
 
@@ -97,6 +96,20 @@ const EmailTemplateForm = ({
 
       const { templates } = form.getFieldsValue();
       if (templates) {
+        // Check for duplicate languages
+        const languages = templates
+          .map((template: any, index: number) => template.language)
+          .filter((lang: string | null) => lang !== null);
+
+        const uniqueLanguages = new Set(languages);
+        if (uniqueLanguages.size !== languages.length) {
+          message.error(
+            "Duplicate language templates detected. Each template must have a unique language."
+          );
+          setLoading(false);
+          return;
+        }
+
         const templatePayload = [];
 
         let hasInvalidVariable = false;
