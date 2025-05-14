@@ -221,17 +221,14 @@ function ManageSurveyUsers() {
 
   // Row selection state and handler
   const onSelectChange = (selectedRowKeys: React.Key[], selectedRows: any) => {
-    const selectedEmails = selectedRows.map((row: any) => row.email);
+    // Only keep the most recently selected row
+    const lastSelectedRow = selectedRows[selectedRows.length - 1] || null;
 
-    const selectedUserData = userTableDataSource?.filter((row: any) =>
-      selectedEmails.includes(row.email)
-    );
-
-    setSelectedRows(selectedUserData);
-
-    if (selectedRows.length > 0) {
+    if (lastSelectedRow) {
+      setSelectedRows([lastSelectedRow]);
       setHasSelected(true);
     } else {
+      setSelectedRows([]);
       setHasSelected(false);
     }
   };
@@ -240,7 +237,8 @@ function ManageSurveyUsers() {
     selectedRows,
     onChange: onSelectChange,
     hideSelectAll: true,
-    type: "radio" as const,
+    type: "checkbox" as const,
+    selectedRowKeys: selectedRows.map((row: any) => row.key),
   };
 
   // Handler for Edit Data button

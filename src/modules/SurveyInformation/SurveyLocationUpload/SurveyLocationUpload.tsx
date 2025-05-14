@@ -14,10 +14,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
-import {
-  FooterWrapper,
-  ContinueButton,
-} from "../../../shared/FooterBar.styled";
 import SideMenu from "../SideMenu";
 import {
   IconText,
@@ -30,6 +26,7 @@ import {
   LinkOutlined,
   EditTwoTone,
   ClearOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
@@ -56,7 +53,6 @@ import {
   createNotificationViaAction,
   resolveSurveyNotification,
 } from "../../../redux/notifications/notificationActions";
-import { SelectOutlined } from "@ant-design/icons";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -99,6 +95,7 @@ function SurveyLocationUpload() {
 
   const [addLocationsModal, setAddLocationsModal] = useState(false);
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
+  const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
 
   const resetFilters = async () => {
     fetchSurveyLocations();
@@ -156,60 +153,38 @@ function SurveyLocationUpload() {
       setColumnMatch(true);
       setFileUploaded(true);
 
-      const columns = [
-        ...(surveyLocations?.ordered_columns ?? []),
-        "edit_location",
-      ];
+      const columns = [...(surveyLocations?.ordered_columns ?? [])];
       const data = surveyLocations?.records;
 
       setTransformedColumns(() =>
-        columns.map((label: string) => {
-          if (label === "edit_location") {
-            return {
-              title: "Edit",
-              dataIndex: "edit",
-              key: "edit",
-              width: "12px",
-              render: (_: any, record: any) => (
-                <EditTwoTone
-                  onClick={() => {
-                    setDrawerVisible(true);
-                    setSelectedRecord(record); // Set the selected record
-                  }}
-                />
-              ),
-            };
-          } else {
-            return {
-              title: label,
-              dataIndex: label.toLocaleLowerCase(),
-              key: label.toLocaleLowerCase(),
-              filters: [
-                ...new Set(
-                  surveyLocations.records.map(
-                    (record: Record<string, string | number>) => record[label]
-                  )
-                ),
-              ].map((value: any) => ({
-                text: value.toString(),
-                value: value.toString(),
-              })),
-              sorter: (
-                a: Record<string, string | number>,
-                b: Record<string, string | number>
-              ) =>
-                a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
-                  ? -1
-                  : 1,
-              onFilter: (
-                value: string | number,
-                record: Record<string, string | number>
-              ) => {
-                return record[label.toLocaleLowerCase()] === value;
-              },
-            };
-          }
-        })
+        columns.map((label: string) => ({
+          title: label,
+          dataIndex: label.toLocaleLowerCase(),
+          key: label.toLocaleLowerCase(),
+          filters: [
+            ...new Set(
+              surveyLocations.records.map(
+                (record: Record<string, string | number>) => record[label]
+              )
+            ),
+          ].map((value: any) => ({
+            text: value.toString(),
+            value: value.toString(),
+          })),
+          sorter: (
+            a: Record<string, string | number>,
+            b: Record<string, string | number>
+          ) =>
+            a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
+              ? -1
+              : 1,
+          onFilter: (
+            value: string | number,
+            record: Record<string, string | number>
+          ) => {
+            return record[label.toLocaleLowerCase()] === value;
+          },
+        }))
       );
 
       setTransformedData(() =>
@@ -255,7 +230,6 @@ function SurveyLocationUpload() {
   };
 
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
 
   const closeDrawer = async () => {
     setDrawerVisible(false);
@@ -274,7 +248,7 @@ function SurveyLocationUpload() {
               label={`${geo_level_name} ID`}
               required
               name={geo_level_name_id}
-              labelCol={{ span: 5 }}
+              labelCol={{ span: 2 }}
               wrapperCol={{ span: 5 }}
               rules={[
                 {
@@ -298,6 +272,9 @@ function SurveyLocationUpload() {
             >
               <Select
                 placeholder="Choose ID column"
+                filterOption={true}
+                showSearch={true}
+                allowClear={true}
                 options={csvColumnNames.map((columnName, columnIndex) => ({
                   label: columnName,
                   value: `${columnName}`,
@@ -311,7 +288,7 @@ function SurveyLocationUpload() {
               label={geo_level_name}
               required
               name={geo_level_name}
-              labelCol={{ span: 5 }}
+              labelCol={{ span: 2 }}
               wrapperCol={{ span: 5 }}
               rules={[
                 {
@@ -335,6 +312,9 @@ function SurveyLocationUpload() {
             >
               <Select
                 placeholder="Choose name column"
+                filterOption={true}
+                showSearch={true}
+                allowClear={true}
                 options={csvColumnNames.map((columnName, columnIndex) => ({
                   label: columnName,
                   value: `${columnName}`,
@@ -530,8 +510,22 @@ function SurveyLocationUpload() {
             >
               <Button
                 type="primary"
+                onClick={() => {
+                  setDrawerVisible(true);
+                }}
+                style={{
+                  marginRight: 15,
+                  backgroundColor: !selectedRecord ? "#D9D9D9" : "#2f54eB",
+                  borderColor: selectedRecord ? "#2f54eB" : "#d9d9d9",
+                }}
+                disabled={!selectedRecord}
+              >
+                Edit
+              </Button>
+
+              <Button
+                type="primary"
                 onClick={handlerAddLocationButton}
-                icon={<CloudUploadOutlined />}
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
               >
                 Add locations
@@ -551,7 +545,6 @@ function SurveyLocationUpload() {
                   fontSize: "14px",
                 }}
               >
-                <CloudDownloadOutlined style={{ marginRight: "8px" }} />
                 Download CSV
               </CSVDownloader>
               <Button
@@ -633,7 +626,6 @@ function SurveyLocationUpload() {
                           Match location table columns with location levels
                           created in “Add/Edit location levels” step
                         </DescriptionText>
-
                         {renderLocationMappingSelect()}
                       </Form>
                     </>
@@ -644,6 +636,22 @@ function SurveyLocationUpload() {
                           <LocationTable
                             transformedColumns={transformedColumns}
                             transformedData={transformedData}
+                            rowSelection={{
+                              hideSelectAll: true,
+                              type: "checkbox",
+                              selectedRowKeys: selectedRecord
+                                ? [selectedRecord.key]
+                                : [],
+                              onChange: (
+                                selectedRowKeys: React.Key[],
+                                selectedRows: any[]
+                              ) => {
+                                // Only keep the most recently selected row
+                                const lastSelectedRow =
+                                  selectedRows[selectedRows.length - 1] || null;
+                                setSelectedRecord(lastSelectedRow);
+                              },
+                            }}
                           />
                         </>
                       ) : (

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Table } from "antd";
 import styled from "styled-components";
+import { TableRowSelection } from "antd/es/table/interface";
 
 const LocationsTable = styled(Table)`
   margin-bottom: 68px;
@@ -21,11 +22,13 @@ const LocationsTable = styled(Table)`
 interface LocationTableProps {
   transformedColumns: { title: string; dataIndex: string; key: string }[];
   transformedData: { [key: string]: string | number | boolean }[];
+  rowSelection: TableRowSelection<any>;
 }
 
 const LocationTable: React.FC<LocationTableProps> = ({
   transformedColumns,
   transformedData,
+  rowSelection,
 }) => {
   const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
 
@@ -34,6 +37,7 @@ const LocationTable: React.FC<LocationTableProps> = ({
       <LocationsTable
         columns={transformedColumns}
         dataSource={transformedData}
+        rowSelection={rowSelection}
         pagination={{
           position: ["topRight"],
           pageSize: paginationPageSize,
