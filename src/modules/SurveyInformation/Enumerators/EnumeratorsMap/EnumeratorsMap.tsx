@@ -476,9 +476,6 @@ function EnumeratorsMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Personal and contact details
-                    </HeadingText>
                     {personalDetailsField.map((item, idx) => {
                       return (
                         <Form.Item
@@ -533,8 +530,6 @@ function EnumeratorsMap() {
                     })}
                     {locationBatchField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
-
                         <Form.Item
                           label="Prime geo location:"
                           name="location_id_column"
@@ -588,12 +583,10 @@ function EnumeratorsMap() {
 
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
                         <p
                           style={{
-                            color: "#434343",
                             fontFamily: "Lato",
-                            fontSize: 12,
+                            fontSize: 14,
                             lineHeight: "20px",
                           }}
                         >
@@ -657,9 +650,8 @@ function EnumeratorsMap() {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"

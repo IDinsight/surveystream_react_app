@@ -271,8 +271,8 @@ function RowEditingModal({
         onClose={onCancel}
         title={
           data && data.length > 1
-            ? `Edit ${data.length} enumerators in bulk`
-            : "Edit enumerator"
+            ? `Edit ${data.length} Enumerators in bulk`
+            : "Edit Enumerator"
         }
       >
         {data && data.length > 1 ? (
@@ -307,13 +307,27 @@ function RowEditingModal({
                     <span>
                       {field.labelKey === "location"
                         ? primeLocationName
-                        : field.labelKey}
+                        : field.labelKey
+                            .split("_")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                            )
+                            .join(" ")}
                     </span>
                   }
                   rules={[
                     {
                       required: true,
-                      message: `Please enter ${field.labelKey}`,
+                      message: `Please enter ${field.labelKey
+                        .split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}`,
                     },
                   ]}
                 >
@@ -346,7 +360,14 @@ function RowEditingModal({
                     </Select>
                   ) : (
                     <Input
-                      placeholder={`Enter ${field.labelKey}`}
+                      placeholder={`Enter ${field.labelKey
+                        .split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}`}
                       style={{ width: "100%" }}
                     />
                   )}

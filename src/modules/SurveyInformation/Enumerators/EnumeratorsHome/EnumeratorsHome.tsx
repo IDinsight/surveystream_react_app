@@ -557,7 +557,6 @@ function EnumeratorsHome() {
               >
                 <CustomBtn
                   type="primary"
-                  icon={<EditOutlined />}
                   style={{
                     marginRight: 15,
                     backgroundColor: editMode ? "#2f54eB" : "#d9d9d9",
@@ -572,7 +571,6 @@ function EnumeratorsHome() {
                 <Button
                   onClick={handlerAddEnumBtn}
                   type="primary"
-                  icon={<PlusOutlined />}
                   style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 >
                   Add enumerators
@@ -589,7 +587,7 @@ function EnumeratorsHome() {
                     borderRadius: "5px",
                   }}
                 >
-                  <DownloadOutlined />
+                  {"Download CSV"}
                 </CSVDownloader>
               </div>
             </div>
