@@ -26,6 +26,7 @@ import {
   LinkOutlined,
   EditTwoTone,
   ClearOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
@@ -52,7 +53,6 @@ import {
   createNotificationViaAction,
   resolveSurveyNotification,
 } from "../../../redux/notifications/notificationActions";
-import { SelectOutlined } from "@ant-design/icons";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -508,22 +508,24 @@ function SurveyLocationUpload() {
                 justifyContent: "space-between",
               }}
             >
-              {selectedRecord && (
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    setDrawerVisible(true);
-                  }}
-                  icon={<EditTwoTone />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                >
-                  Edit locations
-                </Button>
-              )}
+              <Button
+                type="primary"
+                onClick={() => {
+                  setDrawerVisible(true);
+                }}
+                style={{
+                  marginRight: 15,
+                  backgroundColor: !selectedRecord ? "#D9D9D9" : "#2f54eB",
+                  borderColor: selectedRecord ? "#2f54eB" : "#d9d9d9",
+                }}
+                disabled={!selectedRecord}
+              >
+                Edit
+              </Button>
+
               <Button
                 type="primary"
                 onClick={handlerAddLocationButton}
-                icon={<CloudUploadOutlined />}
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
               >
                 Add locations
@@ -543,7 +545,6 @@ function SurveyLocationUpload() {
                   fontSize: "14px",
                 }}
               >
-                <CloudDownloadOutlined style={{ marginRight: "8px" }} />
                 Download CSV
               </CSVDownloader>
               <Button
