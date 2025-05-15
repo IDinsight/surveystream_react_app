@@ -10,6 +10,7 @@ import {
   Radio,
   Space,
   Divider,
+  Tooltip,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
@@ -53,6 +54,8 @@ import {
   createNotificationViaAction,
   resolveSurveyNotification,
 } from "../../../redux/notifications/notificationActions";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
+import LocationsCountBox from "../../../components/LocationsCountBox";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -64,11 +67,14 @@ function SurveyLocationUpload() {
   const [columnMatch, setColumnMatch] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>({});
+  const [locationsCount, setLocationsCount] = useState<number>(0);
+  const [smallestLocationLevelName, setSmallestLocationLevelName] =
+    useState<string>("");
 
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
   };
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [csvColumnNames, setCSVColumnNames] = useState<string[]>([]);
   const [csvBase64Data, setCSVBase64Data] = useState<string | null>(null);
   const [mappedColumnNames, setMappedColumnNames] = useState<any>({});
@@ -148,62 +154,75 @@ function SurveyLocationUpload() {
   };
 
   useEffect(() => {
-    if (surveyLocations?.records?.length > 0) {
-      setHasError(false);
-      setColumnMatch(true);
-      setFileUploaded(true);
+    const updataData = async () => {
+      if (surveyLocations?.records?.length > 0) {
+        setHasError(false);
+        setColumnMatch(true);
+        setFileUploaded(true);
 
-      const columns = [...(surveyLocations?.ordered_columns ?? [])];
-      const data = surveyLocations?.records;
+        const columns = [...(surveyLocations?.ordered_columns ?? [])];
+        const data = surveyLocations?.records;
 
-      setTransformedColumns(() =>
-        columns.map((label: string) => ({
-          title: label,
-          dataIndex: label.toLocaleLowerCase(),
-          key: label.toLocaleLowerCase(),
-          filters: [
-            ...new Set(
-              surveyLocations.records.map(
-                (record: Record<string, string | number>) => record[label]
-              )
-            ),
-          ].map((value: any) => ({
-            text: value.toString(),
-            value: value.toString(),
-          })),
-          sorter: (
-            a: Record<string, string | number>,
-            b: Record<string, string | number>
-          ) =>
-            a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
-              ? -1
-              : 1,
-          onFilter: (
-            value: string | number,
-            record: Record<string, string | number>
-          ) => {
-            return record[label.toLocaleLowerCase()] === value;
-          },
-        }))
-      );
+        setTransformedColumns(() =>
+          columns.map((label: string) => ({
+            title: label,
+            dataIndex: label.toLocaleLowerCase(),
+            key: label.toLocaleLowerCase(),
+            filters: [
+              ...new Set(
+                surveyLocations.records.map(
+                  (record: Record<string, string | number>) => record[label]
+                )
+              ),
+            ].map((value: any) => ({
+              text: value.toString(),
+              value: value.toString(),
+            })),
+            sorter: (
+              a: Record<string, string | number>,
+              b: Record<string, string | number>
+            ) =>
+              a[label.toLocaleLowerCase()] > b[label.toLocaleLowerCase()]
+                ? -1
+                : 1,
+            onFilter: (
+              value: string | number,
+              record: Record<string, string | number>
+            ) => {
+              return record[label.toLocaleLowerCase()] === value;
+            },
+          }))
+        );
 
-      setTransformedData(() =>
-        data.map((record: any, index: number) => {
-          const transformedRecord: any = {};
-          columns.forEach((column: string) => {
-            transformedRecord[column.toLocaleLowerCase()] = record[column];
-          });
-          transformedRecord.key = index;
-          return transformedRecord;
-        })
-      );
-      fetchSurveyLocationsLong();
-    }
+        setTransformedData(() =>
+          data.map((record: any, index: number) => {
+            const transformedRecord: any = {};
+            columns.forEach((column: string) => {
+              transformedRecord[column.toLocaleLowerCase()] = record[column];
+            });
+            transformedRecord.key = index;
+            return transformedRecord;
+          })
+        );
+
+        setLocationsCount(surveyLocations?.records?.length);
+        setSmallestLocationLevelName(
+          surveyLocationGeoLevels[surveyLocationGeoLevels.length - 1]
+            ?.geo_level_name
+        );
+        await fetchSurveyLocationsLong();
+        setLoading(false);
+      }
+    };
+    updataData();
   }, [dispatch, surveyLocations]);
 
   useEffect(() => {
-    fetchSurveyLocations();
-    fetchSurveyLocationGeoLevels();
+    const fetchData = async () => {
+      fetchSurveyLocations();
+      fetchSurveyLocationGeoLevels();
+    };
+    fetchData();
 
     return () => {
       dispatch(resetSurveyLocations());
@@ -354,17 +373,16 @@ function SurveyLocationUpload() {
           type="error"
           style={{ marginRight: "80px" }}
         />
-        <AddAnotherButton
-          style={{ width: "200px" }}
+        <CustomBtn
+          style={{ marginTop: 24 }}
           onClick={() => {
             setFileUploaded(false);
             setColumnMatch(false);
             setHasError(false);
           }}
-          type="dashed"
         >
           Re-upload CSV
-        </AddAnotherButton>
+        </CustomBtn>
       </>
     );
   };
@@ -468,6 +486,7 @@ function SurveyLocationUpload() {
           createNotification(["Locations reuploaded"]);
 
           await dispatch(getSurveyLocations({ survey_uid: survey_uid }));
+          await fetchSurveyLocationsLong();
           setLoading(false);
           setHasError(false);
           setColumnMatch(true);
@@ -497,70 +516,69 @@ function SurveyLocationUpload() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Upload Locations</Title>
-
-        <div style={{ display: "flex", marginLeft: "auto" }}>
-          {!hasError && fileUploaded && columnMatch ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Button
-                type="primary"
-                onClick={() => {
-                  setDrawerVisible(true);
-                }}
+        {!hasError && fileUploaded && columnMatch ? (
+          <>
+            <Title> Locations</Title>
+            <LocationsCountBox
+              locationsCount={locationsCount}
+              smallestLocationLevelName={smallestLocationLevelName}
+            />
+            <div style={{ display: "flex", marginLeft: "auto" }}>
+              <div
                 style={{
-                  marginRight: 15,
-                  backgroundColor: !selectedRecord ? "#D9D9D9" : "#2f54eB",
-                  borderColor: selectedRecord ? "#2f54eB" : "#d9d9d9",
-                }}
-                disabled={!selectedRecord}
-              >
-                Edit
-              </Button>
-
-              <Button
-                type="primary"
-                onClick={handlerAddLocationButton}
-                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-              >
-                Add locations
-              </Button>
-              <CSVDownloader
-                data={transformedData}
-                filename={"locations.csv"}
-                style={{
-                  fontFamily: "Lato",
-                  cursor: "pointer",
-                  backgroundColor: "#2F54EB",
-                  color: "#FFF",
                   display: "flex",
                   alignItems: "center",
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  fontSize: "14px",
+                  justifyContent: "space-between",
                 }}
               >
-                Download CSV
-              </CSVDownloader>
-              <Button
-                onClick={resetFilters}
-                icon={<ClearOutlined />}
-                style={{
-                  cursor: "pointer",
-                  marginLeft: 15,
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  fontSize: "14px",
-                }}
-              ></Button>
+                <Tooltip
+                  title={selectedRecord ? null : "Select a record to edit"}
+                >
+                  <CustomBtn
+                    onClick={() => {
+                      setDrawerVisible(true);
+                    }}
+                    style={{
+                      marginRight: 15,
+                    }}
+                    disabled={!selectedRecord}
+                  >
+                    Edit
+                  </CustomBtn>
+                </Tooltip>
+
+                <CustomBtn
+                  onClick={handlerAddLocationButton}
+                  style={{ marginRight: 15 }}
+                >
+                  Add locations
+                </CustomBtn>
+                <CSVDownloader
+                  data={transformedData}
+                  filename={"locations.csv"}
+                >
+                  <CustomBtn style={{ marginRight: 15 }}>
+                    Download CSV
+                  </CustomBtn>
+                </CSVDownloader>
+                <Tooltip title="Clear search and filters">
+                  <Button
+                    onClick={resetFilters}
+                    icon={<ClearOutlined />}
+                    style={{
+                      cursor: "pointer",
+                      padding: "8px 16px",
+                      borderRadius: "5px",
+                      fontSize: "14px",
+                    }}
+                  ></Button>
+                </Tooltip>
+              </div>
             </div>
-          ) : null}
-        </div>
+          </>
+        ) : (
+          <Title> Upload Locations</Title>
+        )}
       </HeaderContainer>
       {isLoading || loading || isSideMenuLoading ? (
         <FullScreenLoader />
@@ -574,35 +592,8 @@ function SurveyLocationUpload() {
                 <>
                   <DescriptionText>
                     Upload a .csv file containing the locations for your survey.{" "}
-                    <a
-                      href="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: "#2F80ED",
-                        fontSize: "14px",
-                        fontFamily: '"Lato", sans-serif',
-                      }}
-                    >
-                      Learn more
-                      <SelectOutlined
-                        rotate={90}
-                        style={{
-                          marginLeft: "3px",
-                          padding: "0px",
-                          fontSize: "15px",
-                        }}
-                      />{" "}
-                    </a>
+                    <DescriptionLink link="https://docs.surveystream.idinsight.io/locations_configuration#datasets-to-prepare" />
                   </DescriptionText>
-                  <a
-                    href="https://drive.google.com/drive/folders/1_5wpXsAPutiXq5jA4XwPQZQHDUkMbX2S?usp=drive_link"
-                    target="__blank"
-                    style={{ textDecoration: "none", color: "#2f54eb" }}
-                  >
-                    <LinkOutlined style={{ fontSize: "14px" }} />
-                    <IconText>Download template</IconText>
-                  </a>
                   <div style={{ marginTop: "40px" }}>
                     <Form layout="horizontal">
                       <Row>
@@ -623,8 +614,8 @@ function SurveyLocationUpload() {
                     <>
                       <Form form={form}>
                         <DescriptionText>
-                          Match location table columns with location levels
-                          created in “Add/Edit location levels” step
+                          Match the columns in the file with location levels
+                          created in “Add/Edit Location Levels” step
                         </DescriptionText>
                         {renderLocationMappingSelect()}
                       </Form>
@@ -673,13 +664,13 @@ function SurveyLocationUpload() {
               ) : null}
             </SurveyLocationUploadFormWrapper>
             <Modal
-              title="Add locations"
+              title="Add Locations"
               open={addLocationsModal}
               okText="Continue"
               onOk={handleLocationsAddMode}
               onCancel={() => setAddLocationsModal(false)}
             >
-              <Divider />
+              <Divider style={{ marginTop: 0 }} />
               <p>Please select how you want to proceed:</p>
               <Radio.Group
                 style={{ marginBottom: 20 }}
@@ -688,8 +679,9 @@ function SurveyLocationUpload() {
               >
                 <Space direction="vertical">
                   <Radio value="overwrite">
-                    I want to start fresh (Locations uploaded previously will be
-                    deleted)
+                    I want to start fresh (This action will delete previously
+                    uploaded locations. You will also need to reupload
+                    enumerators and targets with new location data.)
                   </Radio>
                   <Radio value="append">
                     I want to append new locations to the existing locations
@@ -697,9 +689,6 @@ function SurveyLocationUpload() {
                   </Radio>
                 </Space>
               </Radio.Group>
-              <span>
-                Kindly Reupload enumerators, targets csv with new location data.
-              </span>
             </Modal>
           </div>
           {selectedRecord && (

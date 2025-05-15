@@ -38,6 +38,7 @@ const LocationTable: React.FC<LocationTableProps> = ({
         columns={transformedColumns}
         dataSource={transformedData}
         rowSelection={rowSelection}
+        bordered={true}
         pagination={{
           position: ["topRight"],
           pageSize: paginationPageSize,
