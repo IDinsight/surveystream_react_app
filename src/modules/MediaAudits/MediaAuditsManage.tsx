@@ -55,7 +55,7 @@ function MediaAuditsManage() {
 
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [questionWithRepeatGroup, setQuestionWithRepeatGroup] = useState<any[]>(
+  const [questionWithMediaFields, setQuestionWithMediaFields] = useState<any[]>(
     []
   );
   const [mappingOPtions, setMappingOptions] = useState<any[]>([]);
@@ -124,21 +124,28 @@ function MediaAuditsManage() {
         message.error(errorMsg);
       }
       if (repeatGroupRes.payload?.questions) {
-        const repeatGroupQuestions: any = [];
+        const mediaTypeQuestions: any = [];
         repeatGroupRes.payload?.questions.forEach((question: any) => {
+          if (
+            !["image", "audio", "video", "file", "audio_audit"].includes(
+              question.question_type
+            )
+          ) {
+            return;
+          }
           if (question.is_repeat_group) {
-            repeatGroupQuestions.push({
+            mediaTypeQuestions.push({
               label: question.question_name + "_*",
               value: question.question_name,
             });
           } else {
-            repeatGroupQuestions.push({
+            mediaTypeQuestions.push({
               label: question.question_name,
               value: question.question_name,
             });
           }
         });
-        setQuestionWithRepeatGroup(repeatGroupQuestions);
+        setQuestionWithMediaFields(mediaTypeQuestions);
       }
       // Only fetch mapping criteria if it's not an admin form
       if (!adminForms.some((form: any) => form.form_uid === formUid)) {
@@ -481,7 +488,7 @@ function MediaAuditsManage() {
                 <Select
                   style={{ width: "100%" }}
                   placeholder="Multi select"
-                  options={questionWithRepeatGroup.filter(
+                  options={questionWithMediaFields.filter(
                     (q) => !formFieldsData?.scto_fields?.includes(q.value)
                   )}
                   mode="multiple"
