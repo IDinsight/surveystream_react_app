@@ -110,7 +110,8 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
           ]}
         />
         <DescriptionContainer>
-          The following columns are existing in the enumerators table currently.
+          The following columns exists in the enumerators csv previously
+          uploaded.
           {enumeratorColumnMapping !== null &&
             Object.keys(enumeratorColumnMapping).length > 0 && (
               <ul>

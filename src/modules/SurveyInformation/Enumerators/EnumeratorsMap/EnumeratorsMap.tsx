@@ -468,7 +468,8 @@ function EnumeratorsMap() {
               <>
                 <div>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
+                    Select the column from your .csv file that corresponds to
+                    each standard field{" "}
                   </DescriptionText>
                 </div>
                 <Form

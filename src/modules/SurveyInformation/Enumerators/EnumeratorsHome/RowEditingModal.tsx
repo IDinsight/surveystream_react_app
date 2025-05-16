@@ -160,64 +160,6 @@ function RowEditingModal({
     "surveyor_status",
   ]; //always exclude these
 
-  const getFilteredFields = (
-    fields: Field[],
-    data: DataItem[],
-    bulkFieldsToExclude: string[]
-  ) => {
-    // If not bulk editing, return all fields
-    if (data.length <= 1) return fields;
-
-    // For bulk editing, exclude location and other excluded fields
-    return fields.filter((field) => {
-      if (bulkFieldsToExclude.includes(field.labelKey)) return false;
-      if (field.labelKey === "location") return false; // Always exclude location in bulk edit
-      return true;
-    });
-  };
-
-  const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
-    const configRes = await dispatch(
-      getEnumeratorsColumnConfig({ formUID: form_uid })
-    );
-    if (configRes.payload.status == 200) {
-      const configData = configRes.payload?.data?.data?.file_columns;
-
-      if (configData) {
-        const editableFields = configData
-          .filter((field: ConfigField) => field.bulk_editable)
-          .map((field: ConfigField) => field.column_name);
-
-        const nonEditableFields = configData
-          .filter((field: ConfigField) => !field.bulk_editable)
-          .map((field: ConfigField) => field.column_name);
-
-        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
-
-        // Filter fields and always exclude location in bulk edit
-        const filteredFields = fields.filter(
-          (field) =>
-            !excludeFields.includes(field.labelKey) &&
-            field.labelKey !== "location"
-        );
-
-        // Set up form with filtered fields
-        const initialData: DataItem = {};
-        filteredFields.forEach((field) => {
-          if (field?.label?.startsWith("custom_fields")) {
-            initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-          } else {
-            initialData[field.labelKey] = data[0][field.labelKey];
-          }
-        });
-
-        setFormData(initialData);
-        setUpdatedFields(filteredFields);
-        editForm.setFieldsValue(initialData);
-      }
-    }
-  };
-
   // Get the current location value once when modal opens
   const currentLocation =
     data[0].surveyor_locations
@@ -249,8 +191,18 @@ function RowEditingModal({
       }
     });
 
+    // If bulk editing, filter out excluded fields
+    const excludedFields =
+      data.length > 1
+        ? [...bulkFieldsToExclude, ...fieldsToExclude]
+        : [...fieldsToExclude];
+
+    const filteredFields = fields.filter(
+      (field) => !excludedFields.includes(field.labelKey)
+    );
+
     setFormData(initialData);
-    setUpdatedFields(fields);
+    setUpdatedFields(filteredFields);
     editForm.setFieldsValue(initialData);
   };
 
@@ -295,7 +247,7 @@ function RowEditingModal({
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
-                  required
+                  required={field.labelKey !== "home_address"}
                   key={idx}
                   name={field.labelKey}
                   initialValue={
@@ -319,7 +271,7 @@ function RowEditingModal({
                   }
                   rules={[
                     {
-                      required: true,
+                      required: field.labelKey !== "home_address",
                       message: `Please enter ${field.labelKey
                         .split("_")
                         .map(

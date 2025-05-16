@@ -9,7 +9,7 @@ import {
   StyledBreadcrumb,
 } from "./EnumeratorsRemap.styled";
 import { Title } from "../../../../shared/Nav.styled";
-import { CustomBtn } from "../../../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import {
@@ -485,22 +485,18 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     { title: "Update enumerators" },
                   ]}
                 />
+                <div>
+                  <DescriptionText>
+                    Select corresponding CSV column for the label on the left
+                    Select the column from your .csv file that corresponds to
+                    each standard field{" "}
+                  </DescriptionText>
+                </div>
                 <Form
                   form={enumeratorMappingForm}
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
-                    {/* TODO: add logic to show alerts */}
-                    {/* <Alert
-                  message="Mandatory columns: Email ID and Language (p) unavailable in new csv. Please map them to other columns."
-                  type="error"
-                  showIcon
-                  style={{ width: 754, marginBottom: 20 }}
-                /> */}
-                    <HeadingText>Personal and contact details</HeadingText>
                     {personalDetailsField.map((item, idx) => {
                       return (
                         <Form.Item
@@ -563,8 +559,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     })}
                     {locationBatchField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
-
                         <Form.Item
                           label="Prime geo location:"
                           name="location_id_column"
@@ -618,13 +612,16 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
-                        <Alert
-                          message={`Custom columns: ${extraCSVHeader.length} new custom columns found`}
-                          type="warning"
-                          showIcon
-                          style={{ width: 375, marginBottom: 20 }}
-                        />
+                        <p
+                          style={{
+                            color: "#434343",
+                            fontFamily: "Lato",
+                            fontSize: 14,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {`Custom columns: ${extraCSVHeader.length} new custom columns found`}
+                        </p>
                         {extraCSVHeader.map((item: any, idx: any) => {
                           return (
                             <Form.Item
@@ -686,9 +683,8 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"

@@ -8,11 +8,7 @@ import {
   EnumeratorsHomeFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsHome.styled";
-import {
-  PlusOutlined,
-  DownloadOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+
 import EnumeratorsCountBox from "../../../../components/EnumeratorsCountBox";
 import RowEditingModal from "./RowEditingModal";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -32,6 +28,7 @@ import EnumeratorsRemap from "../EnumeratorsRemap";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { ClearOutlined, CloseOutlined } from "@ant-design/icons";
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -80,6 +77,9 @@ function EnumeratorsHome() {
 
   // Add a new loading state for the table specifically
   const [tableLoading, setTableLoading] = useState<boolean>(true);
+
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
+  const [sortedInfo, setSortedInfo] = useState<Record<string, any>>({});
 
   const fetchSurveyInfo = async () => {
     // Fetch survey information to get prime_geo_level_uid
@@ -406,7 +406,7 @@ function EnumeratorsHome() {
         }, []);
 
         columnMappings = columnMappings.concat(customFields);
-        setDataTableColumn(columnMappings);
+
         const tableDataSource = updatedData.map((item: any, index: any) => {
           const rowData: Record<string, any> = {}; // Use index signature
           for (const mapping of columnMappings) {
@@ -433,6 +433,46 @@ function EnumeratorsHome() {
             ...rowData,
           };
         });
+        setDataTableColumn(
+          columnMappings.map((col) => ({
+            ...col,
+            title: col.title
+              .split("_")
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              )
+              .join(" "),
+            // Add sorting for all columns
+            sorter: (a: any, b: any) => {
+              const valueA = a[col.dataIndex];
+              const valueB = b[col.dataIndex];
+              if (typeof valueA === "string" && typeof valueB === "string") {
+                return valueA.localeCompare(valueB);
+              }
+              return valueA - valueB;
+            },
+            // Add filtering for all columns except custom fields
+            ...(!col.dataIndex.startsWith("custom_fields.") && {
+              filterSearch: true,
+              filters: Array.from(
+                new Set(
+                  tableDataSource
+                    .map((item: any) => item[col.dataIndex])
+                    .filter((item: any) => item !== null && item !== undefined)
+                )
+              ).map((value: any) => ({
+                text: value,
+                value: value,
+              })),
+              onFilter: (value: any, record: any) =>
+                record[col.dataIndex]
+                  ?.toString()
+                  .toLowerCase()
+                  .includes(value.toString().toLowerCase()),
+            }),
+          }))
+        );
 
         setTableDataSource(tableDataSource);
       } else {
@@ -486,6 +526,14 @@ function EnumeratorsHome() {
       navigate(
         `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
       );
+    }
+  };
+
+  const handleClearFiltersAndSort = async () => {
+    setFilteredInfo({});
+    setSortedInfo({});
+    if (form_uid) {
+      await getEnumeratorsList(form_uid);
     }
   };
 
@@ -589,6 +637,21 @@ function EnumeratorsHome() {
                 >
                   {"Download CSV"}
                 </CSVDownloader>
+                <Button
+                  onClick={handleClearFiltersAndSort}
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: 15,
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                  }}
+                  disabled={
+                    Object.keys(filteredInfo).length === 0 &&
+                    Object.keys(sortedInfo).length === 0
+                  }
+                  icon={<ClearOutlined />}
+                />
               </div>
             </div>
           </>
@@ -617,6 +680,10 @@ function EnumeratorsHome() {
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
                     style: { color: "#2F54EB" },
+                  }}
+                  onChange={(pagination, filters, sorter) => {
+                    setFilteredInfo(filters);
+                    setSortedInfo(sorter);
                   }}
                 />
                 {editData ? (
