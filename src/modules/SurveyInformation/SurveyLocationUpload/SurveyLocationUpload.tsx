@@ -203,13 +203,10 @@ function SurveyLocationUpload() {
         );
 
         await fetchSurveyLocationsLong(); // Wait for the function to complete
-        setLoading(false);
-      } else {
-        setLoading(false);
       }
     };
     updataData();
-  }, [dispatch, surveyLocations]);
+  }, [surveyLocations]);
 
   useEffect(() => {
     if (surveyLocationGeoLevels?.length > 0) {
@@ -222,10 +219,14 @@ function SurveyLocationUpload() {
 
   useEffect(() => {
     const fetchData = async () => {
-      fetchSurveyLocations();
-      fetchSurveyLocationGeoLevels();
+      setLoading(true);
+      await fetchSurveyLocations();
+      await fetchSurveyLocationGeoLevels();
+      setLoading(false);
     };
-    fetchData();
+    if (survey_uid !== "") {
+      fetchData();
+    }
 
     return () => {
       dispatch(resetSurveyLocations());
@@ -522,10 +523,12 @@ function SurveyLocationUpload() {
         {!hasError && fileUploaded && columnMatch ? (
           <>
             <Title> Locations</Title>
-            <LocationsCountBox
-              locationsCount={locationsCount}
-              smallestLocationLevelName={smallestLocationLevelName}
-            />
+            {isLoading || loading || isSideMenuLoading ? null : (
+              <LocationsCountBox
+                locationsCount={locationsCount}
+                smallestLocationLevelName={smallestLocationLevelName}
+              />
+            )}
             <div style={{ display: "flex", marginLeft: "auto" }}>
               <div
                 style={{
