@@ -458,7 +458,18 @@ function EnumeratorsHome() {
               filters: Array.from(
                 new Set(
                   tableDataSource
-                    .map((item: any) => item[col.dataIndex])
+                    .flatMap((item: any) => {
+                      if (
+                        col.dataIndex === "location_id" &&
+                        item[col.dataIndex]
+                      ) {
+                        // Split comma separated values and trim whitespace
+                        return item[col.dataIndex]
+                          .split(",")
+                          .map((v: any) => v.trim());
+                      }
+                      return item[col.dataIndex];
+                    })
                     .filter((item: any) => item !== null && item !== undefined)
                 )
               ).map((value: any) => ({
@@ -466,10 +477,15 @@ function EnumeratorsHome() {
                 value: value,
               })),
               onFilter: (value: any, record: any) =>
-                record[col.dataIndex]
-                  ?.toString()
-                  .toLowerCase()
-                  .includes(value.toString().toLowerCase()),
+                col.dataIndex === "location_id"
+                  ? record[col.dataIndex]
+                      ?.split(",")
+                      .map((v: any) => v.trim())
+                      .includes(value)
+                  : record[col.dataIndex]
+                      ?.toString()
+                      .toLowerCase()
+                      .includes(value.toString().toLowerCase()),
             }),
           }))
         );
