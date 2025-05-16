@@ -579,7 +579,7 @@ function SurveyLocationUpload() {
                     Download CSV
                   </CustomBtn>
                 </CSVDownloader>
-                <Tooltip title="Clear search and filters">
+                <Tooltip title="Clear sort and filters">
                   <Button
                     onClick={resetFilters}
                     icon={<ClearOutlined />}
