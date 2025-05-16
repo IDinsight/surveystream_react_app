@@ -201,7 +201,8 @@ function SurveyLocationUpload() {
           surveyLocationGeoLevels[surveyLocationGeoLevels.length - 1]
             ?.geo_level_name
         );
-        await fetchSurveyLocationsLong();
+
+        await fetchSurveyLocationsLong(); // Wait for the function to complete
         setLoading(false);
       } else {
         setLoading(false);
@@ -229,7 +230,7 @@ function SurveyLocationUpload() {
     return () => {
       dispatch(resetSurveyLocations());
     };
-  }, [dispatch, survey_uid]);
+  }, [survey_uid]);
 
   const handleFileUpload = (
     file: File,
@@ -569,6 +570,7 @@ function SurveyLocationUpload() {
                     })
                   }
                   filename={"locations"}
+                  extension=".csv"
                 >
                   <CustomBtn style={{ marginRight: 15 }}>
                     Download CSV
