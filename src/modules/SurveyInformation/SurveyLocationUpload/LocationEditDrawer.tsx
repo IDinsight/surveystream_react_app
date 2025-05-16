@@ -1,7 +1,10 @@
 import React from "react";
 import { Button, Drawer, Form, Input, message, Modal, Select } from "antd";
 import styled from "styled-components";
-import { updateLocation } from "../../../redux/surveyLocations/surveyLocationsActions";
+import {
+  updateLocation,
+  getSurveyLocations,
+} from "../../../redux/surveyLocations/surveyLocationsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { StyledFormItem } from "../SurveyInformation.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
@@ -86,11 +89,14 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
       if (failedUpdates.length > 0) {
         alert("Some locations failed to update.");
       }
-      // Reload the page to reflect the changes
-      window.location.reload();
+      // Call get survey locations to reflect the changes
+      const res = await dispatch(getSurveyLocations({ survey_uid: surveyUID }));
+
+      message.success("Location data updated successfully.");
+
       setLoading(false);
     } catch (error: any) {
-      message.error("Failed to update locations");
+      message.error("Failed to update locations.");
     }
   };
 

@@ -17,18 +17,10 @@ import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 
 import SideMenu from "../SideMenu";
 import {
-  IconText,
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import {
-  CloudUploadOutlined,
-  CloudDownloadOutlined,
-  LinkOutlined,
-  EditTwoTone,
-  ClearOutlined,
-  SelectOutlined,
-} from "@ant-design/icons";
+import { ClearOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -43,7 +35,6 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
-import { AddAnotherButton } from "../SurveyInformation.styled";
 import { GeoLevelMapping } from "../../../redux/surveyLocations/types";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
@@ -212,10 +203,21 @@ function SurveyLocationUpload() {
         );
         await fetchSurveyLocationsLong();
         setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     updataData();
   }, [dispatch, surveyLocations]);
+
+  useEffect(() => {
+    if (surveyLocationGeoLevels?.length > 0) {
+      setSmallestLocationLevelName(
+        surveyLocationGeoLevels[surveyLocationGeoLevels.length - 1]
+          ?.geo_level_name
+      );
+    }
+  }, [surveyLocationGeoLevels]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -554,8 +556,19 @@ function SurveyLocationUpload() {
                   Add locations
                 </CustomBtn>
                 <CSVDownloader
-                  data={transformedData}
-                  filename={"locations.csv"}
+                  data={() =>
+                    transformedData.map((record: any) => {
+                      const transformedRecord: any = {};
+                      // Drop key property
+                      Object.keys(record).forEach((key) => {
+                        if (key !== "key") {
+                          transformedRecord[key] = record[key];
+                        }
+                      });
+                      return transformedRecord;
+                    })
+                  }
+                  filename={"locations"}
                 >
                   <CustomBtn style={{ marginRight: 15 }}>
                     Download CSV
@@ -681,7 +694,7 @@ function SurveyLocationUpload() {
                   <Radio value="overwrite">
                     I want to start fresh (This action will delete previously
                     uploaded locations. You will also need to reupload
-                    enumerators and targets with new location data.)
+                    enumerators, targets and users with new location data.)
                   </Radio>
                   <Radio value="append">
                     I want to append new locations to the existing locations
