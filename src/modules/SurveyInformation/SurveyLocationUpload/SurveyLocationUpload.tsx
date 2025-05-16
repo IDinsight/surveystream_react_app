@@ -473,7 +473,7 @@ function SurveyLocationUpload() {
             setFileUploaded(true);
             return;
           }
-          message.success("Survey locations mapping updated successfully.");
+          message.success("Survey locations uploaded successfully.");
 
           // Resolve existing location notifications
           await dispatch(
