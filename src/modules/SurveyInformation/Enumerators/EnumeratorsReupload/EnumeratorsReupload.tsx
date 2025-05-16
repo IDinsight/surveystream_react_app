@@ -115,9 +115,24 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
           {enumeratorColumnMapping !== null &&
             Object.keys(enumeratorColumnMapping).length > 0 && (
               <ul>
-                {Object.keys(enumeratorColumnMapping).map(
-                  (key) => key !== "custom_fields" && <li key={key}>{key}</li>
-                )}
+                {Object.keys(enumeratorColumnMapping).map((key) => {
+                  if (key !== "custom_fields") {
+                    return (
+                      <li key={key}>
+                        {key
+                          .split("_")
+                          .map((word: string) =>
+                            word.toLowerCase() === "id"
+                              ? "ID"
+                              : word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                          )
+                          .join(" ")}
+                      </li>
+                    );
+                  }
+                  return null;
+                })}
               </ul>
             )}
         </DescriptionContainer>

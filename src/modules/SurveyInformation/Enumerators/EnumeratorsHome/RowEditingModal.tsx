@@ -261,10 +261,11 @@ function RowEditingModal({
                         ? primeLocationName
                         : field.labelKey
                             .split("_")
-                            .map(
-                              (word) =>
-                                word.charAt(0).toUpperCase() +
-                                word.slice(1).toLowerCase()
+                            .map((word) =>
+                              word.toLowerCase() === "id"
+                                ? "ID"
+                                : word.charAt(0).toUpperCase() +
+                                  word.slice(1).toLowerCase()
                             )
                             .join(" ")}
                     </span>

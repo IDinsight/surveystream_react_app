@@ -437,13 +437,13 @@ function EnumeratorsHome() {
           columnMappings.map((col) => ({
             ...col,
             title: col.title
-              .split("_")
-              .map(
-                (word) =>
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              .split(/[_\s]+/)
+              .map((word) =>
+                word.toLowerCase() === "id"
+                  ? "ID"
+                  : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
               )
               .join(" "),
-            // Add sorting for all columns
             sorter: (a: any, b: any) => {
               const valueA = a[col.dataIndex];
               const valueB = b[col.dataIndex];
@@ -452,7 +452,6 @@ function EnumeratorsHome() {
               }
               return valueA - valueB;
             },
-            // Add filtering for all columns except custom fields
             ...(!col.dataIndex.startsWith("custom_fields.") && {
               filterSearch: true,
               filters: Array.from(
@@ -463,7 +462,6 @@ function EnumeratorsHome() {
                         col.dataIndex === "location_id" &&
                         item[col.dataIndex]
                       ) {
-                        // Split comma separated values and trim whitespace
                         return item[col.dataIndex]
                           .split(",")
                           .map((v: any) => v.trim());
@@ -637,7 +635,7 @@ function EnumeratorsHome() {
                   type="primary"
                   style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 >
-                  Add enumerators
+                  Add Enumerators
                 </Button>
                 <CSVDownloader
                   data={tableDataSource}
@@ -716,13 +714,13 @@ function EnumeratorsHome() {
                 ) : null}
               </EnumeratorsHomeFormWrapper>
               <Modal
-                title="Add enumerators"
+                title="Add Enumerators"
                 open={newEnumModal}
                 onOk={handleNewEnumMode}
                 okText="Continue"
                 onCancel={() => setNewEnumModal(false)}
               >
-                <Divider />
+                <Divider style={{ margin: "0" }} />
                 <p>Please select how you want to proceed:</p>
                 <Radio.Group
                   style={{ marginBottom: 20 }}
