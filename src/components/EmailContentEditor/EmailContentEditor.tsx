@@ -14,7 +14,7 @@ interface EmailContentEditorProps {
   standalone?: boolean;
   disableEdit?: boolean;
   validVariables: string[] | undefined;
-  onChange?: (content: string) => void; // Add this line
+  onChange?: (content: string) => void;
 }
 
 function EmailContentEditor({
@@ -26,9 +26,16 @@ function EmailContentEditor({
   standalone = false,
   disableEdit = false,
   validVariables,
-  onChange, // Add this line
+  onChange,
 }: EmailContentEditorProps) {
-  const [val, setVal] = useState(value || "");
+  const [val, setVal] = useState("");
+
+  // Initialize with value prop
+  useEffect(() => {
+    if (value && val !== value) {
+      setVal(value);
+    }
+  }, [value]);
 
   const modules = {
     toolbar: [
@@ -47,40 +54,32 @@ function EmailContentEditor({
 
   // Debounced function to set the form field value
   const debouncedSetFieldsValue = useCallback(
-    debounce((pathArr, val) => {
-      form.setFieldsValue({
-        [pathArr.join(".")]: val,
-      });
-      if (onChange) {
-        onChange(val); // Call the onChange prop if provided
+    debounce((pathArr, newVal) => {
+      const currentValue = form.getFieldValue(pathArr);
+      if (currentValue !== newVal) {
+        form.setFieldsValue({
+          [pathArr.join(".")]: newVal,
+        });
+        if (onChange) {
+          onChange(newVal);
+        }
       }
     }, 750),
-    []
+    [form, onChange]
   );
 
   // Handle content change
-  const handleChange = (content: string) => {
+  const handleChange = useCallback((content: string) => {
     setVal(content);
-  };
+  }, []);
 
   // Setting the field value on content change in editor
   useEffect(() => {
     const pathArr = standalone
       ? ["content"]
       : ["templates", formIndex, "content"];
-
-    const currentValue = form.getFieldValue(pathArr);
-    if (currentValue !== val) {
-      debouncedSetFieldsValue(pathArr, val);
-    }
-  }, [val, form, formIndex, standalone, debouncedSetFieldsValue]);
-
-  // Setting the value if passed by pros
-  useEffect(() => {
-    if (value !== undefined && value !== val) {
-      setVal(value);
-    }
-  }, [value]);
+    debouncedSetFieldsValue(pathArr, val);
+  }, [val, formIndex, standalone, debouncedSetFieldsValue]);
 
   useEffect(() => {
     const quill = quillRef.current.getEditor();
