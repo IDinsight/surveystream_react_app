@@ -127,6 +127,7 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                 }
               >
                 <Select
+                  disabled={index === geoLevels.length - 1}
                   onChange={(value) => {
                     const selectedLocation = dataTable.find(
                       (data: any) => data.location_uid === value
