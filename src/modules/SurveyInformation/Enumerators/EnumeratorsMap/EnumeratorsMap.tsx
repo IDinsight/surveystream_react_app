@@ -242,10 +242,14 @@ function EnumeratorsMap() {
       const column_mapping = enumeratorMappingForm.getFieldsValue();
       column_mapping.custom_fields = [];
       if (customHeaderSelection) {
+        const mappedValues = Object.values(column_mapping);
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
+          // Only add to custom_fields if:
+          // 1. It's marked for inclusion (shouldInclude is true)
+          // 2. It's not already mapped to another field
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,

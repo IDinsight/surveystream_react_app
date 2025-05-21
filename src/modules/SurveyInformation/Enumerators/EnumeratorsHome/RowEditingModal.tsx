@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, message, Select } from "antd";
+import { Drawer, Form, Input, message, Select } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import {
 } from "../../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../../redux/hooks";
 import { use } from "chai";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -95,10 +95,41 @@ function RowEditingModal({
             .join(";");
         }
       }
-
-      // Rest of your existing update logic
       if (originalData.length > 1 && form_uid) {
-        // Bulk update logic...
+        const { location, ...fieldsToUpdate } = updateData;
+        // Determine enumerator type based on status fields
+        const enumeratorTypes = originalData.map((item) => {
+          const isSurveyor = item.surveyor_status !== null;
+          const isMonitor = item.monitor_status !== null;
+
+          if (isSurveyor && isMonitor) return "surveyor;monitor";
+          if (isSurveyor) return "surveyor";
+          if (isMonitor) return "monitor";
+          return "";
+        });
+
+        // Update fieldsToUpdate with enumerator_type
+        fieldsToUpdate.enumerator_type = enumeratorTypes;
+        // Include enumerator_type in the patch data if it exists in the updated fields
+        const updateRes = await dispatch(
+          bulkUpdateEnumerators({
+            enumeratorUIDs: originalData.map((item) => item["enumerator_uid"]),
+            formUID: form_uid,
+            patchKeys: {
+              ...fieldsToUpdate,
+            },
+          })
+        );
+        if (updateRes?.payload?.status === 200) {
+          message.success("Enumerators updated successfully");
+          onUpdate();
+          return;
+        }
+        updateRes?.payload?.errors
+          ? message.error(updateRes?.payload?.errors)
+          : message.error(
+              "Failed to update enumerators, kindly check and try again"
+            );
       } else {
         const enumeratorUID = originalData[0]["enumerator_uid"];
         const indexToUpdate = originalData.findIndex(
@@ -223,7 +254,7 @@ function RowEditingModal({
         onClose={onCancel}
         title={
           data && data.length > 1
-            ? `Edit ${data.length} Enumerators in bulk`
+            ? `Edit ${data.length} Enumerators in Bulk`
             : "Edit Enumerator"
         }
       >
@@ -330,14 +361,14 @@ function RowEditingModal({
           </>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <Button onClick={cancelHandler}>Cancel</Button>
-          <Button
+          <CustomBtn onClick={cancelHandler}>Cancel</CustomBtn>
+          <CustomBtn
             type="primary"
             style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
             onClick={updateHandler}
           >
             Save
-          </Button>
+          </CustomBtn>
         </div>
       </Drawer>
     </>

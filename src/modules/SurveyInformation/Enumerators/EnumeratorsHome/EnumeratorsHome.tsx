@@ -623,39 +623,33 @@ function EnumeratorsHome() {
                     marginRight: 15,
                     backgroundColor: editMode ? "#2f54eB" : "#d9d9d9",
                     borderColor: editMode ? "#2f54eB" : "#d9d9d9",
-                    color: editMode ? "#fff" : "#000",
                   }}
                   onClick={() => onEditDataHandler()}
                   disabled={editMode ? false : true}
                 >
                   Edit
                 </CustomBtn>
-                <Button
+                <CustomBtn
                   onClick={handlerAddEnumBtn}
                   type="primary"
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  style={{ marginRight: 15 }}
                 >
                   Add Enumerators
-                </Button>
+                </CustomBtn>
                 <CSVDownloader
                   data={tableDataSource}
                   filename={"enumerators.csv"}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor: "#2F54EB",
-                    color: "#FFF",
-                    fontSize: "12px",
-                    padding: "8px 16px",
-                    borderRadius: "5px",
-                  }}
+                  bom={true}
                 >
-                  {"Download CSV"}
+                  <CustomBtn type="primary" style={{ marginRight: 15 }}>
+                    Download CSV
+                  </CustomBtn>
                 </CSVDownloader>
                 <Button
                   onClick={handleClearFiltersAndSort}
                   style={{
                     cursor: "pointer",
-                    marginLeft: 15,
+                    marginRight: 15,
                     padding: "8px 16px",
                     borderRadius: "5px",
                     fontSize: "14px",
@@ -686,6 +680,7 @@ function EnumeratorsHome() {
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   scroll={{ x: "max-content" }}
+                  bordered={true}
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,

@@ -241,10 +241,14 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
       const column_mapping = enumeratorMappingForm.getFieldsValue();
       column_mapping.custom_fields = [];
       if (customHeaderSelection) {
+        const mappedValues = Object.values(column_mapping);
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
+          // Only add to custom_fields if:
+          // 1. It's marked for inclusion (shouldInclude is true)
+          // 2. It's not already mapped to another field
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
@@ -487,7 +491,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 />
                 <div>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
                     Select the column from your .csv file that corresponds to
                     each standard field{" "}
                   </DescriptionText>
