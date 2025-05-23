@@ -16,7 +16,10 @@ import {
   postSurveyLocationGeoLevels,
   updateSurveyPrimeGeoLocation,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
-import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
+import {
+  DynamicItemsForm,
+  CustomStyledFormItem,
+} from "../SurveyInformation.styled";
 import {
   resetSurveyLocations,
   setSurveyLocationGeoLevels,
@@ -145,7 +148,7 @@ function SurveyLocationHierarchy() {
       } = surveyLocationGeoLevels[index];
 
       return (
-        <StyledFormItem
+        <CustomStyledFormItem
           key={index}
           required
           labelCol={{ span: 4 }}
@@ -231,7 +234,7 @@ function SurveyLocationHierarchy() {
               </Select.Option>
             ))}
           </Select>
-        </StyledFormItem>
+        </CustomStyledFormItem>
       );
     });
 
@@ -393,7 +396,7 @@ function SurveyLocationHierarchy() {
             </DescriptionText>
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
-                <StyledFormItem
+                <CustomStyledFormItem
                   label="Prime geo location"
                   required
                   labelCol={{ span: 3 }}
@@ -414,7 +417,7 @@ function SurveyLocationHierarchy() {
                       </Select.Option>
                     ))}
                   </Select>
-                </StyledFormItem>
+                </CustomStyledFormItem>
               </Form>
             </div>
             <CustomBtn
