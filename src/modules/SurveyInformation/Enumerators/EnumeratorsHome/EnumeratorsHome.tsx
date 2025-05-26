@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import { Button, Divider, Modal, Radio, Space, message, Tag } from "antd"; // Add Tag import
 import { useCSVDownloader } from "react-papaparse";
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
@@ -29,6 +29,19 @@ import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
 import { ClearOutlined, CloseOutlined } from "@ant-design/icons";
+
+// Add these interfaces near the top of the file after imports
+interface TableColumnType {
+  title: string;
+  dataIndex: string;
+  width: number;
+  ellipsis: boolean;
+  render?: (value: any) => React.ReactNode;
+  sorter?: (a: any, b: any) => number;
+  filters?: { text: string; value: string }[];
+  onFilter?: (value: any, record: any) => boolean;
+  filterSearch?: boolean;
+}
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -70,7 +83,7 @@ function EnumeratorsHome() {
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
-  const [dataTableColumn, setDataTableColumn] = useState<any>([]);
+  const [dataTableColumn, setDataTableColumn] = useState<TableColumnType[]>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
   const [primeLocationName, setPrimeLocationName] = useState<any>(null);
@@ -233,37 +246,66 @@ function EnumeratorsHome() {
         let droppedCount = 0;
 
         // Iterate through the data
-        const dataWithStatus = originalData.map((row: any) => {
-          let status = "";
+        const updatedData = originalData.map((enumerator: Enumerator) => {
+          const surveyorLocations = enumerator.surveyor_locations || [];
 
+          // Calculate enumerator_type and status
+          let enumerator_type = "";
           if (
-            row.surveyor_status === "Active" ||
-            row.monitor_status === "Active"
+            enumerator.surveyor_status !== null &&
+            enumerator.monitor_status !== null
           ) {
-            status = "Active";
-            activeCount++;
-          } else if (
-            row.surveyor_status?.includes("Inactive") ||
-            row.monitor_status?.includes("Inactive")
-          ) {
-            status = "Inactive";
-            inactiveCount++;
-          } else if (
-            row.surveyor_status === "Dropout" ||
-            row.monitor_status === "Dropout"
-          ) {
-            status = "Dropout";
-            droppedCount++;
+            enumerator_type = "Surveyor;Monitor";
+          } else if (enumerator.surveyor_status !== null) {
+            enumerator_type = "Surveyor";
+          } else if (enumerator.monitor_status !== null) {
+            enumerator_type = "Monitor";
+          }
+
+          const status =
+            enumerator.surveyor_status || enumerator.monitor_status || "N/A";
+
+          // Process locations
+          const flattenedLocations = ([] as Location[]).concat(
+            ...surveyorLocations
+          );
+          const matchingLocations = flattenedLocations.filter(
+            (location: Location) => location.geo_level_uid === PrimeGeoLevelUID
+          );
+
+          // Update counters
+          switch (status?.toLowerCase()) {
+            case "active":
+              activeCount++;
+              break;
+            case "inactive":
+              inactiveCount++;
+              break;
+            case "dropout":
+              droppedCount++;
+              break;
           }
 
           return {
-            ...row,
+            ...enumerator,
+            enumerator_type,
             status,
+            location:
+              matchingLocations.map((loc) => loc.location_name).join(", ") ||
+              null,
+            location_uid:
+              matchingLocations.map((loc) => loc.location_uid).join(", ") ||
+              null,
+            location_id:
+              matchingLocations.map((loc) => loc.location_id).join(", ") ||
+              null,
           };
         });
+
         setActiveEnums(activeCount);
         setInactiveEnums(inactiveCount);
         setDroppedEnums(droppedCount);
+
         const columnsToExclude = [
           "enumerator_uid",
           "surveyor_status",
@@ -312,7 +354,7 @@ function EnumeratorsHome() {
 
         setPrimeLocationName(primeLocationName);
         // Define column mappings
-        let columnMappings = Object.keys(originalData[0])
+        let columnMappings: TableColumnType[] = Object.keys(originalData[0])
           .filter((column) => !columnsToExclude.includes(column))
           .filter((column) =>
             originalData.some(
@@ -325,6 +367,28 @@ function EnumeratorsHome() {
             width: 140,
             ellipsis: false,
           }));
+
+        columnMappings.push({
+          title: "Enumerator Type",
+          dataIndex: "enumerator_type",
+          width: 150,
+          ellipsis: false,
+        });
+
+        columnMappings.push({
+          title: "Status",
+          dataIndex: "status",
+          width: 150,
+          ellipsis: false,
+          render: (status: string) => {
+            const color =
+              {
+                active: "green",
+                dropout: "red",
+              }[status?.toLowerCase()] || "default";
+            return <Tag color={color}>{status}</Tag>;
+          },
+        } as TableColumnType);
 
         // Only add location columns if surveyor_locations exist
         if (hasSurveyorLocations) {
@@ -356,83 +420,91 @@ function EnumeratorsHome() {
           [key: string]: any;
         }
 
-        const updatedData = originalData.map((enumerator: Enumerator) => {
-          const surveyorLocations = enumerator.surveyor_locations || [];
+        const updatedDataWithCustomFields = updatedData.map(
+          (enumerator: Enumerator) => {
+            const surveyorLocations = enumerator.surveyor_locations || [];
 
-          // Flatten the array of surveyor locations arrays
-          const flattenedLocations = ([] as Location[]).concat(
-            ...surveyorLocations
-          );
+            // Flatten the array of surveyor locations arrays
+            const flattenedLocations = ([] as Location[]).concat(
+              ...surveyorLocations
+            );
 
-          // Find all matching locations
-          const matchingLocations = flattenedLocations.filter(
-            (location: Location) => location.geo_level_uid === PrimeGeoLevelUID
-          );
+            // Find all matching locations
+            const matchingLocations = flattenedLocations.filter(
+              (location: Location) =>
+                location.geo_level_uid === PrimeGeoLevelUID
+            );
 
-          return {
-            ...enumerator,
-            location:
-              matchingLocations.map((loc) => loc.location_name).join(", ") ||
-              null,
-            location_uid:
-              matchingLocations.map((loc) => loc.location_uid).join(", ") ||
-              null,
-            location_id:
-              matchingLocations.map((loc) => loc.location_id).join(", ") ||
-              null,
-          };
-        });
+            return {
+              ...enumerator,
+              location:
+                matchingLocations.map((loc) => loc.location_name).join(", ") ||
+                null,
+              location_uid:
+                matchingLocations.map((loc) => loc.location_uid).join(", ") ||
+                null,
+              location_id:
+                matchingLocations.map((loc) => loc.location_id).join(", ") ||
+                null,
+            };
+          }
+        );
 
         const customFieldsSet = new Set(); // Create a set to track unique custom fields
-        const customFields = updatedData.reduce((acc: any, row: any) => {
-          if (row.custom_fields && typeof row.custom_fields === "object") {
-            for (const key in row.custom_fields) {
-              if (
-                row.custom_fields[key] !== null &&
-                !customFieldsSet.has(key) &&
-                key !== "column_mapping"
-              ) {
-                customFieldsSet.add(key);
-                acc.push({
-                  title: key,
-                  dataIndex: `custom_fields.${key}`,
-                  width: 150,
-                  ellipsis: false,
-                });
+        const customFields = updatedDataWithCustomFields.reduce(
+          (acc: any, row: any) => {
+            if (row.custom_fields && typeof row.custom_fields === "object") {
+              for (const key in row.custom_fields) {
+                if (
+                  row.custom_fields[key] !== null &&
+                  !customFieldsSet.has(key) &&
+                  key !== "column_mapping"
+                ) {
+                  customFieldsSet.add(key);
+                  acc.push({
+                    title: key,
+                    dataIndex: `custom_fields.${key}`,
+                    width: 150,
+                    ellipsis: false,
+                  });
+                }
               }
             }
-          }
-          return acc;
-        }, []);
+            return acc;
+          },
+          []
+        );
 
         columnMappings = columnMappings.concat(customFields);
 
-        const tableDataSource = updatedData.map((item: any, index: any) => {
-          const rowData: Record<string, any> = {}; // Use index signature
-          for (const mapping of columnMappings) {
-            const { title, dataIndex } = mapping;
+        const tableDataSource = updatedDataWithCustomFields.map(
+          (item: any, index: any) => {
+            const rowData: Record<string, any> = {}; // Use index signature
+            for (const mapping of columnMappings) {
+              const { title, dataIndex } = mapping;
 
-            // Check if the mapping is for custom_fields
-            if (dataIndex.startsWith("custom_fields.")) {
-              const customFieldKey = dataIndex.split(".")[1];
-              if (
-                item.custom_fields &&
-                item.custom_fields[customFieldKey] !== null
-              ) {
-                rowData[dataIndex] = item.custom_fields[customFieldKey];
+              // Check if the mapping is for custom_fields
+              if (dataIndex.startsWith("custom_fields.")) {
+                const customFieldKey = dataIndex.split(".")[1];
+                if (
+                  item.custom_fields &&
+                  item.custom_fields[customFieldKey] !== null
+                ) {
+                  rowData[dataIndex] = item.custom_fields[customFieldKey];
+                } else {
+                  rowData[dataIndex] = null;
+                }
               } else {
-                rowData[dataIndex] = null;
+                rowData[dataIndex] = item[dataIndex];
               }
-            } else {
-              rowData[dataIndex] = item[dataIndex];
             }
-          }
 
-          return {
-            key: index,
-            ...rowData,
-          };
-        });
+            return {
+              key: index,
+              ...rowData,
+            };
+          }
+        );
         setDataTableColumn(
           columnMappings.map((col) => ({
             ...col,
@@ -727,10 +799,10 @@ function EnumeratorsHome() {
                       I want to add new enumerators / columns
                     </Radio>
                     <Radio value="overwrite" disabled={isEnumInUse}>
-                      <span> I want to start afresh </span>
-                      <span style={{ color: "red" }}>
-                        ( Enumerators uploaded previously will be removed.
-                        Existing assignments data will be deleted. )
+                      <span>
+                        I want to start afresh, Enumerators uploaded previously
+                        will be removed. Existing assignments data will be
+                        deleted.{" "}
                       </span>
                     </Radio>
                   </Space>

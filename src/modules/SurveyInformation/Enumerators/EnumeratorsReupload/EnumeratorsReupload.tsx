@@ -6,7 +6,7 @@ import {
   ErrorTable,
   StyledBreadcrumb,
 } from "./EnumeratorsReupload.styled";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, SelectOutlined } from "@ant-design/icons";
 import FileUpload from "./FileUpload";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -110,31 +110,27 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
           ]}
         />
         <DescriptionContainer>
-          The following columns exists in the enumerators csv previously
-          uploaded.
-          {enumeratorColumnMapping !== null &&
-            Object.keys(enumeratorColumnMapping).length > 0 && (
-              <ul>
-                {Object.keys(enumeratorColumnMapping).map((key) => {
-                  if (key !== "custom_fields") {
-                    return (
-                      <li key={key}>
-                        {key
-                          .split("_")
-                          .map((word: string) =>
-                            word.toLowerCase() === "id"
-                              ? "ID"
-                              : word.charAt(0).toUpperCase() +
-                                word.slice(1).toLowerCase()
-                          )
-                          .join(" ")}
-                      </li>
-                    );
-                  }
-                  return null;
-                })}
-              </ul>
-            )}
+          Upload a .csv file containing the enumerators for your survey.{" "}
+          <a
+            href="https://docs.surveystream.idinsight.io/enumerators#enumerators"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#2F80ED",
+              fontSize: "14px",
+              fontFamily: '"Lato", sans-serif',
+            }}
+          >
+            Learn more
+            <SelectOutlined
+              rotate={90}
+              style={{
+                marginLeft: "3px",
+                padding: "0px",
+                fontSize: "15px",
+              }}
+            />{" "}
+          </a>{" "}
         </DescriptionContainer>
         <div style={{ marginTop: "10px", marginBottom: "14px" }}>
           <Form layout="horizontal">

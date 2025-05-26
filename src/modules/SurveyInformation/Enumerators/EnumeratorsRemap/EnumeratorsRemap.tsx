@@ -162,7 +162,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
       key: "gender",
     },
     {
-      title: "Enumerator type",
+      title: "Enumerator Type",
       key: "enumerator_type",
     },
   ];
@@ -563,7 +563,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                     {locationBatchField.length > 0 ? (
                       <>
                         <Form.Item
-                          label="Prime geo location:"
+                          label="Prime Geo Location:"
                           name="location_id_column"
                           key="location_id_column"
                           required
