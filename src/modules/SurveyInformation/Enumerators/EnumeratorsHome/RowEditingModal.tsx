@@ -390,42 +390,12 @@ function RowEditingModal({
                         )
                         .join(" ")}`}
                       style={{ width: "100%" }}
-                      optionLabelProp="label"
-                      dropdownStyle={{ backgroundColor: "white" }}
-                      className="status-select"
-                      onChange={(value) => {
-                        const colors = {
-                          Active: "#f6ffed",
-                          "Temp. Inactive": "#f5f5f5",
-                          Dropout: "#fff1f0",
-                        };
-                        const select = document.querySelector(
-                          ".status-select .ant-select-selector"
-                        ) as HTMLElement;
-                        if (select) {
-                          select.style.backgroundColor =
-                            colors[value as keyof typeof colors] || "white";
-                        }
-                      }}
                     >
-                      <Select.Option
-                        value="Active"
-                        style={{ backgroundColor: "#f6ffed", color: "#52c41a" }}
-                      >
-                        Active
-                      </Select.Option>
-                      <Select.Option
-                        value="Temp. Inactive"
-                        style={{ backgroundColor: "#f5f5f5", color: "#595959" }}
-                      >
+                      <Select.Option value="Active">Active</Select.Option>
+                      <Select.Option value="Temp. Inactive">
                         Temp. Inactive
                       </Select.Option>
-                      <Select.Option
-                        value="Dropout"
-                        style={{ backgroundColor: "#fff1f0", color: "#f5222d" }}
-                      >
-                        Dropout
-                      </Select.Option>
+                      <Select.Option value="Dropout">Dropout</Select.Option>
                     </Select>
                   ) : (
                     <Input
