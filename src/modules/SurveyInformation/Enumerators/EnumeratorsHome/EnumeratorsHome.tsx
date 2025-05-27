@@ -132,9 +132,10 @@ function EnumeratorsHome() {
       message.error("No row selected for editing");
       return;
     }
-
-    // Check if selected row has surveyor_locations
-    const hasSurveyorLocations = selectedRows[0].surveyor_locations?.length > 0;
+    // Check if selected row has surveyor_locations or monitor_locations
+    const hasSurveyorLocations =
+      selectedRows[0].surveyor_locations?.length > 0 ||
+      selectedRows[0].monitor_locations?.length > 0;
 
     // Pre-filter fields
     const fieldsToExclude = [
@@ -247,7 +248,16 @@ function EnumeratorsHome() {
 
         // Iterate through the data
         const updatedData = originalData.map((enumerator: Enumerator) => {
-          const surveyorLocations = enumerator.surveyor_locations || [];
+          const surveyorLocations = [
+            ...(enumerator.surveyor_locations || []),
+            ...(enumerator.monitor_locations || []),
+          ].filter(
+            (locations, index, self) =>
+              index ===
+              self.findIndex(
+                (t) => JSON.stringify(t) === JSON.stringify(locations)
+              )
+          );
 
           // Calculate enumerator_type and status
           let enumerator_type = "";
@@ -346,11 +356,17 @@ function EnumeratorsHome() {
         // Check if any enumerator has surveyor_locations
         // Handle surveyor_locations separately
         const hasSurveyorLocations = originalData.some(
-          (enumerator: any) => enumerator.surveyor_locations?.length > 0
+          (enumerator: any) =>
+            enumerator.surveyor_locations?.length > 0 ||
+            enumerator.monitor_locations?.length > 0
         );
-        const primeLocationName = originalData[0].surveyor_locations?.[0]?.find(
-          (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
-        )?.geo_level_name;
+        const primeLocationName =
+          originalData[0].surveyor_locations?.[0]?.find(
+            (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
+          )?.geo_level_name ||
+          originalData[0].monitor_locations?.[0]?.find(
+            (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
+          )?.geo_level_name;
 
         setPrimeLocationName(primeLocationName);
         // Define column mappings
@@ -422,7 +438,16 @@ function EnumeratorsHome() {
 
         const updatedDataWithCustomFields = updatedData.map(
           (enumerator: Enumerator) => {
-            const surveyorLocations = enumerator.surveyor_locations || [];
+            const surveyorLocations = [
+              ...(enumerator.surveyor_locations || []),
+              ...(enumerator.monitor_locations || []),
+            ].filter(
+              (locations, index, self) =>
+                index ===
+                self.findIndex(
+                  (t) => JSON.stringify(t) === JSON.stringify(locations)
+                )
+            );
 
             // Flatten the array of surveyor locations arrays
             const flattenedLocations = ([] as Location[]).concat(

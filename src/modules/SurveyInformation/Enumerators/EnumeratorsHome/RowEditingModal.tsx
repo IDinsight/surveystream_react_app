@@ -177,9 +177,18 @@ function RowEditingModal({
     "monitor_status",
     "surveyor_status",
   ];
-
   const currentLocation =
     data[0].surveyor_locations
+      ?.flatMap((locList: any[]) =>
+        locList.filter((loc: any) =>
+          locations.some(
+            (location) => location.geo_level_uid === loc.geo_level_uid
+          )
+        )
+      )
+      .map((loc: any) => loc.location_name)
+      .join(", ") ||
+    data[0].monitor_locations
       ?.flatMap((locList: any[]) =>
         locList.filter((loc: any) =>
           locations.some(
