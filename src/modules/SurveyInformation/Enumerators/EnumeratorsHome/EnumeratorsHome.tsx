@@ -28,7 +28,7 @@ import EnumeratorsRemap from "../EnumeratorsRemap";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
-import { ClearOutlined, CloseOutlined } from "@ant-design/icons";
+import { ClearOutlined } from "@ant-design/icons";
 
 // Add these interfaces near the top of the file after imports
 interface TableColumnType {
@@ -265,7 +265,7 @@ function EnumeratorsHome() {
             enumerator.surveyor_status !== null &&
             enumerator.monitor_status !== null
           ) {
-            enumerator_type = "Surveyor;Monitor";
+            enumerator_type = "Surveyor,Monitor";
           } else if (enumerator.surveyor_status !== null) {
             enumerator_type = "Surveyor";
           } else if (enumerator.monitor_status !== null) {
@@ -288,7 +288,7 @@ function EnumeratorsHome() {
             case "active":
               activeCount++;
               break;
-            case "inactive":
+            case "temp. inactive":
               inactiveCount++;
               break;
             case "dropout":
@@ -825,9 +825,8 @@ function EnumeratorsHome() {
                     </Radio>
                     <Radio value="overwrite" disabled={isEnumInUse}>
                       <span>
-                        I want to start afresh, Enumerators uploaded previously
-                        will be removed. Existing assignments data will be
-                        deleted.{" "}
+                        I want to start afresh. ( This action will delete
+                        previously uploaded enumerators as well as assignments.){" "}
                       </span>
                     </Radio>
                   </Space>
