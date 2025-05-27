@@ -54,7 +54,7 @@ function DQFormManage() {
     form_name: null,
     tz_name: null,
     scto_server_name: null,
-    encryption_key_shared: null,
+    encryption_key_shared: false,
     server_access_role_granted: null,
     server_access_allowed: null,
     form_type: "dq",

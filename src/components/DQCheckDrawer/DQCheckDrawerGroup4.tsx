@@ -176,10 +176,13 @@ function DQCheckDrawer4({
               showSearch
               placeholder="Select variable"
               value={localData.variable_name ?? null}
-              options={questions.map((question: any) => ({
-                value: question.name,
-                label: question.label,
-              }))}
+              options={questions
+                // Remove multi-select questions since they are not applicable for gps checks
+                .filter((question: any) => question.is_multi_select !== true)
+                .map((question: any) => ({
+                  value: question.name,
+                  label: question.label,
+                }))}
               onChange={(value) => handleFieldChange("variable_name", value)}
             />
           </Col>
@@ -199,10 +202,13 @@ function DQCheckDrawer4({
                 showSearch
                 placeholder="Select GPS variable"
                 value={localData.gps_variable}
-                options={questions.map((question: any) => ({
-                  value: question.name,
-                  label: question.label,
-                }))}
+                options={questions
+                  // Remove multi-select questions since they are not applicable for gps checks
+                  .filter((question: any) => question.is_multi_select !== true)
+                  .map((question: any) => ({
+                    value: question.name,
+                    label: question.label,
+                  }))}
                 onChange={(value) => handleFieldChange("gps_variable", value)}
               />
             </Col>
@@ -224,10 +230,13 @@ function DQCheckDrawer4({
                 showSearch
                 placeholder="Select GPS Grid ID variable"
                 value={localData.grid_id}
-                options={questions.map((question: any) => ({
-                  value: question.name,
-                  label: question.label,
-                }))}
+                options={questions
+                  // Remove multi-select questions since they are not applicable for gps checks
+                  .filter((question: any) => question.is_multi_select !== true)
+                  .map((question: any) => ({
+                    value: question.name,
+                    label: question.label,
+                  }))}
                 onChange={(value) => handleFieldChange("grid_id", value)}
               />
             </Col>

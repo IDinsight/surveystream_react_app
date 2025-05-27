@@ -179,10 +179,13 @@ function DQCheckDrawer({
               showSearch
               placeholder="Select variable"
               value={localData.variable_name}
-              options={questions.map((question: any) => ({
-                value: question.name,
-                label: question.label,
-              }))}
+              options={questions
+                // Remove multi-select questions since they are not applicable for outlier and constraint checks
+                .filter((question: any) => question.is_multi_select !== true)
+                .map((question: any) => ({
+                  value: question.name,
+                  label: question.label,
+                }))}
               onChange={(value) => handleFieldChange("variable_name", value)}
             />
           </Col>
