@@ -16,7 +16,10 @@ import {
   postSurveyLocationGeoLevels,
   updateSurveyPrimeGeoLocation,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
-import { DynamicItemsForm, StyledFormItem } from "../SurveyInformation.styled";
+import {
+  DynamicItemsForm,
+  CustomStyledFormItem,
+} from "../SurveyInformation.styled";
 import {
   resetSurveyLocations,
   setSurveyLocationGeoLevels,
@@ -27,7 +30,7 @@ import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 function SurveyLocationHierarchy() {
   const [form] = Form.useForm();
@@ -145,7 +148,7 @@ function SurveyLocationHierarchy() {
       } = surveyLocationGeoLevels[index];
 
       return (
-        <StyledFormItem
+        <CustomStyledFormItem
           key={index}
           required
           labelCol={{ span: 4 }}
@@ -231,7 +234,7 @@ function SurveyLocationHierarchy() {
               </Select.Option>
             ))}
           </Select>
-        </StyledFormItem>
+        </CustomStyledFormItem>
       );
     });
 
@@ -360,7 +363,7 @@ function SurveyLocationHierarchy() {
 
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey locations hierarchy</Title>
+        <Title>Location Level Hierarchy</Title>
 
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
@@ -373,23 +376,27 @@ function SurveyLocationHierarchy() {
           <SideMenu />
           <SurveyLocationHierarchyFormWrapper>
             <DescriptionText>
-              Update or add location hierarchy for this survey
+              Define the location hierarchy for your survey.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/locations_configuration#location-hierarchy" />
+            </DescriptionText>
+            <DescriptionText>
+              For each location, select the location immediately above it in the
+              hierarchy. For the top level, select{" "}
+              <i>Highest hierarchy level</i>.
             </DescriptionText>
             <div style={{ marginTop: "30px" }}>
               <DynamicItemsForm form={form}>
                 {renderHierarchyGeoLevelsField()}
               </DynamicItemsForm>
             </div>
+
+            <DescriptionText>
+              Select the prime geo location for your survey.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/locations_configuration#prime-geo-level" />
+            </DescriptionText>
             <div style={{ marginTop: "20px" }}>
               <Form initialValues={{ prime_geo_level: surveyPrimeGeoLocation }}>
-                <DescriptionText>
-                  Select the prime geo location{" "}
-                  <Tooltip title="This is the location level at which field supervisors will operate for data collection projects in which location is a mapping criteria. All field operation workflows like personnel mapping, target assignment, etc. will be defined at this location level.">
-                    <QuestionCircleOutlined />
-                  </Tooltip>{" "}
-                </DescriptionText>
-
-                <StyledFormItem
+                <CustomStyledFormItem
                   label="Prime geo location"
                   required
                   labelCol={{ span: 3 }}
@@ -410,7 +417,7 @@ function SurveyLocationHierarchy() {
                       </Select.Option>
                     ))}
                   </Select>
-                </StyledFormItem>
+                </CustomStyledFormItem>
               </Form>
             </div>
             <CustomBtn

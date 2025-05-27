@@ -1,11 +1,7 @@
 import { Form, Input, message, Col, Popconfirm } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  FileAddOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { RootState } from "../../../redux/store";
 import {
@@ -18,9 +14,8 @@ import {
 } from "../../../redux/surveyLocations/surveyLocationsSlice";
 import { SurveyLocationFormWrapper } from "./SurveyLocationAdd.styled";
 import {
-  AddAnotherButton,
   DynamicItemsForm,
-  StyledFormItem,
+  CustomStyledFormItem,
 } from "../SurveyInformation.styled";
 import { Title, HeaderContainer } from "../../../shared/Nav.styled";
 import SideMenu from "../SideMenu";
@@ -30,6 +25,7 @@ import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
 import { GlobalStyle } from "../../../shared/Global.styled";
 import Container from "../../../components/Layout/Container";
 import { createNotificationViaAction } from "../../../redux/notifications/notificationActions";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 function SurveyLocationAdd() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -53,10 +49,6 @@ function SurveyLocationAdd() {
 
   const [numLocationFields, setNumLocationFields] = useState(
     surveyLocationGeoLevels.length !== 0 ? surveyLocationGeoLevels.length : 1
-  );
-
-  const [isAllowedEdit, setIsAllowedEdit] = useState<boolean[]>(
-    Array(numLocationFields).fill(true)
   );
 
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -89,11 +81,15 @@ function SurveyLocationAdd() {
       return geoLevel;
     });
     dispatch(setSurveyLocationGeoLevels(newUpdatedGeoLevels));
-    setNumLocationFields(newUpdatedGeoLevels.length);
-    setIsAllowedEdit(Array(newUpdatedGeoLevels.length).fill(true));
-    newUpdatedGeoLevels.forEach((geoLevel, idx) => {
-      form.setFieldValue(`geo_level_${idx}`, geoLevel.geo_level_name);
-    });
+    if (newUpdatedGeoLevels.length > 0) {
+      newUpdatedGeoLevels.forEach((geoLevel, idx) => {
+        form.setFieldValue(`geo_level_${idx}`, geoLevel.geo_level_name);
+      });
+      setNumLocationFields(newUpdatedGeoLevels.length);
+    } else {
+      setNumLocationFields(1);
+      form.setFieldsValue({ [`geo_level_0`]: "" });
+    }
     setNotifications([...notifications, "Location level deleted"]);
   };
 
@@ -103,7 +99,6 @@ function SurveyLocationAdd() {
         getSurveyLocationGeoLevels({ survey_uid: survey_uid })
       );
       setNumLocationFields(res.payload.length === 0 ? 1 : res.payload.length);
-      setIsAllowedEdit(Array(res.payload.length).fill(false));
       if (res.payload.length > 0) {
         form.setFieldValue("geo_level_0", res.payload[0].geo_level_name);
       } else {
@@ -128,11 +123,11 @@ function SurveyLocationAdd() {
             width: "100%",
           }}
         >
-          <StyledFormItem
+          <CustomStyledFormItem
             key={index}
             required
             name={`geo_level_${index}`}
-            label={<span>Location {index + 1}</span>}
+            label={`Location ${index + 1}`}
             labelAlign="left"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
@@ -167,23 +162,9 @@ function SurveyLocationAdd() {
             <Input
               placeholder="Enter location label"
               style={{ width: "calc(100% - 50px)", marginRight: "10px" }}
-              disabled={!isAllowedEdit[index]}
             />
-          </StyledFormItem>
-          <Col span={4}>
-            <EditOutlined
-              style={{
-                marginRight: "10px",
-                cursor: "pointer",
-                color: "blue",
-                fontSize: "18px",
-              }}
-              onClick={() => {
-                const newIsAllowedEdit = [...isAllowedEdit];
-                newIsAllowedEdit[index] = true;
-                setIsAllowedEdit(newIsAllowedEdit);
-              }}
-            />
+          </CustomStyledFormItem>
+          <Col span={4} style={{ paddingBottom: "15px" }}>
             <Popconfirm
               title="Are you sure you want to delete this location level?"
               description={
@@ -195,7 +176,9 @@ function SurveyLocationAdd() {
                   supervisors after deleting the location level.
                 </span>
               }
-              onConfirm={() => handleDeleteGeoLevel(index)}
+              onConfirm={() => {
+                handleDeleteGeoLevel(index);
+              }}
               okText="Yes"
               cancelText="No"
               placement="right"
@@ -205,7 +188,7 @@ function SurveyLocationAdd() {
                 style={{
                   cursor: "pointer",
                   color: "red",
-                  fontSize: "18px",
+                  fontSize: "20px",
                 }}
               />
             </Popconfirm>
@@ -222,7 +205,6 @@ function SurveyLocationAdd() {
       .validateFields()
       .then(() => {
         setNumLocationFields(numLocationFields + 1);
-        setIsAllowedEdit([...isAllowedEdit, true]);
         form.setFieldsValue({ [`geo_level_${numLocationFields}`]: "" });
         setNotifications([...notifications, "Location level added"]);
       })
@@ -316,7 +298,7 @@ function SurveyLocationAdd() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Survey location levels</Title>
+        <Title>Add/ Edit Location Levels</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         >
@@ -339,7 +321,7 @@ function SurveyLocationAdd() {
               overlayStyle={{ width: "30%" }}
             >
               <CustomBtn style={{ width: "100%", marginTop: "15px" }}>
-                <FileAddOutlined /> Add location level
+                Add location level
               </CustomBtn>
             </Popconfirm>
           ) : (
@@ -347,7 +329,7 @@ function SurveyLocationAdd() {
               style={{ width: "100%", marginTop: "15px" }}
               onClick={handleAddGeoLevel}
             >
-              <FileAddOutlined /> Add location level
+              Add location level
             </CustomBtn>
           )}
         </div>
@@ -359,8 +341,13 @@ function SurveyLocationAdd() {
           <SideMenu />
           <SurveyLocationFormWrapper>
             <DescriptionText>
-              Please add the relevant location levels for your survey. Example:
-              state, district, and block
+              Add the location levels for your survey (for example, State,
+              District and Block).{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/locations_configuration#location-level" />
+            </DescriptionText>
+            <DescriptionText>
+              In the next step, you will be asked to define the hierarchy among
+              these location levels.
             </DescriptionText>
             <div style={{ marginTop: "40px" }}>
               <DynamicItemsForm form={form}>

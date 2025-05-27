@@ -338,13 +338,14 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
 
       if (response?.payload?.data?.success) {
         message.success("Email config deleted successfully");
-        fetchEmailSchedules();
       } else {
         message.error("Failed to delete email config");
       }
     } catch (error) {
       message.error("An error occurred while deleting email config");
     }
+    await fetchEmailSchedules();
+    return;
   };
   const handleDeleteSchedule = async (schedule: any) => {
     try {

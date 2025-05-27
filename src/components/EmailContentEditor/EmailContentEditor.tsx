@@ -14,6 +14,7 @@ interface EmailContentEditorProps {
   standalone?: boolean;
   disableEdit?: boolean;
   validVariables: string[] | undefined;
+  onChange?: (content: string) => void;
 }
 
 function EmailContentEditor({
@@ -25,8 +26,16 @@ function EmailContentEditor({
   standalone = false,
   disableEdit = false,
   validVariables,
+  onChange,
 }: EmailContentEditorProps) {
   const [val, setVal] = useState(value || "");
+
+  // Update local state when prop changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setVal(value);
+    }
+  }, [value]);
 
   const modules = {
     toolbar: [
@@ -43,115 +52,89 @@ function EmailContentEditor({
     }
   };
 
-  // Debounced function to set the form field value
-  const debouncedSetFieldsValue = useCallback(
-    debounce((pathArr, val) => {
+  // Immediate form update
+  const updateForm = useCallback(
+    (newVal: string) => {
+      const pathArr = standalone
+        ? ["content"]
+        : ["templates", formIndex, "content"];
       form.setFieldsValue({
-        [pathArr.join(".")]: val,
+        [pathArr.join(".")]: newVal,
       });
-    }, 750),
-    []
+      if (onChange) {
+        onChange(newVal);
+      }
+    },
+    [form, onChange, standalone, formIndex]
   );
 
-  // Setting the field value on content change in editor
-  useEffect(() => {
-    const pathArr = standalone
-      ? ["content"]
-      : ["templates", formIndex, "content"];
+  // Handle content change immediately
+  const handleChange = useCallback(
+    (content: string) => {
+      setVal(content); // Update local state
+      updateForm(content); // Update parent state
+    },
+    [updateForm]
+  );
 
-    const currentValue = form.getFieldValue(pathArr);
-    if (currentValue !== val) {
-      debouncedSetFieldsValue(pathArr, val);
-    }
-  }, [val, form, formIndex, standalone, debouncedSetFieldsValue]);
+  // Separate pattern checking into its own effect
+  const debouncedPatternCheck = useCallback(
+    debounce((text: string, quill: any) => {
+      /* eslint-disable no-useless-escape */
+      const pattern =
+        /\{\{(?:\s*([^\}\r\n]+)\s*\(([^\}\r\n]+)\)|([^\}\r\n]+))\}\}/g;
+      const aggregationFunctions = [
+        "SUM",
+        "COUNT",
+        "AVG",
+        "MIN",
+        "MAX",
+        "UPPER",
+        "LOWER",
+        "TITLE",
+      ];
 
-  // Setting the value if passed by pros
-  useEffect(() => {
-    if (value !== undefined && value !== val) {
-      setVal(value);
-    }
-  }, [value]);
+      quill.formatText(0, text.length, "valid-variable", false);
+      quill.formatText(0, text.length, "invalid-variable", false);
 
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const aggregationFunction = match[1];
+        const variableName = match[2] || match[3];
+
+        const isValid = aggregationFunction
+          ? aggregationFunctions.includes(aggregationFunction) &&
+            validVariables?.includes(variableName)
+          : validVariables?.includes(variableName);
+
+        quill.formatText(
+          match.index,
+          match[0].length,
+          isValid ? "valid-variable" : "invalid-variable",
+          match[0]
+        );
+      }
+    }, 300),
+    [validVariables]
+  );
+
+  // Run pattern check separately from state updates
   useEffect(() => {
     const quill = quillRef.current.getEditor();
-    const text = quill.getText();
-
-    /* eslint-disable no-useless-escape */
-    const pattern =
-      /\{\{(?:\s*([^\}\r\n]+)\s*\(([^\}\r\n]+)\)|([^\}\r\n]+))\}\}/g;
-    const aggregationFunctions = [
-      "SUM",
-      "COUNT",
-      "AVG",
-      "MIN",
-      "MAX",
-      "UPPER",
-      "LOWER",
-      "TITLE",
-    ];
-
-    // Clear all previous variable formatting
-    quill.formatText(0, text.length, "valid-variable", false);
-    quill.formatText(0, text.length, "invalid-variable", false);
-
-    let match: any;
-    while ((match = pattern.exec(text)) !== null) {
-      const aggregationFunction = match[1];
-      const variableName = match[2] || match[3];
-
-      if (aggregationFunction) {
-        if (
-          aggregationFunctions.includes(aggregationFunction) &&
-          validVariables &&
-          validVariables.includes(variableName)
-        ) {
-          quill.formatText(
-            match.index,
-            match[0].length,
-            "valid-variable",
-            match[0]
-          );
-        } else {
-          quill.formatText(
-            match.index,
-            match[0].length,
-            "invalid-variable",
-            match[0]
-          );
-        }
-      } else {
-        if (validVariables && validVariables.includes(variableName)) {
-          quill.formatText(
-            match.index,
-            match[0].length,
-            "valid-variable",
-            match[0]
-          );
-        } else {
-          quill.formatText(
-            match.index,
-            match[0].length,
-            "invalid-variable",
-            match[0]
-          );
-        }
-      }
-    }
+    debouncedPatternCheck(quill.getText(), quill);
   }, [val, validVariables]);
 
   return (
-    <>
-      <ReactQuill
-        ref={quillRef}
-        style={{ height: "200px", marginBottom: "30px" }}
-        theme="snow"
-        value={val}
-        onChange={(val) => setVal(val)}
-        modules={modules}
-        onChangeSelection={handleSelectionChange}
-        readOnly={disableEdit}
-      />
-    </>
+    <ReactQuill
+      ref={quillRef}
+      style={{ height: "200px", marginBottom: "30px" }}
+      theme="snow"
+      value={val}
+      onChange={handleChange}
+      modules={modules}
+      onChangeSelection={handleSelectionChange}
+      readOnly={disableEdit}
+    />
   );
 }
 

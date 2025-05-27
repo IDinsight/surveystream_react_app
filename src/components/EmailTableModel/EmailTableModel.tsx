@@ -327,12 +327,17 @@ function EmailTableModel({
   }, [selectedTable]);
 
   useEffect(() => {
-    if (tableList.length > 0 && editingIndex !== null) {
+    if (
+      tableList.length > 0 &&
+      editingIndex !== null &&
+      tableCatelog.length > 0
+    ) {
       const table = tableList[editingIndex];
-
       setSelectedTable(table.table_name);
+      const tableData = tableCatelog.find(
+        (t) => t.table_name === selectedTable
+      );
       setCustomTableName(table.variable_name);
-
       const column_mapping = table.column_mapping;
       const sort_list = table.sort_list;
       const filter_list = table.filter_list;
@@ -363,7 +368,7 @@ function EmailTableModel({
       }));
       setSortList(sortList);
     }
-  }, [tableList, editingIndex]);
+  }, [tableList, editingIndex, tableCatelog]);
 
   return (
     <Modal

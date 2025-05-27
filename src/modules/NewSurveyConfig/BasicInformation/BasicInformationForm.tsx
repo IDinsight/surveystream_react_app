@@ -178,7 +178,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               >
                 <Select
                   id="basic-information-survey-method"
-                  placeholder="Choose survey method"
+                  placeholder="Select survey method"
                   style={{ width: "100%" }}
                 >
                   <Select.Option value="in-person">In-person</Select.Option>
@@ -195,8 +195,8 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 style={{ display: "block" }}
                 label={
                   <span>
-                    Systems readiness start date (YYYY-MM-DD)&nbsp;
-                    <StyledTooltip title="The systems readiness start date is the date at which your team will begin using SurveyStream to support survey activities.">
+                    Survey start date &nbsp;
+                    <StyledTooltip title="Date when you need SurveyStream to start processing incoming data and/or sending messages for your survey.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
@@ -204,7 +204,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               >
                 <DatePicker
                   id="basic-information-start-date"
-                  placeholder="Choose start date"
+                  placeholder="Select start date"
                   format="YYYY-MM-DD"
                   style={{ width: "100%" }}
                 />
@@ -250,7 +250,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               >
                 <TextArea
                   id="basic-information-survey-description"
-                  placeholder="Survey description"
+                  placeholder="Enter survey description"
                   style={{ width: "100%", height: "140px" }}
                 ></TextArea>
               </StyledFormItem>
@@ -261,8 +261,8 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 wrapperCol={{ span: 24 }}
                 label={
                   <span>
-                    Systems end date (YYYY-MM-DD)&nbsp;
-                    <StyledTooltip title="The systems end date is the date when your team is projected to finish using SurveyStream to support survey activities.">
+                    Survey end date&nbsp;
+                    <StyledTooltip title="After this date, your survey data will stop refreshing and all features will display final results. Any scheduled reports / emails / dashboard updates will also stop.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
@@ -272,7 +272,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               >
                 <DatePicker
                   id="basic-information-end-date"
-                  placeholder="Choose end date"
+                  placeholder="Select end date"
                   format="YYYY-MM-DD"
                   style={{ width: "100%" }}
                 />

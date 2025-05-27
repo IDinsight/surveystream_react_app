@@ -21,7 +21,6 @@ import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
-import { has } from "lodash";
 
 const { Option } = Select;
 
@@ -97,6 +96,20 @@ const EmailTemplateForm = ({
 
       const { templates } = form.getFieldsValue();
       if (templates) {
+        // Check for duplicate languages
+        const languages = templates
+          .map((template: any, index: number) => template.language)
+          .filter((lang: string | null) => lang !== null);
+
+        const uniqueLanguages = new Set(languages);
+        if (uniqueLanguages.size !== languages.length) {
+          message.error(
+            "Duplicate language templates detected. Each template must have a unique language."
+          );
+          setLoading(false);
+          return;
+        }
+
         const templatePayload = [];
 
         let hasInvalidVariable = false;
@@ -110,6 +123,14 @@ const EmailTemplateForm = ({
             hasInvalidVariable = true;
           }
 
+          // Create sets to track unique variables and tables
+          const uniqueVariables = new Map();
+
+          // Deduplicate variables and tables
+          formStates[i].insertedVariables.forEach((variable: any) => {
+            uniqueVariables.set(variable.variable_name, variable);
+          });
+
           templatePayload.push({
             language: template.language,
             subject: template.subject,
@@ -117,7 +138,7 @@ const EmailTemplateForm = ({
               /<span class="valid-variable-blot"[^>]*>(.*?)<\/span>/g,
               "$1"
             ),
-            variable_list: formStates[i].insertedVariables,
+            variable_list: Array.from(uniqueVariables.values()),
             table_list: formStates[i].tableList,
           });
         }
@@ -412,12 +433,19 @@ const EmailTemplateForm = ({
                           rules={[
                             {
                               required: true,
-                              message: "Please enter content",
+                              validator: (_, value) => {
+                                if (
+                                  !value ||
+                                  value === "<p><br></p>" ||
+                                  value === "<p></p>"
+                                ) {
+                                  return Promise.reject("Please enter content");
+                                }
+                                return Promise.resolve();
+                              },
                             },
                           ]}
                           tooltip="Enter the content of the email template"
-                          getValueProps={(value) => ({ value })}
-                          getValueFromEvent={(content) => content}
                         >
                           <EmailContentEditor
                             quillRef={formStates[formIndex].quillRef}
@@ -437,6 +465,12 @@ const EmailTemplateForm = ({
                             ])}
                             disableEdit={disabledIndices.includes(formIndex)}
                             validVariables={validVariables[formIndex]}
+                            onChange={(content) => {
+                              form.setFieldValue(
+                                ["templates", name, "content"],
+                                content
+                              );
+                            }}
                           />
                         </Form.Item>
                         <EmailTableCard

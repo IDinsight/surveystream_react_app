@@ -19,7 +19,7 @@
   }
   
   .nav-menu span[role="img"] {
-    padding-left: 22px;
+    padding-left: 10px;
     padding-right: 10px;
   }
   
@@ -66,3 +66,11 @@
     padding-right: 10px;
   }
   
+  .docs:hover {
+    background-color: #061178;
+    cursor: default;
+  }
+
+  .docs:hover span  {
+    color: #85a5ff !important;
+  }

@@ -8,6 +8,7 @@ import {
   HelpListItem,
   ToolTipText,
 } from "./SurveyConfiguration.styled";
+import { SelectOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 
 interface SurveyProgress {
   [key: string]: string[] | any;
@@ -106,31 +107,69 @@ function SideMenu({
     <SideMenuWrapper windowHeight={windowHeight}>
       <StepCard title="Configuration completion">
         <StepsWrapper>
-          <Tooltip title={getTooltipTitle()}>
-            <Progress
-              type="line"
-              steps={numModules || 10}
-              percent={100}
-              size={[size, 10]}
-              showInfo={false}
-              trailColor={"#d9d9d9"}
-              strokeColor={Array.from(
-                { length: completionStats?.num_modules },
-                (_, index) => {
-                  return getStrokeColor(index + 1);
-                }
-              )}
-            />
-          </Tooltip>
+          <Progress
+            type="line"
+            steps={numModules || 10}
+            percent={100}
+            size={[size, 10]}
+            showInfo={false}
+            trailColor={"#d9d9d9"}
+            strokeColor={Array.from(
+              { length: completionStats?.num_modules },
+              (_, index) => {
+                return getStrokeColor(index + 1);
+              }
+            )}
+          />
         </StepsWrapper>
         <div
           style={{
             marginTop: "5px",
-            color: "#BFBFBF",
-            fontSize: "12px",
+            fontSize: "14px",
           }}
         >
-          The survey progress updates as you finish steps on the right
+          {numCompleted + numInProgress == numModules ? (
+            <span>
+              {numModules} / {numModules} modules complete
+            </span>
+          ) : null}
+          {numNotStarted == numModules ? (
+            <span>0 / {numModules} modules complete</span>
+          ) : null}
+          {numCompleted + numInProgress < numModules ? (
+            <span>
+              {numCompleted + numInProgress} / {numModules} modules complete
+            </span>
+          ) : null}
+          {numOptional ? (
+            <Tooltip
+              title={`Complete includes modules with status 'Done' and 'In Progress'. Also, ${numOptional} optional module${
+                numOptional > 1 ? "s are" : " is"
+              } not included in the count.`}
+            >
+              &nbsp;
+              <QuestionCircleOutlined />
+            </Tooltip>
+          ) : null}
+
+          {numCompleted + numInProgress < numModules ? (
+            <span style={{ display: "block", marginTop: "5px" }}>
+              Remaining modules are:
+              <ol
+                style={{
+                  paddingTop: "0px",
+                  paddingLeft: "20px",
+                  listStyleType: "circle",
+                }}
+              >
+                {numInProgressIncomplete ? (
+                  <li>Incomplete: {numInProgressIncomplete}</li>
+                ) : null}
+                {numError ? <li>Error: {numError}</li> : null}
+                {numNotStarted ? <li>Not Started: {numNotStarted}</li> : null}
+              </ol>
+            </span>
+          ) : null}
         </div>
       </StepCard>
 
@@ -138,39 +177,17 @@ function SideMenu({
         <div>Need help?</div>
         <HelpList>
           <HelpListItem color="#1D39C4">
+            Learn about the setup process or troubleshoot your issues in the{" "}
             <a
-              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home#h.lofoqzg1pbqb"
+              href="https://docs.surveystream.idinsight.io/setup_process"
               target="_blank"
               rel="noreferrer"
             >
-              Watch SurveyStream demo
-            </a>
-          </HelpListItem>
-          <HelpListItem color="#1D39C4">
-            <a
-              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/features"
-              target="_blank"
-              rel="noreferrer"
-            >
-              How to choose modules for your survey?
-            </a>
-          </HelpListItem>
-          <HelpListItem color="#1D39C4">
-            <a
-              href="https://docs.surveycto.com/04-monitoring-and-management/01-the-basics/00.managing-server.html"
-              target="_blank"
-              rel="noreferrer"
-            >
-              How to connect with SurveyCTO?
-            </a>
-          </HelpListItem>
-          <HelpListItem color="#262626">
-            <a
-              href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
-              target="_blank"
-              rel="noreferrer"
-            >
-              View all help topics -&gt;
+              docs
+              <SelectOutlined
+                rotate={90}
+                style={{ marginLeft: "3px", padding: "0px", fontSize: "15px" }}
+              />{" "}
             </a>
           </HelpListItem>
         </HelpList>

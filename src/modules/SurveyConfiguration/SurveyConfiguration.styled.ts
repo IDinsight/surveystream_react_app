@@ -1,5 +1,6 @@
 import { Card } from "antd";
 import styled from "styled-components";
+import { Switch } from "antd";
 
 const HEADER_HEIGHT = 131;
 
@@ -58,8 +59,8 @@ export const HelpListItem = styled.li`
 `;
 
 export const StepsWrapper = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
 `;
 
 export const StepCard = styled(Card)`
@@ -140,4 +141,40 @@ export const ToolTipText = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
+`;
+
+export const DraftActiveSwitch = styled(Switch)`
+  &.ant-switch .ant-switch-handle::before {
+    background-color: #d46b08; /* Brown circle */
+  }
+
+  &.ant-switch-checked .ant-switch-handle::before {
+    background-color: #237f5d; /* Green circle */
+  }
+
+  &.ant-switch-checked .ant-switch-handle::before {
+    transition: all 0.3s;
+  }
+
+  &.ant-switch-handle::before {
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+`;
+
+export const PastDraftSwitch = styled(Switch)`
+  &.ant-switch .ant-switch-handle::before {
+    background-color: #d46b08; /* Brown circle */
+  }
+
+  &.ant-switch-checked .ant-switch-handle::before {
+    background-color: #8c8c8c; /* Gray circle */
+  }
+
+  &.ant-switch-checked .ant-switch-handle::before {
+    transition: all 0.3s;
+  }
+
+  &.ant-switch-handle::before {
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
 `;

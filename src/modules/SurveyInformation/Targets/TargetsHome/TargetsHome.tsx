@@ -514,83 +514,89 @@ function TargetsHome() {
         <Title>Targets</Title>
         <TargetsCountBox targetCount={targetsCount} />
 
-        <div
-          style={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
-        >
+        {!isLoading && !isSideMenuLoading && (
           <div
             style={{
               display: "flex",
+              alignItems: "center",
               marginLeft: "auto",
-              color: "#2F54EB",
             }}
           >
-            <Button
-              type="primary"
-              icon={<ProductOutlined />}
-              style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-              onClick={() =>
-                navigate(
-                  `/survey-information/targets/config/${survey_uid}/${form_uid}`
-                )
-              }
+            <div
+              style={{
+                display: "flex",
+                marginLeft: "auto",
+                color: "#2F54EB",
+              }}
             >
-              Change Target Configuration
-            </Button>
-            {targetDataSource === "scto" && (
               <Button
                 type="primary"
-                icon={<ReconciliationOutlined />}
+                icon={<ProductOutlined />}
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 onClick={() =>
                   navigate(
-                    `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+                    `/survey-information/targets/config/${survey_uid}/${form_uid}`
                   )
                 }
               >
-                Edit SCTO Column Mapping
+                Change Target Configuration
               </Button>
-            )}
-            {targetDataSource !== "scto" && (
-              <>
-                {editMode && (
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
-                    onClick={onEditDataHandler}
-                  >
-                    Edit
-                  </Button>
-                )}
+              {targetDataSource === "scto" && (
                 <Button
-                  onClick={handlerAddTargetBtn}
                   type="primary"
-                  icon={<CloudUploadOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
+                  icon={<ReconciliationOutlined />}
+                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+                    )
+                  }
                 >
-                  Upload targets
+                  Edit SCTO Column Mapping
                 </Button>
-              </>
-            )}
+              )}
+              {targetDataSource !== "scto" && (
+                <>
+                  {editMode && (
+                    <Button
+                      type="primary"
+                      icon={<EditOutlined />}
+                      style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
+                      onClick={onEditDataHandler}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handlerAddTargetBtn}
+                    type="primary"
+                    icon={<CloudUploadOutlined />}
+                    style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
+                  >
+                    Upload targets
+                  </Button>
+                </>
+              )}
 
-            <CSVDownloader
-              data={tableDataSource}
-              filename={"targets.csv"}
-              style={{
-                cursor: "pointer",
-                backgroundColor: "#2F54EB",
-                color: "#FFF",
-                fontSize: "12px",
-                display: "flex",
-                alignItems: "center",
-                padding: "8px 16px",
-                borderRadius: "5px",
-              }}
-            >
-              <CloudDownloadOutlined />
-            </CSVDownloader>
+              <CSVDownloader
+                data={tableDataSource}
+                filename={"targets.csv"}
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: "#2F54EB",
+                  color: "#FFF",
+                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                }}
+              >
+                <CloudDownloadOutlined />
+              </CSVDownloader>
+            </div>
           </div>
-        </div>
+        )}
       </HeaderContainer>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />

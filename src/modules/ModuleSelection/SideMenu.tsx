@@ -8,12 +8,12 @@ import {
 function SideMenu() {
   return (
     <div>
-      <SideMenuWrapper>
+      <SideMenuWrapper style={{ marginLeft: "15px" }}>
         <MenuItem to="#" className="active">
           <IconWrapper>
             <ListIcon />
           </IconWrapper>
-          Module selection
+          Feature Selection
         </MenuItem>
       </SideMenuWrapper>
     </div>

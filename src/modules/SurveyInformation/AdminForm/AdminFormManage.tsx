@@ -5,20 +5,22 @@ import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer } from "../../../shared/Nav.styled";
-import { CustomBtn, DQFormWrapper, FormItemLabel } from "./DQForm.styled";
+import { BodyContainer, CustomBtn, FormItemLabel } from "./AdminForm.styled";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
 import { Button, Checkbox, Col, Input, Row, Select, message } from "antd";
 import {
-  createDQForm,
-  getDQForm,
-  updateDQForm,
-} from "../../../redux/dqForm/dqFormActions";
+  createAdminForm,
+  getAdminForm,
+  updateAdminForm,
+} from "../../../redux/adminForm/adminFormActions";
 import { userHasPermission } from "../../../utils/helper";
 import { Breadcrumb } from "antd";
-import SideMenu from "./../SideMenu";
+import SideMenu from "../SideMenu";
 
-function DQFormManage() {
+const { Option } = Select;
+
+function AdminFormManage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -31,21 +33,21 @@ function DQFormManage() {
   }
 
   const [searchParam] = useSearchParams();
-  const dqFormUID = searchParam.get("dq_form_uid");
+  const adminFormUID = searchParam.get("admin_form_uid");
 
   const userProfile = useAppSelector((state: RootState) => state.auth.profile);
   const canUserWrite = userHasPermission(
     userProfile,
     survey_uid,
-    "WRITE Data Quality Forms"
+    "WRITE Admin Forms"
   );
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
   );
 
-  const { loading: isDQFormLoading } = useAppSelector(
-    (state: RootState) => state.dqForms
+  const { loading: isAdminFormLoading } = useAppSelector(
+    (state: RootState) => state.adminForms
   );
 
   const [formFieldsData, setFormFieldsData] = useState<any>({
@@ -54,12 +56,11 @@ function DQFormManage() {
     form_name: null,
     tz_name: null,
     scto_server_name: null,
-    encryption_key_shared: null,
+    encryption_key_shared: false,
     server_access_role_granted: null,
     server_access_allowed: null,
-    form_type: "dq",
-    dq_form_type: null,
-    parent_form_uid: null,
+    form_type: "admin",
+    admin_form_type: null,
   });
 
   const handleSave = () => {
@@ -71,18 +72,18 @@ function DQFormManage() {
       }
     }
 
-    if (dqFormUID) {
+    if (adminFormUID) {
       dispatch(
-        updateDQForm({
-          formUID: dqFormUID,
+        updateAdminForm({
+          formUID: adminFormUID,
           data: formFieldsData,
         })
       ).then((res) => {
         if (res.payload?.success) {
           const formUID = res.payload?.data.form_uid;
-          message.success("DQ form updated successfully.");
+          message.success("Admin form updated successfully.");
           navigate(
-            `/module-configuration/dq-forms/${survey_uid}/scto-questions/${formUID}`
+            `/survey-information/admin-forms/${survey_uid}/scto-questions/${formUID}`
           );
         } else {
           message.error(res.payload?.message);
@@ -90,15 +91,15 @@ function DQFormManage() {
       });
     } else {
       dispatch(
-        createDQForm({
+        createAdminForm({
           data: formFieldsData,
         })
       ).then((res) => {
         if (res.payload?.success) {
           const formUID = res.payload?.data.data.survey.form_uid;
-          message.success("DQ form created successfully.");
+          message.success("Admin form created successfully.");
           navigate(
-            `/module-configuration/dq-forms/${survey_uid}/scto-questions/${formUID}`
+            `/survey-information/admin-forms/${survey_uid}/scto-questions/${formUID}`
           );
         } else {
           message.error(res.payload?.message);
@@ -116,8 +117,8 @@ function DQFormManage() {
   }, [dispatch, survey_uid]);
 
   useEffect(() => {
-    if (dqFormUID) {
-      dispatch(getDQForm({ form_uid: dqFormUID })).then((res) => {
+    if (adminFormUID) {
+      dispatch(getAdminForm({ form_uid: adminFormUID })).then((res) => {
         if (res.payload?.success) {
           const data = res.payload?.data;
           setFormFieldsData((pre: any) => ({
@@ -130,33 +131,32 @@ function DQFormManage() {
             encryption_key_shared: data.encryption_key_shared,
             server_access_role_granted: data.server_access_role_granted,
             server_access_allowed: data.server_access_allowed,
-            form_type: "dq",
-            dq_form_type: data.dq_form_type,
-            parent_form_uid: data.parent_form_uid,
+            form_type: "admin",
+            admin_form_type: data.admin_form_type,
           }));
         } else {
           message.error("Something went wrong!");
         }
       });
     }
-  }, [dqFormUID]);
+  }, [adminFormUID]);
 
-  // Loading data from the main form
+  // Loading data from the parent form for the same survey
+  // This works now since there is a single parent form
+  // Change later to have server details in the survey object
   useEffect(() => {
-    if (formFieldsData.parent_form_uid) {
-      if (formFieldsData.parent_form_uid === surveyCTOForm?.form_uid) {
-        setFormFieldsData((prev: any) => ({
-          ...prev,
-          tz_name: surveyCTOForm?.tz_name,
-          scto_server_name: surveyCTOForm?.scto_server_name,
-          server_access_role_granted: surveyCTOForm?.server_access_role_granted,
-          server_access_allowed: surveyCTOForm?.server_access_allowed,
-        }));
-      }
+    if (surveyCTOForm) {
+      setFormFieldsData((prev: any) => ({
+        ...prev,
+        tz_name: surveyCTOForm?.tz_name,
+        scto_server_name: surveyCTOForm?.scto_server_name,
+        server_access_role_granted: surveyCTOForm?.server_access_role_granted,
+        server_access_allowed: surveyCTOForm?.server_access_allowed,
+      }));
     }
-  }, [formFieldsData.parent_form_uid]);
+  }, [surveyCTOForm]);
 
-  const isLoading = isSurveyCTOFormLoading || isDQFormLoading;
+  const isLoading = isSurveyCTOFormLoading || isAdminFormLoading;
 
   return (
     <>
@@ -171,8 +171,8 @@ function DQFormManage() {
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: "Data Quality Forms",
-                  href: `/module-configuration/dq-forms/${survey_uid}`,
+                  title: "Admin Forms",
+                  href: `/survey-information/admin-forms/${survey_uid}`,
                 },
                 {
                   title: "Form Details",
@@ -182,73 +182,45 @@ function DQFormManage() {
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />
-            <DQFormWrapper>
+            <BodyContainer>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Please fill out the SurveyCTO form details for a data quality
-                form.
+                Please fill out the SurveyCTO form details for an admin form.
               </p>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
                 Kindly note that it is assumed that the SurveyCTO server name
-                and timezone for the data quality form matches that of the
-                corresponding main form
+                and timezone for the admin form matches that of the other forms
+                in the survey.
               </p>
               <Row align="middle" style={{ marginBottom: 6, marginTop: 24 }}>
                 <Col span={6}>
                   <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Select main SCTO
-                    form:
+                    <span style={{ color: "red" }}>*</span> Select admin form
+                    type:
                   </FormItemLabel>
                 </Col>
                 <Col span={8}>
                   <Select
                     style={{ width: "100%" }}
-                    placeholder="SCTO Form"
-                    value={formFieldsData?.parent_form_uid}
-                    disabled={!canUserWrite}
-                    onSelect={(val) => {
-                      setFormFieldsData((prev: any) => ({
-                        ...prev,
-                        parent_form_uid: val as string,
-                      }));
-                    }}
-                  >
-                    {surveyCTOForm?.scto_form_id && (
-                      <Select.Option value={surveyCTOForm?.form_uid}>
-                        {surveyCTOForm?.scto_form_id}
-                      </Select.Option>
-                    )}
-                  </Select>
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 6 }}>
-                <Col span={6}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Select DQ form type:
-                  </FormItemLabel>
-                </Col>
-                <Col span={8}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="audioaudit / backcheck/ spotcheck"
-                    value={formFieldsData?.dq_form_type}
+                    placeholder="Bikelog / Account details / Other"
+                    value={formFieldsData?.admin_form_type}
                     disabled={!canUserWrite}
                     onSelect={(val: any) => {
                       setFormFieldsData((prev: any) => ({
                         ...prev,
-                        dq_form_type: val,
+                        admin_form_type: val,
                       }));
                     }}
                   >
-                    <Select.Option value="audioaudit">audioaudit</Select.Option>
-                    <Select.Option value="backcheck">backcheck</Select.Option>
-                    <Select.Option value="spotcheck">spotcheck</Select.Option>
+                    <Option value="bikelog">Bikelog</Option>
+                    <Option value="account_details">Account details</Option>
+                    <Option value="other">Other</Option>
                   </Select>
                 </Col>
               </Row>
               <Row align="middle" style={{ marginBottom: 6 }}>
                 <Col span={6}>
                   <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> DQ form ID:
+                    <span style={{ color: "red" }}>*</span> Admin form ID:
                   </FormItemLabel>
                 </Col>
                 <Col span={8}>
@@ -263,10 +235,10 @@ function DQFormManage() {
                   />
                 </Col>
               </Row>
-              <Row align="middle" style={{ marginBottom: 6 }}>
+              <Row align="middle" style={{ marginBottom: 18 }}>
                 <Col span={6}>
                   <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> DQ form name:
+                    <span style={{ color: "red" }}>*</span> Admin form name:
                   </FormItemLabel>
                 </Col>
                 <Col span={8} style={{ display: "flex" }}>
@@ -301,6 +273,7 @@ function DQFormManage() {
                   </Checkbox>
                 </Col>
               </Row>
+
               <div>
                 <Button
                   style={{ marginTop: 24, marginRight: 24 }}
@@ -316,7 +289,7 @@ function DQFormManage() {
                   Save
                 </CustomBtn>
               </div>
-            </DQFormWrapper>
+            </BodyContainer>
           </div>
         </>
       )}
@@ -324,4 +297,4 @@ function DQFormManage() {
   );
 }
 
-export default DQFormManage;
+export default AdminFormManage;

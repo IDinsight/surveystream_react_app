@@ -1,9 +1,21 @@
 import { Button, Table } from "antd";
 import styled from "styled-components";
 
+// export const BodyContainer = styled.div`
+//   padding: 48px;
+//   padding-top: 12px;
+// `;
+
 export const BodyContainer = styled.div`
-  padding: 48px;
-  padding-top: 12px;
+  flex: 1;
+  background-color: #f5f5f5;
+  padding-top: 23px;
+  padding-left: 50px;
+  padding-right: 50px;
+  font-family: "Lato", sans-serif;
+  position: relative;
+  min-height: 550px;
+  width: 70%;
 `;
 
 export const FormItemLabel = styled.p`

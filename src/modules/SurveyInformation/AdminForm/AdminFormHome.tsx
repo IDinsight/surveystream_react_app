@@ -5,14 +5,14 @@ import Container from "../../../components/Layout/Container";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
-import { BodyContainer, CustomBtn, DQFormWrapper } from "./DQForm.styled";
+import { BodyContainer, CustomBtn } from "./AdminForm.styled";
 import { RootState } from "../../../redux/store";
-import { getDQForms } from "../../../redux/dqForm/dqFormActions";
-import DQFormCard from "../../../components/DQFormCard";
+import { getAdminForms } from "../../../redux/adminForm/adminFormActions";
+import AdminFormCard from "../../../components/AdminFormCard/AdminFormCard";
 import { userHasPermission } from "../../../utils/helper";
-import SideMenu from "./../SideMenu";
+import SideMenu from "../SideMenu";
 
-function DQFormHome() {
+function AdminFormHome() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -24,61 +24,61 @@ function DQFormHome() {
     navigate("/surveys");
   }
 
-  const { loading: isDQFormLoading, dqForms } = useAppSelector(
-    (state: RootState) => state.dqForms
+  const { loading: isAdminFormLoading, adminForms } = useAppSelector(
+    (state: RootState) => state.adminForms
   );
 
   const userProfile = useAppSelector((state: RootState) => state.auth.profile);
   const canUserWrite = userHasPermission(
     userProfile,
     survey_uid,
-    "WRITE Data Quality Forms"
+    "WRITE Admin Forms"
   );
 
   const addFormClickHandler = () => {
-    navigate(`/module-configuration/dq-forms/${survey_uid}/manage`);
+    navigate(`/survey-information/admin-forms/${survey_uid}/manage`);
   };
 
   useEffect(() => {
     if (survey_uid) {
-      dispatch(getDQForms({ survey_uid }));
+      dispatch(getAdminForms({ survey_uid }));
     }
   }, [dispatch, survey_uid]);
 
   return (
     <>
-      {isDQFormLoading ? (
+      {isAdminFormLoading ? (
         <FullScreenLoader />
       ) : (
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Data Quality Forms</Title>
+            <Title>Admin Forms</Title>
+            <CustomBtn
+              style={{ marginLeft: "auto" }}
+              disabled={!canUserWrite}
+              onClick={addFormClickHandler}
+            >
+              Add admin form
+            </CustomBtn>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />
-            <DQFormWrapper>
+            <BodyContainer>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Please add all the data quality forms related to your survey
-                here. These include audio audit forms, spot check forms, and
-                back check forms.
+                Please add the admin forms related to your survey here. These
+                include bikelog forms and account details forms that you would
+                like to use in other SurveyStream features.
               </p>
-              {dqForms?.map((dqForm: any) => (
-                <DQFormCard
-                  key={dqForm.dq_form_uid}
-                  data={dqForm}
+              {adminForms.map((adminForm: any) => (
+                <AdminFormCard
+                  key={adminForm.admin_form_uid}
+                  data={adminForm}
                   editable={canUserWrite}
                   surveyUID={survey_uid || ""}
                 />
               ))}
-              <CustomBtn
-                style={{ marginTop: 24 }}
-                disabled={!canUserWrite}
-                onClick={addFormClickHandler}
-              >
-                Add data quality form
-              </CustomBtn>
-            </DQFormWrapper>
+            </BodyContainer>
           </div>
         </>
       )}
@@ -86,4 +86,4 @@ function DQFormHome() {
   );
 }
 
-export default DQFormHome;
+export default AdminFormHome;
