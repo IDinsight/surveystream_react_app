@@ -385,14 +385,21 @@ function DQCheckGroup5({ surveyUID, formUID, typeID }: IDQCheckGroup5Props) {
         if (res?.data?.success) {
           const formDefinition = res.data.data;
           if (formDefinition && formDefinition.questions) {
-            const questionNames = formDefinition.questions.map(
-              (question: any) => ({
-                name: question.question_name,
-                label:
-                  question.question_name +
-                  (question.is_repeat_group ? "_*" : ""),
-              })
+            // Filter to exclude repeat groups with select_multiple question types
+            const filteredQuestions = formDefinition.questions.filter(
+              (question: any) =>
+                !(
+                  question.is_repeat_group &&
+                  question.question_type.startsWith("select_multiple")
+                )
             );
+            const questionNames = filteredQuestions.map((question: any) => ({
+              name: question.question_name,
+              label:
+                question.question_name + (question.is_repeat_group ? "_*" : ""),
+              is_multi_select:
+                question.question_type.startsWith("select_multiple"),
+            }));
             setAvailableQuestions(questionNames);
           }
         }
