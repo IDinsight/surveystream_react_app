@@ -1,4 +1,4 @@
-import { Drawer, Form, Input, message, Select, Tag } from "antd";
+import { Drawer, Form, Input, message, Select, Tag, Modal } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -67,9 +67,24 @@ function RowEditingModal({
     "home_address",
   ]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatusDropout, setIsStatusDropout] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showWarning, setShowWarning] = useState<"dropout" | "surveyor" | null>(
+    null
+  );
+  const [hadSurveyorRole, setHadSurveyorRole] = useState(false);
+  const [originalStatus, setOriginalStatus] = useState<string>("");
 
   const cancelHandler = () => {
     onCancel();
+  };
+
+  const handleStatusChange = (value: string) => {
+    setIsStatusDropout(value === "Dropout");
+  };
+
+  const handleEnumeratorTypeChange = (values: string[]) => {
+    // Just store the values, don't show warning yet
   };
 
   const updateHandler = async () => {
@@ -169,6 +184,48 @@ function RowEditingModal({
     }
   };
 
+  const handleSave = async () => {
+    try {
+      const values = await editForm.validateFields();
+      const formValues = editForm.getFieldsValue();
+
+      // Only show dropout warning if original status wasn't dropout
+      if (
+        formValues.enumerator_status === "Dropout" &&
+        originalStatus !== "Dropout"
+      ) {
+        setShowWarning("dropout");
+        setIsModalOpen(true);
+        return;
+      }
+
+      // Only show surveyor warning if they originally had the role
+      if (
+        hadSurveyorRole &&
+        Array.isArray(formValues.enumerator_type) &&
+        !formValues.enumerator_type.includes("surveyor") &&
+        data[0].surveyor_status !== null
+      ) {
+        setShowWarning("surveyor");
+        setIsModalOpen(true);
+        return;
+      }
+
+      updateHandler();
+    } catch (error) {
+      message.error("Please fill in all required fields");
+    }
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    updateHandler();
+  };
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const fieldsToExclude = [
     "status",
     "custom_fields",
@@ -261,6 +318,10 @@ function RowEditingModal({
     if (editMode) {
       setIsLoading(true);
       setupFormData();
+      setHadSurveyorRole(data[0].surveyor_status !== null);
+      setOriginalStatus(
+        data[0].surveyor_status || data[0].monitor_status || "N/A"
+      );
       setIsLoading(false);
     }
   }, [editMode, currentLocation]);
@@ -268,6 +329,20 @@ function RowEditingModal({
   return (
     <>
       <GlobalStyle />
+      <Modal
+        title="Warning"
+        open={isModalOpen}
+        onOk={handleModalConfirm}
+        onCancel={handleModalCancel}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>
+          {showWarning === "dropout"
+            ? "Changing status to Dropout will delete all assignments for this enumerator. Are you sure?"
+            : "Removing surveyor role will delete all survey assignments for this enumerator. Are you sure?"}
+        </p>
+      </Modal>
       <Drawer
         open={editMode}
         size="large"
@@ -375,6 +450,7 @@ function RowEditingModal({
                       placeholder={`Select ${field.labelKey}`}
                       style={{ width: "100%" }}
                       mode="multiple"
+                      onChange={handleEnumeratorTypeChange}
                     >
                       <Select.Option value="surveyor">Surveyor</Select.Option>
                       <Select.Option value="monitor">Monitor</Select.Option>
@@ -390,6 +466,7 @@ function RowEditingModal({
                         )
                         .join(" ")}`}
                       style={{ width: "100%" }}
+                      onChange={handleStatusChange}
                     >
                       <Select.Option value="Active">Active</Select.Option>
                       <Select.Option value="Temp. Inactive">
@@ -419,9 +496,16 @@ function RowEditingModal({
           <CustomBtn
             type="primary"
             style={{ backgroundColor: "#2f54eB" }}
-            onClick={updateHandler}
+            onClick={handleSave}
           >
             Save
+          </CustomBtn>
+          <CustomBtn
+            type="default"
+            onClick={cancelHandler}
+            style={{ marginLeft: 8 }}
+          >
+            Cancel
           </CustomBtn>
         </div>
       </Drawer>
