@@ -13,7 +13,7 @@ import {
   EnumeratorsUploadFormWrapper,
   ErrorTable,
 } from "./EnumeratorsUpload.styled";
-import { ProfileOutlined } from "@ant-design/icons";
+import { ProfileOutlined, SelectOutlined } from "@ant-design/icons";
 import { IconText } from "../../SurveyLocationUpload/SurveyLocationUpload.styled";
 import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
@@ -202,48 +202,29 @@ function EnumeratorsUpload() {
               </div>
             </div>
             <DescriptionContainer>
-              <ol style={{ paddingLeft: "15px" }}>
-                <li>
-                  Upload enumerators data in csv format. Please go through the
-                  template and filled csv sheet before uploading.
-                </li>
-                <li>
-                  Mandatory csv fields:
-                  <ol type="a">
-                    <li>Enumerator ID</li>
-                    <li>Enumerator Name</li>
-                    <li>Email ID</li>
-                    <li>Mobile (primary)</li>
-                    <li>Gender</li>
-                    <li>Enumerator type</li>
-                    <li>
-                      Prime geo location ID (If location is selected as a
-                      mapping criterion)
-                    </li>
-                    <li>Language</li>
-                  </ol>
-                </li>
-                <li>
-                  You can also add custom columns are per the requirement of
-                  your survey - please ensure the column(s) are added in the csv
-                  file.
-                </li>
-                <li>
-                  You can edit the enumerator data before and during data
-                  collection.
-                </li>
-                <li>
-                  You can add more enumerators before and during data
-                  collection.
-                </li>
-                <li>
-                  Once you upload the csv, do not hit refresh till you see the
-                  enumerators in the table view. Refreshing midway can cause
-                  information loss.
-                </li>
-              </ol>
+              Upload a .csv file containing the enumerators for your survey.{" "}
+              <a
+                href="https://docs.surveystream.idinsight.io/enumerators#enumerators"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#2F80ED",
+                  fontSize: "14px",
+                  fontFamily: '"Lato", sans-serif',
+                }}
+              >
+                Learn more
+                <SelectOutlined
+                  rotate={90}
+                  style={{
+                    marginLeft: "3px",
+                    padding: "0px",
+                    fontSize: "15px",
+                  }}
+                />{" "}
+              </a>{" "}
             </DescriptionContainer>
-            <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+            <div style={{ marginTop: "40px", marginBottom: "14px" }}>
               <Form layout="horizontal">
                 <Row>
                   <Col span={23}>
