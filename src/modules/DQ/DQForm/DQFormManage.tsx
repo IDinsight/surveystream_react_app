@@ -17,6 +17,7 @@ import {
 import { userHasPermission } from "../../../utils/helper";
 import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 function DQFormManage() {
   const navigate = useNavigate();
@@ -184,13 +185,12 @@ function DQFormManage() {
             <SideMenu />
             <DQFormWrapper>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Please fill out the SurveyCTO form details for a data quality
-                form.
+                Provide details of a data quality form.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#data-quality-forms" />
               </p>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Kindly note that it is assumed that the SurveyCTO server name
-                and timezone for the data quality form matches that of the
-                corresponding main form
+                Note that the data quality form should be deployed on the same
+                SurveyCTO server as the corresponding main form
               </p>
               <Row align="middle" style={{ marginBottom: 6, marginTop: 24 }}>
                 <Col span={6}>
@@ -263,7 +263,7 @@ function DQFormManage() {
                   />
                 </Col>
               </Row>
-              <Row align="middle" style={{ marginBottom: 6 }}>
+              <Row align="middle" style={{ marginBottom: 20 }}>
                 <Col span={6}>
                   <FormItemLabel>
                     <span style={{ color: "red" }}>*</span> DQ form name:
@@ -281,7 +281,7 @@ function DQFormManage() {
                   />
                 </Col>
               </Row>
-              <Row align={"middle"} style={{ marginBottom: 6 }}>
+              <Row align={"middle"} style={{ marginBottom: 0 }}>
                 <Col>
                   <Checkbox
                     checked={formFieldsData?.encryption_key_shared}
@@ -292,13 +292,20 @@ function DQFormManage() {
                       }));
                     }}
                   >
-                    The SurveyCTO form is encrypted. If yes, please share the
-                    key with{" "}
+                    The SurveyCTO form is encrypted.
+                  </Checkbox>
+                </Col>
+              </Row>
+              <Row align={"middle"} style={{ marginBottom: 20 }}>
+                <Col>
+                  <div style={{ marginTop: "30px", display: "block" }}>
+                    If the SurveyCTO form is encrypted, share the encryption key
+                    with{" "}
                     <a href="mail:surveystream.devs@idinsight.org">
                       surveystream.devs@idinsight.org
                     </a>{" "}
                     via FlowCrypt/Nordpass.
-                  </Checkbox>
+                  </div>
                 </Col>
               </Row>
               <div>
