@@ -265,7 +265,7 @@ function EnumeratorsHome() {
             enumerator.surveyor_status !== null &&
             enumerator.monitor_status !== null
           ) {
-            enumerator_type = "Surveyor,Monitor";
+            enumerator_type = "Surveyor, Monitor";
           } else if (enumerator.surveyor_status !== null) {
             enumerator_type = "Surveyor";
           } else if (enumerator.monitor_status !== null) {
