@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import { Button, Divider, Modal, Radio, Space, message, Tag } from "antd"; // Add Tag import
 import { useCSVDownloader } from "react-papaparse";
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
@@ -8,11 +8,7 @@ import {
   EnumeratorsHomeFormWrapper,
   EnumeratorsTable,
 } from "./EnumeratorsHome.styled";
-import {
-  PlusOutlined,
-  DownloadOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+
 import EnumeratorsCountBox from "../../../../components/EnumeratorsCountBox";
 import RowEditingModal from "./RowEditingModal";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -32,6 +28,20 @@ import EnumeratorsRemap from "../EnumeratorsRemap";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { ClearOutlined } from "@ant-design/icons";
+
+// Add these interfaces near the top of the file after imports
+interface TableColumnType {
+  title: string;
+  dataIndex: string;
+  width: number;
+  ellipsis: boolean;
+  render?: (value: any) => React.ReactNode;
+  sorter?: (a: any, b: any) => number;
+  filters?: { text: string; value: string }[];
+  onFilter?: (value: any, record: any) => boolean;
+  filterSearch?: boolean;
+}
 
 function EnumeratorsHome() {
   const navigate = useNavigate();
@@ -73,13 +83,16 @@ function EnumeratorsHome() {
   const [editData, setEditData] = useState<boolean>(false);
   const [fieldData, setFieldData] = useState<any>([]);
   const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
-  const [dataTableColumn, setDataTableColumn] = useState<any>([]);
+  const [dataTableColumn, setDataTableColumn] = useState<TableColumnType[]>([]);
   const [tableDataSource, setTableDataSource] = useState<any>([]);
   const [PrimeGeoLevelUID, setPrimeGeoLevelUID] = useState<any>(null);
   const [primeLocationName, setPrimeLocationName] = useState<any>(null);
 
   // Add a new loading state for the table specifically
   const [tableLoading, setTableLoading] = useState<boolean>(true);
+
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
+  const [sortedInfo, setSortedInfo] = useState<Record<string, any>>({});
 
   const fetchSurveyInfo = async () => {
     // Fetch survey information to get prime_geo_level_uid
@@ -119,9 +132,10 @@ function EnumeratorsHome() {
       message.error("No row selected for editing");
       return;
     }
-
-    // Check if selected row has surveyor_locations
-    const hasSurveyorLocations = selectedRows[0].surveyor_locations?.length > 0;
+    // Check if selected row has surveyor_locations or monitor_locations
+    const hasSurveyorLocations =
+      selectedRows[0].surveyor_locations?.length > 0 ||
+      selectedRows[0].monitor_locations?.length > 0;
 
     // Pre-filter fields
     const fieldsToExclude = [
@@ -233,37 +247,75 @@ function EnumeratorsHome() {
         let droppedCount = 0;
 
         // Iterate through the data
-        const dataWithStatus = originalData.map((row: any) => {
-          let status = "";
+        const updatedData = originalData.map((enumerator: Enumerator) => {
+          const surveyorLocations = [
+            ...(enumerator.surveyor_locations || []),
+            ...(enumerator.monitor_locations || []),
+          ].filter(
+            (locations, index, self) =>
+              index ===
+              self.findIndex(
+                (t) => JSON.stringify(t) === JSON.stringify(locations)
+              )
+          );
 
+          // Calculate enumerator_type and status
+          let enumerator_type = "";
           if (
-            row.surveyor_status === "Active" ||
-            row.monitor_status === "Active"
+            enumerator.surveyor_status !== null &&
+            enumerator.monitor_status !== null
           ) {
-            status = "Active";
-            activeCount++;
-          } else if (
-            row.surveyor_status?.includes("Inactive") ||
-            row.monitor_status?.includes("Inactive")
-          ) {
-            status = "Inactive";
-            inactiveCount++;
-          } else if (
-            row.surveyor_status === "Dropout" ||
-            row.monitor_status === "Dropout"
-          ) {
-            status = "Dropout";
-            droppedCount++;
+            enumerator_type = "Surveyor, Monitor";
+          } else if (enumerator.surveyor_status !== null) {
+            enumerator_type = "Surveyor";
+          } else if (enumerator.monitor_status !== null) {
+            enumerator_type = "Monitor";
+          }
+
+          const status =
+            enumerator.surveyor_status || enumerator.monitor_status || "N/A";
+
+          // Process locations
+          const flattenedLocations = ([] as Location[]).concat(
+            ...surveyorLocations
+          );
+          const matchingLocations = flattenedLocations.filter(
+            (location: Location) => location.geo_level_uid === PrimeGeoLevelUID
+          );
+
+          // Update counters
+          switch (status?.toLowerCase()) {
+            case "active":
+              activeCount++;
+              break;
+            case "temp. inactive":
+              inactiveCount++;
+              break;
+            case "dropout":
+              droppedCount++;
+              break;
           }
 
           return {
-            ...row,
+            ...enumerator,
+            enumerator_type,
             status,
+            location:
+              matchingLocations.map((loc) => loc.location_name).join(", ") ||
+              null,
+            location_uid:
+              matchingLocations.map((loc) => loc.location_uid).join(", ") ||
+              null,
+            location_id:
+              matchingLocations.map((loc) => loc.location_id).join(", ") ||
+              null,
           };
         });
+
         setActiveEnums(activeCount);
         setInactiveEnums(inactiveCount);
         setDroppedEnums(droppedCount);
+
         const columnsToExclude = [
           "enumerator_uid",
           "surveyor_status",
@@ -304,15 +356,21 @@ function EnumeratorsHome() {
         // Check if any enumerator has surveyor_locations
         // Handle surveyor_locations separately
         const hasSurveyorLocations = originalData.some(
-          (enumerator: any) => enumerator.surveyor_locations?.length > 0
+          (enumerator: any) =>
+            enumerator.surveyor_locations?.length > 0 ||
+            enumerator.monitor_locations?.length > 0
         );
-        const primeLocationName = originalData[0].surveyor_locations?.[0]?.find(
-          (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
-        )?.geo_level_name;
+        const primeLocationName =
+          originalData[0].surveyor_locations?.[0]?.find(
+            (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
+          )?.geo_level_name ||
+          originalData[0].monitor_locations?.[0]?.find(
+            (loc: any) => loc.geo_level_uid === PrimeGeoLevelUID
+          )?.geo_level_name;
 
         setPrimeLocationName(primeLocationName);
         // Define column mappings
-        let columnMappings = Object.keys(originalData[0])
+        let columnMappings: TableColumnType[] = Object.keys(originalData[0])
           .filter((column) => !columnsToExclude.includes(column))
           .filter((column) =>
             originalData.some(
@@ -325,6 +383,28 @@ function EnumeratorsHome() {
             width: 140,
             ellipsis: false,
           }));
+
+        columnMappings.push({
+          title: "Enumerator Type",
+          dataIndex: "enumerator_type",
+          width: 150,
+          ellipsis: false,
+        });
+
+        columnMappings.push({
+          title: "Status",
+          dataIndex: "status",
+          width: 150,
+          ellipsis: false,
+          render: (status: string) => {
+            const color =
+              {
+                active: "green",
+                dropout: "red",
+              }[status?.toLowerCase()] || "default";
+            return <Tag color={color}>{status}</Tag>;
+          },
+        } as TableColumnType);
 
         // Only add location columns if surveyor_locations exist
         if (hasSurveyorLocations) {
@@ -356,83 +436,154 @@ function EnumeratorsHome() {
           [key: string]: any;
         }
 
-        const updatedData = originalData.map((enumerator: Enumerator) => {
-          const surveyorLocations = enumerator.surveyor_locations || [];
+        const updatedDataWithCustomFields = updatedData.map(
+          (enumerator: Enumerator) => {
+            const surveyorLocations = [
+              ...(enumerator.surveyor_locations || []),
+              ...(enumerator.monitor_locations || []),
+            ].filter(
+              (locations, index, self) =>
+                index ===
+                self.findIndex(
+                  (t) => JSON.stringify(t) === JSON.stringify(locations)
+                )
+            );
 
-          // Flatten the array of surveyor locations arrays
-          const flattenedLocations = ([] as Location[]).concat(
-            ...surveyorLocations
-          );
+            // Flatten the array of surveyor locations arrays
+            const flattenedLocations = ([] as Location[]).concat(
+              ...surveyorLocations
+            );
 
-          // Find all matching locations
-          const matchingLocations = flattenedLocations.filter(
-            (location: Location) => location.geo_level_uid === PrimeGeoLevelUID
-          );
+            // Find all matching locations
+            const matchingLocations = flattenedLocations.filter(
+              (location: Location) =>
+                location.geo_level_uid === PrimeGeoLevelUID
+            );
 
-          return {
-            ...enumerator,
-            location:
-              matchingLocations.map((loc) => loc.location_name).join(", ") ||
-              null,
-            location_uid:
-              matchingLocations.map((loc) => loc.location_uid).join(", ") ||
-              null,
-            location_id:
-              matchingLocations.map((loc) => loc.location_id).join(", ") ||
-              null,
-          };
-        });
+            return {
+              ...enumerator,
+              location:
+                matchingLocations.map((loc) => loc.location_name).join(", ") ||
+                null,
+              location_uid:
+                matchingLocations.map((loc) => loc.location_uid).join(", ") ||
+                null,
+              location_id:
+                matchingLocations.map((loc) => loc.location_id).join(", ") ||
+                null,
+            };
+          }
+        );
 
         const customFieldsSet = new Set(); // Create a set to track unique custom fields
-        const customFields = updatedData.reduce((acc: any, row: any) => {
-          if (row.custom_fields && typeof row.custom_fields === "object") {
-            for (const key in row.custom_fields) {
-              if (
-                row.custom_fields[key] !== null &&
-                !customFieldsSet.has(key) &&
-                key !== "column_mapping"
-              ) {
-                customFieldsSet.add(key);
-                acc.push({
-                  title: key,
-                  dataIndex: `custom_fields.${key}`,
-                  width: 150,
-                  ellipsis: false,
-                });
+        const customFields = updatedDataWithCustomFields.reduce(
+          (acc: any, row: any) => {
+            if (row.custom_fields && typeof row.custom_fields === "object") {
+              for (const key in row.custom_fields) {
+                if (
+                  row.custom_fields[key] !== null &&
+                  !customFieldsSet.has(key) &&
+                  key !== "column_mapping"
+                ) {
+                  customFieldsSet.add(key);
+                  acc.push({
+                    title: key,
+                    dataIndex: `custom_fields.${key}`,
+                    width: 150,
+                    ellipsis: false,
+                  });
+                }
               }
             }
-          }
-          return acc;
-        }, []);
+            return acc;
+          },
+          []
+        );
 
         columnMappings = columnMappings.concat(customFields);
-        setDataTableColumn(columnMappings);
-        const tableDataSource = updatedData.map((item: any, index: any) => {
-          const rowData: Record<string, any> = {}; // Use index signature
-          for (const mapping of columnMappings) {
-            const { title, dataIndex } = mapping;
 
-            // Check if the mapping is for custom_fields
-            if (dataIndex.startsWith("custom_fields.")) {
-              const customFieldKey = dataIndex.split(".")[1];
-              if (
-                item.custom_fields &&
-                item.custom_fields[customFieldKey] !== null
-              ) {
-                rowData[dataIndex] = item.custom_fields[customFieldKey];
+        const tableDataSource = updatedDataWithCustomFields.map(
+          (item: any, index: any) => {
+            const rowData: Record<string, any> = {}; // Use index signature
+            for (const mapping of columnMappings) {
+              const { title, dataIndex } = mapping;
+
+              // Check if the mapping is for custom_fields
+              if (dataIndex.startsWith("custom_fields.")) {
+                const customFieldKey = dataIndex.split(".")[1];
+                if (
+                  item.custom_fields &&
+                  item.custom_fields[customFieldKey] !== null
+                ) {
+                  rowData[dataIndex] = item.custom_fields[customFieldKey];
+                } else {
+                  rowData[dataIndex] = null;
+                }
               } else {
-                rowData[dataIndex] = null;
+                rowData[dataIndex] = item[dataIndex];
               }
-            } else {
-              rowData[dataIndex] = item[dataIndex];
             }
-          }
 
-          return {
-            key: index,
-            ...rowData,
-          };
-        });
+            return {
+              key: index,
+              ...rowData,
+            };
+          }
+        );
+        setDataTableColumn(
+          columnMappings.map((col) => ({
+            ...col,
+            title: col.title
+              .split(/[_\s]+/)
+              .map((word) =>
+                word.toLowerCase() === "id"
+                  ? "ID"
+                  : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              )
+              .join(" "),
+            sorter: (a: any, b: any) => {
+              const valueA = a[col.dataIndex];
+              const valueB = b[col.dataIndex];
+              if (typeof valueA === "string" && typeof valueB === "string") {
+                return valueA.localeCompare(valueB);
+              }
+              return valueA - valueB;
+            },
+            ...(!col.dataIndex.startsWith("custom_fields.") && {
+              filterSearch: true,
+              filters: Array.from(
+                new Set(
+                  tableDataSource
+                    .flatMap((item: any) => {
+                      if (
+                        col.dataIndex === "location_id" &&
+                        item[col.dataIndex]
+                      ) {
+                        return item[col.dataIndex]
+                          .split(",")
+                          .map((v: any) => v.trim());
+                      }
+                      return item[col.dataIndex];
+                    })
+                    .filter((item: any) => item !== null && item !== undefined)
+                )
+              ).map((value: any) => ({
+                text: value,
+                value: value,
+              })),
+              onFilter: (value: any, record: any) =>
+                col.dataIndex === "location_id"
+                  ? record[col.dataIndex]
+                      ?.split(",")
+                      .map((v: any) => v.trim())
+                      .includes(value)
+                  : record[col.dataIndex]
+                      ?.toString()
+                      .toLowerCase()
+                      .includes(value.toString().toLowerCase()),
+            }),
+          }))
+        );
 
         setTableDataSource(tableDataSource);
       } else {
@@ -486,6 +637,14 @@ function EnumeratorsHome() {
       navigate(
         `/survey-information/enumerators/upload/${survey_uid}/${form_uid}`
       );
+    }
+  };
+
+  const handleClearFiltersAndSort = async () => {
+    setFilteredInfo({});
+    setSortedInfo({});
+    if (form_uid) {
+      await getEnumeratorsList(form_uid);
     }
   };
 
@@ -557,40 +716,47 @@ function EnumeratorsHome() {
               >
                 <CustomBtn
                   type="primary"
-                  icon={<EditOutlined />}
                   style={{
                     marginRight: 15,
                     backgroundColor: editMode ? "#2f54eB" : "#d9d9d9",
                     borderColor: editMode ? "#2f54eB" : "#d9d9d9",
-                    color: editMode ? "#fff" : "#000",
                   }}
                   onClick={() => onEditDataHandler()}
                   disabled={editMode ? false : true}
                 >
                   Edit
                 </CustomBtn>
-                <Button
+                <CustomBtn
                   onClick={handlerAddEnumBtn}
                   type="primary"
-                  icon={<PlusOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  style={{ marginRight: 15 }}
                 >
-                  Add enumerators
-                </Button>
+                  Add Enumerators
+                </CustomBtn>
                 <CSVDownloader
                   data={tableDataSource}
                   filename={"enumerators.csv"}
+                  bom={true}
+                >
+                  <CustomBtn type="primary" style={{ marginRight: 15 }}>
+                    Download CSV
+                  </CustomBtn>
+                </CSVDownloader>
+                <Button
+                  onClick={handleClearFiltersAndSort}
                   style={{
                     cursor: "pointer",
-                    backgroundColor: "#2F54EB",
-                    color: "#FFF",
-                    fontSize: "12px",
+                    marginRight: 15,
                     padding: "8px 16px",
                     borderRadius: "5px",
+                    fontSize: "14px",
                   }}
-                >
-                  <DownloadOutlined />
-                </CSVDownloader>
+                  disabled={
+                    Object.keys(filteredInfo).length === 0 &&
+                    Object.keys(sortedInfo).length === 0
+                  }
+                  icon={<ClearOutlined />}
+                />
               </div>
             </div>
           </>
@@ -611,6 +777,7 @@ function EnumeratorsHome() {
                   columns={dataTableColumn}
                   dataSource={tableDataSource}
                   scroll={{ x: "max-content" }}
+                  bordered={true}
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,
@@ -619,6 +786,10 @@ function EnumeratorsHome() {
                     showQuickJumper: true,
                     onShowSizeChange: (_, size) => setPaginationPageSize(size),
                     style: { color: "#2F54EB" },
+                  }}
+                  onChange={(pagination, filters, sorter) => {
+                    setFilteredInfo(filters);
+                    setSortedInfo(sorter);
                   }}
                 />
                 {editData ? (
@@ -635,13 +806,13 @@ function EnumeratorsHome() {
                 ) : null}
               </EnumeratorsHomeFormWrapper>
               <Modal
-                title="Add enumerators"
+                title="Add Enumerators"
                 open={newEnumModal}
                 onOk={handleNewEnumMode}
                 okText="Continue"
                 onCancel={() => setNewEnumModal(false)}
               >
-                <Divider />
+                <Divider style={{ margin: "0" }} />
                 <p>Please select how you want to proceed:</p>
                 <Radio.Group
                   style={{ marginBottom: 20 }}
@@ -653,10 +824,9 @@ function EnumeratorsHome() {
                       I want to add new enumerators / columns
                     </Radio>
                     <Radio value="overwrite" disabled={isEnumInUse}>
-                      <span> I want to start afresh </span>
-                      <span style={{ color: "red" }}>
-                        ( Enumerators uploaded previously will be removed.
-                        Existing assignments data will be deleted. )
+                      <span>
+                        I want to start afresh. ( This action will delete
+                        previously uploaded enumerators as well as assignments.){" "}
                       </span>
                     </Radio>
                   </Space>

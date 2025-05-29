@@ -8,6 +8,7 @@ import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
   CustomBtn,
   DescriptionText,
+  DescriptionWrap,
   DQFormWrapper,
   FormItemLabel,
   SCTOLoadErrorArea,
@@ -22,10 +23,13 @@ import {
   createSCTOFormMapping,
   getSCTOFormMapping,
   updateSCTOFormMapping,
+  getDQForm,
 } from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
+import { use } from "chai";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -68,6 +72,7 @@ function DQFormSCTOQuestion() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questionList, setQuestionList] = useState([]);
   const [isNewMapping, setIsNewMapping] = useState<boolean>(false);
+  const [formIdName, setFormIdName] = useState<string>("");
   const [defaultLocationFormat, setDefaultLocationFormat] = useState({});
 
   const [hasError, setHasError] = useState<boolean>(false);
@@ -84,6 +89,17 @@ function DQFormSCTOQuestion() {
     dq_enumerator_id: null,
     locations: {},
   });
+
+  const loadFormName = async (refresh = false) => {
+    if (dq_form_uid != undefined) {
+      const res = await dispatch(getDQForm({ form_uid: dq_form_uid }));
+      if (res.payload?.success) {
+        setFormIdName(res.payload?.data?.scto_form_id || "");
+      } else {
+        message.error("Something went wrong!");
+      }
+    }
+  };
 
   const loadFormQuestions = async (refresh = false) => {
     setIsQuestionLoading(true);
@@ -243,6 +259,7 @@ function DQFormSCTOQuestion() {
   // Load form surveyCTOQuestions on page load
   useEffect(() => {
     loadFormQuestions();
+    loadFormName();
   }, [dq_form_uid]);
 
   // Load form surveyCTOMapping on page load
@@ -319,7 +336,6 @@ function DQFormSCTOQuestion() {
     if (!isLoading && !hasError) {
       return (
         <div>
-          <p style={{ marginTop: 36 }}>Questions to be mapped</p>
           <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
             <Col span={4}>
               <FormItemLabel>
@@ -447,6 +463,10 @@ function DQFormSCTOQuestion() {
                 </Row>
               ))
             : null}
+          <DescriptionText style={{ width: "90%" }}>
+            Kindly revisit this page to update the mapping if the form variables
+            change in the future.
+          </DescriptionText>
           <Button
             onClick={() =>
               navigate(`/module-configuration/dq-forms/${survey_uid}`)
@@ -492,9 +512,8 @@ function DQFormSCTOQuestion() {
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}
             style={{ marginLeft: "auto" }}
-            loading={isQuestionLoading}
           >
-            Load questions from SCTO form
+            Load SurveyCTO form definition
           </CustomBtn>
         </HeaderContainer>
         {isLoading ? (
@@ -503,24 +522,27 @@ function DQFormSCTOQuestion() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <DQFormWrapper>
-              <DescriptionText>
-                This step has 3 pre-requisites:
-                <ol>
-                  <li>
-                    Data Manager access to the SCTO server has been provided to
-                    surveystream.devs@idinsight.org
-                  </li>
-                  <li>
-                    You can see surveystream.devs@idinsight.org as an active
-                    user on SCTO
-                  </li>
-                  <li>
-                    The form ID shared will be the form used for data
-                    collection, the form has been deployed, and the variable
-                    names will not change.
-                  </li>
-                </ol>
-              </DescriptionText>
+              <DescriptionWrap>
+                <DescriptionText style={{ width: "90%" }}>
+                  Match key fields in your SurveyCTO form to SurveyStream system
+                  variables.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#data-quality-form-requirements" />
+                </DescriptionText>
+                <DescriptionText style={{ width: "90%" }}>
+                  Before proceeding with the mapping, ensure that
+                  surveystream.devs@idinsight.org is an active user on
+                  SurveyCTO.
+                </DescriptionText>
+              </DescriptionWrap>
+              <p
+                style={{
+                  marginTop: "20px",
+                  fontSize: 14,
+                  marginBottom: "20px",
+                }}
+              >
+                DQ form ID: {formIdName}
+              </p>
               {renderQuestionsSelectArea()}
             </DQFormWrapper>
           </div>

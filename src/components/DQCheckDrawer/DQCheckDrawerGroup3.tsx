@@ -131,14 +131,22 @@ function DQCheckDrawerGroup3({
           if (res?.data?.success) {
             const formDefinition = res.data.data;
             if (formDefinition && formDefinition.questions) {
-              const questionNames = formDefinition.questions.map(
-                (question: any) => ({
-                  name: question.question_name,
-                  label:
-                    question.question_name +
-                    (question.is_repeat_group ? "_*" : ""),
-                })
+              // Filter to exclude repeat groups with select_multiple question types
+              const filteredQuestions = formDefinition.questions.filter(
+                (question: any) =>
+                  !(
+                    question.is_repeat_group &&
+                    question.question_type.startsWith("select_multiple")
+                  )
               );
+              const questionNames = filteredQuestions.map((question: any) => ({
+                name: question.question_name,
+                label:
+                  question.question_name +
+                  (question.is_repeat_group ? "_*" : ""),
+                is_multi_select:
+                  question.question_type.startsWith("select_multiple"),
+              }));
               setDqFormQuestions(questionNames);
             }
           }
@@ -163,7 +171,12 @@ function DQCheckDrawerGroup3({
         });
         setFinalQuestions(questions);
       } else {
-        setFinalQuestions(dqFormQuestions);
+        // for protocol violations and spotcheck scores, remove select multiple questions
+        const dqFormQuestionsFiltered = dqFormQuestions.filter(
+          (question: any) => question.is_multi_select !== true
+        );
+
+        setFinalQuestions(dqFormQuestionsFiltered);
       }
     } else {
       setFinalQuestions([]);
