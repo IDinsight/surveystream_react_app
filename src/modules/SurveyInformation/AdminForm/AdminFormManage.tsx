@@ -17,6 +17,7 @@ import {
 import { userHasPermission } from "../../../utils/helper";
 import { Breadcrumb } from "antd";
 import SideMenu from "../SideMenu";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 
 const { Option } = Select;
 
@@ -184,12 +185,12 @@ function AdminFormManage() {
             <SideMenu />
             <BodyContainer>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Please fill out the SurveyCTO form details for an admin form.
+                Provide details of an admin form.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/admin_forms#admin-form" />
               </p>
               <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-                Kindly note that it is assumed that the SurveyCTO server name
-                and timezone for the admin form matches that of the other forms
-                in the survey.
+                Note that the admin form should be deployed on the same
+                SurveyCTO server as other forms in the survey
               </p>
               <Row align="middle" style={{ marginBottom: 6, marginTop: 24 }}>
                 <Col span={6}>
@@ -253,7 +254,7 @@ function AdminFormManage() {
                   />
                 </Col>
               </Row>
-              <Row align={"middle"} style={{ marginBottom: 6 }}>
+              <Row align={"middle"} style={{ marginBottom: 0 }}>
                 <Col>
                   <Checkbox
                     checked={formFieldsData?.encryption_key_shared}
@@ -264,13 +265,20 @@ function AdminFormManage() {
                       }));
                     }}
                   >
-                    The SurveyCTO form is encrypted. If yes, please share the
-                    key with{" "}
+                    The SurveyCTO form is encrypted.
+                  </Checkbox>
+                </Col>
+              </Row>
+              <Row align={"middle"} style={{ marginBottom: 20 }}>
+                <Col>
+                  <div style={{ marginTop: "30px", display: "block" }}>
+                    If the SurveyCTO form is encrypted, share the encryption key
+                    with{" "}
                     <a href="mail:surveystream.devs@idinsight.org">
                       surveystream.devs@idinsight.org
                     </a>{" "}
                     via FlowCrypt/Nordpass.
-                  </Checkbox>
+                  </div>
                 </Col>
               </Row>
 
