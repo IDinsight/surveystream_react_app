@@ -53,7 +53,7 @@ function MediaAuditsHome() {
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
-            <Title>Media Audits Config</Title>
+            <Title>Media Audits</Title>
           </HeaderContainer>
           <BodyContainer>
             <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>

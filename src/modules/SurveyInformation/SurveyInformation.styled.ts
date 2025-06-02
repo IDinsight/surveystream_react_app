@@ -98,3 +98,9 @@ export const DynamicItemsForm = styled(Form)`
     text-align: left;
   }
 `;
+
+export const CustomStyledFormItem = styled(StyledFormItem)`
+  && .ant-form-item-label {
+    line-height: 2;
+  }
+`;

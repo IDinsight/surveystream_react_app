@@ -97,17 +97,20 @@ export const getSurveyConfig = createAsyncThunk(
         );
         let transformedModules: any = [];
         if (
-          surveyConfig?.data["Module configuration"] &&
-          surveyConfig?.data["Module configuration"].length > 0
+          surveyConfig?.data["Module Configuration"] &&
+          surveyConfig?.data["Module Configuration"].length > 0
         ) {
           // Filter and transform modules
-          const moduleIds = surveyConfig?.data["Module configuration"].map(
+          const moduleIds = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.module_id
           );
-          const moduleStatus = surveyConfig?.data["Module configuration"].map(
+          const moduleNames = surveyConfig?.data["Module Configuration"].map(
+            (module: any) => module.name
+          );
+          const moduleStatus = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.status
           );
-          const moduleOptional = surveyConfig?.data["Module configuration"].map(
+          const moduleOptional = surveyConfig?.data["Module Configuration"].map(
             (module: any) => module.optional
           );
 
@@ -117,7 +120,7 @@ export const getSurveyConfig = createAsyncThunk(
               const index = moduleIds.indexOf(module.module_id);
               return {
                 module_id: moduleIds[index],
-                name: module.title,
+                name: moduleNames[index],
                 status: moduleStatus[index],
                 optional: moduleOptional[index],
               };
@@ -128,14 +131,14 @@ export const getSurveyConfig = createAsyncThunk(
           fetchSurveysConfigSuccess({
             surveyConfigs: {
               ...transformedConfigs,
-              "Module configuration": transformedModules,
+              "Module Configuration": transformedModules,
             },
             completionStats: completionStats,
           })
         );
         return {
           ...transformedConfigs,
-          "Module configuration": transformedModules,
+          "Module Configuration": transformedModules,
           success: true,
         };
       }

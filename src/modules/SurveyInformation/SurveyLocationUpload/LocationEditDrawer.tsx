@@ -1,9 +1,13 @@
 import React from "react";
 import { Button, Drawer, Form, Input, message, Modal, Select } from "antd";
 import styled from "styled-components";
-import { updateLocation } from "../../../redux/surveyLocations/surveyLocationsActions";
+import {
+  updateLocation,
+  getSurveyLocations,
+} from "../../../redux/surveyLocations/surveyLocationsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import { StyledFormItem } from "../SurveyInformation.styled";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const LocationsDrawer = styled(Drawer)`
   margin-bottom: 68px;
@@ -85,27 +89,30 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
       if (failedUpdates.length > 0) {
         alert("Some locations failed to update.");
       }
-      // Reload the page to reflect the changes
-      window.location.reload();
+      // Call get survey locations to reflect the changes
+      const res = await dispatch(getSurveyLocations({ survey_uid: surveyUID }));
+
+      message.success("Location data updated successfully.");
+
       setLoading(false);
     } catch (error: any) {
-      message.error("Failed to update locations: " + error.toString());
+      message.error("Failed to update locations.");
     }
   };
 
   return (
     <>
       <LocationsDrawer
-        title="Edit location information"
+        title="Edit Location Information"
         placement="right"
         closable={true}
         onClose={onClose}
         open={visible}
         size="large"
       >
-        <p>
-          Editing the location will update the location data associated with all
-          enumerator and targets records.
+        <p style={{ marginBottom: "20px" }}>
+          Editing the location will update the location data for all associated
+          user, enumerator and targets records.
         </p>
         <Form form={form} layout="horizontal">
           {geoLevels.map((geoLevel: any, index: any) => (
@@ -113,6 +120,10 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
               <StyledFormItem
                 label={`${geoLevel.geo_level_name} ID`}
                 name={`${geoLevel.geo_level_name}_uid`}
+                required
+                rules={[
+                  { required: true, message: "Please select a location" },
+                ]}
                 labelAlign="left"
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 16 }}
@@ -127,6 +138,7 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
                 }
               >
                 <Select
+                  disabled={index === geoLevels.length - 1}
                   onChange={(value) => {
                     const selectedLocation = dataTable.find(
                       (data: any) => data.location_uid === value
@@ -157,6 +169,10 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
               <StyledFormItem
                 label={`${geoLevel.geo_level_name} Name`}
                 name={`${geoLevel.geo_level_name}_name`}
+                required
+                rules={[
+                  { required: true, message: "Please enter a location name" },
+                ]}
                 labelAlign="left"
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 16 }}
@@ -173,27 +189,13 @@ export const LocationEditDrawer: React.FC<LocationEditDrawerProps> = ({
           ))}
         </Form>
         <StyledFormItem>
-          <Button
-            type="primary"
-            onClick={() => {
-              Modal.confirm({
-                title: "Save Location Changes",
-                content: (
-                  <p>
-                    This action will update the location details in User,
-                    Enumerator, and Target records.
-                    <br />
-                    Are you sure you want to proceed?
-                  </p>
-                ),
-                onOk: handleLocationsUpdate,
-                okText: "Yes",
-                cancelText: "No",
-              });
-            }}
+          <Button onClick={() => onClose()}>Cancel</Button>
+          <CustomBtn
+            style={{ marginTop: "20px", marginLeft: "20px" }}
+            onClick={handleLocationsUpdate}
           >
             Save
-          </Button>
+          </CustomBtn>
         </StyledFormItem>
       </LocationsDrawer>
     </>

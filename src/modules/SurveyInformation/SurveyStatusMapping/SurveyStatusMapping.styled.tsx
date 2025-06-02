@@ -4,9 +4,13 @@ import styled from "styled-components";
 export const TargetStatusFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
-  padding-left: 80px;
   padding-top: 23px;
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Lato", sans-serif;
+  position: relative;
+  min-height: 550px;
+  width: 70%;
 `;
 
 export const TextHeading = styled.h1`
@@ -21,7 +25,6 @@ export const BodyContainer = styled.div`
   margin-left: auto;
   margin-top: 12px;
   margin-bottom: 12px;
-  margin-right: 40px;
 `;
 
 export const EditingModel = styled.div`
@@ -58,10 +61,11 @@ export const CustomBtn = styled(Button)`
 `;
 
 export const TargetMappingTable = styled(Table)`
+  margin-bottom: 30px;
+  width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
     font-family: "Lato", sans-serif;
   }
-  margin-right: 80px;
 `;

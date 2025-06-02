@@ -11,7 +11,7 @@ import {
   deleteAdminForm,
   getAdminForms,
 } from "../../redux/adminForm/adminFormActions";
-import { FormItemLabel } from "../../modules/AdminForm/AdminForm.styled";
+import { FormItemLabel } from "../../modules/SurveyInformation/AdminForm/AdminForm.styled";
 
 interface AdminFormCardProps {
   data: any;
@@ -28,7 +28,7 @@ function AdminFormCard({ data, editable, surveyUID }: AdminFormCardProps) {
 
   const editHandler = () => {
     navigate(
-      `/module-configuration/admin-forms/${surveyUID}/manage?admin_form_uid=${adminFormUID}`
+      `/survey-information/admin-forms/${surveyUID}/manage?admin_form_uid=${adminFormUID}`
     );
   };
 
@@ -59,7 +59,7 @@ function AdminFormCard({ data, editable, surveyUID }: AdminFormCardProps) {
   return (
     <>
       <div
-        style={{ backgroundColor: "#FAFAFA", padding: 24, marginBottom: 24 }}
+        style={{ backgroundColor: "#FFFFFF", padding: 24, marginBottom: 24 }}
       >
         <Row align="middle" style={{ marginBottom: 6 }}>
           <Col span={6}>

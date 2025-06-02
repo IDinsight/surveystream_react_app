@@ -32,6 +32,10 @@ export const BackLink = styled.a`
   align-items: center;
   text-decoration: none;
   margin-right: 10px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 export const BackArrow = styled(ArrowLeftOutlined)`
@@ -57,8 +61,8 @@ export const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
   height: 55px;
-  padding-left: 48px;
-  padding-right: 48px;
+  padding-left: 40px;
+  padding-right: 50px;
   border-top: 1px solid #00000026;
   border-bottom: 1px solid #00000026;
 `;

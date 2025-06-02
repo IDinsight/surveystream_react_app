@@ -78,21 +78,28 @@ const EmailScheduleForm = ({
     const emailSchedulesRes: any = await getEmailSchedules(emailConfigUID);
     if (emailSchedulesRes?.data?.success) {
       const schedules = emailSchedulesRes.data.data;
-      form.setFieldsValue({
-        schedules: schedules.map((schedule: any, index: number) => {
-          if (schedule.filter_list) {
-            if (!formStates[index]) {
-              formStates[index] = { tableList: [] };
+      if (schedules.length === 0) {
+        form.setFieldsValue({
+          schedules: [{}],
+        });
+        setFormStates([{ tableList: [] }]);
+      } else {
+        form.setFieldsValue({
+          schedules: schedules.map((schedule: any, index: number) => {
+            if (schedule.filter_list) {
+              if (!formStates[index]) {
+                formStates[index] = { tableList: [] };
+              }
+              updateFormState(index, "tableList", [...schedule.filter_list]);
             }
-            updateFormState(index, "tableList", [...schedule.filter_list]);
-          }
-          return {
-            emailScheduleName: schedule.email_schedule_name,
-            dates: schedule.dates.map((date: any) => dayjs(date)),
-            emailTime: dayjs(schedule.time, "HH:mm"),
-          };
-        }),
-      });
+            return {
+              emailScheduleName: schedule.email_schedule_name,
+              dates: schedule.dates.map((date: any) => dayjs(date)),
+              emailTime: dayjs(schedule.time, "HH:mm"),
+            };
+          }),
+        });
+      }
       setDisabledIndices(schedules.map((_: any, index: number) => index)); // Disable fields for fetched schedules
     } else {
       message.error(

@@ -15,8 +15,8 @@ interface ISideMenuProps {
 
 function SideMenu({ stepIndex, setStepIndexHandler }: ISideMenuProps) {
   const menus = [
-    { text: "Basic information", icon: <InfoIcon /> },
-    { text: "Module questionnaire", icon: <QuestionIcon /> },
+    { text: "Basic Information", icon: <InfoIcon /> },
+    { text: "Module Questionnaire", icon: <QuestionIcon /> },
   ];
 
   const handleClick = (index: number) => {

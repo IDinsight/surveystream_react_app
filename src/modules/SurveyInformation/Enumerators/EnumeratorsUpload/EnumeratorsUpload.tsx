@@ -2,28 +2,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
 import {
-  BackArrow,
-  BackLink,
+  HeaderContainer,
   NavWrapper,
   Title,
 } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import {
   DescriptionContainer,
   EnumeratorsUploadFormWrapper,
   ErrorTable,
 } from "./EnumeratorsUpload.styled";
-import { ProfileOutlined } from "@ant-design/icons";
+import { ProfileOutlined, SelectOutlined } from "@ant-design/icons";
 import { IconText } from "../../SurveyLocationUpload/SurveyLocationUpload.styled";
 import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppSelector, useAppDispatch } from "../../../../redux/hooks";
+import Container from "../../../../components/Layout/Container";
 
 import { RootState } from "../../../../redux/store";
 import {
@@ -147,11 +143,11 @@ function EnumeratorsUpload() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Enumerators: Upload CSV</Title>
+      </HeaderContainer>
 
-        <Title> {activeSurvey?.survey_name} </Title>
-      </NavWrapper>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -159,7 +155,6 @@ function EnumeratorsUpload() {
           <SideMenu />
           <EnumeratorsUploadFormWrapper>
             <div style={{ display: "flex" }}>
-              <Title>Enumerators: Upload csv</Title>
               <div
                 style={{
                   display: "flex",
@@ -207,49 +202,29 @@ function EnumeratorsUpload() {
               </div>
             </div>
             <DescriptionContainer>
-              <ol style={{ paddingLeft: "15px" }}>
-                <li>
-                  Upload enumerators data in csv format. Please go through the
-                  template and filled csv sheet before uploading.
-                </li>
-                <li>
-                  Mandatory csv fields:
-                  <ol type="a">
-                    <li>Enumerator ID</li>
-                    <li>Enumerator Name</li>
-                    <li>Email ID</li>
-                    <li>Mobile (primary)</li>
-                    <li>Gender</li>
-                    <li>Enumerator type</li>
-                    <li>
-                      Prime-Geo Location ID (If location is selected as a
-                      mapping criterion).
-                    </li>
-                    <li>
-                      Prime-Geo Location (If location is selected as a mapping
-                      criterion).
-                    </li>
-                    <li>
-                      Language (If language is selected as a mapping criterion).
-                    </li>
-                  </ol>
-                </li>
-                <li>
-                  You can also add custom columns are per the requirement of
-                  your survey - please ensure the column(s) is added in the csv
-                  file you will upload.
-                </li>
-                <li>
-                  You can edit the enumerator data before and during (certain
-                  fields) data collection.
-                </li>
-                <li>
-                  You can add more enumerators before and during data
-                  collection.
-                </li>
-              </ol>
+              Upload a .csv file containing the enumerators for your survey.{" "}
+              <a
+                href="https://docs.surveystream.idinsight.io/enumerators#enumerators"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#2F80ED",
+                  fontSize: "14px",
+                  fontFamily: '"Lato", sans-serif',
+                }}
+              >
+                Learn more
+                <SelectOutlined
+                  rotate={90}
+                  style={{
+                    marginLeft: "3px",
+                    padding: "0px",
+                    fontSize: "15px",
+                  }}
+                />{" "}
+              </a>{" "}
             </DescriptionContainer>
-            <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+            <div style={{ marginTop: "40px", marginBottom: "14px" }}>
               <Form layout="horizontal">
                 <Row>
                   <Col span={23}>

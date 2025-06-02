@@ -1,9 +1,22 @@
 import { Button, Table } from "antd";
 import styled from "styled-components";
 
+// export const BodyContainer = styled.div`
+//   padding: 48px;
+//   padding-top: 12px;
+// `;
+
 export const BodyContainer = styled.div`
-  padding: 48px;
-  padding-top: 12px;
+  flex: 1;
+  background-color: #f5f5f5;
+  padding-left: 80px;
+  padding-top: 23px;
+  padding-right: 48px;
+  font-family: "Lato", sans-serif;
+`;
+
+export const DescriptionWrap = styled.div`
+  font-family: "Lato", sans-serif;
 `;
 
 export const FormItemLabel = styled.p`
@@ -24,7 +37,7 @@ export const CustomBtn = styled(Button)`
   }
 `;
 
-export const DescriptionText = styled.span`
+export const DescriptionText = styled.p`
   font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;

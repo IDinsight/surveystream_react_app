@@ -8,12 +8,14 @@ import { HeaderContainer } from "../../../shared/Nav.styled";
 import {
   CustomBtn,
   DescriptionText,
+  DescriptionWrap,
   DQFormWrapper,
   FormItemLabel,
+  SCTOLoadErrorArea,
 } from "./DQForm.styled";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
-import { Button, Col, Row, Select, Tooltip, message } from "antd";
+import { Button, Col, Row, Select, Tooltip, message, Alert } from "antd";
 import { getCTOFormQuestions } from "../../../redux/surveyCTOQuestions/surveyCTOQuestionsActions";
 import { getSurveyLocationGeoLevels } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { userHasPermission } from "../../../utils/helper";
@@ -21,10 +23,13 @@ import {
   createSCTOFormMapping,
   getSCTOFormMapping,
   updateSCTOFormMapping,
+  getDQForm,
 } from "../../../redux/dqForm/dqFormActions";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Breadcrumb } from "antd";
 import SideMenu from "./../SideMenu";
+import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
+import { use } from "chai";
 
 function DQFormSCTOQuestion() {
   const navigate = useNavigate();
@@ -67,7 +72,13 @@ function DQFormSCTOQuestion() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [questionList, setQuestionList] = useState([]);
   const [isNewMapping, setIsNewMapping] = useState<boolean>(false);
+  const [formIdName, setFormIdName] = useState<string>("");
   const [defaultLocationFormat, setDefaultLocationFormat] = useState({});
+
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [surveyCTOErrorMessages, setSurveyCTOErrorMessages] = useState<
+    string[]
+  >([]);
 
   const [formFields, setFormFields] = useState<any>({
     form_uid: dq_form_uid || "",
@@ -79,26 +90,54 @@ function DQFormSCTOQuestion() {
     locations: {},
   });
 
+  const loadFormName = async (refresh = false) => {
+    if (dq_form_uid != undefined) {
+      const res = await dispatch(getDQForm({ form_uid: dq_form_uid }));
+      if (res.payload?.success) {
+        setFormIdName(res.payload?.data?.scto_form_id || "");
+      } else {
+        message.error("Something went wrong!");
+      }
+    }
+  };
+
   const loadFormQuestions = async (refresh = false) => {
     setIsQuestionLoading(true);
+    setHasError(false);
+    setSurveyCTOErrorMessages([]);
+    const errorMessages: string[] = [];
     if (dq_form_uid != undefined) {
       const questionsRes = await dispatch(
         await getCTOFormQuestions({ formUid: dq_form_uid, refresh: refresh })
       );
 
       if (questionsRes.payload?.error) {
-        let errorMsg = "";
+        setHasError(true);
         if (questionsRes.payload?.error.includes("ResourceNotFoundException")) {
-          errorMsg =
-            "The resource is not found. Either the SCTO server name is wrong, or access is not given.";
+          errorMessages.push(
+            "The resource is not found. Either the SCTO server name is wrong, or access is not given."
+          );
         } else if (questionsRes.payload?.error.includes("Client Error")) {
-          errorMsg =
-            "Either the SurveyCTO Form ID provided is wrong or access is not given.";
+          errorMessages.push(
+            "Either the SurveyCTO Form ID provided is wrong or access is not given."
+          );
         } else {
-          errorMsg = questionsRes.payload?.error;
+          errorMessages.push(questionsRes.payload?.error);
         }
-
-        message.error(errorMsg);
+        setSurveyCTOErrorMessages(errorMessages);
+      } else if (questionsRes.payload?.errors) {
+        setHasError(true);
+        // Check if the error message is an array
+        if (Array.isArray(questionsRes.payload?.errors)) {
+          questionsRes.payload?.errors.forEach(
+            (error: string, index: number) => {
+              errorMessages.push(error);
+            }
+          );
+        } else {
+          errorMessages.push("An unknown error occurred");
+        }
+        setSurveyCTOErrorMessages(errorMessages);
       }
 
       //dispatch twice if refresh
@@ -108,9 +147,10 @@ function DQFormSCTOQuestion() {
         );
 
         if (refreshRes.payload?.message) {
-          message.error(
-            "Could not find SCTO form questions, kindly click Load questions from SCTO to retry."
-          );
+          setHasError(true);
+          setSurveyCTOErrorMessages([
+            'Could not find SCTO form questions, please click the "Load questions from SCTO" button to retry.',
+          ]);
         }
       }
     } else {
@@ -219,6 +259,7 @@ function DQFormSCTOQuestion() {
   // Load form surveyCTOQuestions on page load
   useEffect(() => {
     loadFormQuestions();
+    loadFormName();
   }, [dq_form_uid]);
 
   // Load form surveyCTOMapping on page load
@@ -262,6 +303,189 @@ function DQFormSCTOQuestion() {
     isQuestionLoading ||
     isLoadingSurveyLocationGeoLevels;
 
+  const renderQuestionsSelectArea = () => {
+    if (isLoading) {
+      return <FullScreenLoader />;
+    }
+    if (!isLoading && hasError) {
+      return (
+        <SCTOLoadErrorArea>
+          <span
+            style={{
+              marginTop: "10px",
+              marginBottom: "20px",
+              display: "inline-block",
+            }}
+          >
+            The SurveyCTO form definition could not be loaded due to the
+            following errors:
+          </span>
+          {surveyCTOErrorMessages.map((error, index) => {
+            const key = "uniqueKey" + index;
+            return (
+              <div key={key}>
+                <Alert message={error} type="error" />
+                <br />
+              </div>
+            );
+          })}
+        </SCTOLoadErrorArea>
+      );
+    }
+
+    if (!isLoading && !hasError) {
+      return (
+        <div>
+          <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+            <Col span={4}>
+              <FormItemLabel>
+                <span style={{ color: "red" }}>*</span> Target ID{" "}
+                <Tooltip title="Select the variable that is used to track the Target ID.">
+                  <QuestionCircleOutlined />
+                </Tooltip>{" "}
+                :
+              </FormItemLabel>
+            </Col>
+            <Col span={5}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Select"
+                value={formFields?.target_id}
+                disabled={!canUserWrite}
+                options={questionList}
+                onChange={(value) =>
+                  setFormFields({ ...formFields, target_id: value })
+                }
+                showSearch
+                allowClear
+              />
+            </Col>
+          </Row>
+          <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+            <Col span={4}>
+              <FormItemLabel>
+                <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
+                <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
+                  <QuestionCircleOutlined />
+                </Tooltip>{" "}
+                :
+              </FormItemLabel>
+            </Col>
+            <Col span={5}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Select"
+                value={formFields?.enumerator_id}
+                disabled={!canUserWrite}
+                options={questionList}
+                onChange={(value) =>
+                  setFormFields({ ...formFields, enumerator_id: value })
+                }
+                showSearch
+                allowClear
+              />
+            </Col>
+          </Row>
+          <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
+            <Col span={4}>
+              <FormItemLabel>
+                <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
+                <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
+                  <QuestionCircleOutlined />
+                </Tooltip>{" "}
+                :
+              </FormItemLabel>
+            </Col>
+            <Col span={5}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Select"
+                value={formFields?.dq_enumerator_id}
+                disabled={!canUserWrite}
+                options={questionList}
+                onChange={(value) =>
+                  setFormFields({ ...formFields, dq_enumerator_id: value })
+                }
+                showSearch
+                allowClear
+              />
+            </Col>
+          </Row>
+          {surveyLocationGeoLevels && surveyLocationGeoLevels.length > 0
+            ? surveyLocationGeoLevels.map((geoLevel: any, idx) => (
+                <Row
+                  key={idx}
+                  align="middle"
+                  style={{ marginBottom: 6, marginTop: 12 }}
+                >
+                  <Col span={4}>
+                    <FormItemLabel>
+                      <span style={{ color: "red" }}>*</span>{" "}
+                      {geoLevel.geo_level_name} ID{" "}
+                      <Tooltip
+                        title={
+                          "Select the variable that is used to track the " +
+                          geoLevel.geo_level_name +
+                          " ID."
+                        }
+                      >
+                        <QuestionCircleOutlined />
+                      </Tooltip>{" "}
+                      :
+                    </FormItemLabel>
+                  </Col>
+                  <Col span={5}>
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="Select"
+                      value={
+                        formFields?.locations &&
+                        Object.keys(formFields?.locations).length > 0
+                          ? formFields?.locations["location_" + (idx + 1)]
+                          : ""
+                      }
+                      options={questionList}
+                      disabled={!canUserWrite}
+                      onChange={(value) => {
+                        const updatedLocations = {
+                          ...formFields?.locations,
+                          ["location_" + (idx + 1)]: value,
+                        };
+                        setFormFields({
+                          ...formFields,
+                          locations: updatedLocations,
+                        });
+                      }}
+                      showSearch
+                      allowClear
+                    />
+                  </Col>
+                </Row>
+              ))
+            : null}
+          <DescriptionText style={{ width: "90%" }}>
+            Kindly revisit this page to update the mapping if the form variables
+            change in the future.
+          </DescriptionText>
+          <Button
+            onClick={() =>
+              navigate(`/module-configuration/dq-forms/${survey_uid}`)
+            }
+          >
+            Cancel
+          </Button>
+          <CustomBtn
+            style={{ marginTop: 24, marginLeft: 20 }}
+            onClick={handleFormSubmit}
+            disabled={!canUserWrite}
+          >
+            Save
+          </CustomBtn>
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <>
@@ -272,11 +496,11 @@ function DQFormSCTOQuestion() {
             style={{ fontSize: "16px", color: "#000" }}
             items={[
               {
-                title: "Data quality forms",
+                title: "Data Quality Forms",
                 href: `/module-configuration/dq-forms/${survey_uid}`,
               },
               {
-                title: "Form details",
+                title: "Form Details",
                 href: `/module-configuration/dq-forms/${survey_uid}/manage?dq_form_uid=${dq_form_uid}`,
               },
               {
@@ -288,9 +512,8 @@ function DQFormSCTOQuestion() {
             onClick={() => loadFormQuestions(true)}
             disabled={!canUserWrite}
             style={{ marginLeft: "auto" }}
-            loading={isQuestionLoading}
           >
-            Load questions from SCTO form
+            Load SurveyCTO form definition
           </CustomBtn>
         </HeaderContainer>
         {isLoading ? (
@@ -299,166 +522,28 @@ function DQFormSCTOQuestion() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <DQFormWrapper>
-              <DescriptionText>
-                This step has 3 pre-requisites:
-                <ol>
-                  <li>
-                    Data Manager access to the SCTO server has been provided to
-                    surveystream.devs@idinsight.org
-                  </li>
-                  <li>
-                    You can see surveystream.devs@idinsight.org as an active
-                    user on SCTO
-                  </li>
-                  <li>
-                    The form ID shared will be the form used for data
-                    collection, the form has been deployed, and the variable
-                    names will not change.
-                  </li>
-                </ol>
-              </DescriptionText>
-              <p style={{ marginTop: 36 }}>Questions to be mapped</p>
-              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-                <Col span={4}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Target ID{" "}
-                    <Tooltip title="Select the variable that is used to track the Target ID.">
-                      <QuestionCircleOutlined />
-                    </Tooltip>{" "}
-                    :
-                  </FormItemLabel>
-                </Col>
-                <Col span={5}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="Select"
-                    value={formFields?.target_id}
-                    disabled={!canUserWrite}
-                    options={questionList}
-                    onChange={(value) =>
-                      setFormFields({ ...formFields, target_id: value })
-                    }
-                    showSearch
-                    allowClear
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-                <Col span={4}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
-                    <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
-                      <QuestionCircleOutlined />
-                    </Tooltip>{" "}
-                    :
-                  </FormItemLabel>
-                </Col>
-                <Col span={5}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="Select"
-                    value={formFields?.enumerator_id}
-                    disabled={!canUserWrite}
-                    options={questionList}
-                    onChange={(value) =>
-                      setFormFields({ ...formFields, enumerator_id: value })
-                    }
-                    showSearch
-                    allowClear
-                  />
-                </Col>
-              </Row>
-              <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
-                <Col span={4}>
-                  <FormItemLabel>
-                    <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
-                    <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
-                      <QuestionCircleOutlined />
-                    </Tooltip>{" "}
-                    :
-                  </FormItemLabel>
-                </Col>
-                <Col span={5}>
-                  <Select
-                    style={{ width: "100%" }}
-                    placeholder="Select"
-                    value={formFields?.dq_enumerator_id}
-                    disabled={!canUserWrite}
-                    options={questionList}
-                    onChange={(value) =>
-                      setFormFields({ ...formFields, dq_enumerator_id: value })
-                    }
-                    showSearch
-                    allowClear
-                  />
-                </Col>
-              </Row>
-              {surveyLocationGeoLevels && surveyLocationGeoLevels.length > 0
-                ? surveyLocationGeoLevels.map((geoLevel: any, idx) => (
-                    <Row
-                      key={idx}
-                      align="middle"
-                      style={{ marginBottom: 6, marginTop: 12 }}
-                    >
-                      <Col span={4}>
-                        <FormItemLabel>
-                          <span style={{ color: "red" }}>*</span>{" "}
-                          {geoLevel.geo_level_name} ID{" "}
-                          <Tooltip
-                            title={
-                              "Select the variable that is used to track the " +
-                              geoLevel.geo_level_name +
-                              " ID."
-                            }
-                          >
-                            <QuestionCircleOutlined />
-                          </Tooltip>{" "}
-                          :
-                        </FormItemLabel>
-                      </Col>
-                      <Col span={5}>
-                        <Select
-                          style={{ width: "100%" }}
-                          placeholder="Select"
-                          value={
-                            formFields?.locations &&
-                            Object.keys(formFields?.locations).length > 0
-                              ? formFields?.locations["location_" + (idx + 1)]
-                              : ""
-                          }
-                          options={questionList}
-                          disabled={!canUserWrite}
-                          onChange={(value) => {
-                            const updatedLocations = {
-                              ...formFields?.locations,
-                              ["location_" + (idx + 1)]: value,
-                            };
-                            setFormFields({
-                              ...formFields,
-                              locations: updatedLocations,
-                            });
-                          }}
-                          showSearch
-                          allowClear
-                        />
-                      </Col>
-                    </Row>
-                  ))
-                : null}
-              <Button
-                onClick={() =>
-                  navigate(`/module-configuration/dq-forms/${survey_uid}`)
-                }
+              <DescriptionWrap>
+                <DescriptionText style={{ width: "90%" }}>
+                  Match key fields in your SurveyCTO form to SurveyStream system
+                  variables.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#data-quality-form-requirements" />
+                </DescriptionText>
+                <DescriptionText style={{ width: "90%" }}>
+                  Before proceeding with the mapping, ensure that
+                  surveystream.devs@idinsight.org is an active user on
+                  SurveyCTO.
+                </DescriptionText>
+              </DescriptionWrap>
+              <p
+                style={{
+                  marginTop: "20px",
+                  fontSize: 14,
+                  marginBottom: "20px",
+                }}
               >
-                Cancel
-              </Button>
-              <CustomBtn
-                style={{ marginTop: 24, marginLeft: 20 }}
-                onClick={handleFormSubmit}
-                disabled={!canUserWrite}
-              >
-                Save
-              </CustomBtn>
+                DQ form ID: {formIdName}
+              </p>
+              {renderQuestionsSelectArea()}
             </DQFormWrapper>
           </div>
         )}

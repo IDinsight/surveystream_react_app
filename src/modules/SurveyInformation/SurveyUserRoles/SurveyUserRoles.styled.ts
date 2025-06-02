@@ -2,13 +2,15 @@ import { Button, Form, Input, Table, Tooltip } from "antd";
 import styled, { css } from "styled-components";
 
 export const BodyWrapper = styled.div`
-  min-height: calc(100vh - 114px);
   flex: 1;
   background-color: #f5f5f5;
-  padding: 30px;
-  padding-left: 60px;
-  padding-right: 60px;
+  padding-top: 10px;
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Lato", sans-serif;
+  position: relative;
+  min-height: 550px;
+  width: 70%;
 `;
 
 export const MainContainer = styled.div`
@@ -28,8 +30,8 @@ export const DescriptionText = styled.p`
 `;
 
 export const UsersTable = styled(Table)`
-  margin-top: 15px;
   margin-bottom: 68px;
+  width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
@@ -45,8 +47,8 @@ export const UsersTable = styled(Table)`
 `;
 
 export const RolesTable = styled(Table)`
-  margin-top: 15px;
   margin-bottom: 68px;
+  width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;

@@ -10,6 +10,7 @@ import {
   ClearOutlined,
   UploadOutlined,
   UserAddOutlined,
+  TableOutlined,
 } from "@ant-design/icons";
 import NotebooksImg from "./../../assets/notebooks.svg";
 import AssignmentsTab from "./AssignmentsTab/AssignmentsTab";
@@ -69,6 +70,12 @@ function Assignments() {
     userProfile,
     survey_uid,
     "WRITE Assignments Upload"
+  );
+
+  const canUserEditColumns = userHasPermission(
+    userProfile,
+    survey_uid,
+    "WRITE Assignments"
   );
 
   // State variables for component
@@ -247,7 +254,6 @@ function Assignments() {
       if (value === null) return true;
       return false;
     });
-
     // Create array that will hold all the records we want to filter to
     let filterArr: any = [];
 
@@ -258,7 +264,6 @@ function Assignments() {
       filterArr = getDataFromFilters(filters, getTabData(), keyRefs);
     }
     setMainData(filterArr);
-
     if (isReset) {
       setDataFilter(null);
       if (searchedData?.length && searchValue !== "") {
@@ -419,7 +424,6 @@ function Assignments() {
     tz_name: string,
     convert_timezone: boolean
   ) => {
-    console.log(date, tz_name);
     const options: Intl.DateTimeFormatOptions = {
       weekday: "short",
       day: "numeric",
@@ -510,6 +514,18 @@ function Assignments() {
                   style={{ marginLeft: "16px" }}
                   onClick={onClear}
                 ></Button>
+              </Tooltip>
+              <Tooltip title="Edit column configuration">
+                <Button
+                  disabled={!canUserEditColumns}
+                  icon={<TableOutlined />}
+                  style={{ marginLeft: "16px" }}
+                  onClick={() => {
+                    navigate(
+                      `/module-configuration/table-config/${survey_uid}`
+                    );
+                  }}
+                />
               </Tooltip>
             </HeaderContainer>
 

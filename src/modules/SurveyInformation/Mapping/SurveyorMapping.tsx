@@ -37,6 +37,7 @@ import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
+import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 
 const { Option } = Select;
 
@@ -58,7 +59,7 @@ const SurveyorMapping = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [tablePageSize, setTablePageSize] = useState(5);
+  const [tablePageSize, setTablePageSize] = useState(10);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
@@ -353,7 +354,6 @@ const SurveyorMapping = ({
   const mappedSurveyors = mappingConfig?.filter(
     (config: any) => config.supervisor_mapping_criteria_values !== null
   );
-
   const mappedPairsData = mappedSurveyors?.map((config: any, index: number) => {
     return {
       key: "mappedPair" + index,
@@ -393,7 +393,6 @@ const SurveyorMapping = ({
       const selectedLocation = selectedLocations[key]?.mapping_to;
       const selectedLanguage = selectedLanguages[key]?.mapping_to;
       const selectedGender = selectedGenders[key]?.mapping_to;
-
       let supervisiorList: number[] = [];
 
       // Filter by Location
@@ -434,10 +433,20 @@ const SurveyorMapping = ({
 
       return {
         key: key,
-        surveyorLocation:
-          config.surveyor_mapping_criteria_values.other.location_name,
-        surveyorLocationUID:
-          config.surveyor_mapping_criteria_values.criteria.Location,
+        surveyorLocation: Array.isArray(
+          config.surveyor_mapping_criteria_values.other
+        )
+          ? config.surveyor_mapping_criteria_values.other
+              .map((loc: any) => loc.location_name)
+              .join(", ")
+          : config.surveyor_mapping_criteria_values.other?.location_name,
+        surveyorLocationUID: Array.isArray(
+          config.surveyor_mapping_criteria_values.criteria
+        )
+          ? config.surveyor_mapping_criteria_values.criteria.map(
+              (crit: any) => crit.Location
+            )
+          : config.surveyor_mapping_criteria_values.criteria?.Location,
         surveyorLanguage:
           config.surveyor_mapping_criteria_values.criteria?.Language,
         surveyorGender:
@@ -961,8 +970,12 @@ const SurveyorMapping = ({
       surveyorID: surveyor.enumerator_id,
       surveyorName: surveyor.name,
       surveyorUID: surveyor.enumerator_uid,
-      surveyorLocationID: surveyor?.location_id?.[0],
-      surveyorLocation: surveyor?.location_name?.[0],
+      surveyorLocationID: Array.isArray(surveyor?.location_id)
+        ? surveyor?.location_id.join(", ")
+        : surveyor?.location_id,
+      surveyorLocation: Array.isArray(surveyor?.location_name)
+        ? surveyor?.location_name.join(", ")
+        : surveyor?.location_name,
       surveyorLanguage: surveyor?.language,
       surveyorGender: surveyor?.gender,
       supervisorEmail:
@@ -974,10 +987,20 @@ const SurveyorMapping = ({
           ? surveyor.supervisor_name
           : "Not mapped",
       supervisorUID: surveyor.supervisor_uid,
-      supervisorLocation:
-        surveyor.supervisor_mapping_criteria_values.other?.location_name,
-      supervisorLocationUID:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Location,
+      supervisorLocation: Array.isArray(
+        surveyor.supervisor_mapping_criteria_values.criteria
+      )
+        ? surveyor.supervisor_mapping_criteria_values.criteria
+            .map((loc: any) => loc.Location)
+            .join(", ")
+        : surveyor.supervisor_mapping_criteria_values.other?.location_name,
+      supervisorLocationUID: Array.isArray(
+        surveyor.supervisor_mapping_criteria_values.criteria
+      )
+        ? surveyor.supervisor_mapping_criteria_values.criteria.map(
+            (loc: any) => loc.Location
+          )
+        : surveyor.supervisor_mapping_criteria_values.criteria?.Location,
       supervisorLanguage:
         surveyor.supervisor_mapping_criteria_values.criteria?.Language,
       supervisorGender:
@@ -987,12 +1010,11 @@ const SurveyorMapping = ({
 
   const getSupervisorOptionList = () => {
     const userList: any = [];
-
     if (criteria.includes("Location")) {
       userLocations?.map((user: any) => {
-        if (
-          user.location_uid === selectedSurveyorRows[0].supervisorLocationUID
-        ) {
+        const surveyorLocIds =
+          selectedSurveyorRows[0].surveyorLocationID.split(", ");
+        if (surveyorLocIds.includes(user.location_id)) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -1003,7 +1025,10 @@ const SurveyorMapping = ({
 
     if (criteria.includes("Language")) {
       userLanguages?.map((user: any) => {
-        if (user.language === selectedSurveyorRows[0].supervisorLanguage) {
+        if (
+          user.language === selectedSurveyorRows[0].supervisorLanguage ||
+          user.language === selectedSurveyorRows[0].surveyorLanguage
+        ) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -1013,8 +1038,11 @@ const SurveyorMapping = ({
     }
 
     if (criteria.includes("Gender")) {
-      userLanguages?.map((user: any) => {
-        if (user.language === selectedSurveyorRows[0].supervisorGender) {
+      userGenders?.map((user: any) => {
+        if (
+          user.gender === selectedSurveyorRows[0].supervisorGender ||
+          user.gender === selectedSurveyorRows[0].surveyorGender
+        ) {
           userList.push({
             user_uid: user.user_uid,
             user_name: user.user_name,
@@ -1047,7 +1075,12 @@ const SurveyorMapping = ({
       });
     }
 
-    return userList.map((user: any) => (
+    // Filter out duplicates by user_uid
+    const uniqueUsers = Array.from(
+      new Map(userList.map((user: any) => [user.user_uid, user])).values()
+    );
+
+    return uniqueUsers.map((user: any) => (
       <Option key={user.user_uid} value={user.user_uid}>
         {user.user_name}
       </Option>
@@ -1165,6 +1198,14 @@ const SurveyorMapping = ({
           setLoadMappingConfigError(error_message);
         }
         setLoadingMappingConfig(false);
+        // Resolve existing mapping notifications
+        dispatch(
+          resolveSurveyNotification({
+            survey_uid: SurveyUID,
+            module_id: 17,
+            resolution_status: "done",
+          })
+        );
       });
 
       if (pageNumber === 2) {
@@ -1275,7 +1316,7 @@ const SurveyorMapping = ({
                 cancelText="No"
               >
                 <ResetButton
-                  style={{ marginLeft: "auto", marginRight: 30 }}
+                  style={{ marginLeft: "auto" }}
                   disabled={
                     criteria.includes("Manual")
                       ? true
@@ -1306,7 +1347,8 @@ const SurveyorMapping = ({
                     <MappingTable
                       columns={mappedPairsColumns}
                       dataSource={mappedPairsData}
-                      scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      //scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      scroll={{ x: "max-content" }}
                       pagination={false}
                     />
                   </div>
@@ -1397,7 +1439,7 @@ const SurveyorMapping = ({
               }}
             >
               <CustomBtn
-                style={{ marginLeft: "auto", marginRight: 30 }}
+                style={{ marginLeft: "auto" }}
                 onClick={handleOnEdit}
                 disabled={selectedSurveyorRows.length === 0}
               >
@@ -1421,14 +1463,16 @@ const SurveyorMapping = ({
                       columns={surveyorsMappingColumns}
                       dataSource={mappingTableData}
                       rowSelection={rowSelection}
-                      scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      // scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                      scroll={{ x: "max-content" }}
                       pagination={{
                         position: ["topRight"],
                         pageSize: tablePageSize,
-                        pageSizeOptions: ["5", "10", "20", "50", "100"],
+                        pageSizeOptions: [5, 10, 25, 50, 100],
                         showSizeChanger: true,
-                        onShowSizeChange: (current, size) =>
-                          setTablePageSize(size),
+                        showQuickJumper: true,
+                        onShowSizeChange: (_, size) => setTablePageSize(size),
+                        style: { color: "#2F54EB" },
                       }}
                     />
                     {selectedSurveyorRows.length > 0 && (

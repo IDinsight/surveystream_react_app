@@ -6,6 +6,7 @@ export const TargetsHomeFormWrapper = styled.div`
   background-color: #f5f5f5;
   padding-top: 10px;
   padding-left: 50px;
+  padding-right: 50px;
   font-family: "Lato", sans-serif;
   position: relative;
   min-height: 550px;
@@ -14,14 +15,13 @@ export const TargetsHomeFormWrapper = styled.div`
 
 export const TargetsTable = styled(Table)`
   margin-bottom: 30px;
-  margin-right: 30px;
-  width: 90%;
+  width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
     height: 40px;
     font-family: "Lato", sans-serif;
-    width: 40px;
+    width: 30px;
     white-space: nowrap;
   }
   & th::before {

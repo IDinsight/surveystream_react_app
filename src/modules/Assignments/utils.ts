@@ -69,13 +69,25 @@ export const getDataFromFilters = (
         then we need to concat the results of Uttar Pradesh and Odisha.
       */
       const tempArr: any = [];
-      filters[k].forEach((val: any) => {
-        tempArr.push(
-          ...arr.filter(
-            (obj: any) => getNestedObjectValue(obj, key_reference[k]) === val
-          )
-        );
-      });
+      if (key_reference[k][0] === "surveyor_locations") {
+        arr.forEach((obj: any) => {
+          const locations = obj.surveyor_locations?.map(
+            (locList: any) =>
+              _.get(locList[key_reference[k][1]], key_reference[k][2]) || ""
+          );
+          if (filters[k].some((filter: any) => locations?.includes(filter))) {
+            tempArr.push(obj);
+          }
+        });
+      } else {
+        filters[k].forEach((val: any) => {
+          tempArr.push(
+            ...arr.filter(
+              (obj: any) => getNestedObjectValue(obj, key_reference[k]) === val
+            )
+          );
+        });
+      }
 
       /*
         If filterArr has length then It means we already appiled some filters
@@ -99,11 +111,28 @@ export const performSearch = (
   const searchKeys: string[] = Object.keys(key_reference);
   return arr?.filter((obj: any) => {
     for (let i = 0; i < searchKeys.length; i++) {
-      const val = getNestedObjectValue(obj, key_reference[searchKeys[i]]);
-      if (val) {
-        const columnValue = val.toString().toLowerCase();
-        if (columnValue && columnValue.indexOf(searchTerm.toLowerCase()) > -1)
+      if (searchKeys[i].startsWith("surveyor_locations")) {
+        const locations = obj.surveyor_locations?.map(
+          (locList: { [key: string]: any }) =>
+            _.get(
+              locList[key_reference[searchKeys[i]][1]],
+              key_reference[searchKeys[i]][2]
+            ) || ""
+        );
+        if (
+          [...new Set(locations)].some((loc: any) =>
+            loc.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ) {
           return true;
+        }
+      } else {
+        const val = getNestedObjectValue(obj, key_reference[searchKeys[i]]);
+        if (val) {
+          const columnValue = val.toString().toLowerCase();
+          if (columnValue && columnValue.indexOf(searchTerm.toLowerCase()) > -1)
+            return true;
+        }
       }
     }
     return false;
@@ -171,7 +200,6 @@ export const buildColumnDefinition = (
     key: colKey,
     sorter: defaultSorter([colKey]),
     filters: getFilterValues(dataSource, [colKey]),
-    filteredValue: dataFilter?.[colKey] || null,
     onFilter: (val: string, record: any) => record[colKey] === val,
     filterSearch: true,
   };
@@ -225,7 +253,6 @@ export const buildColumnDefinition = (
 
     if (
       keyArray[0] === "target_locations" ||
-      keyArray[0] === "surveyor_locations" ||
       keyArray[0] === "form_productivity"
     ) {
       columnDefinition = {
@@ -238,11 +265,69 @@ export const buildColumnDefinition = (
         sorter: defaultSorter(keyArray),
       };
     }
+    if (keyArray[0] === "surveyor_locations") {
+      // Custom filter values for surveyor locations
+      const locationFilterValues = (() => {
+        const allLocations = dataSource?.flatMap((item: any) => {
+          return (
+            item.surveyor_locations?.map(
+              (locList: any) =>
+                _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
+            ) || []
+          );
+        });
+
+        // Deduplicate locations
+        const uniqueLocations = [...new Set(allLocations)].filter(
+          (loc) => loc !== ""
+        );
+        return uniqueLocations.map((loc) => ({ text: loc, value: loc }));
+      })();
+
+      columnDefinition = {
+        ...columnDefinition,
+        dataIndex: keyArray[0],
+        filters: locationFilterValues,
+        onFilter: (value: string | number, record: any) => {
+          const locations = record.surveyor_locations?.map(
+            (locList: any) =>
+              _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
+          );
+
+          return locations?.includes(value) || false;
+        },
+        render: (val: string, record: any) => {
+          const locations = record.surveyor_locations?.map(
+            (locList: any) =>
+              _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
+          );
+          const locationSet = new Set(locations);
+          return Array.from(locationSet).join(", ") || null;
+        },
+        sorter: (a: any, b: any) => {
+          const aLocs =
+            a.surveyor_locations
+              ?.map(
+                (locList: any) =>
+                  _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
+              )
+              .join(", ") || "";
+          const bLocs =
+            b.surveyor_locations
+              ?.map(
+                (locList: any) =>
+                  _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
+              )
+              .join(", ") || "";
+          return aLocs.localeCompare(bLocs);
+        },
+      };
+    }
 
     if (keyArray[0] === "custom_fields") {
       columnDefinition = {
         ...columnDefinition,
-        dataIndex: keyArray[0],
+        dataIndex: keyArray,
         filters: getFilterValues(dataSource, keyArray),
         onFilter: (value: string | number, record: any) =>
           _.get(record, keyArray) === value,

@@ -10,4 +10,5 @@ export type SurveyCTOForm = {
   server_access_role_granted: boolean;
   server_access_allowed: boolean;
   form_type?: string;
+  number_of_attempts?: number;
 };

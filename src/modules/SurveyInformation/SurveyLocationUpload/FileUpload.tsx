@@ -81,14 +81,12 @@ function FileUpload({
       customRequest={handleCustomRequest}
       onDrop={handleDrop}
       {...props}
+      style={{ padding: "20px" }}
     >
       <p>
         <InboxOutlined style={{ fontSize: "32px" }} />
       </p>
-      <p className="ant-upload-text">
-        Click or drag file to this area to upload
-      </p>
-      <p className="ant-upload-hint">Supports a single file upload.</p>
+      <p className="ant-upload-text">Click or drag a file to upload</p>
     </Dragger>
   );
 }

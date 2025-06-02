@@ -1,25 +1,25 @@
 export const surveyConfigs: Record<string, any> = {
-  "Basic information": {
+  "Background Details": {
     status: "Not Started",
     optional: false,
   },
-  "Module selection": {
+  "Feature Selection": {
     status: "Not Started",
     optional: false,
   },
-  "Survey information": [
+  "Survey Information": [
     {
-      name: "SurveyCTO information",
+      name: "SurveyCTO Integration",
       status: "Not Started",
       optional: false,
     },
     {
-      name: "User and role management",
+      name: "User and Role Management",
       status: "Not Started",
       optional: false,
     },
     {
-      name: "Survey locations",
+      name: "Locations",
       status: "Not Started",
       optional: true,
     },
@@ -34,17 +34,22 @@ export const surveyConfigs: Record<string, any> = {
       optional: true,
     },
     {
-      name: "Target status mapping",
+      name: "Survey Status for Targets",
       status: "Not Started",
       optional: true,
     },
     {
-      name: "Mapping",
+      name: "Supervisor Mapping",
+      status: "Not Started",
+      optional: true,
+    },
+    {
+      name: "Admin Forms",
       status: "Not Started",
       optional: true,
     },
   ],
-  "Module configuration": [],
+  "Module Configuration": [],
 };
 
 export const completionStats = {

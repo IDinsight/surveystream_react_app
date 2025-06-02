@@ -13,11 +13,7 @@ import {
 } from "../../shared/Nav.styled";
 import SideMenu from "./SideMenu";
 import BasicInformationForm from "./BasicInformation/BasicInformationForm";
-import {
-  FooterWrapper,
-  SaveButton,
-  ContinueButton,
-} from "../../shared/FooterBar.styled";
+
 import { CustomBtn } from "../../shared/Global.styled";
 import ModuleQuestionnaire from "./ModuleQuestionnaire";
 import { useAppSelector } from "../../redux/hooks";
@@ -39,7 +35,7 @@ import {
 import { setActiveSurvey } from "../../redux/surveyList/surveysSlice";
 import { performGetUserProfile } from "../../redux/auth/authActions";
 import { fetchSurveys } from "../../redux/surveyList/surveysActions";
-
+import { createNotificationViaAction } from "../../redux/notifications/notificationActions";
 export interface IStepIndex {
   sidebar: number;
   mqIndex: number; // mq stands for module questionnaire
@@ -96,6 +92,69 @@ function NewSurveyConfig() {
       }
     }
   };
+  const moduleQuestionnaire = useAppSelector(
+    (state: RootState) => state.surveyConfig.moduleQuestionnaire
+  );
+
+  const createNotification = async (survey_uid: any) => {
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        try {
+          const data = {
+            action: notification,
+            survey_uid: survey_uid,
+          };
+          await dispatch(createNotificationViaAction(data));
+        } catch (error) {
+          console.error("Failed to create notification:", error);
+        }
+      }
+    }
+  };
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const checkMappingChanged = () => {
+    if (
+      moduleQuestionnaireformData &&
+      moduleQuestionnaire &&
+      moduleQuestionnaire.surveyor_mapping_criteria !==
+        moduleQuestionnaireformData.surveyor_mapping_criteria
+    ) {
+      const formCriteria =
+        moduleQuestionnaireformData.surveyor_mapping_criteria;
+      const currentCriteria = moduleQuestionnaire.surveyor_mapping_criteria;
+      const newMappings = formCriteria.filter(
+        (field: string) =>
+          !currentCriteria.includes(field) && field !== "Manual"
+      );
+      const updatedNewMappings = newMappings.map(
+        (field: string) => `Surveyor Mapping criteria includes ${field}`
+      );
+
+      notifications.push(...updatedNewMappings);
+    }
+
+    if (
+      moduleQuestionnaireformData &&
+      moduleQuestionnaire &&
+      moduleQuestionnaire.target_mapping_criteria !==
+        moduleQuestionnaireformData.target_mapping_criteria
+    ) {
+      const formCriteria = moduleQuestionnaireformData.target_mapping_criteria;
+      const currentCriteria = moduleQuestionnaire.target_mapping_criteria;
+
+      const newMappings = formCriteria.filter(
+        (field: string) =>
+          !currentCriteria.includes(field) && field !== "Manual"
+      );
+
+      const updatedNewMappings = newMappings.map(
+        (field: string) => `Target Mapping criteria includes ${field}`
+      );
+
+      notifications.push(...updatedNewMappings);
+    }
+  };
   const handleModuleQuestionnaireContinue = async () => {
     if (stepIndex["sidebar"] >= 1) {
       if (stepIndex["mqIndex"] >= 0) {
@@ -141,7 +200,8 @@ function NewSurveyConfig() {
         if (hasValidationErrors) {
           return;
         }
-
+        // check if mapping criteria has changed and notify user
+        await checkMappingChanged();
         try {
           const response = await dispatch(
             updateSurveyModuleQuestionnaire({
@@ -155,7 +215,8 @@ function NewSurveyConfig() {
               content: "Module questionnaire responses saved successfully.",
             });
             //set active survey
-            dispatch(
+
+            await dispatch(
               setActiveSurvey({
                 survey_uid: survey_uid !== undefined ? survey_uid : surveyUid,
                 survey_name: basicformData?.survey_name || "",
@@ -171,7 +232,9 @@ function NewSurveyConfig() {
                 state: "Draft",
               })
             );
-
+            createNotification(
+              survey_uid !== undefined ? survey_uid : surveyUid
+            );
             navigate(
               `/survey-configuration/${
                 survey_uid !== undefined ? survey_uid : surveyUid
@@ -352,8 +415,8 @@ function NewSurveyConfig() {
         <div style={{ display: "flex", marginBottom: "15px" }}>
           <Title style={{ marginTop: "revert" }}>
             {stepIndex["sidebar"] === 0
-              ? "Basic information"
-              : "Module questionnaire"}
+              ? "Background Details / Basic Information"
+              : "Background Details / Module Questionnaire"}
           </Title>
         </div>
       </HeaderContainer>

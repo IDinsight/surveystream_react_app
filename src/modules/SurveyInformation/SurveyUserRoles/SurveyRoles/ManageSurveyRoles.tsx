@@ -14,7 +14,11 @@ import {
   RolesTable,
   CustomLinkBtn,
 } from "../SurveyUserRoles.styled";
-import { ExclamationCircleOutlined, FileAddOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  ExclamationCircleOutlined,
+  FileAddOutlined,
+} from "@ant-design/icons";
 import {
   NavWrapper,
   Title,
@@ -59,7 +63,7 @@ function ManageSurveyRoles() {
 
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState<boolean>(false);
 
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
 
   const [deleteRoleId, setDeleteRoleId] = useState<number>();
 
@@ -288,7 +292,7 @@ function ManageSurveyRoles() {
         </Title>
       </NavWrapper>
       <HeaderContainer>
-        <Title>Survey Roles</Title>
+        <Title>Roles</Title>
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
@@ -306,9 +310,9 @@ function ManageSurveyRoles() {
           </Button>
           <Button
             type="primary"
-            icon={<FileAddOutlined />}
+            icon={<EditOutlined />}
             style={{
-              marginLeft: "25px",
+              marginLeft: "15px",
               backgroundColor: "#2F54EB",
             }}
             onClick={() => handleEditRoleHierarchy()}
@@ -324,20 +328,17 @@ function ManageSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Manage the roles related to your survey here
-              </DescriptionText>
-
-              <div style={{ display: "flex" }}></div>
               <RolesTable
                 columns={rolesTableColumn}
                 dataSource={rolesTableData}
                 pagination={{
+                  position: ["topRight"],
                   pageSize: paginationPageSize,
-                  pageSizeOptions: [10, 25, 50, 100],
+                  pageSizeOptions: [5, 10, 25, 50, 100],
                   showSizeChanger: true,
                   showQuickJumper: true,
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                  style: { color: "#2F54EB" },
                 }}
               />
             </BodyWrapper>

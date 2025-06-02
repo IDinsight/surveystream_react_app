@@ -6,10 +6,9 @@ import {
   SelectionForm,
   SelectionCard,
   TitleContainer,
-  LearnMoreLink,
+  FeatureDocsLink,
   CardTitle,
   CheckboxContainer,
-  CustomizationCard,
 } from "./ModuleSelectionForm.styled";
 import { FormInstance } from "antd/lib/form";
 import { useForm } from "antd/es/form/Form";
@@ -20,6 +19,7 @@ import Icon, {
   ArrowRightOutlined,
   FileSearchOutlined,
   InfoCircleFilled,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchModules } from "../../redux/moduleSelection/modulesActions";
@@ -36,6 +36,8 @@ import {
   fetchModuleStatuses,
 } from "../../redux/moduleSelection/moduleStatusActions";
 import { useNavigate, useParams } from "react-router-dom";
+import { DescriptionText } from "../../shared/Global.styled";
+import DescriptionLink from "../../components/DescriptionLink";
 
 const { Meta } = Card;
 
@@ -62,6 +64,9 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
   const modules = useAppSelector((state: RootState) => state.modules.modules);
   const modulesStatus = useAppSelector(
     (state: RootState) => state.moduleStatuses.moduleStatuses
+  );
+  const isModuleStatusLoading = useAppSelector(
+    (state: RootState) => state.moduleStatuses.loading
   );
   const isLoading = useAppSelector((state: RootState) => state.modules.loading);
 
@@ -168,7 +173,7 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isModuleStatusLoading) {
     return <FullScreenLoader></FullScreenLoader>;
   }
 
@@ -183,33 +188,16 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
         }}
       >
         <ModuleSelectionFormWrapper data-testid="ModuleSelectionForm">
-          <Title>Module selection </Title>
-
-          <p style={{ fontSize: 14 }}>
-            Please start by selecting modules you’ll use in your survey
-          </p>
-
-          <InfoCard>
-            <Meta
-              avatar={<InfoCircleFilled />}
-              description={
-                <>
-                  <div>New to SurveyStream?</div>
-                  <div>
-                    <a
-                      href="https://sites.google.com/idinsight.org/dod-surveystream-onboarding/home"
-                      target="__blank"
-                      style={{ color: "#1D39C4" }}
-                    >
-                      {" "}
-                      Click here{" "}
-                    </a>{" "}
-                    to visit documentation before configuring your first survey
-                  </div>
-                </>
-              }
-            />
-          </InfoCard>
+          <DescriptionText>
+            <p style={{ fontSize: 14, width: "80%" }}>
+              Select features you will be using in your survey. You can update
+              these later if the design of your survey changes.{" "}
+              <DescriptionLink
+                link="https://docs.surveystream.idinsight.io/features_at_a_glance"
+                text="Read more on how to select features for your survey"
+              />
+            </p>{" "}
+          </DescriptionText>
           <div>
             {!isLoading ? (
               <>
@@ -241,12 +229,19 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                               />
                               <div>{module.title}</div>
                             </CardTitle>
-                            <LearnMoreLink
+                            <FeatureDocsLink
                               onClick={() => window.open(module.link, "_blank")}
                             >
                               Learn more{" "}
-                              <ArrowRightOutlined style={{ marginLeft: 4 }} />
-                            </LearnMoreLink>
+                              <SelectOutlined
+                                rotate={90}
+                                style={{
+                                  marginLeft: "3px",
+                                  padding: "0px",
+                                  fontSize: "15px",
+                                }}
+                              />
+                            </FeatureDocsLink>
                           </TitleContainer>
                         }
                         description={
@@ -265,48 +260,13 @@ const ModuleSelectionForm: FC<ModuleSelectionFormProps> = () => {
                           onChange={() =>
                             handleCheckboxChange(module.module_id.toString())
                           }
-                          disabled={module.module_id === 10} // Disable Track productivity module
                           checked={isCardSelected(module.module_id.toString())}
                         >
-                          I need this module in my survey
+                          Use this feature in my survey
                         </Checkbox>
                       </CheckboxContainer>
                     </SelectionCard>
                   ))}
-                  <CustomizationCard>
-                    <Meta
-                      title={
-                        <TitleContainer style={{ color: "#2f54eb" }}>
-                          <CardTitle style={{ color: "#2f54eb" }}>
-                            <FileSearchOutlined
-                              style={{ marginRight: 8, color: "#434343" }}
-                            />
-                            <a
-                              onClick={() =>
-                                window.open(
-                                  "https://forms.gle/81zvXSZutnE4GHwB6",
-                                  "_blank"
-                                )
-                              }
-                            >
-                              Request customization support
-                            </a>
-                          </CardTitle>
-                          <LearnMoreLink
-                            onClick={() =>
-                              window.open(
-                                "https://forms.gle/81zvXSZutnE4GHwB6",
-                                "_blank"
-                              )
-                            }
-                          >
-                            Learn more{" "}
-                            <ArrowRightOutlined style={{ marginLeft: 4 }} />
-                          </LearnMoreLink>
-                        </TitleContainer>
-                      }
-                    />
-                  </CustomizationCard>
                 </SelectionForm>
               </>
             ) : null}

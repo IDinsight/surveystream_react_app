@@ -10,6 +10,10 @@ export const DQFormWrapper = styled.div`
   font-family: "Lato", sans-serif;
 `;
 
+export const DescriptionWrap = styled.div`
+  font-family: "Lato", sans-serif;
+`;
+
 export const BodyContainer = styled.div`
   padding: 48px;
   padding-top: 12px;
@@ -33,11 +37,15 @@ export const CustomBtn = styled(Button)`
   }
 `;
 
-export const DescriptionText = styled.span`
+export const DescriptionText = styled.p`
   font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   color: #8c8c8c;
+`;
+
+export const SCTOLoadErrorArea = styled.div`
+  padding-right: 48px;
 `;

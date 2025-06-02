@@ -112,12 +112,20 @@ export const getSCTOFormMapping = createAsyncThunk(
 export const getCTOFormQuestions = createAsyncThunk(
   "surveyCTOQuestions/getCTOFormQuestions",
   async (
-    { formUid, refresh = false }: { formUid: string; refresh?: boolean },
+    {
+      formUid,
+      refresh = false,
+      include_repeat_groups = false,
+    }: { formUid: string; refresh?: boolean; include_repeat_groups?: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
       dispatch(getFormQuestionsDefinitionRequest());
-      const res: any = await api.getSurveyCTOFormDefinition(formUid, refresh);
+      const res: any = await api.getSurveyCTOFormDefinition(
+        formUid,
+        refresh,
+        include_repeat_groups
+      );
 
       if (res.status === 200) {
         dispatch(getFormQuestionsDefinitionSuccess(res.data.data));

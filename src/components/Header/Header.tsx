@@ -19,6 +19,7 @@ import {
   HomeFilled,
   MailOutlined,
   AppstoreAddOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { getAllNotifications } from "./../../redux/notifications/notificationActions";
 
@@ -84,7 +85,7 @@ const Header = () => {
       },
       {
         url: "/users",
-        label: "User management",
+        label: "User Management",
         icon: ApartmentOutlined,
         show:
           isSignedIn() && isUsersOrSurveysPage() && userProfile?.is_super_admin,
@@ -170,19 +171,25 @@ const Header = () => {
         })}
       </div>
       <div className="nav-menu flex mr-2">
-        <div className="nav-menu-item justify-center w-40">
-          <Link to="https://docs.surveystream.idinsight.io">
-            <span className="!text-gray-2">Documentation</span>
+        <div className="nav-menu-item docs justify-center w-20 px-2">
+          <Link to="https://docs.surveystream.idinsight.io" target="_blank">
+            <SelectOutlined
+              rotate={90}
+              style={{ marginRight: "10px", padding: "0px", fontSize: "20px" }}
+            />{" "}
+            <span className="!text-gray-2 !docs-link">Docs</span>
           </Link>
         </div>
-        <div className="w-16">
-          {isSignedIn() ? (
+
+        {isSignedIn() ? (
+          <div className="w-12 py-9">
             <>
               <NotificationBell notifications={notifications} />
-            </>
-          ) : null}
-        </div>
+            </>{" "}
+          </div>
+        ) : null}
       </div>
+
       {isSignedIn() ? <HeaderAvatarMenu userProfile={userProfile} /> : null}
     </header>
   );

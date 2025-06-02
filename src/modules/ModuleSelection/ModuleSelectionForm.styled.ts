@@ -7,7 +7,7 @@ export const ModuleSelectionFormWrapper = styled.div`
   align-items: left;
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 10px;
+  padding-top: 0px;
   padding-bottom: 10px;
   display: flex;
   margin-left: 30px;
@@ -100,7 +100,7 @@ export const CardTitle = styled.div`
   font-weight: 500;
 `;
 
-export const LearnMoreLink = styled.span`
+export const FeatureDocsLink = styled.span`
   display: flex;
   align-items: center;
   cursor: pointer;

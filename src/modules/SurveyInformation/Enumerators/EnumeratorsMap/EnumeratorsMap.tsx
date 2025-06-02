@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Col, Form, Row, Select, message } from "antd";
 
-import { NavWrapper, Title } from "../../../../shared/Nav.styled";
+import {
+  HeaderContainer,
+  NavWrapper,
+  Title,
+} from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 
 import { CustomBtn } from "../../../../shared/Global.styled";
@@ -34,8 +38,8 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import { setLoading } from "../../../../redux/enumerators/enumeratorsSlice";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import Container from "../../../../components/Layout/Container";
 
 interface CSVError {
   type: string;
@@ -142,14 +146,14 @@ function EnumeratorsMap() {
     },
     {
       title: "Address",
-      key: "address",
+      key: "home_address",
     },
     {
       title: "Gender",
       key: "gender",
     },
     {
-      title: "Enumerator type",
+      title: "Enumerator Type",
       key: "enumerator_type",
     },
   ];
@@ -159,7 +163,7 @@ function EnumeratorsMap() {
     "name",
     "email",
     "mobile_primary",
-    "address",
+    "home_address",
     "language",
     "gender",
     "enumerator_type",
@@ -238,10 +242,14 @@ function EnumeratorsMap() {
       const column_mapping = enumeratorMappingForm.getFieldsValue();
       column_mapping.custom_fields = [];
       if (customHeaderSelection) {
+        const mappedValues = Object.values(column_mapping);
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
+          // Only add to custom_fields if:
+          // 1. It's marked for inclusion (shouldInclude is true)
+          // 2. It's not already mapped to another field
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
@@ -409,19 +417,7 @@ function EnumeratorsMap() {
         setHasError(true);
       }
     } catch (error) {
-      console.log("error", error);
-      message.error("Failed to upload kindly check and try again");
-      setHasError(true);
-
-      const requiredErrors: any = {};
-      const formFields = enumeratorMappingForm.getFieldsValue();
-
-      for (const field in formFields) {
-        const errors = enumeratorMappingForm.getFieldError(field);
-        if (errors && errors.length > 0) {
-          requiredErrors[field] = true;
-        }
-      }
+      message.error("Please check the form for errors and try again.");
     }
   };
 
@@ -461,20 +457,11 @@ function EnumeratorsMap() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Enumerators: Map CSV columns</Title>
+      </HeaderContainer>
 
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
       {isLoading || quesLoading || locLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -484,9 +471,9 @@ function EnumeratorsMap() {
             {!hasError ? (
               <>
                 <div>
-                  <Title>Enumerators: Map CSV columns</Title>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
+                    Select the column from your .csv file that corresponds to
+                    each standard field{" "}
                   </DescriptionText>
                 </div>
                 <Form
@@ -494,10 +481,6 @@ function EnumeratorsMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
-                    <HeadingText>Personal and contact details</HeadingText>
                     {personalDetailsField.map((item, idx) => {
                       return (
                         <Form.Item
@@ -507,13 +490,7 @@ function EnumeratorsMap() {
                           rules={[
                             {
                               required:
-                                (item.key === "language" &&
-                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
-                                    "Language"
-                                  )) ||
-                                item.key === "home_address"
-                                  ? false
-                                  : true,
+                                item.key === "home_address" ? false : true,
                               message: "Kindly select column to map value!",
                             },
                             {
@@ -558,10 +535,8 @@ function EnumeratorsMap() {
                     })}
                     {locationBatchField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
-
                         <Form.Item
-                          label="Prime geo location:"
+                          label="Prime Geo Location:"
                           name="location_id_column"
                           key="location_id_column"
                           required
@@ -613,12 +588,10 @@ function EnumeratorsMap() {
 
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
                         <p
                           style={{
-                            color: "#434343",
                             fontFamily: "Lato",
-                            fontSize: 12,
+                            fontSize: 14,
                             lineHeight: "20px",
                           }}
                         >
@@ -682,9 +655,8 @@ function EnumeratorsMap() {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"

@@ -22,6 +22,7 @@ const initialState: SurveyCTOInformationState = {
     encryption_key_shared: false,
     server_access_role_granted: false,
     server_access_allowed: false,
+    number_of_attempts: 0,
   },
   timezones: [{ name: "Asia/Kolkatta" }, { name: "Asia/Manila" }],
 };

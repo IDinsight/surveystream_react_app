@@ -1,12 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, message } from "antd";
 
-import {
-  BackArrow,
-  BackLink,
-  NavWrapper,
-  Title,
-} from "../../../../shared/Nav.styled";
+import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import {
   ContinueButton,
@@ -34,7 +29,7 @@ import {
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
-import HandleBackButton from "../../../../components/HandleBackButton";
+import Container from "../../../../components/Layout/Container";
 
 interface CSVError {
   type: string;
@@ -137,20 +132,10 @@ function TargetsUpload() {
     <>
       <GlobalStyle />
 
-      <NavWrapper>
-        <HandleBackButton surveyPage={true}></HandleBackButton>
-
-        <Title>
-          {(() => {
-            const activeSurveyData = localStorage.getItem("activeSurvey");
-            return (
-              activeSurvey?.survey_name ||
-              (activeSurveyData && JSON.parse(activeSurveyData).survey_name) ||
-              ""
-            );
-          })()}
-        </Title>
-      </NavWrapper>
+      <Container surveyPage={true} />
+      <HeaderContainer>
+        <Title>Targets: Upload CSV</Title>
+      </HeaderContainer>
       {isLoading || isSideMenuLoading ? (
         <FullScreenLoader />
       ) : (
@@ -160,7 +145,6 @@ function TargetsUpload() {
             {!reupload ? (
               <>
                 <div style={{ display: "flex" }}>
-                  <Title>Targets: Upload csv</Title>
                   <div
                     style={{
                       display: "flex",
@@ -217,19 +201,27 @@ function TargetsUpload() {
                       Mandatory csv fields:
                       <ol type="a">
                         <li>Target ID</li>
-                        <li>Location ID</li>
-                        <li>Language</li>
-                        <li>Gender</li>
+                        <li>
+                          Location ID (Corresponding to the smallest location
+                          level, if location is selected as a mapping criterion)
+                        </li>
+                        <li>
+                          Language (If language is selected as a mapping
+                          criterion)
+                        </li>
+                        <li>
+                          Gender (If gender is selected as a mapping criterion)
+                        </li>
                       </ol>
                     </li>
                     <li>
                       You can also add custom columns as per the requirement of
-                      your survey - please ensure the columns are added in the
+                      your survey - please ensure the column(s) are added in the
                       csv file you will upload.
                     </li>
                     <li>
-                      You can edit the target data before and during (certain
-                      fields) data collection.
+                      You can edit the target data before and during data
+                      collection.
                     </li>
                     <li>
                       You can add more targets before and during data
@@ -286,12 +278,6 @@ function TargetsUpload() {
           </TargetUploadFormWrapper>
         </div>
       )}
-      <FooterWrapper>
-        <SaveButton disabled>Save</SaveButton>
-        <ContinueButton disabled={!fileUploaded} onClick={moveToMapping}>
-          Continue
-        </ContinueButton>
-      </FooterWrapper>
     </>
   );
 }

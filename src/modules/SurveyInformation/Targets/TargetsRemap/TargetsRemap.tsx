@@ -39,10 +39,10 @@ import { getSurveyLocationGeoLevels } from "../../../../redux/surveyLocations/su
 
 import { CSVLink } from "react-csv";
 import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
-import { ContinueButton } from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { use } from "chai";
 interface CSVError {
   type: string;
   count: number;
@@ -415,53 +415,28 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       })
     );
   };
-
   const findLowestGeoLevel = (locationData: any) => {
-    let lowestGeoLevel = null;
-
-    for (const item of locationData) {
-      if (
-        !lowestGeoLevel ||
-        item.parent_geo_level_uid > lowestGeoLevel.parent_geo_level_uid
-      ) {
-        lowestGeoLevel = item;
-      }
+    // Return null if locationData is not an array or is empty
+    if (!Array.isArray(locationData) || locationData.length === 0) {
+      return null;
     }
 
-    return lowestGeoLevel;
-  };
+    // Create a map to store parent-child relationships
+    const parentChildMap = new Map();
+    locationData.forEach((level) => {
+      parentChildMap.set(level.geo_level_uid, level);
+    });
 
-  const fetchSurveyModuleQuestionnaire = async () => {
-    if (survey_uid) {
-      const moduleQQuestionnaireRes = await dispatch(
-        getSurveyModuleQuestionnaire({ survey_uid: survey_uid })
-      );
-      if (moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria) {
-        if (
-          moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria.includes(
-            "Location"
-          )
-        ) {
-          // use lowest geo level for target mapping location
-          const locationRes = await dispatch(
-            getSurveyLocationGeoLevels({ survey_uid: survey_uid })
-          );
+    // Find the level that is not a parent to any other level
+    const lowestLevel = locationData.find(
+      (level) =>
+        !locationData.some(
+          (otherLevel) =>
+            otherLevel.parent_geo_level_uid === level.geo_level_uid
+        )
+    );
 
-          const locationData = locationRes?.payload;
-
-          const lowestGeoLevel = findLowestGeoLevel(locationData);
-
-          if (lowestGeoLevel?.geo_level_name) {
-            setLocationDetailsField([
-              {
-                title: `${lowestGeoLevel.geo_level_name} ID`,
-                key: `location_id_column`,
-              },
-            ]);
-          }
-        }
-      }
-    }
+    return lowestLevel || null;
   };
 
   const moveToUpload = () => {
@@ -481,61 +456,112 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     setExtraCSVHeader(extraHeaders);
   };
 
-  const handleFormUID = async () => {
-    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
-      try {
-        dispatch(setLoading(true));
-        const sctoForm = await dispatch(
-          getSurveyCTOForm({ survey_uid: survey_uid })
+  const fetchModuleQuestionnaire = async () => {
+    // Only fetch module questionnaire if not already loaded
+    if (survey_uid && !moduleQuestionnaire?.target_mapping_criteria) {
+      const moduleQQuestionnaireRes = await dispatch(
+        getSurveyModuleQuestionnaire({ survey_uid })
+      );
+
+      // Only fetch location data if criteria includes Location and locationDetailsField is empty
+      if (
+        moduleQQuestionnaireRes?.payload?.data?.target_mapping_criteria?.includes(
+          "Location"
+        ) &&
+        locationDetailsField.length === 0
+      ) {
+        // use lowest geo level for target mapping location
+        const locationRes = await dispatch(
+          getSurveyLocationGeoLevels({ survey_uid: survey_uid })
         );
-        if (sctoForm?.payload[0]?.form_uid) {
-          navigate(
-            `/survey-information/targets/${survey_uid}/${sctoForm?.payload[0]?.form_uid}`
-          );
-        } else {
-          message.error("Kindly configure SCTO Form to proceed");
-          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+
+        const locationData = locationRes?.payload;
+
+        const lowestGeoLevel = findLowestGeoLevel(locationData);
+
+        if (lowestGeoLevel?.geo_level_name) {
+          setLocationDetailsField([
+            {
+              title: `${lowestGeoLevel.geo_level_name} ID`,
+              key: `location_id_column`,
+            },
+          ]);
         }
-        dispatch(setLoading(false));
-      } catch (error) {
-        dispatch(setLoading(false));
-        console.log("Error fetching sctoForm:", error);
       }
+      return;
+    }
+    if (survey_uid && moduleQuestionnaire.target_mapping_criteria) {
+      if (
+        moduleQuestionnaire.target_mapping_criteria.includes("Location") &&
+        locationDetailsField.length === 0
+      ) {
+        // use lowest geo level for target mapping location
+        const locationRes = await dispatch(
+          getSurveyLocationGeoLevels({ survey_uid: survey_uid })
+        );
+
+        const locationData = locationRes?.payload;
+        console.log("Location data for target mapping:", locationData);
+
+        const lowestGeoLevel = findLowestGeoLevel(locationData);
+        console.log(
+          "Lowest geo level for target mapping location:",
+          lowestGeoLevel
+        );
+
+        if (lowestGeoLevel?.geo_level_name) {
+          setLocationDetailsField([
+            {
+              title: `${lowestGeoLevel.geo_level_name} ID`,
+              key: `location_id_column`,
+            },
+          ]);
+        }
+      }
+
+      return;
     }
   };
-
+  // Replace all the useEffect blocks with this single consolidated effect
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        // Redirect to upload if missing csvHeaders and cannot perform re-mapping
+        // Handle CSV headers validation if not already done
         if (csvHeaders.length < 1) {
           message.error("csvHeaders not found; kindly reupload the CSV file");
           navigate(`/survey-information/targets/${survey_uid}/${form_uid}`);
           return;
         }
 
-        const keysToExclude = [
-          ...mandatoryDetailsField.map((item: { key: any }) => item.key),
-          ...locationDetailsField.map((item: { key: any }) => item.key),
-        ];
+        // Only initialize form if targetsColumnMapping exists and form is empty
+        const currentFormValues = targetMappingForm.getFieldsValue();
+        if (
+          targetsColumnMapping &&
+          Object.keys(currentFormValues).length === 0
+        ) {
+          targetMappingForm.setFieldsValue({ ...targetsColumnMapping });
+        }
 
-        const extraHeaders = csvHeaders.filter(
-          (item) => !keysToExclude.includes(item)
-        );
+        await fetchModuleQuestionnaire();
+        // Only update extra CSV headers if not already set
+        if (!extraCSVHeader) {
+          const keysToExclude = [
+            ...mandatoryDetailsField.map((item: { key: any }) => item.key),
+            ...locationDetailsField.map((item: { key: any }) => item.key),
+          ];
 
-        setExtraCSVHeader(extraHeaders);
+          const extraHeaders = csvHeaders.filter(
+            (item) => !keysToExclude.includes(item)
+          );
 
-        await handleFormUID();
-        await fetchSurveyModuleQuestionnaire();
-
-        // Set default values for the form
-        targetMappingForm.setFieldsValue({ ...targetsColumnMapping });
+          setExtraCSVHeader(extraHeaders);
+        }
       } catch (error) {
-        // Handle errors appropriately
-        console.error("Error in useEffect:", error);
+        console.error("Error in initialization:", error);
       }
+      setLoading(false);
     };
-
     fetchData();
   }, []);
 
@@ -880,9 +906,12 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     )}
                   </div>
                 </Form>
-                <ContinueButton onClick={handleTargetsUploadMapping}>
+                <CustomBtn
+                  onClick={handleTargetsUploadMapping}
+                  style={{ marginTop: 20 }}
+                >
                   Continue
-                </ContinueButton>
+                </CustomBtn>
               </>
             ) : (
               <>

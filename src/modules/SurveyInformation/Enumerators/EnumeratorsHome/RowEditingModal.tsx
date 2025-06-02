@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, message, Select } from "antd";
+import { Drawer, Form, Input, message, Select, Tag, Modal } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -8,8 +8,7 @@ import {
   updateEnumerator,
 } from "../../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../../redux/hooks";
-import { use } from "chai";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -68,35 +67,69 @@ function RowEditingModal({
     "home_address",
   ]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatusDropout, setIsStatusDropout] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showWarning, setShowWarning] = useState<"dropout" | "surveyor" | null>(
+    null
+  );
+  const [hadSurveyorRole, setHadSurveyorRole] = useState(false);
+  const [originalStatus, setOriginalStatus] = useState<string>("");
 
   const cancelHandler = () => {
-    // Write code here for any cleanup
     onCancel();
+  };
+
+  const handleStatusChange = (value: string) => {
+    setIsStatusDropout(value === "Dropout");
+  };
+
+  const handleEnumeratorTypeChange = (values: string[]) => {
+    // Just store the values, don't show warning yet
   };
 
   const updateHandler = async () => {
     try {
-      // Validate form
       const values = await editForm.validateFields();
       const updateData = await editForm.getFieldsValue();
       const originalData = data;
 
-      // If location is being updated, modify surveyor_locations
-      if (updateData.location) {
-        // Find the selected location from locations array
-        const selectedLocation = locations.find(
-          (loc: any) => loc.location_name === updateData.location
+      if (updateData.location && Array.isArray(updateData.location)) {
+        const selectedLocations = locations.filter((loc: any) =>
+          updateData.location.includes(loc.location_name)
         );
 
-        if (selectedLocation) {
-          // Update the data with new surveyor_locations
-          updateData.location_uid = selectedLocation.location_uid;
+        if (selectedLocations.length > 0) {
+          updateData.location_uid = selectedLocations
+            .map((loc: any) => loc.location_uid)
+            .join(";");
         }
       }
-
-      // Rest of your existing update logic
       if (originalData.length > 1 && form_uid) {
-        // Bulk update logic...
+        const { location, ...fieldsToUpdate } = updateData;
+        fieldsToUpdate.enumerator_type = Array.isArray(
+          fieldsToUpdate.enumerator_type
+        )
+          ? fieldsToUpdate.enumerator_type.join(";")
+          : fieldsToUpdate.enumerator_type || "";
+        const updateRes = await dispatch(
+          bulkUpdateEnumerators({
+            enumeratorUIDs: originalData.map((item) => item["enumerator_uid"]),
+            formUID: form_uid,
+            patchKeys: {
+              ...fieldsToUpdate,
+            },
+          })
+        );
+        if (updateRes?.payload?.status === 200) {
+          message.success("Enumerators updated successfully");
+          onUpdate();
+          return;
+        }
+        updateRes?.payload?.errors
+          ? message.error(updateRes?.payload?.errors)
+          : message.error(
+              "Failed to update enumerators, kindly check and try again"
+            );
       } else {
         const enumeratorUID = originalData[0]["enumerator_uid"];
         const indexToUpdate = originalData.findIndex(
@@ -109,7 +142,6 @@ function RowEditingModal({
             ...updateData,
           };
 
-          // Extract the custom fields from the updatedRow
           const { custom_fields, ...rest } = updatedRow;
           const removedCustomFields: any = {};
           for (const key in rest) {
@@ -124,6 +156,9 @@ function RowEditingModal({
             ...custom_fields,
             ...removedCustomFields,
           };
+          rest.enumerator_type = Array.isArray(updateData.enumerator_type)
+            ? updateData.enumerator_type.join(";")
+            : updateData.enumerator_type || "";
 
           originalData[indexToUpdate] = rest;
         }
@@ -145,9 +180,50 @@ function RowEditingModal({
             );
       }
     } catch (error: any) {
-      console.error("Update error:", error);
       message.error(error.message || "Failed to update, please try again");
     }
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await editForm.validateFields();
+      const formValues = editForm.getFieldsValue();
+
+      // Only show dropout warning if original status wasn't dropout
+      if (
+        formValues.enumerator_status === "Dropout" &&
+        originalStatus !== "Dropout"
+      ) {
+        setShowWarning("dropout");
+        setIsModalOpen(true);
+        return;
+      }
+
+      // Only show surveyor warning if they originally had the role
+      if (
+        hadSurveyorRole &&
+        Array.isArray(formValues.enumerator_type) &&
+        !formValues.enumerator_type.includes("surveyor") &&
+        data[0].surveyor_status !== null
+      ) {
+        setShowWarning("surveyor");
+        setIsModalOpen(true);
+        return;
+      }
+
+      updateHandler();
+    } catch (error) {
+      message.error("Please fill in all required fields");
+    }
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    updateHandler();
+  };
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
   };
 
   const fieldsToExclude = [
@@ -157,89 +233,84 @@ function RowEditingModal({
     "monitor_locations",
     "monitor_status",
     "surveyor_status",
-  ]; //always exclude these
-
-  const getFilteredFields = (
-    fields: Field[],
-    data: DataItem[],
-    bulkFieldsToExclude: string[]
-  ) => {
-    // If not bulk editing, return all fields
-    if (data.length <= 1) return fields;
-
-    // For bulk editing, exclude location and other excluded fields
-    return fields.filter((field) => {
-      if (bulkFieldsToExclude.includes(field.labelKey)) return false;
-      if (field.labelKey === "location") return false; // Always exclude location in bulk edit
-      return true;
-    });
-  };
-
-  const fetchEnumeratorsColumnConfig = async (form_uid: string) => {
-    const configRes = await dispatch(
-      getEnumeratorsColumnConfig({ formUID: form_uid })
-    );
-    if (configRes.payload.status == 200) {
-      const configData = configRes.payload?.data?.data?.file_columns;
-
-      if (configData) {
-        const editableFields = configData
-          .filter((field: ConfigField) => field.bulk_editable)
-          .map((field: ConfigField) => field.column_name);
-
-        const nonEditableFields = configData
-          .filter((field: ConfigField) => !field.bulk_editable)
-          .map((field: ConfigField) => field.column_name);
-
-        const excludeFields = [...bulkFieldsToExclude, ...nonEditableFields];
-
-        // Filter fields and always exclude location in bulk edit
-        const filteredFields = fields.filter(
-          (field) =>
-            !excludeFields.includes(field.labelKey) &&
-            field.labelKey !== "location"
-        );
-
-        // Set up form with filtered fields
-        const initialData: DataItem = {};
-        filteredFields.forEach((field) => {
-          if (field?.label?.startsWith("custom_fields")) {
-            initialData[field.label] = data[0]["custom_fields"][field.labelKey];
-          } else {
-            initialData[field.labelKey] = data[0][field.labelKey];
-          }
-        });
-
-        setFormData(initialData);
-        setUpdatedFields(filteredFields);
-        editForm.setFieldsValue(initialData);
-      }
-    }
-  };
-
-  // Get the current location value once when modal opens
+  ];
   const currentLocation =
-    data[0].surveyor_locations?.find(
-      (loc: any) => loc.geo_level_uid === locations[0]?.geo_level_uid
-    )?.location_name ||
+    data[0].surveyor_locations
+      ?.flatMap((locList: any[]) =>
+        locList.filter((loc: any) =>
+          locations.some(
+            (location) => location.geo_level_uid === loc.geo_level_uid
+          )
+        )
+      )
+      .map((loc: any) => loc.location_name)
+      .join(", ") ||
+    data[0].monitor_locations
+      ?.flatMap((locList: any[]) =>
+        locList.filter((loc: any) =>
+          locations.some(
+            (location) => location.geo_level_uid === loc.geo_level_uid
+          )
+        )
+      )
+      .map((loc: any) => loc.location_name)
+      .join(", ") ||
     data[0].location ||
     "";
+  const locationList = currentLocation
+    .split(",")
+    .map((loc: string) => loc.trim());
 
   const setupFormData = () => {
     const initialData: DataItem = {};
+
+    let enumerator_type: string | string[] = "";
+    if (data[0].surveyor_status !== null && data[0].monitor_status !== null) {
+      enumerator_type = ["surveyor", "monitor"];
+    } else if (data[0].surveyor_status !== null) {
+      enumerator_type = "surveyor";
+    } else if (data[0].monitor_status !== null) {
+      enumerator_type = "monitor";
+    }
+
+    const enumerator_status =
+      data[0].surveyor_status || data[0].monitor_status || "N/A";
+
+    initialData.enumerator_type = enumerator_type;
+    initialData.enumerator_status = enumerator_status;
+
     fields.forEach((field) => {
       if (field?.label?.startsWith("custom_fields")) {
         initialData[field.label] =
           data[0]["custom_fields"][field.labelKey] || "";
       } else if (field.labelKey === "location") {
-        initialData.location = currentLocation;
+        initialData.location = locationList;
       } else {
         initialData[field.labelKey] = data[0][field.labelKey] || "";
       }
     });
 
+    const additionalFields = [
+      { labelKey: "enumerator_type", label: "Enumerator Type" },
+      { labelKey: "enumerator_status", label: "Status" },
+    ];
+
+    const existingFields = fields.map((f) => f.labelKey);
+    const newFields = additionalFields.filter(
+      (f) => !existingFields.includes(f.labelKey)
+    );
+
+    const excludedFields =
+      data.length > 1
+        ? [...bulkFieldsToExclude, ...fieldsToExclude]
+        : [...fieldsToExclude];
+
+    const filteredFields = [...fields, ...newFields].filter(
+      (field) => !excludedFields.includes(field.labelKey)
+    );
+
     setFormData(initialData);
-    setUpdatedFields(fields);
+    setUpdatedFields(filteredFields);
     editForm.setFieldsValue(initialData);
   };
 
@@ -247,6 +318,10 @@ function RowEditingModal({
     if (editMode) {
       setIsLoading(true);
       setupFormData();
+      setHadSurveyorRole(data[0].surveyor_status !== null);
+      setOriginalStatus(
+        data[0].surveyor_status || data[0].monitor_status || "N/A"
+      );
       setIsLoading(false);
     }
   }, [editMode, currentLocation]);
@@ -254,14 +329,28 @@ function RowEditingModal({
   return (
     <>
       <GlobalStyle />
+      <Modal
+        title="Warning"
+        open={isModalOpen}
+        onOk={handleModalConfirm}
+        onCancel={handleModalCancel}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>
+          {showWarning === "dropout"
+            ? "Changing status to Dropout will delete all assignments for this enumerator. Are you sure?"
+            : "Removing surveyor role will delete all survey assignments for this enumerator. Are you sure?"}
+        </p>
+      </Modal>
       <Drawer
         open={editMode}
         size="large"
         onClose={onCancel}
         title={
           data && data.length > 1
-            ? `Edit ${data.length} enumerators in bulk`
-            : "Edit enumerator"
+            ? `Edit ${data.length} Selected Enumerators`
+            : "Edit Enumerator"
         }
       >
         {data && data.length > 1 ? (
@@ -269,7 +358,15 @@ function RowEditingModal({
             style={{ width: 410, display: "inline-block", marginBottom: 20 }}
           >
             {`Bulk editing is only allowed for ${updatedFields
-              .map((item: any) => item.labelKey)
+              .map((item: any) =>
+                item.labelKey
+                  .split("_")
+                  .map(
+                    (word: any) =>
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  )
+                  .join(" ")
+              )
               .join(", ")}.`}
           </OptionText>
         ) : null}
@@ -284,30 +381,50 @@ function RowEditingModal({
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
-                  required
+                  required={field.labelKey !== "home_address"}
                   key={idx}
                   name={field.labelKey}
                   initialValue={
                     field.labelKey === "location"
                       ? currentLocation
-                      : data[0][field.labelKey] || ""
+                      : formData[field.labelKey] || ""
                   }
                   label={
                     <span>
                       {field.labelKey === "location"
                         ? primeLocationName
-                        : field.labelKey}
+                        : field.labelKey
+                            .split("_")
+                            .map((word) =>
+                              word.toLowerCase() === "id"
+                                ? "ID"
+                                : word.charAt(0).toUpperCase() +
+                                  word.slice(1).toLowerCase()
+                            )
+                            .join(" ")}
                     </span>
                   }
                   rules={[
                     {
-                      required: true,
-                      message: `Please enter ${field.labelKey}`,
+                      required: field.labelKey !== "home_address",
+                      message: `Please enter ${field.labelKey
+                        .split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}`,
                     },
                   ]}
                 >
-                  {field.labelKey === `location` ? (
-                    <Select style={{ width: "100%" }} loading={isLoading}>
+                  {field.labelKey === "location" ? (
+                    <Select
+                      mode="multiple"
+                      style={{ width: "100%" }}
+                      loading={isLoading}
+                      defaultValue={currentLocation}
+                    >
                       {!isLoading &&
                       Array.isArray(locations) &&
                       locations.length > 0 ? (
@@ -328,9 +445,45 @@ function RowEditingModal({
                         </Select.Option>
                       )}
                     </Select>
+                  ) : field.labelKey === "enumerator_type" ? (
+                    <Select
+                      placeholder={`Select ${field.labelKey}`}
+                      style={{ width: "100%" }}
+                      mode="multiple"
+                      onChange={handleEnumeratorTypeChange}
+                    >
+                      <Select.Option value="surveyor">Surveyor</Select.Option>
+                      <Select.Option value="monitor">Monitor</Select.Option>
+                    </Select>
+                  ) : field.labelKey === "enumerator_status" ? (
+                    <Select
+                      placeholder={`Select ${field.labelKey
+                        .split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}`}
+                      style={{ width: "100%" }}
+                      onChange={handleStatusChange}
+                    >
+                      <Select.Option value="Active">Active</Select.Option>
+                      <Select.Option value="Temp. Inactive">
+                        Temp. Inactive
+                      </Select.Option>
+                      <Select.Option value="Dropout">Dropout</Select.Option>
+                    </Select>
                   ) : (
                     <Input
-                      placeholder={`Enter ${field.labelKey}`}
+                      placeholder={`Enter ${field.labelKey
+                        .split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}`}
                       style={{ width: "100%" }}
                     />
                   )}
@@ -340,14 +493,20 @@ function RowEditingModal({
           </>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <Button onClick={cancelHandler}>Cancel</Button>
-          <Button
+          <CustomBtn
             type="primary"
-            style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
-            onClick={updateHandler}
+            style={{ backgroundColor: "#2f54eB" }}
+            onClick={handleSave}
           >
             Save
-          </Button>
+          </CustomBtn>
+          <CustomBtn
+            type="default"
+            onClick={cancelHandler}
+            style={{ marginLeft: 8 }}
+          >
+            Cancel
+          </CustomBtn>
         </div>
       </Drawer>
     </>

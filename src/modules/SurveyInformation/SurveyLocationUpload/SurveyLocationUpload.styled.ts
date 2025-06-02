@@ -4,7 +4,8 @@ import styled from "styled-components";
 export const SurveyLocationUploadFormWrapper = styled.div`
   flex: 1;
   background-color: #f5f5f5;
-  padding-left: 80px;
+  padding-left: 50px;
+  padding-right: 50px;
   padding-top: 23px;
   font-family: "Lato", sans-serif;
 `;

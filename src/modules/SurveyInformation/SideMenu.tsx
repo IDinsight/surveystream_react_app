@@ -15,6 +15,7 @@ import {
   BuildOutlined,
   HomeOutlined,
   InsertRowRightOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import {
   SideMenuWrapper,
@@ -41,6 +42,9 @@ function SideMenu() {
   const { role_uid } = useParams<{ role_uid?: string }>() ?? {
     role_uid: "",
   };
+  const { admin_form_uid } = useParams<{ admin_form_uid?: string }>() ?? {
+    admin_form_uid: "",
+  };
 
   const { loading: isSurveyCTOFormLoading, surveyCTOForm } = useAppSelector(
     (state: RootState) => state.surveyCTOInformation
@@ -61,13 +65,13 @@ function SideMenu() {
     let permission_name: string;
 
     switch (sectionTitle) {
-      case "Survey locations":
+      case "Locations":
         permission_name = "READ Survey Locations";
         break;
-      case "User and role management":
+      case "User and Role Management":
         permission_name = "Survey Admin";
         break;
-      case "SurveyCTO information":
+      case "SurveyCTO Integration":
         permission_name = "Survey Admin";
         break;
       case "Enumerators":
@@ -76,10 +80,10 @@ function SideMenu() {
       case "Targets":
         permission_name = "READ Targets";
         break;
-      case "Mapping":
+      case "Supervisor Mapping":
         permission_name = "READ Mapping";
         break;
-      case "Target status mapping":
+      case "Survey Status for Targets":
         permission_name = "READ Target Status Mapping";
         break;
       default:
@@ -119,7 +123,7 @@ function SideMenu() {
               <IconWrapper>
                 <PlusSquareOutlined />
               </IconWrapper>
-              Add/edit location levels
+              Add/ Edit Location Levels
             </MenuItem>
           ),
           key: "surveyLocationAdd",
@@ -135,7 +139,7 @@ function SideMenu() {
               <IconWrapper>
                 <ApartmentOutlined />
               </IconWrapper>
-              Location level hierarchy
+              Location Level Hierarchy
             </MenuItem>
           ),
           key: "surveyLocationHierarchy",
@@ -151,7 +155,7 @@ function SideMenu() {
               <IconWrapper>
                 <UploadOutlined />
               </IconWrapper>
-              Upload locations
+              Upload Locations
             </MenuItem>
           ),
           key: "surveyLocationUpload",
@@ -182,7 +186,7 @@ function SideMenu() {
           <IconWrapper>
             <UserOutlined />
           </IconWrapper>
-          User and role management
+          User and Role Management
         </MenuItem>
       ),
       key: "surveyRolesAndUsers",
@@ -257,7 +261,7 @@ function SideMenu() {
           <IconWrapper>
             <MobileOutlined />
           </IconWrapper>
-          SurveyCTO information
+          SurveyCTO Integration
         </MenuItem>
       ),
       key: "surveyInformation",
@@ -273,7 +277,7 @@ function SideMenu() {
               <IconWrapper>
                 <DatabaseOutlined />
               </IconWrapper>
-              SurveyCTO main form
+              SurveyCTO Main Form
             </MenuItem>
           ),
           key: "surveyCTOInformation",
@@ -289,7 +293,7 @@ function SideMenu() {
               <IconWrapper>
                 <ShareAltOutlined />
               </IconWrapper>
-              SurveyCTO questions
+              SurveyCTO Questions
             </MenuItem>
           ),
           key: "surveyCTOQuestions",
@@ -353,7 +357,7 @@ function SideMenu() {
           <IconWrapper>
             <ControlOutlined />
           </IconWrapper>
-          Supervisor mapping
+          Supervisor Mapping
         </MenuItem>
       ),
       key: "supervisorMapping",
@@ -404,10 +408,30 @@ function SideMenu() {
           <IconWrapper>
             <BuildOutlined />
           </IconWrapper>
-          Target status mapping
+          Survey Status for Targets
         </MenuItem>
       ),
       key: "targetStatusMapping",
+    },
+    {
+      label: (
+        <MenuItem
+          className={`${
+            isActive(`/survey-information/admin-forms/${survey_uid}`) ||
+            isActive(`/survey-information/admin-forms/${survey_uid}/manage`) ||
+            isActive(
+              `/survey-information/admin-forms/${survey_uid}/scto-questions/${admin_form_uid}`
+            )
+          }`}
+          to={`/survey-information/admin-forms/${survey_uid}`}
+        >
+          <IconWrapper>
+            <FormOutlined />
+          </IconWrapper>
+          Admin Forms
+        </MenuItem>
+      ),
+      key: "adminForms",
     },
   ];
 
@@ -415,13 +439,13 @@ function SideMenu() {
     let module_name: string;
     let permission_name: string;
     if (item?.key === "surveyLocation") {
-      module_name = "Survey locations";
+      module_name = "Locations";
       permission_name = "READ Survey Locations";
     } else if (item?.key === "surveyRolesAndUsers") {
-      module_name = "User and role management";
+      module_name = "User and Role Management";
       permission_name = "Survey Admin";
     } else if (item?.key === "surveyInformation") {
-      module_name = "SurveyCTO information";
+      module_name = "SurveyCTO Integration";
       permission_name = "Survey Admin";
     } else if (item?.key === "surveyEnumerators") {
       module_name = "Enumerators";
@@ -430,11 +454,14 @@ function SideMenu() {
       module_name = "Targets";
       permission_name = "READ Targets";
     } else if (item?.key === "supervisorMapping") {
-      module_name = "Mapping";
+      module_name = "Supervisor Mapping";
       permission_name = "READ Mapping";
     } else if (item?.key === "targetStatusMapping") {
-      module_name = "Target status mapping";
+      module_name = "Survey Status for Targets";
       permission_name = "READ Target Status Mapping";
+    } else if (item?.key === "adminForms") {
+      module_name = "Admin Forms";
+      permission_name = "READ Admin Forms";
     } else {
       return true;
     }
@@ -465,6 +492,7 @@ function SideMenu() {
     if (path.includes("survey-roles/")) return "surveyRolesAndUsers";
     if (path.includes("survey-users/")) return "surveyRolesAndUsers";
     if (path.includes("mapping/")) return "supervisorMapping";
+    if (path.includes("admin-forms/")) return "adminForms";
     return "";
   };
 

@@ -1,13 +1,17 @@
 import { CheckCircleFilled } from "@ant-design/icons";
 
-interface TargetCountProps {
-  targetCount: number;
+interface LocationsCountProps {
+  locationsCount: number;
+  smallestLocationLevelName: string;
 }
 
-function TargetsCountBox({ targetCount }: TargetCountProps) {
+function LocationsCountBox({
+  locationsCount,
+  smallestLocationLevelName,
+}: LocationsCountProps) {
   return (
     <div style={{ display: "flex", gap: 16, marginLeft: 28 }}>
-      {targetCount ? (
+      {locationsCount ? (
         <div
           style={{
             backgroundColor: "#F6FFED",
@@ -27,7 +31,7 @@ function TargetsCountBox({ targetCount }: TargetCountProps) {
               fontWeight: 500,
             }}
           >
-            {targetCount} targets
+            {locationsCount} {smallestLocationLevelName}(s)
           </p>
         </div>
       ) : null}
@@ -35,4 +39,4 @@ function TargetsCountBox({ targetCount }: TargetCountProps) {
   );
 }
 
-export default TargetsCountBox;
+export default LocationsCountBox;

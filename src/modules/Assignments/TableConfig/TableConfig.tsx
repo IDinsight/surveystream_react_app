@@ -50,6 +50,7 @@ import {
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { fetchAvailableColumn } from "../../../redux/tableConfig/apiService";
 import { Breadcrumb } from "antd";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 function TableConfig() {
   const navigate = useNavigate();
@@ -618,6 +619,17 @@ function TableConfig() {
                 <PreviewBtn onClick={() => setPreviewTable(true)}>
                   Preview and Save
                 </PreviewBtn>
+              ) : null}
+              {!table ? (
+                <CustomBtn
+                  onClick={() => {
+                    navigate(
+                      `/module-configuration/assignments/${survey_uid}/${form_uid}`
+                    );
+                  }}
+                >
+                  Go back to Assignments
+                </CustomBtn>
               ) : null}
             </div>
           </HeaderContainer>

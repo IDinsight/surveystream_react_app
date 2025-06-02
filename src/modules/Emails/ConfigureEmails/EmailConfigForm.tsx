@@ -337,11 +337,11 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
       >
         <Select
           showSearch
-          mode="tags"
+          allowClear={true}
+          mode="multiple"
           autoClearSearchValue={false}
           placeholder="Select the users to notify"
         >
-          {/* Render existing Config Names as options */}
           {surveyUsers.length > 0
             ? surveyUsers.map((user: any) => (
                 <Option key={user?.user_uid} value={user?.user_uid}>
@@ -358,7 +358,8 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
       >
         <Select
           showSearch
-          mode="tags"
+          allowClear={true}
+          mode="multiple"
           autoClearSearchValue={false}
           placeholder="Select the users to send a copy of emails"
         >

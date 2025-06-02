@@ -49,6 +49,25 @@ function DQChecksFilter({
           : group
       )
     );
+
+    // if filter operator is changed to "Is empty" or "Is not empty", clear the filter value
+    if (
+      field === "filter_operator" &&
+      (value === "Is empty" || value === "Is not empty")
+    ) {
+      setFilterList((prev: any) =>
+        prev.map((group: any, i: number) =>
+          i === groupIndex
+            ? {
+                ...group,
+                filter_group: group.filter_group.map((filter: any, j: any) =>
+                  j === filterIndex ? { ...filter, filter_value: null } : filter
+                ),
+              }
+            : group
+        )
+      );
+    }
   };
 
   const handleRemoveFilter = (groupIndex: number, filterIndex: number) => {
@@ -182,11 +201,23 @@ function DQChecksFilter({
                         )
                       }
                     >
-                      {validateOperator.map((op: any) => (
-                        <Option key={op} value={op}>
-                          {op}
-                        </Option>
-                      ))}
+                      {
+                        // If the question is select_multiple, we need to show only Contains and Does not contain
+                        filter.question_name &&
+                        questions.find(
+                          (q: any) => q.name === filter.question_name
+                        )?.is_multi_select
+                          ? ["Contains", "Does not contain"].map((op) => (
+                              <Option key={op} value={op}>
+                                {op}
+                              </Option>
+                            ))
+                          : validateOperator.map((op: any) => (
+                              <Option key={op} value={op}>
+                                {op}
+                              </Option>
+                            ))
+                      }
                     </Select>
                   </Col>
                   <Col span={6}>
@@ -214,6 +245,10 @@ function DQChecksFilter({
                         placeholder="Filter value"
                         style={{ width: "100%" }}
                         value={filter.filter_value}
+                        disabled={
+                          filter.filter_operator === "Is empty" ||
+                          filter.filter_operator === "Is not empty"
+                        }
                         onChange={(e: any) =>
                           handleFilterFieldChange(
                             groupIndex,

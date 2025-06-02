@@ -38,6 +38,7 @@ import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
 import { setLoading } from "@/redux/enumerators/enumeratorsSlice";
+import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 
 const { Option } = Select;
 
@@ -59,7 +60,7 @@ const TargetMapping = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [tablePageSize, setTablePageSize] = useState(5);
+  const [tablePageSize, setTablePageSize] = useState(10);
 
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
@@ -1117,6 +1118,14 @@ const TargetMapping = ({
           setLoadMappingConfigError(error_message);
         }
         setLoadingMappingConfig(false);
+        // Resolve existing mapping notifications
+        dispatch(
+          resolveSurveyNotification({
+            survey_uid: SurveyUID,
+            module_id: 17,
+            resolution_status: "done",
+          })
+        );
       });
 
       if (pageNumber === 2) {
@@ -1227,7 +1236,7 @@ const TargetMapping = ({
                 cancelText="No"
               >
                 <ResetButton
-                  style={{ marginLeft: "auto", marginRight: 30 }}
+                  style={{ marginLeft: "auto" }}
                   disabled={
                     criteria.includes("Manual")
                       ? true
@@ -1257,7 +1266,7 @@ const TargetMapping = ({
                   <MappingTable
                     columns={mappedPairsColumns}
                     dataSource={mappedPairsData}
-                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    scroll={{ x: "max-content" }}
                     pagination={false}
                   />
                   {unmappedTargets?.length > 0 && (
@@ -1346,7 +1355,7 @@ const TargetMapping = ({
               }}
             >
               <CustomBtn
-                style={{ marginLeft: "auto", marginRight: "30px" }}
+                style={{ marginLeft: "auto" }}
                 onClick={handleOnEdit}
                 disabled={selectedTargetRows.length === 0}
               >
@@ -1369,14 +1378,15 @@ const TargetMapping = ({
                     columns={targetsMappingColumns}
                     dataSource={mappingTableData}
                     rowSelection={rowSelection}
-                    scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+                    scroll={{ x: "max-content" }}
                     pagination={{
                       position: ["topRight"],
                       pageSize: tablePageSize,
-                      pageSizeOptions: ["5", "10", "20", "50", "100"],
+                      pageSizeOptions: [5, 10, 25, 50, 100],
                       showSizeChanger: true,
-                      onShowSizeChange: (current, size) =>
-                        setTablePageSize(size),
+                      showQuickJumper: true,
+                      onShowSizeChange: (_, size) => setTablePageSize(size),
+                      style: { color: "#2F54EB" },
                     }}
                   />
                   {selectedTargetRows.length > 0 && (
