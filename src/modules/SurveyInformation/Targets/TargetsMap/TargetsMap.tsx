@@ -527,7 +527,8 @@ function TargetsMap() {
               <>
                 <div>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
+                    Select the column from your .csv file that corresponds to
+                    each standard field
                   </DescriptionText>
                 </div>
                 <Form
@@ -535,9 +536,6 @@ function TargetsMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -605,7 +603,6 @@ function TargetsMap() {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -674,16 +671,15 @@ function TargetsMap() {
 
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
                         <p
                           style={{
                             color: "#434343",
                             fontFamily: "Lato",
-                            fontSize: 12,
+                            fontSize: 14,
                             lineHeight: "20px",
                           }}
                         >
-                          {extraCSVHeader.length} custom columns found!
+                          {`Custom columns: ${extraCSVHeader.length} new custom columns found`}
                         </p>
                         {extraCSVHeader.map((item: any, idx: any) => {
                           return (
@@ -815,9 +811,8 @@ function TargetsMap() {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"

@@ -1,16 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Modal, Radio, Space, message } from "antd";
+import { ClearOutlined } from "@ant-design/icons";
 
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
 import { TargetsHomeFormWrapper, TargetsTable } from "./TargetsHome.styled";
-import {
-  CloudDownloadOutlined,
-  CloudUploadOutlined,
-  EditOutlined,
-  ProductOutlined,
-  ReconciliationOutlined,
-} from "@ant-design/icons";
+
 import { useEffect, useState } from "react";
 import RowEditingModal from "./RowEditingModal";
 import TargetsCountBox from "../../../../components/TargetsCountBox";
@@ -35,6 +30,7 @@ import TargetsRemap from "../TargetsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
+import { CustomBtn } from "../../SurveyUserRoles/SurveyUserRoles.styled";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -162,7 +158,6 @@ function TargetsHome() {
         };
       })
       .flat();
-
     // Ensure target_id is always at the top
     const targetIdField = fields.find(
       (field) => field.labelKey === "target_id"
@@ -260,6 +255,7 @@ function TargetsHome() {
     }
   };
   const getTargetsList = async (form_uid: string) => {
+    setLoading(true);
     const targetRes = await dispatch(getTargets({ formUID: form_uid }));
     const targetConfig = await dispatch(
       getTargetConfig({ form_uid: form_uid })
@@ -350,12 +346,49 @@ function TargetsHome() {
             (row: any) => row[column] !== null && column !== "custom_fields"
           )
         )
-        .map((column) => ({
-          title: column,
-          dataIndex: column,
-          width: "30px",
-          ellipsis: true,
-        })); // Filter out columns with all null values
+        .map((column) => {
+          // Convert to title case, keeping ID uppercase if it's the last word
+          const title = column
+            .split("_")
+            .map((word, index, arr) => {
+              if (word.toLowerCase() === "id" && index === arr.length - 1) {
+                return "ID";
+              }
+              return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
+            .join(" ");
+
+          // Get unique values for filter
+          const uniqueValues = Array.from(
+            new Set(
+              originalData
+                .map((item: any) => item[column])
+                .filter((value: any) => value !== null && value !== undefined)
+            )
+          ).map((value: any) => ({ text: value.toString(), value: value }));
+
+          return {
+            title,
+            dataIndex: column,
+            width: "25px",
+            ellipsis: true,
+            sorter: (a: any, b: any) => {
+              const aVal = a[column];
+              const bVal = b[column];
+              if (typeof aVal === "number" && typeof bVal === "number") {
+                return aVal - bVal;
+              }
+              return (aVal?.toString() || "").localeCompare(
+                bVal?.toString() || ""
+              );
+            },
+            filters: uniqueValues,
+            filterMode: "menu",
+            filterSearch: true,
+            onFilter: (value: any, record: any) =>
+              record[column]?.toString() === value.toString(),
+          };
+        });
 
       const customFieldsSet = new Set(); // Create a set to track unique custom fields
       const customFields = originalData.reduce((acc: any, row: any) => {
@@ -366,17 +399,54 @@ function TargetsHome() {
               !customFieldsSet.has(key) &&
               key !== "column_mapping"
             ) {
-              customFieldsSet.add(key); // Add the custom field to the set
+              customFieldsSet.add(key);
+              const title = key
+                .split("_")
+                .map((word, index, arr) => {
+                  if (word.toLowerCase() === "id" && index === arr.length - 1) {
+                    return "ID";
+                  }
+                  return (
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  );
+                })
+                .join(" ");
+
+              // Get unique values for custom field filters
+              const uniqueValues = Array.from(
+                new Set(
+                  originalData
+                    .map((item: any) => item.custom_fields?.[key])
+                    .filter(
+                      (value: any) => value !== null && value !== undefined
+                    )
+                )
+              ).map((value: any) => ({ text: value.toString(), value: value }));
+
               acc.push({
-                title: key,
+                title: title,
                 dataIndex: `custom_fields.${key}`,
                 width: "30px",
                 ellipsis: true,
+                sorter: (a: any, b: any) => {
+                  const aVal = a.custom_fields?.[key];
+                  const bVal = b.custom_fields?.[key];
+                  if (typeof aVal === "number" && typeof bVal === "number") {
+                    return aVal - bVal;
+                  }
+                  return (aVal?.toString() || "").localeCompare(
+                    bVal?.toString() || ""
+                  );
+                },
+                filters: uniqueValues,
+                filterMode: "menu",
+                filterSearch: true,
+                onFilter: (value: any, record: any) =>
+                  record.custom_fields?.[key]?.toString() === value.toString(),
               });
             }
           }
         }
-
         return acc;
       }, []);
 
@@ -391,21 +461,90 @@ function TargetsHome() {
 
               if (!locationFieldsSet.has(geoLevelUID)) {
                 locationFieldsSet.add(geoLevelUID);
+                // Get unique values for ID filters
+                const uniqueIDValues = Array.from(
+                  new Set(
+                    originalData
+                      .map(
+                        (item: any) =>
+                          item.target_locations?.find(
+                            (loc: any) =>
+                              loc.location_uid === item.location_uid &&
+                              loc.geo_level_name === geoLevelName
+                          )?.location_id
+                      )
+                      .filter(
+                        (value: any) => value !== null && value !== undefined
+                      )
+                  )
+                ).map((value: any) => ({
+                  text: value.toString(),
+                  value: value,
+                }));
+
                 acc.push({
                   title: geoLevelUID,
                   dataIndex: `target_locations.${geoLevelUID}`,
                   width: "30px",
                   ellipsis: true,
+                  sorter: (a: any, b: any) => {
+                    const aVal = a[`target_locations.${geoLevelUID}`];
+                    const bVal = b[`target_locations.${geoLevelUID}`];
+                    return (aVal?.toString() || "").localeCompare(
+                      bVal?.toString() || ""
+                    );
+                  },
+                  filters: uniqueIDValues,
+                  filterMode: "menu",
+                  filterSearch: true,
+                  onFilter: (value: any, record: any) =>
+                    record[`target_locations.${geoLevelUID}`]?.toString() ===
+                    value.toString(),
                 });
               }
 
               if (!locationFieldsSet.has(geoLevelNameField)) {
                 locationFieldsSet.add(geoLevelNameField);
+                // Get unique values for name filters
+                const uniqueNameValues = Array.from(
+                  new Set(
+                    originalData
+                      .map(
+                        (item: any) =>
+                          item.target_locations?.find(
+                            (loc: any) =>
+                              loc.location_uid === item.location_uid &&
+                              loc.geo_level_name === geoLevelName
+                          )?.location_name
+                      )
+                      .filter(
+                        (value: any) => value !== null && value !== undefined
+                      )
+                  )
+                ).map((value: any) => ({
+                  text: value.toString(),
+                  value: value,
+                }));
+
                 acc.push({
-                  title: geoLevelNameField,
+                  title: `${geoLevelName} Name`,
                   dataIndex: `target_locations.${geoLevelNameField}`,
                   width: "30px",
                   ellipsis: true,
+                  sorter: (a: any, b: any) => {
+                    const aVal = a[`target_locations.${geoLevelNameField}`];
+                    const bVal = b[`target_locations.${geoLevelNameField}`];
+                    return (aVal?.toString() || "").localeCompare(
+                      bVal?.toString() || ""
+                    );
+                  },
+                  filters: uniqueNameValues,
+                  filterMode: "menu",
+                  filterSearch: true,
+                  onFilter: (value: any, record: any) =>
+                    record[
+                      `target_locations.${geoLevelNameField}`
+                    ]?.toString() === value.toString(),
                 });
               }
             }
@@ -419,50 +558,42 @@ function TargetsHome() {
       setDataTableColumn(columnMappings);
 
       const tableDataSource = originalData.map((item: any, index: any) => {
-        const rowData: Record<string, any> = {}; // Use index signature
+        const rowData: Record<string, any> = {
+          key: index,
+          ...item,
+        };
 
-        for (const mapping of columnMappings) {
-          const { title, dataIndex } = mapping;
-
-          // Check if the mapping is for custom_fields
-          if (dataIndex.startsWith("custom_fields.")) {
-            const customFieldKey = dataIndex.split(".")[1];
-            if (
-              item.custom_fields &&
-              item.custom_fields[customFieldKey] !== null
-            ) {
-              rowData[dataIndex] = item.custom_fields[customFieldKey];
-            } else {
-              rowData[dataIndex] = null;
-            }
-          } else if (dataIndex.startsWith("target_locations.")) {
-            const locationKey = dataIndex.split(".")[1];
-            if (item.target_locations && Array.isArray(item.target_locations)) {
-              const location = item.target_locations.find(
-                (loc: any) =>
-                  loc.geo_level_name === locationKey.replace(/ ID| name/g, "")
-              );
-              rowData[dataIndex] = locationKey.endsWith(" ID")
-                ? location.location_id
-                : location.location_name;
-            } else {
-              rowData[dataIndex] = null;
-            }
-          } else {
-            rowData[dataIndex] = item[dataIndex];
+        // Process location fields
+        if (item.target_locations && Array.isArray(item.target_locations)) {
+          const relevantLocation = item.target_locations.find(
+            (loc: any) => loc.location_uid === item.location_uid
+          );
+          if (relevantLocation) {
+            const geoLevelName = relevantLocation.geo_level_name;
+            rowData[`target_locations.${geoLevelName} ID`] =
+              relevantLocation.location_id;
+            rowData[`target_locations.${geoLevelName} name`] =
+              relevantLocation.location_name;
           }
         }
 
-        return {
-          key: index,
-          ...rowData,
-        };
+        // Process custom fields
+        if (item.custom_fields) {
+          Object.entries(item.custom_fields).forEach(([key, value]) => {
+            if (key !== "column_mapping") {
+              rowData[`custom_fields.${key}`] = value;
+            }
+          });
+        }
+
+        return rowData;
       });
 
       setTableDataSource(tableDataSource);
     } else {
       message.error("Targets failed to load, kindly reload to try again.");
     }
+    setLoading(false);
   };
 
   const handleNewTargetMode = () => {
@@ -491,15 +622,31 @@ function TargetsHome() {
     }
   };
 
+  const [filters, setFilters] = useState({});
+  const [sorter, setSorter] = useState({});
+
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    setFilters(filters);
+    setSorter(sorter);
+  };
+
+  const clearFiltersAndSorters = () => {
+    setFilters({});
+    setSorter({});
+    if (form_uid) {
+      getTargetsList(form_uid);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      // redirect to upload if missing csvHeaders and cannot perform mapping
-      // TODO: update this for configured surveys already
+      setLoading(true);
       await handleFormUID();
 
       if (form_uid && screenMode === "manage") {
-        getTargetsList(form_uid);
+        await getTargetsList(form_uid);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -522,79 +669,75 @@ function TargetsHome() {
               marginLeft: "auto",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                marginLeft: "auto",
-                color: "#2F54EB",
-              }}
-            >
-              <Button
-                type="primary"
-                icon={<ProductOutlined />}
-                style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
-                onClick={() =>
-                  navigate(
-                    `/survey-information/targets/config/${survey_uid}/${form_uid}`
-                  )
-                }
+            {screenMode === "manage" && (
+              <div
+                style={{
+                  display: "flex",
+                  marginLeft: "auto",
+                }}
               >
-                Change Target Configuration
-              </Button>
-              {targetDataSource === "scto" && (
-                <Button
+                <CustomBtn
                   type="primary"
-                  icon={<ReconciliationOutlined />}
-                  style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
+                  style={{ marginRight: 15 }}
+                  onClick={() =>
+                    navigate(
+                      `/survey-information/targets/config/${survey_uid}/${form_uid}`
+                    )
+                  }
+                >
+                  Change Target Configuration
+                </CustomBtn>
+                <CustomBtn
+                  type="primary"
+                  style={{ marginRight: 15 }}
                   onClick={() =>
                     navigate(
                       `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
                     )
                   }
+                  disabled={targetDataSource !== "scto"}
                 >
-                  Edit SCTO Column Mapping
-                </Button>
-              )}
-              {targetDataSource !== "scto" && (
-                <>
-                  {editMode && (
-                    <Button
-                      type="primary"
-                      icon={<EditOutlined />}
-                      style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
-                      onClick={onEditDataHandler}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handlerAddTargetBtn}
+                  Edit SurveyCTO Column Mapping
+                </CustomBtn>
+                {targetDataSource !== "scto" && (
+                  <CustomBtn
                     type="primary"
-                    icon={<CloudUploadOutlined />}
-                    style={{ marginRight: 15, backgroundColor: "#2F54EB" }}
+                    style={{ marginRight: 15 }}
+                    onClick={onEditDataHandler}
+                    disabled={!editMode}
                   >
-                    Upload targets
-                  </Button>
-                </>
-              )}
-
-              <CSVDownloader
-                data={tableDataSource}
-                filename={"targets.csv"}
-                style={{
-                  cursor: "pointer",
-                  backgroundColor: "#2F54EB",
-                  color: "#FFF",
-                  fontSize: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                }}
-              >
-                <CloudDownloadOutlined />
-              </CSVDownloader>
-            </div>
+                    Edit
+                  </CustomBtn>
+                )}
+                <CustomBtn
+                  onClick={handlerAddTargetBtn}
+                  type="primary"
+                  style={{ marginRight: 15 }}
+                >
+                  Add Targets
+                </CustomBtn>
+                <CSVDownloader data={tableDataSource} filename={"targets.csv"}>
+                  <CustomBtn type="primary" style={{ marginRight: 15 }}>
+                    Download CSV
+                  </CustomBtn>
+                </CSVDownloader>
+                <Button
+                  onClick={clearFiltersAndSorters}
+                  style={{
+                    cursor: "pointer",
+                    marginRight: 15,
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                  }}
+                  disabled={
+                    Object.keys(filters).length === 0 &&
+                    Object.keys(sorter).length === 0
+                  }
+                  icon={<ClearOutlined />}
+                />
+              </div>
+            )}
           </div>
         )}
       </HeaderContainer>
@@ -607,7 +750,7 @@ function TargetsHome() {
             <>
               <TargetsHomeFormWrapper>
                 {targetsLastUpdated && (
-                  <div
+                  <p
                     style={{
                       display: "flex",
                       alignItems: "right",
@@ -616,23 +759,27 @@ function TargetsHome() {
                   >
                     Targets last uploaded on:{" "}
                     {formatDate(targetsLastUpdated, formTimezone)}{" "}
-                  </div>
+                  </p>
                 )}
                 <TargetsTable
-                  rowSelection={{
-                    ...rowSelection,
-                    onChange: (selectedRowKeys, selectedRows) => {
-                      onSelectChange(selectedRowKeys, selectedRows);
-                      setEditMode(selectedRows.length > 0);
-                    },
-                  }}
-                  columns={dataTableColumn.map((col: any) => ({
-                    ...col,
-                    width: "30px",
-                  }))}
+                  rowSelection={
+                    targetDataSource !== "scto"
+                      ? {
+                          ...rowSelection,
+                          onChange: (selectedRowKeys, selectedRows) => {
+                            onSelectChange(selectedRowKeys, selectedRows);
+                            setEditMode(selectedRows.length > 0);
+                          },
+                          columnWidth: 15,
+                        }
+                      : undefined
+                  }
+                  columns={dataTableColumn}
                   dataSource={tableDataSource}
                   tableLayout="auto"
                   scroll={{ x: "max-content" }}
+                  onChange={handleTableChange}
+                  bordered={true}
                   pagination={{
                     position: ["topRight"],
                     pageSize: paginationPageSize,
@@ -654,13 +801,13 @@ function TargetsHome() {
                 ) : null}
               </TargetsHomeFormWrapper>
               <Modal
-                title="Add targets"
+                title="Add Targets"
                 open={newTargetModal}
                 onOk={handleNewTargetMode}
                 okText="Continue"
                 onCancel={() => setNewTargetModal(false)}
               >
-                <Divider />
+                <Divider style={{ margin: "0" }} />
                 <p>Please select how you want to proceed:</p>
                 <Radio.Group
                   style={{ marginBottom: 20 }}
@@ -671,11 +818,14 @@ function TargetsHome() {
                     <Radio value="merge">
                       I want to add new targets / columns
                     </Radio>
-                    <Radio value="overwrite" disabled={isTargetInUse}>
-                      <span> I want to start afresh </span>
-                      <span style={{ color: "red" }}>
-                        ( Targets uploaded previously will be removed. Existing
-                        assignments data will be deleted. )
+                    <Radio
+                      value="overwrite"
+                      disabled={targetDataSource === "scto"}
+                    >
+                      <span>
+                        {" "}
+                        I want to start afresh ( This action will delete
+                        previously uploaded targets as well as assignments.){" "}
                       </span>
                     </Radio>
                   </Space>

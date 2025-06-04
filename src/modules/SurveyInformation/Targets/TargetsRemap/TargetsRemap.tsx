@@ -8,6 +8,7 @@ import {
   HeadingText,
   WarningTable,
   TargetsRemapFormWrapper,
+  DescriptionText,
 } from "./TargetsRemap.styled";
 import {
   CloseOutlined,
@@ -570,7 +571,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       <GlobalStyle />
       <TargetsRemapFormWrapper>
         <div style={{ display: "flex" }}>
-          <Title>Add new targets</Title>
+          <Title>Update Targets</Title>
           <Button
             style={{
               borderRadius: 2,
@@ -592,27 +593,22 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                 <StyledBreadcrumb
                   separator=">"
                   items={[
-                    { title: "Upload csv" },
-                    { title: "Map csv columns", className: "active" },
-                    { title: "Update targets" },
+                    { title: "Upload CSV" },
+                    { title: "Map CSV Columns", className: "active" },
+                    { title: "Update Targets" },
                   ]}
                 />
+                <div>
+                  <DescriptionText>
+                    Select the column from your .csv file that corresponds to
+                    each standard field{" "}
+                  </DescriptionText>
+                </div>
                 <Form
                   form={targetMappingForm}
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
-                    {/* 
-                  TODO: show alerts here
-                <Alert
-                  message="Mandatory columns: Target Name and Language (p) not found, please map them. Custom columns: Number of household members not found, please map them."
-                  type="error"
-                  showIcon
-                  style={{ width: 754, marginBottom: 20 }}
-                /> */}
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -678,7 +674,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -742,16 +737,18 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                         )}
                       </>
                     ) : null}
-
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
-                        <Alert
-                          message={`Custom columns: ${extraCSVHeader.length} new custom columns found`}
-                          type="warning"
-                          showIcon
-                          style={{ width: 375, marginBottom: 20 }}
-                        />
+                        <p
+                          style={{
+                            color: "#434343",
+                            fontFamily: "Lato",
+                            fontSize: 14,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {`Custom columns: ${extraCSVHeader.length} new custom columns found`}
+                        </p>
                         {extraCSVHeader.map((item: any, idx: any) => {
                           return (
                             <Form.Item
@@ -882,9 +879,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"
@@ -919,9 +915,9 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <StyledBreadcrumb
                     separator=">"
                     items={[
-                      { title: "Upload csv" },
-                      { title: "Map csv columns" },
-                      { title: "Update enumerators", className: "active" },
+                      { title: "Upload CSV" },
+                      { title: "Map CSV Columns" },
+                      { title: "Update Targets", className: "active" },
                     ]}
                   />
                   <br />

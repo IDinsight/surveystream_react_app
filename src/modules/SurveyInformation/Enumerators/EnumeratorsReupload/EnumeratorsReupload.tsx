@@ -88,7 +88,7 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
       <GlobalStyle />
       <EnumeratorsReuploadFormWrapper>
         <div style={{ display: "flex" }}>
-          <Title>Add new enumerators</Title>
+          <Title>Update Enumerators</Title>
           <Button
             style={{
               borderRadius: 2,
@@ -104,9 +104,9 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
         <StyledBreadcrumb
           separator=">"
           items={[
-            { title: "Upload csv", className: "active" },
-            { title: "Map csv columns" },
-            { title: "Update enumerators" },
+            { title: "Upload CSV", className: "active" },
+            { title: "Map CSV Columns" },
+            { title: "Update Enumerators" },
           ]}
         />
         <DescriptionContainer>

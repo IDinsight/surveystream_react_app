@@ -736,7 +736,6 @@ function EnumeratorsHome() {
                 <CSVDownloader
                   data={tableDataSource}
                   filename={"enumerators.csv"}
-                  bom={true}
                 >
                   <CustomBtn type="primary" style={{ marginRight: 15 }}>
                     Download CSV

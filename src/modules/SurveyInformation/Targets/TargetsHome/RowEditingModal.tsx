@@ -8,7 +8,7 @@ import {
   updateTarget,
 } from "../../../../redux/targets/targetActions";
 import { useAppDispatch } from "../../../../redux/hooks";
-import { GlobalStyle } from "../../../../shared/Global.styled";
+import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -286,8 +286,8 @@ function RowEditingModal({
         size="large"
         title={
           data && data.length > 1
-            ? `Edit ${data.length} targets in bulk`
-            : "Edit target"
+            ? `Edit ${data.length} Selected Targets`
+            : "Edit Target"
         }
         onClose={onCancel}
       >
@@ -296,7 +296,15 @@ function RowEditingModal({
             style={{ width: 410, display: "inline-block", marginBottom: 20 }}
           >
             {`Bulk editing is only allowed for ${updatedFields
-              .map((item: any) => item.labelKey)
+              .map((item: any) =>
+                item.labelKey
+                  .split(/[\s_]/)
+                  .map(
+                    (word: any) =>
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  )
+                  .join(" ")
+              )
               .join(", ")}.`}
           </OptionText>
         ) : null}
@@ -312,16 +320,28 @@ function RowEditingModal({
                   required
                   key={idx}
                   id={`${field.label}-id`}
-                  name={field.label}
+                  name={field.labelKey}
                   labelAlign="left"
                   initialValue={
                     field.label && field.label.startsWith("target_locations.")
                       ? data[0]["location_uid"]
                       : field.label
-                      ? data[0][field.label]
+                      ? data[0][field.labelKey]
                       : ""
                   }
-                  label={<span>{field.labelKey}</span>}
+                  label={
+                    <span>
+                      {field.labelKey
+                        .split(/[\s_]/)
+                        .map((word) =>
+                          word.toLowerCase() === "id"
+                            ? "ID"
+                            : word.charAt(0).toUpperCase() +
+                              word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}
+                    </span>
+                  }
                   rules={[
                     {
                       required: true,
@@ -358,14 +378,12 @@ function RowEditingModal({
           </div>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <Button onClick={cancelHandler}>Cancel</Button>
-          <Button
-            type="primary"
-            style={{ marginLeft: 30, backgroundColor: "#2f54eB" }}
-            onClick={updateHandler}
-          >
+          <CustomBtn type="primary" onClick={updateHandler}>
             Save
-          </Button>
+          </CustomBtn>
+          <CustomBtn style={{ marginLeft: 10 }} onClick={cancelHandler}>
+            Cancel
+          </CustomBtn>
         </div>
       </Drawer>
     </>

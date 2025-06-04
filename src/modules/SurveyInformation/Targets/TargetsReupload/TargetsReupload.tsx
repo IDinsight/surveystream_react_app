@@ -9,7 +9,7 @@ import {
   Mandatory,
   StyledBreadcrumb,
 } from "./TargetsReupload.styled";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, SelectOutlined } from "@ant-design/icons";
 import FileUpload from "./FileUpload";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -125,7 +125,7 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
         {!reupload ? (
           <>
             <div style={{ display: "flex" }}>
-              <Title>Add new targets</Title>
+              <Title>Update Targets</Title>
               <Button
                 style={{
                   borderRadius: 2,
@@ -141,27 +141,37 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
             <StyledBreadcrumb
               separator=">"
               items={[
-                { title: "Upload csv", className: "active" },
-                { title: "Map csv columns" },
-                { title: "Update targets" },
+                { title: "Upload CSV", className: "active" },
+                { title: "Map CSV Columns" },
+                { title: "Update Targets" },
               ]}
             />
             <DescriptionContainer>
-              The following columns are existing in the enumerators table
-              currently.
-              {targetsColumnMapping !== null &&
-                Object.keys(targetsColumnMapping).length > 0 && (
-                  <ul>
-                    {Object.keys(targetsColumnMapping).map(
-                      (key) =>
-                        key !== "custom_fields" && <li key={key}>{key}</li>
-                    )}
-                  </ul>
-                )}
+              Upload a .csv file containing the targets for your survey.{" "}
+              <a
+                href="https://docs.surveystream.idinsight.io/targets#targets"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#2F80ED",
+                  fontSize: "14px",
+                  fontFamily: '"Lato", sans-serif',
+                }}
+              >
+                Learn more
+                <SelectOutlined
+                  rotate={90}
+                  style={{
+                    marginLeft: "3px",
+                    padding: "0px",
+                    fontSize: "15px",
+                  }}
+                />{" "}
+              </a>{" "}
             </DescriptionContainer>
           </>
         ) : null}
-        <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+        <div style={{ marginTop: "20px", marginBottom: "14px" }}>
           <Form layout="horizontal">
             <Row>
               <Col span={23}>

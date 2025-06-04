@@ -484,9 +484,9 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                 <StyledBreadcrumb
                   separator=">"
                   items={[
-                    { title: "Upload csv" },
-                    { title: "Map csv columns", className: "active" },
-                    { title: "Update enumerators" },
+                    { title: "Upload CSV" },
+                    { title: "Map CSV Columns", className: "active" },
+                    { title: "Update Enumerators" },
                   ]}
                 />
                 <div>

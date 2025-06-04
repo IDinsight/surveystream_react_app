@@ -663,7 +663,6 @@ function TargetsSctoMap() {
           >
             <Button
               type="primary"
-              icon={<ProductOutlined />}
               style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
               onClick={() =>
                 navigate(
@@ -683,7 +682,6 @@ function TargetsSctoMap() {
             ) : (
               <Button
                 type="primary"
-                icon={<ReconciliationOutlined />}
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 onClick={() => window.location.reload()}
               >
@@ -704,9 +702,10 @@ function TargetsSctoMap() {
             {!hasError && !hasWarning ? (
               <>
                 <div>
-                  <Title>Targets: Map SCTO columns</Title>
+                  <Title>Map SurveyCTO columns</Title>
                   <DescriptionText>
-                    Select corresponding column for the label on the left
+                    Select the column from your SurveyCTO input that corresponds
+                    to each standard field
                   </DescriptionText>
                 </div>
                 <Form
@@ -714,9 +713,6 @@ function TargetsSctoMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -789,7 +785,6 @@ function TargetsSctoMap() {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -857,7 +852,7 @@ function TargetsSctoMap() {
                     ) : null}
 
                     <Form.Item
-                      label="Custom columns"
+                      label="Custom Columns"
                       name="custom_columns"
                       labelCol={{ span: 5 }}
                       labelAlign="left"
