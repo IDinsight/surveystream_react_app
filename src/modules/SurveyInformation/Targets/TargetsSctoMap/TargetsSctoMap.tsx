@@ -11,7 +11,6 @@ import Container from "../../../../components/Layout/Container";
 import {
   DescriptionContainer,
   DescriptionText,
-  HeadingText,
   WarningTable,
   TargetsSctoMapFormWrapper,
   SCTOQuestionsButton,
@@ -198,7 +197,7 @@ function TargetsSctoMap() {
       message.success("Column configuration updated successfully");
       return true;
     } else {
-      message.error("Error updating scto column configuration");
+      message.error("Error updating SurveyCTO column configuration");
       return false;
     }
   };
@@ -482,7 +481,7 @@ function TargetsSctoMap() {
             `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
           );
         } else {
-          message.error("Kindly configure SCTO Form to proceed");
+          message.error("Kindly configure SurveyCTO Form to proceed");
           navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
         dispatch(setLoading(false));
@@ -651,7 +650,7 @@ function TargetsSctoMap() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Targets: SCTO Mapping</Title>
+        <Title>Targets: SurveyCTO Mapping</Title>
         {!(isLoading || quesLoading || locLoading || targetLoading) ? (
           <div
             style={{
@@ -661,7 +660,7 @@ function TargetsSctoMap() {
               color: "#2F54EB",
             }}
           >
-            <Button
+            <CustomBtn
               type="primary"
               style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
               onClick={() =>
@@ -671,22 +670,22 @@ function TargetsSctoMap() {
               }
             >
               Change Target Configuration
-            </Button>
+            </CustomBtn>
             {!hasError && !hasWarning ? (
               <SCTOQuestionsButton
                 onClick={() => loadFormQuestions()}
                 disabled={form_uid == undefined}
               >
-                Load questions from SCTO form
+                Load questions from SurveyCTO form
               </SCTOQuestionsButton>
             ) : (
-              <Button
+              <CustomBtn
                 type="primary"
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 onClick={() => window.location.reload()}
               >
-                Edit SCTO Column Mapping
-              </Button>
+                Edit SurveyCTO Column Mapping
+              </CustomBtn>
             )}
           </div>
         ) : null}
@@ -875,9 +874,9 @@ function TargetsSctoMap() {
                       />
                     </Form.Item>
 
-                    <Button onClick={() => setOpenModal(true)}>
+                    <CustomBtn onClick={() => setOpenModal(true)}>
                       Add Filters
-                    </Button>
+                    </CustomBtn>
                     <DynamicTargetFilter
                       open={openModal}
                       setOpen={setOpenModal}
@@ -889,15 +888,7 @@ function TargetsSctoMap() {
                     />
                   </div>
                 </Form>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 32,
-                    marginRight: "90%",
-                  }}
-                >
+                <div style={{ marginTop: "25px" }}>
                   <CustomBtn
                     onClick={async () => {
                       await toggleSaveMode("save");
@@ -913,7 +904,9 @@ function TargetsSctoMap() {
                       await handleTargetIDChange("preview");
                     }}
                     loading={targetLoading}
-                    style={{ marginLeft: "5%" }}
+                    style={{
+                      marginLeft: "10px",
+                    }}
                   >
                     Preview Data
                   </CustomBtn>
@@ -935,8 +928,9 @@ function TargetsSctoMap() {
                 >
                   <p>
                     We have detected changes to target id. Do you want to delete
-                    existing targets data?
+                    existing targets data?̀
                   </p>
+                  ̀
                 </Modal>
               </>
             ) : (
@@ -967,8 +961,8 @@ function TargetsSctoMap() {
                         <span style={{ fontWeight: 700 }}>
                           Correct and Re-Submit
                         </span>
-                        : Once you are done with changes on SCTO Data, resubmit
-                        the configuration
+                        : Once you are done with changes on SurveyCTO Data,
+                        resubmit the configuration
                       </li>
                       <li>
                         <span style={{ fontWeight: 700 }}>Manage</span>: The
@@ -1012,13 +1006,13 @@ function TargetsSctoMap() {
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
+                    <CustomBtn
                       type="primary"
                       icon={<CloudDownloadOutlined />}
                       style={{ backgroundColor: "#2f54eB" }}
                     >
                       Download errors and warnings
-                    </Button>
+                    </CustomBtn>
                   </CSVLink>
                   {correctRecords > 0 && (
                     <CustomBtn

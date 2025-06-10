@@ -1,4 +1,4 @@
-import { Button, Form, Input, message, Drawer, Select } from "antd";
+import { Form, Input, message, Drawer, Select, Checkbox } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -49,6 +49,9 @@ function RowEditingModal({
   const [editForm] = Form.useForm();
   const [formData, setFormData] = useState<DataItem>([]);
   const [updatedFields, setUpdatedFields] = useState<Field[]>([]);
+  const [selectedBulkEditFieldKeys, setSelectedBulkEditFieldKeys] = useState<
+    string[]
+  >([]);
   const [bulkFieldsToInclude, setBulkFieldsToInclude] = useState<any>([]);
   const [bulkFieldsToExclude, setBulkFieldsToExclude] = useState<any>([
     "target_id",
@@ -291,24 +294,7 @@ function RowEditingModal({
         }
         onClose={onCancel}
       >
-        {data && data.length > 1 ? (
-          <OptionText
-            style={{ width: 410, display: "inline-block", marginBottom: 20 }}
-          >
-            {`Bulk editing is only allowed for ${updatedFields
-              .map((item: any) =>
-                item.labelKey
-                  .split(/[\s_]/)
-                  .map(
-                    (word: any) =>
-                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                  )
-                  .join(" ")
-              )
-              .join(", ")}.`}
-          </OptionText>
-        ) : null}
-        {data && data.length > 0 ? (
+        {data && data.length === 1 ? (
           <div style={{ maxHeight: "80vh", overflowY: "auto" }}>
             <Form
               labelCol={{ span: 7 }}
@@ -318,9 +304,9 @@ function RowEditingModal({
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
                   required
-                  key={idx}
+                  key={field.label}
                   id={`${field.label}-id`}
-                  name={field.labelKey}
+                  name={field.label}
                   labelAlign="left"
                   initialValue={
                     field.label && field.label.startsWith("target_locations.")
@@ -374,6 +360,131 @@ function RowEditingModal({
                   )}
                 </Form.Item>
               ))}
+            </Form>
+          </div>
+        ) : data && data.length > 1 ? (
+          <div style={{ maxHeight: "80vh", overflowY: "auto" }}>
+            <OptionText
+              style={{
+                width: 410,
+                display: "inline-block",
+                marginBottom: 20,
+              }}
+            >
+              {"Select fields to edit in bulk:"}
+            </OptionText>
+
+            <Form
+              labelCol={{ span: 7 }}
+              form={editForm}
+              style={{ textAlign: "left" }}
+            >
+              {updatedFields.map((field: Field, idx: number) => {
+                const isBulk = data.length > 1;
+                const isSelected = selectedBulkEditFieldKeys.includes(
+                  field.label
+                );
+                const labelDisplay = (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      gap: 8,
+                    }}
+                  >
+                    {isBulk && (
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={(e: { target: { checked: boolean } }) => {
+                          const checked = e.target.checked;
+                          setSelectedBulkEditFieldKeys((prev: string[]) =>
+                            checked
+                              ? [...prev, field.label]
+                              : prev.filter((k) => k !== field.label)
+                          );
+                          if (!checked) {
+                            editForm.setFieldsValue({
+                              [field.label]: undefined,
+                            });
+                          }
+                        }}
+                        style={{ marginRight: 8 }}
+                      />
+                    )}
+                    <span>
+                      {field.labelKey
+                        .split(/[\s_]/)
+                        .map((word) =>
+                          word.toLowerCase() === "id"
+                            ? "ID"
+                            : word.charAt(0).toUpperCase() +
+                              word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}
+                    </span>
+                  </div>
+                );
+                // In bulk mode, only render input if checked; in single mode, always render
+                if (isBulk && !isSelected) {
+                  return (
+                    <Form.Item
+                      key={field.label}
+                      label={labelDisplay}
+                      colon={false}
+                      style={{ marginBottom: 16 }}
+                      labelAlign="left"
+                    />
+                  );
+                }
+                return (
+                  <Form.Item
+                    key={field.label}
+                    id={`${field.label}-id`}
+                    name={field.label}
+                    label={labelDisplay}
+                    labelAlign="left"
+                    rules={[
+                      {
+                        required: true,
+                        message: `Please enter ${field.labelKey}`,
+                      },
+                    ]}
+                    initialValue={
+                      field.label && field.label.startsWith("target_locations.")
+                        ? data[0]["location_uid"]
+                        : field.label
+                        ? data[0][field.labelKey]
+                        : ""
+                    }
+                    style={{ marginBottom: 16 }}
+                  >
+                    {field.label &&
+                    field.label.startsWith("target_locations.") ? (
+                      <Select
+                        placeholder={`Select ${field.labelKey}`}
+                        style={{ width: "100%" }}
+                      >
+                        {field.options?.map(
+                          (
+                            option: { label: string; value: string },
+                            index: number
+                          ) => (
+                            <Select.Option key={index} value={option.value}>
+                              {option.label}
+                            </Select.Option>
+                          )
+                        )}
+                      </Select>
+                    ) : (
+                      <Input
+                        placeholder={`Enter ${field.labelKey}`}
+                        style={{ width: "100%" }}
+                      />
+                    )}
+                  </Form.Item>
+                );
+              })}
             </Form>
           </div>
         ) : null}

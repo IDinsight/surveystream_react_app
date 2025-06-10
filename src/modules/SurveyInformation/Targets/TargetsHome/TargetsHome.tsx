@@ -153,8 +153,9 @@ function TargetsHome() {
 
         return {
           labelKey: field,
-          label: dataTableColumn.find((col: any) => col.dataIndex === field)
-            ?.title,
+          label: dataTableColumn
+            .find((col: any) => col.dataIndex === field)
+            ?.title?.toLowerCase(),
         };
       })
       .flat();

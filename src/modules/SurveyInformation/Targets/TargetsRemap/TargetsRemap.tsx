@@ -788,7 +788,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                     <DislikeOutlined />
                                   )
                                 }
-                                style={{ borderRadius: 0 }}
+                                style={{ borderRadius: 0, marginLeft: "10px" }}
                                 onClick={() => {
                                   setCustomHeaderSelection((prev: any) => {
                                     return {
@@ -1011,22 +1011,18 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     data={[...mappingErrorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
-                      type="primary"
-                      icon={<CloudDownloadOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                    >
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
                       Download errors and warnings
-                    </Button>
+                    </CustomBtn>
                   </CSVLink>
-                  <Button
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
                     Upload corrected CSV
-                  </Button>
+                  </CustomBtn>
                 </div>
               </>
             )}

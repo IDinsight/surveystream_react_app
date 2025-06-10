@@ -3,11 +3,7 @@ import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import {
   DescriptionContainer,
   DescriptionText,
@@ -720,7 +716,7 @@ function TargetsMap() {
                                     <DislikeOutlined />
                                   )
                                 }
-                                style={{ borderRadius: 0 }}
+                                style={{ borderRadius: 0, marginLeft: "10px" }}
                                 onClick={() => {
                                   setCustomHeaderSelection((prev: any) => {
                                     return {
@@ -781,27 +777,6 @@ function TargetsMap() {
                                       Bulk edit?
                                     </Checkbox>
                                   </div>
-                                  <div
-                                    style={{
-                                      display: "inline-block",
-                                      alignItems: "center",
-                                      marginLeft: 30,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      name={`${item}_pii`}
-                                      checked={
-                                        checkboxValues?.[`${item}_pii`]
-                                          ? checkboxValues?.[`${item}_pii`]
-                                          : false
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(`${item}_pii`)
-                                      }
-                                    >
-                                      PII?
-                                    </Checkbox>
-                                  </div>
                                 </div>
                               ) : null}
                             </Form.Item>
@@ -814,10 +789,9 @@ function TargetsMap() {
                           Click below to map other columns which are present in
                           your .csv file!
                         </HeadingText>
-                        <Button
+                        <CustomBtn
                           type="primary"
                           icon={<SelectOutlined />}
-                          style={{ backgroundColor: "#2f54eB" }}
                           onClick={() => {
                             setCustomHeader(true);
                             // This is temp code to store custom header selection status
@@ -829,7 +803,7 @@ function TargetsMap() {
                           }}
                         >
                           Map custom columns
-                        </Button>
+                        </CustomBtn>
                       </>
                     )}
                   </div>
@@ -936,22 +910,18 @@ function TargetsMap() {
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
-                      type="primary"
-                      icon={<CloudDownloadOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                    >
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
                       Download errors and warnings
-                    </Button>
+                    </CustomBtn>
                   </CSVLink>
-                  <Button
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
                     Upload corrected CSV
-                  </Button>
+                  </CustomBtn>
                 </div>
               </>
             )}
