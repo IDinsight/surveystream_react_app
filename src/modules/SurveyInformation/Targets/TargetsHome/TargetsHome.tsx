@@ -670,7 +670,7 @@ function TargetsHome() {
               marginLeft: "auto",
             }}
           >
-            {screenMode === "manage" && (
+            {(screenMode === "manage" || screenMode === "config") && (
               <div
                 style={{
                   display: "flex",
@@ -700,6 +700,15 @@ function TargetsHome() {
                 >
                   Edit SurveyCTO Column Mapping
                 </CustomBtn>
+              </div>
+            )}
+            {screenMode === "manage" && (
+              <div
+                style={{
+                  display: "flex",
+                  marginLeft: "auto",
+                }}
+              >
                 {targetDataSource !== "scto" && (
                   <CustomBtn
                     type="primary"

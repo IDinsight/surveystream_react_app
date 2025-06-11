@@ -4,9 +4,7 @@ import { Button, Checkbox, Col, Row, Select, Form, message, Alert } from "antd";
 import { Title } from "../../../../shared/Nav.styled";
 import {
   DescriptionContainer,
-  ErrorTable,
   HeadingText,
-  WarningTable,
   TargetsRemapFormWrapper,
   DescriptionText,
 } from "./TargetsRemap.styled";
@@ -43,7 +41,7 @@ import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
-import { use } from "chai";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 interface CSVError {
   type: string;
   count: number;
@@ -128,42 +126,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   const targetsColumnMapping = useAppSelector(
     (state: RootState) => state.targets.targetsColumnMapping
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with error",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
@@ -960,59 +922,19 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {mappingErrorStatus ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Errors table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <ErrorTable
-                          dataSource={mappingErrorList}
-                          columns={errorTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
-                {hasWarning ? (
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={warningList}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={mappingErrorList}
+                  warningList={warningList}
+                  showErrorTable={mappingErrorStatus}
+                  showWarningTable={hasWarning}
+                />
                 <div style={{ display: "flex" }}>
                   <CSVLink
                     data={[...mappingErrorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
                     <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
-                      Download errors and warnings
+                      Download rows that caused errors
                     </CustomBtn>
                   </CSVLink>
                   <CustomBtn
@@ -1021,7 +943,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     icon={<CloudUploadOutlined />}
                     style={{ marginLeft: 35 }}
                   >
-                    Upload corrected CSV
+                    Reupload CSV
                   </CustomBtn>
                 </div>
               </>

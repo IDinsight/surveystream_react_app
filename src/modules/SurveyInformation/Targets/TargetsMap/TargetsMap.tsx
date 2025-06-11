@@ -8,10 +8,8 @@ import {
   DescriptionContainer,
   DescriptionText,
   TargetsMapFormWrapper,
-  ErrorTable,
   HeadingText,
   OptionText,
-  WarningTable,
 } from "./TargetsMap.styled";
 import {
   CloudDownloadOutlined,
@@ -41,6 +39,7 @@ import { CSVLink } from "react-csv";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -111,42 +110,6 @@ function TargetsMap() {
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with error",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const customRequiredMarker = (
     label: React.ReactNode,
@@ -859,59 +822,19 @@ function TargetsMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {hasError ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Errors table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <ErrorTable
-                          dataSource={errorList}
-                          columns={errorTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
-                {hasWarning ? (
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={warningList}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={errorList}
+                  warningList={warningList}
+                  showErrorTable={hasError}
+                  showWarningTable={hasWarning}
+                />
                 <div style={{ display: "flex" }}>
                   <CSVLink
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
                     <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
-                      Download errors and warnings
+                      Download rows that caused errors
                     </CustomBtn>
                   </CSVLink>
                   <CustomBtn
@@ -920,7 +843,7 @@ function TargetsMap() {
                     icon={<CloudUploadOutlined />}
                     style={{ marginLeft: 35 }}
                   >
-                    Upload corrected CSV
+                    Reupload CSV
                   </CustomBtn>
                 </div>
               </>

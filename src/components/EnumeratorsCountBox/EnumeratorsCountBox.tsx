@@ -3,13 +3,6 @@ import {
   CloseCircleFilled,
   WarningFilled,
 } from "@ant-design/icons";
-import {
-  EnumeratorsCountBoxContainer,
-  RowCountDivider,
-  RowCountValue,
-  RowIconContainer,
-  RowTitle,
-} from "./EnumeratorsCountBox.styled";
 
 interface ICountBox {
   color: string;

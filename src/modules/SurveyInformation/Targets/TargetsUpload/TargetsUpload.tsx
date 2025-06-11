@@ -11,7 +11,6 @@ import {
 import {
   DescriptionContainer,
   TargetUploadFormWrapper,
-  ErrorTable,
 } from "./TargetsUpload.styled";
 import { ProfileOutlined, SelectOutlined } from "@ant-design/icons";
 import { IconText } from "../../SurveyLocationUpload/SurveyLocationUpload.styled";
@@ -30,6 +29,7 @@ import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -63,24 +63,6 @@ function TargetsUpload() {
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Error message",
-      dataIndex: "message",
-      key: "message",
-    },
-  ];
 
   const handleFileUpload = (
     file: File,
@@ -244,15 +226,11 @@ function TargetsUpload() {
                 >
                   Errors table
                 </p>
-                <Row>
-                  <Col span={23}>
-                    <ErrorTable
-                      dataSource={errorList}
-                      columns={errorTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
+                <ErrorWarningTable
+                  errorList={errorList}
+                  showErrorTable={true}
+                  showWarningTable={false}
+                />
               </div>
             ) : null}
           </TargetUploadFormWrapper>

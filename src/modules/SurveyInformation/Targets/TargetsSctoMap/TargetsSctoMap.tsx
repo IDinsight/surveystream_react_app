@@ -11,15 +11,10 @@ import Container from "../../../../components/Layout/Container";
 import {
   DescriptionContainer,
   DescriptionText,
-  WarningTable,
   TargetsSctoMapFormWrapper,
   SCTOQuestionsButton,
 } from "./TargetsSctoMap.styled";
-import {
-  CloudDownloadOutlined,
-  ProductOutlined,
-  ReconciliationOutlined,
-} from "@ant-design/icons";
+import { CloudDownloadOutlined } from "@ant-design/icons";
 import { CSVLink } from "react-csv";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -42,7 +37,7 @@ import { useState, useEffect } from "react";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
-import { set } from "lodash";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 interface CSVError {
   type: string;
   count: number;
@@ -102,24 +97,6 @@ function TargetsSctoMap() {
   );
 
   const [csvHeaderOptions, setCSVHeadersOptions] = useState<any>([]);
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in surveycto data) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const moveToModulePage = () => {
     navigate(`/survey-configuration/${survey_uid}`);
@@ -972,29 +949,12 @@ function TargetsSctoMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {hasError || hasWarning ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={[...errorList, ...warningList]}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={errorList}
+                  warningList={warningList}
+                  showErrorTable={hasError}
+                  showWarningTable={hasWarning}
+                />
                 <div
                   style={{
                     display: "flex",
@@ -1011,7 +971,7 @@ function TargetsSctoMap() {
                       icon={<CloudDownloadOutlined />}
                       style={{ backgroundColor: "#2f54eB" }}
                     >
-                      Download errors and warnings
+                      Download rows that caused errors
                     </CustomBtn>
                   </CSVLink>
                   {correctRecords > 0 && (

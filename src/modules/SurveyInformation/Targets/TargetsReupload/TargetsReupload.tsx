@@ -5,8 +5,6 @@ import { Title } from "../../../../shared/Nav.styled";
 import {
   DescriptionContainer,
   TargetReuploadFormWrapper,
-  ErrorTable,
-  Mandatory,
   StyledBreadcrumb,
 } from "./TargetsReupload.styled";
 import { CloseOutlined, SelectOutlined } from "@ant-design/icons";
@@ -22,6 +20,7 @@ import {
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -199,15 +198,11 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
             >
               Errors table
             </p>
-            <Row>
-              <Col span={23}>
-                <ErrorTable
-                  dataSource={errorList}
-                  columns={errorTableColumn}
-                  pagination={false}
-                />
-              </Col>
-            </Row>
+            <ErrorWarningTable
+              errorList={errorList}
+              showErrorTable={true}
+              showWarningTable={false}
+            />
           </div>
         ) : null}
       </TargetReuploadFormWrapper>

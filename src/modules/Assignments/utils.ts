@@ -37,9 +37,16 @@ export const getFilterValues = (data: any, keys: Array<string | number>) => {
   );
   const uniqueFilterValues = uniqueValues
     .map((item: any) => ({ text: item, value: item }))
-    .filter((item: any) => item.value !== null);
+    .filter((item: any) => item.value !== null && item.value !== "");
 
-  return uniqueFilterValues;
+  // Always add a blank value filter for null/blank values
+  const hasBlank = uniqueValues.some((v: any) => v === null || v === "");
+  const blankFilter = { text: "(Blank)", value: "" };
+  const filtersWithBlank = hasBlank
+    ? [blankFilter, ...uniqueFilterValues]
+    : [blankFilter, ...uniqueFilterValues];
+
+  return filtersWithBlank;
 };
 
 export const getNestedObjectValue = (
@@ -75,16 +82,25 @@ export const getDataFromFilters = (
             (locList: any) =>
               _.get(locList[key_reference[k][1]], key_reference[k][2]) || ""
           );
-          if (filters[k].some((filter: any) => locations?.includes(filter))) {
+          // Support blank filter for surveyor_locations
+          if (
+            filters[k].some((filter: any) =>
+              filter === ""
+                ? !locations || locations.length === 0
+                : locations?.includes(filter)
+            )
+          ) {
             tempArr.push(obj);
           }
         });
       } else {
         filters[k].forEach((val: any) => {
           tempArr.push(
-            ...arr.filter(
-              (obj: any) => getNestedObjectValue(obj, key_reference[k]) === val
-            )
+            ...arr.filter((obj: any) => {
+              const v = getNestedObjectValue(obj, key_reference[k]);
+              if (val === "") return v === null || v === "";
+              return v === val;
+            })
           );
         });
       }
@@ -200,7 +216,11 @@ export const buildColumnDefinition = (
     key: colKey,
     sorter: defaultSorter([colKey]),
     filters: getFilterValues(dataSource, [colKey]),
-    onFilter: (val: string, record: any) => record[colKey] === val,
+    onFilter: (val: string, record: any) => {
+      // Support blank filter
+      if (val === "") return record[colKey] === null || record[colKey] === "";
+      return record[colKey] === val;
+    },
     filterSearch: true,
   };
 
@@ -211,8 +231,11 @@ export const buildColumnDefinition = (
         ...columnDefinition,
         dataIndex: "supervisors",
         filters: getFilterValues(dataSource, keyArray),
-        onFilter: (value: string | number, record: any) =>
-          _.get(record, keyArray) === value,
+        onFilter: (value: string | number, record: any) => {
+          const v = _.get(record, keyArray);
+          if (value === "") return v === null || v === "";
+          return v === value;
+        },
         render: (val: any, record: any) => {
           const supervisorName = _.get(record, [
             ...keyArray.slice(0, 2),
@@ -259,8 +282,11 @@ export const buildColumnDefinition = (
         ...columnDefinition,
         dataIndex: keyArray[0],
         filters: getFilterValues(dataSource, keyArray),
-        onFilter: (value: string | number, record: any) =>
-          _.get(record, keyArray) === value,
+        onFilter: (value: string | number, record: any) => {
+          const v = _.get(record, keyArray);
+          if (value === "") return v === null || v === "";
+          return v === value;
+        },
         render: (val: string, record: any) => _.get(record, keyArray) || null,
         sorter: defaultSorter(keyArray),
       };
@@ -278,10 +304,17 @@ export const buildColumnDefinition = (
         });
 
         // Deduplicate locations
-        const uniqueLocations = [...new Set(allLocations)].filter(
-          (loc) => loc !== ""
-        );
-        return uniqueLocations.map((loc) => ({ text: loc, value: loc }));
+        const uniqueLocations = [...new Set(allLocations)];
+        // Always add blank filter
+        const blankFilter = { text: "(Blank)", value: "" };
+        const filters = [
+          blankFilter,
+          ...uniqueLocations
+            .filter((loc) => loc !== "")
+            .map((loc) => ({ text: loc, value: loc })),
+        ];
+
+        return filters;
       })();
 
       columnDefinition = {
@@ -293,7 +326,14 @@ export const buildColumnDefinition = (
             (locList: any) =>
               _.get(locList[keyArray[1]], keyArray.slice(2)) || ""
           );
-
+          if (value === "") {
+            // If any location is blank or all are blank
+            return (
+              !locations ||
+              locations.length === 0 || // No locations
+              locations?.some((loc: any) => loc === "" || loc === null)
+            );
+          }
           return locations?.includes(value) || false;
         },
         render: (val: string, record: any) => {
@@ -329,8 +369,11 @@ export const buildColumnDefinition = (
         ...columnDefinition,
         dataIndex: keyArray,
         filters: getFilterValues(dataSource, keyArray),
-        onFilter: (value: string | number, record: any) =>
-          _.get(record, keyArray) === value,
+        onFilter: (value: string | number, record: any) => {
+          const v = _.get(record, keyArray);
+          if (value === "") return v === null || v === "";
+          return v === value;
+        },
         sorter: defaultSorter(keyArray),
       };
     }
