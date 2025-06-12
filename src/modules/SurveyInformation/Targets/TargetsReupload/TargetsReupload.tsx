@@ -124,11 +124,8 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
         {!reupload ? (
           <>
             <div style={{ display: "flex" }}>
-              <Title>Update Targets</Title>
               <Button
                 style={{
-                  borderRadius: 2,
-                  color: "#1D39C4",
                   marginLeft: "auto",
                   marginRight: 48,
                 }}
@@ -137,14 +134,6 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
                 <CloseOutlined /> Cancel
               </Button>
             </div>
-            <StyledBreadcrumb
-              separator=">"
-              items={[
-                { title: "Upload CSV", className: "active" },
-                { title: "Map CSV Columns" },
-                { title: "Update Targets" },
-              ]}
-            />
             <DescriptionContainer>
               Upload a .csv file containing the targets for your survey.{" "}
               <a

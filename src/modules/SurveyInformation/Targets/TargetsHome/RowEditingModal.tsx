@@ -1,4 +1,4 @@
-import { Form, Input, message, Drawer, Select, Checkbox } from "antd";
+import { Form, Input, message, Drawer, Select, Checkbox, Button } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -16,6 +16,7 @@ interface IRowEditingModal {
   onCancel: () => void;
   onUpdate: () => void;
   visible: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 interface Field {
@@ -39,6 +40,7 @@ function RowEditingModal({
   onCancel,
   onUpdate,
   visible,
+  setLoading,
 }: IRowEditingModal) {
   const { form_uid } = useParams<{ form_uid: string }>() ?? {
     form_uid: "",
@@ -92,11 +94,6 @@ function RowEditingModal({
       const targetsUIDs = Array.from(
         new Set(originalData.map((item) => item["target_uid"]))
       );
-      const requestData = {
-        targetsUIDs,
-        formUID,
-        patchKeys,
-      };
 
       for (const key in patchKeys) {
         if (key.startsWith("custom_fields.")) {
@@ -162,10 +159,13 @@ function RowEditingModal({
         message.success("Target record updated successfully");
         onUpdate();
         return;
+      } else {
+        updateRes?.payload?.errors
+          ? message.error(updateRes?.payload?.errors)
+          : message.error(
+              "Failed to updated target, kindly check and try again"
+            );
       }
-      updateRes?.payload?.errors
-        ? message.error(updateRes?.payload?.errors)
-        : message.error("Failed to updated target, kindly check and try again");
     }
   };
 
@@ -489,11 +489,18 @@ function RowEditingModal({
           </div>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <CustomBtn type="primary" onClick={updateHandler}>
-            Save
-          </CustomBtn>
-          <CustomBtn style={{ marginLeft: 10 }} onClick={cancelHandler}>
+          <CustomBtn
+            style={{ backgroundColor: "white", color: "#595959" }}
+            onClick={cancelHandler}
+          >
             Cancel
+          </CustomBtn>
+          <CustomBtn
+            style={{ marginLeft: 10 }}
+            type="primary"
+            onClick={updateHandler}
+          >
+            Save
           </CustomBtn>
         </div>
       </Drawer>

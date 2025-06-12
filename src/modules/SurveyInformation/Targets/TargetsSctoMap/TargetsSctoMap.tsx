@@ -649,12 +649,13 @@ function TargetsSctoMap() {
               Change Target Configuration
             </CustomBtn>
             {!hasError && !hasWarning ? (
-              <SCTOQuestionsButton
+              <CustomBtn
+                type="primary"
                 onClick={() => loadFormQuestions()}
                 disabled={form_uid == undefined}
               >
                 Load questions from SurveyCTO form
-              </SCTOQuestionsButton>
+              </CustomBtn>
             ) : (
               <CustomBtn
                 type="primary"
@@ -873,7 +874,7 @@ function TargetsSctoMap() {
                     }}
                     loading={isLoading}
                   >
-                    Save Config
+                    Save
                   </CustomBtn>
                   <CustomBtn
                     onClick={async () => {

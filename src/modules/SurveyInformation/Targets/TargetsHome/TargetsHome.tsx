@@ -30,7 +30,7 @@ import TargetsRemap from "../TargetsRemap";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { getSurveyLocationsLong } from "../../../../redux/surveyLocations/surveyLocationsActions";
-import { CustomBtn } from "../../SurveyUserRoles/SurveyUserRoles.styled";
+import { CustomBtn } from "../../../../shared/Global.styled";
 
 function TargetsHome() {
   const navigate = useNavigate();
@@ -226,17 +226,18 @@ function TargetsHome() {
   };
 
   const onEditingUpdate = async () => {
+    await setLoading(true);
+    setEditData(false);
+    setEditMode(false);
     if (form_uid) {
       await getTargetsList(form_uid);
     }
-    setEditData(false);
-    setEditMode(false);
+    setLoading(false);
   };
 
   const handleFormUID = async () => {
     if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
       try {
-        dispatch(setLoading(true));
         const sctoForm = await dispatch(
           getSurveyCTOForm({ survey_uid: survey_uid })
         );
@@ -248,15 +249,12 @@ function TargetsHome() {
           message.error("Kindly configure SCTO Form to proceed");
           navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
-        dispatch(setLoading(false));
       } catch (error) {
-        dispatch(setLoading(false));
         console.log("Error fetching sctoForm:", error);
       }
     }
   };
   const getTargetsList = async (form_uid: string) => {
-    setLoading(true);
     const targetRes = await dispatch(getTargets({ formUID: form_uid }));
     const targetConfig = await dispatch(
       getTargetConfig({ form_uid: form_uid })
@@ -594,7 +592,6 @@ function TargetsHome() {
     } else {
       message.error("Targets failed to load, kindly reload to try again.");
     }
-    setLoading(false);
   };
 
   const handleNewTargetMode = () => {
@@ -688,18 +685,19 @@ function TargetsHome() {
                 >
                   Change Target Configuration
                 </CustomBtn>
-                <CustomBtn
-                  type="primary"
-                  style={{ marginRight: 15 }}
-                  onClick={() =>
-                    navigate(
-                      `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
-                    )
-                  }
-                  disabled={targetDataSource !== "scto"}
-                >
-                  Edit SurveyCTO Column Mapping
-                </CustomBtn>
+                {targetDataSource === "scto" && (
+                  <CustomBtn
+                    type="primary"
+                    style={{ marginRight: 15 }}
+                    onClick={() =>
+                      navigate(
+                        `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
+                      )
+                    }
+                  >
+                    Edit SurveyCTO Column Mapping
+                  </CustomBtn>
+                )}
               </div>
             )}
             {screenMode === "manage" && (
@@ -760,46 +758,51 @@ function TargetsHome() {
             <>
               <TargetsHomeFormWrapper>
                 {targetsLastUpdated && (
-                  <p
+                  <span
                     style={{
                       display: "flex",
                       alignItems: "right",
                       fontSize: 14,
+                      marginTop: 10,
+                      marginBottom: -40,
                     }}
                   >
                     Targets last uploaded on:{" "}
                     {formatDate(targetsLastUpdated, formTimezone)}{" "}
-                  </p>
+                  </span>
                 )}
-                <TargetsTable
-                  rowSelection={
-                    targetDataSource !== "scto"
-                      ? {
-                          ...rowSelection,
-                          onChange: (selectedRowKeys, selectedRows) => {
-                            onSelectChange(selectedRowKeys, selectedRows);
-                            setEditMode(selectedRows.length > 0);
-                          },
-                          columnWidth: 15,
-                        }
-                      : undefined
-                  }
-                  columns={dataTableColumn}
-                  dataSource={tableDataSource}
-                  tableLayout="auto"
-                  scroll={{ x: "max-content" }}
-                  onChange={handleTableChange}
-                  bordered={true}
-                  pagination={{
-                    position: ["topRight"],
-                    pageSize: paginationPageSize,
-                    pageSizeOptions: [5, 10, 25, 50, 100],
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    onShowSizeChange: (_, size) => setPaginationPageSize(size),
-                    style: { color: "#2F54EB" },
-                  }}
-                />
+                {tableDataSource.length > 0 && (
+                  <TargetsTable
+                    rowSelection={
+                      targetDataSource !== "scto"
+                        ? {
+                            ...rowSelection,
+                            onChange: (selectedRowKeys, selectedRows) => {
+                              onSelectChange(selectedRowKeys, selectedRows);
+                              setEditMode(selectedRows.length > 0);
+                            },
+                            columnWidth: 15,
+                          }
+                        : undefined
+                    }
+                    columns={dataTableColumn}
+                    dataSource={tableDataSource}
+                    tableLayout="auto"
+                    scroll={{ x: "max-content" }}
+                    onChange={handleTableChange}
+                    bordered={true}
+                    pagination={{
+                      position: ["topRight"],
+                      pageSize: paginationPageSize,
+                      pageSizeOptions: [5, 10, 25, 50, 100],
+                      showSizeChanger: true,
+                      showQuickJumper: true,
+                      onShowSizeChange: (_, size) =>
+                        setPaginationPageSize(size),
+                      style: { color: "#2F54EB" },
+                    }}
+                  />
+                )}
                 {editData ? (
                   <RowEditingModal
                     data={selectedRows}
@@ -807,6 +810,7 @@ function TargetsHome() {
                     onCancel={onEditingCancel}
                     onUpdate={onEditingUpdate}
                     visible={editData}
+                    setLoading={setLoading}
                   />
                 ) : null}
               </TargetsHomeFormWrapper>

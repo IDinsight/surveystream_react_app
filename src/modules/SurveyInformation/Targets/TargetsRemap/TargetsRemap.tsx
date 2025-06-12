@@ -533,11 +533,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       <GlobalStyle />
       <TargetsRemapFormWrapper>
         <div style={{ display: "flex" }}>
-          <Title>Update Targets</Title>
           <Button
             style={{
-              borderRadius: 2,
-              color: "#1D39C4",
               marginLeft: "auto",
               marginRight: 48,
             }}
@@ -552,14 +549,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           <div>
             {!mappingErrorStatus && !hasWarning ? (
               <>
-                <StyledBreadcrumb
-                  separator=">"
-                  items={[
-                    { title: "Upload CSV" },
-                    { title: "Map CSV Columns", className: "active" },
-                    { title: "Update Targets" },
-                  ]}
-                />
                 <div>
                   <DescriptionText>
                     Select the column from your .csv file that corresponds to
