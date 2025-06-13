@@ -28,25 +28,30 @@ export const defaultSorter = (keys: any) => {
 };
 
 export const getFilterValues = (data: any, keys: Array<string | number>) => {
-  // Retrieve the values from the data object using the list of keys
-  const values = data?.map((item: any) => _.get(item, keys));
+  // Use Set for faster deduplication
+  const uniqueSet = new Set<any>();
+  let hasBlank = false;
 
-  // Deduplicate the values to get a unique list and format it for the Ant table filter
-  const uniqueValues = values.filter(
-    (val: any, i: any, arr: any) => arr.indexOf(val) === i
-  );
-  const uniqueFilterValues = uniqueValues
-    .map((item: any) => ({ text: item, value: item }))
-    .filter((item: any) => item.value !== null && item.value !== "");
+  // Single pass through data
+  data?.forEach((item: any) => {
+    const value = _.get(item, keys);
+    if (value === null || value === "" || value === undefined) {
+      hasBlank = true;
+    } else {
+      uniqueSet.add(value);
+    }
+  });
 
-  // Always add a blank value filter for null/blank values
-  const hasBlank = uniqueValues.some((v: any) => v === null || v === "");
-  const blankFilter = { text: "(Blank)", value: "" };
-  const filtersWithBlank = hasBlank
-    ? [blankFilter, ...uniqueFilterValues]
-    : [blankFilter, ...uniqueFilterValues];
+  // Convert Set to array of filter objects
+  const uniqueFilterValues = Array.from(uniqueSet).map((item: any) => ({
+    text: item,
+    value: item,
+  }));
 
-  return filtersWithBlank;
+  // Add blank filter if needed
+  return hasBlank
+    ? [{ text: "(Blank)", value: "" }, ...uniqueFilterValues]
+    : uniqueFilterValues;
 };
 
 export const getNestedObjectValue = (
@@ -86,7 +91,9 @@ export const getDataFromFilters = (
           if (
             filters[k].some((filter: any) =>
               filter === ""
-                ? !locations || locations.length === 0
+                ? !locations ||
+                  locations.length === 0 ||
+                  locations === undefined
                 : locations?.includes(filter)
             )
           ) {
@@ -98,7 +105,7 @@ export const getDataFromFilters = (
           tempArr.push(
             ...arr.filter((obj: any) => {
               const v = getNestedObjectValue(obj, key_reference[k]);
-              if (val === "") return v === null || v === "";
+              if (val === "") return v === null || v === "" || v === undefined;
               return v === val;
             })
           );
@@ -218,7 +225,12 @@ export const buildColumnDefinition = (
     filters: getFilterValues(dataSource, [colKey]),
     onFilter: (val: string, record: any) => {
       // Support blank filter
-      if (val === "") return record[colKey] === null || record[colKey] === "";
+      if (val === "")
+        return (
+          record[colKey] === null ||
+          record[colKey] === "" ||
+          record[colKey] === undefined
+        );
       return record[colKey] === val;
     },
     filterSearch: true,
@@ -233,7 +245,7 @@ export const buildColumnDefinition = (
         filters: getFilterValues(dataSource, keyArray),
         onFilter: (value: string | number, record: any) => {
           const v = _.get(record, keyArray);
-          if (value === "") return v === null || v === "";
+          if (value === "") return v === null || v === "" || v === undefined;
           return v === value;
         },
         render: (val: any, record: any) => {
@@ -284,7 +296,7 @@ export const buildColumnDefinition = (
         filters: getFilterValues(dataSource, keyArray),
         onFilter: (value: string | number, record: any) => {
           const v = _.get(record, keyArray);
-          if (value === "") return v === null || v === "";
+          if (value === "") return v === null || v === "" || v === undefined;
           return v === value;
         },
         render: (val: string, record: any) => _.get(record, keyArray) || null,
@@ -305,12 +317,11 @@ export const buildColumnDefinition = (
 
         // Deduplicate locations
         const uniqueLocations = [...new Set(allLocations)];
-        // Always add blank filter
-        const blankFilter = { text: "(Blank)", value: "" };
+        const hasBlank = allLocations.some((loc: any) => !loc);
         const filters = [
-          blankFilter,
+          ...(hasBlank ? [{ text: "(Blank)", value: "" }] : []),
           ...uniqueLocations
-            .filter((loc) => loc !== "")
+            .filter(Boolean)
             .map((loc) => ({ text: loc, value: loc })),
         ];
 
@@ -330,6 +341,7 @@ export const buildColumnDefinition = (
             // If any location is blank or all are blank
             return (
               !locations ||
+              locations === undefined ||
               locations.length === 0 || // No locations
               locations?.some((loc: any) => loc === "" || loc === null)
             );

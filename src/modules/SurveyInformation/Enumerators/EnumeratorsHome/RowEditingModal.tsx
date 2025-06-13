@@ -1,4 +1,4 @@
-import { Drawer, Form, Input, message, Select, Tag, Modal } from "antd";
+import { Drawer, Form, Input, message, Select, Tag, Modal, Button } from "antd";
 import { OptionText } from "./RowEditingModal.styled";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -493,15 +493,13 @@ function RowEditingModal({
           </>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <CustomBtn type="primary" onClick={handleSave}>
-            Save
-          </CustomBtn>
+          <Button onClick={cancelHandler}>Cancel</Button>
           <CustomBtn
-            type="default"
-            onClick={cancelHandler}
+            type="primary"
+            onClick={handleSave}
             style={{ marginLeft: 10 }}
           >
-            Cancel
+            Save
           </CustomBtn>
         </div>
       </Drawer>

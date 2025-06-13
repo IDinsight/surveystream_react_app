@@ -12,7 +12,6 @@ import {
   DescriptionContainer,
   DescriptionText,
   TargetsSctoMapFormWrapper,
-  SCTOQuestionsButton,
 } from "./TargetsSctoMap.styled";
 import { CloudDownloadOutlined } from "@ant-design/icons";
 import { CSVLink } from "react-csv";

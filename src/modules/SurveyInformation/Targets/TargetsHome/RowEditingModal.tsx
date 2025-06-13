@@ -489,12 +489,7 @@ function RowEditingModal({
           </div>
         ) : null}
         <div style={{ marginTop: 20 }}>
-          <CustomBtn
-            style={{ backgroundColor: "white", color: "#595959" }}
-            onClick={cancelHandler}
-          >
-            Cancel
-          </CustomBtn>
+          <Button onClick={cancelHandler}>Cancel</Button>
           <CustomBtn
             style={{ marginLeft: 10 }}
             type="primary"

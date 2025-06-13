@@ -88,11 +88,8 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
       <GlobalStyle />
       <EnumeratorsReuploadFormWrapper>
         <div style={{ display: "flex" }}>
-          <Title>Update Enumerators</Title>
           <Button
             style={{
-              borderRadius: 2,
-              color: "#1D39C4",
               marginLeft: "auto",
               marginRight: 48,
             }}
@@ -101,14 +98,6 @@ function EnumeratorsReupload({ setScreenMode }: IEnumeratorsReupload) {
             <CloseOutlined /> Cancel
           </Button>
         </div>
-        <StyledBreadcrumb
-          separator=">"
-          items={[
-            { title: "Upload CSV", className: "active" },
-            { title: "Map CSV Columns" },
-            { title: "Update Enumerators" },
-          ]}
-        />
         <DescriptionContainer>
           Upload a .csv file containing the enumerators for your survey.{" "}
           <a

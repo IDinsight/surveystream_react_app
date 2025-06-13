@@ -465,8 +465,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           <Title>Add new enumerators</Title>
           <Button
             style={{
-              borderRadius: 2,
-              color: "#1D39C4",
               marginLeft: "auto",
               marginRight: 48,
             }}
@@ -481,14 +479,6 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
           <div>
             {!mappingErrorStatus ? (
               <>
-                <StyledBreadcrumb
-                  separator=">"
-                  items={[
-                    { title: "Upload CSV" },
-                    { title: "Map CSV Columns", className: "active" },
-                    { title: "Update Enumerators" },
-                  ]}
-                />
                 <div>
                   <DescriptionText>
                     Select the column from your .csv file that corresponds to
