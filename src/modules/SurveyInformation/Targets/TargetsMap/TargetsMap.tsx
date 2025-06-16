@@ -3,19 +3,13 @@ import { Button, Checkbox, Col, Row, Select, Form, message } from "antd";
 
 import { HeaderContainer, Title } from "../../../../shared/Nav.styled";
 import SideMenu from "../../SideMenu";
-import {
-  ContinueButton,
-  FooterWrapper,
-  SaveButton,
-} from "../../../../shared/FooterBar.styled";
+
 import {
   DescriptionContainer,
   DescriptionText,
   TargetsMapFormWrapper,
-  ErrorTable,
   HeadingText,
   OptionText,
-  WarningTable,
 } from "./TargetsMap.styled";
 import {
   CloudDownloadOutlined,
@@ -45,6 +39,7 @@ import { CSVLink } from "react-csv";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -115,42 +110,6 @@ function TargetsMap() {
   const surveyLocationGeoLevels = useAppSelector(
     (state: RootState) => state.surveyLocations.surveyLocationGeoLevels
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with error",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const customRequiredMarker = (
     label: React.ReactNode,
@@ -527,7 +486,8 @@ function TargetsMap() {
               <>
                 <div>
                   <DescriptionText>
-                    Select corresponding CSV column for the label on the left
+                    Select the column from your .csv file that corresponds to
+                    each standard field
                   </DescriptionText>
                 </div>
                 <Form
@@ -535,9 +495,6 @@ function TargetsMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -605,7 +562,6 @@ function TargetsMap() {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -674,16 +630,15 @@ function TargetsMap() {
 
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
                         <p
                           style={{
                             color: "#434343",
                             fontFamily: "Lato",
-                            fontSize: 12,
+                            fontSize: 14,
                             lineHeight: "20px",
                           }}
                         >
-                          {extraCSVHeader.length} custom columns found!
+                          {`Custom columns: ${extraCSVHeader.length} new custom columns found`}
                         </p>
                         {extraCSVHeader.map((item: any, idx: any) => {
                           return (
@@ -724,7 +679,7 @@ function TargetsMap() {
                                     <DislikeOutlined />
                                   )
                                 }
-                                style={{ borderRadius: 0 }}
+                                style={{ borderRadius: 0, marginLeft: "10px" }}
                                 onClick={() => {
                                   setCustomHeaderSelection((prev: any) => {
                                     return {
@@ -785,27 +740,6 @@ function TargetsMap() {
                                       Bulk edit?
                                     </Checkbox>
                                   </div>
-                                  <div
-                                    style={{
-                                      display: "inline-block",
-                                      alignItems: "center",
-                                      marginLeft: 30,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      name={`${item}_pii`}
-                                      checked={
-                                        checkboxValues?.[`${item}_pii`]
-                                          ? checkboxValues?.[`${item}_pii`]
-                                          : false
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(`${item}_pii`)
-                                      }
-                                    >
-                                      PII?
-                                    </Checkbox>
-                                  </div>
                                 </div>
                               ) : null}
                             </Form.Item>
@@ -815,14 +749,12 @@ function TargetsMap() {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
-                        <Button
+                        <CustomBtn
                           type="primary"
                           icon={<SelectOutlined />}
-                          style={{ backgroundColor: "#2f54eB" }}
                           onClick={() => {
                             setCustomHeader(true);
                             // This is temp code to store custom header selection status
@@ -834,7 +766,7 @@ function TargetsMap() {
                           }}
                         >
                           Map custom columns
-                        </Button>
+                        </CustomBtn>
                       </>
                     )}
                   </div>
@@ -890,73 +822,29 @@ function TargetsMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {hasError ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Errors table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <ErrorTable
-                          dataSource={errorList}
-                          columns={errorTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
-                {hasWarning ? (
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={warningList}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={errorList}
+                  warningList={warningList}
+                  showErrorTable={hasError}
+                  showWarningTable={hasWarning}
+                />
                 <div style={{ display: "flex" }}>
                   <CSVLink
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
-                      type="primary"
-                      icon={<CloudDownloadOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                    >
-                      Download errors and warnings
-                    </Button>
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
                   </CSVLink>
-                  <Button
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload corrected CSV
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}

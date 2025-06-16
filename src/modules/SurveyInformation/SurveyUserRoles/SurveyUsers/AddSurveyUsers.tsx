@@ -38,6 +38,8 @@ import {
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
+import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
     survey_uid: "",
@@ -235,6 +237,15 @@ function AddSurveyUsers() {
             );
           }
           message.success("User updated successfully");
+          if (lowestRole) {
+            dispatch(
+              resolveSurveyNotification({
+                survey_uid: survey_uid,
+                module_id: 4,
+                resolution_status: "done",
+              })
+            );
+          }
           navigate(`/survey-information/survey-users/users/${survey_uid}`);
         } else {
           message.error("Failed to update user kindly check");
@@ -258,7 +269,15 @@ function AddSurveyUsers() {
             newRole,
             userDetails?.supervisor
           );
-
+          if (lowestRole) {
+            dispatch(
+              resolveSurveyNotification({
+                survey_uid: survey_uid,
+                module_id: 4,
+                resolution_status: "done",
+              })
+            );
+          }
           message.success(
             "User Added! An email has been sent to the user with the login information."
           );

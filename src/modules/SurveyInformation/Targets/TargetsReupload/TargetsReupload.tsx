@@ -5,11 +5,9 @@ import { Title } from "../../../../shared/Nav.styled";
 import {
   DescriptionContainer,
   TargetReuploadFormWrapper,
-  ErrorTable,
-  Mandatory,
   StyledBreadcrumb,
 } from "./TargetsReupload.styled";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, SelectOutlined } from "@ant-design/icons";
 import FileUpload from "./FileUpload";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -22,6 +20,7 @@ import {
 import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -125,11 +124,8 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
         {!reupload ? (
           <>
             <div style={{ display: "flex" }}>
-              <Title>Add new targets</Title>
               <Button
                 style={{
-                  borderRadius: 2,
-                  color: "#1D39C4",
                   marginLeft: "auto",
                   marginRight: 48,
                 }}
@@ -138,30 +134,32 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
                 <CloseOutlined /> Cancel
               </Button>
             </div>
-            <StyledBreadcrumb
-              separator=">"
-              items={[
-                { title: "Upload csv", className: "active" },
-                { title: "Map csv columns" },
-                { title: "Update targets" },
-              ]}
-            />
             <DescriptionContainer>
-              The following columns are existing in the enumerators table
-              currently.
-              {targetsColumnMapping !== null &&
-                Object.keys(targetsColumnMapping).length > 0 && (
-                  <ul>
-                    {Object.keys(targetsColumnMapping).map(
-                      (key) =>
-                        key !== "custom_fields" && <li key={key}>{key}</li>
-                    )}
-                  </ul>
-                )}
+              Upload a .csv file containing the targets for your survey.{" "}
+              <a
+                href="https://docs.surveystream.idinsight.io/targets#targets"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#2F80ED",
+                  fontSize: "14px",
+                  fontFamily: '"Lato", sans-serif',
+                }}
+              >
+                Learn more
+                <SelectOutlined
+                  rotate={90}
+                  style={{
+                    marginLeft: "3px",
+                    padding: "0px",
+                    fontSize: "15px",
+                  }}
+                />{" "}
+              </a>{" "}
             </DescriptionContainer>
           </>
         ) : null}
-        <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+        <div style={{ marginTop: "20px", marginBottom: "14px" }}>
           <Form layout="horizontal">
             <Row>
               <Col span={23}>
@@ -189,15 +187,11 @@ function TargetsReupload({ setScreenMode }: ITargetsReupload) {
             >
               Errors table
             </p>
-            <Row>
-              <Col span={23}>
-                <ErrorTable
-                  dataSource={errorList}
-                  columns={errorTableColumn}
-                  pagination={false}
-                />
-              </Col>
-            </Row>
+            <ErrorWarningTable
+              errorList={errorList}
+              showErrorTable={true}
+              showWarningTable={false}
+            />
           </div>
         ) : null}
       </TargetReuploadFormWrapper>

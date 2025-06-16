@@ -11,10 +11,6 @@ import { useEffect, useState } from "react";
 import { CheckboxSCTO, StyledFormItem } from "./TargetsConfig.styled";
 import { CustomBtn } from "../../../../shared/Global.styled";
 
-import {
-  ContinueButton,
-  FooterWrapper,
-} from "../../../../shared/FooterBar.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import {
@@ -283,7 +279,7 @@ function TargetsConfig() {
                       >
                         <Radio value="csv">Upload CSV</Radio>
                         <Radio value="scto">
-                          Connect to a SurveyCTO dataset/form
+                          Connect to a SurveyCTO Dataset/Form
                         </Radio>
                       </Space>
                     </Radio.Group>
@@ -312,30 +308,27 @@ function TargetsConfig() {
                       <StyledFormItem
                         name="scto_input_id"
                         labelCol={{ span: 24 }}
-                        label="Enter the SurveyCTO dataset/form ID"
+                        label="Enter the SurveyCTO Dataset/Form ID"
                         rules={[
                           {
                             required: true,
                             message:
-                              "Please enter the SurveyCTO dataset/form ID",
+                              "Please enter the SurveyCTO Dataset/Form ID",
                           },
                         ]}
                       >
                         <Input style={{ width: "25%" }} />
                       </StyledFormItem>
-                      <StyledFormItem
-                        name="scto_encryption_flag"
-                        valuePropName="checked"
-                      >
-                        <CheckboxSCTO>
-                          The form is encrypted. If yes, please share the key
-                          with{" "}
-                          <a href="mail:surveystream.devs@idinsight.org">
-                            surveystream.devs@idinsight.org
-                          </a>{" "}
-                          via FlowCrypt/Nordpass.
-                        </CheckboxSCTO>
-                      </StyledFormItem>
+                      {form.getFieldValue("scto_input_type") === "form" && (
+                        <StyledFormItem
+                          name="scto_encryption_flag"
+                          valuePropName="checked"
+                        >
+                          <CheckboxSCTO>
+                            The SurveyCTO form is encrypted.
+                          </CheckboxSCTO>
+                        </StyledFormItem>
+                      )}
                     </>
                   )}
                 </Form>

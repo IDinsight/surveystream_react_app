@@ -91,6 +91,8 @@ function Assignments() {
   const [searchedData, setSearchedData] = useState<any>(null);
   const [keyRefs, setKeyRefs] = useState<any>({});
   const [columns, setColumn] = useState<any>({});
+  // Add a tableKey state to force remount
+  const [tableKey, setTableKey] = useState<number>(0);
 
   // Assignment's row selection state and handler
   const [selectedAssignmentRows, setSelectedAssignmentRows] = useState<any>([]);
@@ -196,7 +198,9 @@ function Assignments() {
   // Clear the search and filter
   const onClear = (): void => {
     resetData();
-    setMainData(getTabData());
+    setMainData([...getTabData()]);
+    handleTableChange(null, {}, null);
+    setTableKey((prev) => prev + 1); // force remount
   };
 
   // Search functionality
@@ -250,20 +254,17 @@ function Assignments() {
     setDataFilter(filters);
 
     // Set to true if no filters are active but there are filter keys in the filters object (meaning that filters were selected but then reset)
-    const isReset = Object.values(filters).every((value) => {
-      if (value === null) return true;
-      return false;
-    });
+    const isReset =
+      Object.values(filters).every((value) => {
+        if (value === null) return true;
+        return false;
+      }) || Object.keys(filters).length === 0;
     // Create array that will hold all the records we want to filter to
+
     let filterArr: any = [];
 
     // Subset our filtering to currently searched records (if applicable)
-    if (searchedData?.length) {
-      filterArr = getDataFromFilters(filters, searchedData, keyRefs);
-    } else {
-      filterArr = getDataFromFilters(filters, getTabData(), keyRefs);
-    }
-    setMainData(filterArr);
+
     if (isReset) {
       setDataFilter(null);
       if (searchedData?.length && searchValue !== "") {
@@ -272,6 +273,14 @@ function Assignments() {
       } else {
         setMainData(getTabData());
       }
+      setDataFilter(null);
+    } else {
+      if (searchedData?.length) {
+        filterArr = getDataFromFilters(filters, searchedData, keyRefs);
+      } else {
+        filterArr = getDataFromFilters(filters, getTabData(), keyRefs);
+      }
+      setMainData(filterArr);
     }
   };
 
@@ -382,6 +391,7 @@ function Assignments() {
       label: "Assignments",
       children: (
         <AssignmentsTab
+          key={tableKey + "-assignments"}
           mainData={mainData}
           tableConfig={tableConfigData}
           rowSelection={rowSelection}
@@ -396,6 +406,7 @@ function Assignments() {
       label: "Surveyors",
       children: (
         <SurveyorsTab
+          key={tableKey + "-surveyors"}
           mainData={mainData}
           tableConfig={tableConfigData}
           filter={dataFilter}
@@ -409,6 +420,7 @@ function Assignments() {
       label: "Targets",
       children: (
         <TargetsTab
+          key={tableKey + "-targets"}
           mainData={mainData}
           tableConfig={tableConfigData}
           filter={dataFilter}
@@ -535,7 +547,10 @@ function Assignments() {
                   style={{ paddingLeft: 48, paddingRight: 48 }}
                   defaultActiveKey={tabItemIndex}
                   items={tabItems}
-                  onChange={(key) => setTabItemIndex(key)}
+                  onChange={(key) => {
+                    setTabItemIndex(key);
+                    setTableKey((prev) => prev + 1); // force remount on tab change
+                  }}
                   tabBarExtraContent={
                     <div style={{ display: "flex" }}>
                       <div

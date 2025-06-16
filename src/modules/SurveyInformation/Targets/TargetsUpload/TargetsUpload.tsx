@@ -11,9 +11,8 @@ import {
 import {
   DescriptionContainer,
   TargetUploadFormWrapper,
-  ErrorTable,
 } from "./TargetsUpload.styled";
-import { ProfileOutlined } from "@ant-design/icons";
+import { ProfileOutlined, SelectOutlined } from "@ant-design/icons";
 import { IconText } from "../../SurveyLocationUpload/SurveyLocationUpload.styled";
 import FileUpload from "./FileUpload";
 import { useEffect, useState } from "react";
@@ -30,6 +29,7 @@ import { setLoading } from "../../../../redux/targets/targetSlice";
 import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 
 interface CSVError {
   type: string;
@@ -63,24 +63,6 @@ function TargetsUpload() {
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Error message",
-      dataIndex: "message",
-      key: "message",
-    },
-  ];
 
   const handleFileUpload = (
     file: File,
@@ -192,51 +174,31 @@ function TargetsUpload() {
                   </div>
                 </div>
                 <DescriptionContainer>
-                  <ol style={{ paddingLeft: "15px" }}>
-                    <li>
-                      Upload targets data in csv format. Please go through the
-                      template and filled csv sheet before uploading.
-                    </li>
-                    <li>
-                      Mandatory csv fields:
-                      <ol type="a">
-                        <li>Target ID</li>
-                        <li>
-                          Location ID (Corresponding to the smallest location
-                          level, if location is selected as a mapping criterion)
-                        </li>
-                        <li>
-                          Language (If language is selected as a mapping
-                          criterion)
-                        </li>
-                        <li>
-                          Gender (If gender is selected as a mapping criterion)
-                        </li>
-                      </ol>
-                    </li>
-                    <li>
-                      You can also add custom columns as per the requirement of
-                      your survey - please ensure the column(s) are added in the
-                      csv file you will upload.
-                    </li>
-                    <li>
-                      You can edit the target data before and during data
-                      collection.
-                    </li>
-                    <li>
-                      You can add more targets before and during data
-                      collection.
-                    </li>
-                    <li>
-                      Once you upload the csv, do not hit refresh till you see
-                      the targets in the table view. Refreshing midway can cause
-                      information loss.
-                    </li>
-                  </ol>
+                  Upload a .csv file containing the targets for your survey.{" "}
+                  <a
+                    href="https://docs.surveystream.idinsight.io/targets#targets"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#2F80ED",
+                      fontSize: "14px",
+                      fontFamily: '"Lato", sans-serif',
+                    }}
+                  >
+                    Learn more
+                    <SelectOutlined
+                      rotate={90}
+                      style={{
+                        marginLeft: "3px",
+                        padding: "0px",
+                        fontSize: "15px",
+                      }}
+                    />{" "}
+                  </a>{" "}
                 </DescriptionContainer>
               </>
             ) : null}
-            <div style={{ marginTop: "10px", marginBottom: "14px" }}>
+            <div style={{ marginTop: "20px", marginBottom: "14px" }}>
               <Form layout="horizontal">
                 <Row>
                   <Col span={23}>
@@ -264,15 +226,11 @@ function TargetsUpload() {
                 >
                   Errors table
                 </p>
-                <Row>
-                  <Col span={23}>
-                    <ErrorTable
-                      dataSource={errorList}
-                      columns={errorTableColumn}
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
+                <ErrorWarningTable
+                  errorList={errorList}
+                  showErrorTable={true}
+                  showWarningTable={false}
+                />
               </div>
             ) : null}
           </TargetUploadFormWrapper>
