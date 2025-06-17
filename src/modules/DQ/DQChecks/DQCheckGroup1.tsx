@@ -93,6 +93,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     "4": ["''", "NA", "NAN", "NULL"],
     "5": ["-888"],
     "6": ["-999"],
+    "11": ["99"],
   };
 
   // Table columns for mode selected
@@ -624,6 +625,8 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               "Checks whether certain variables have a high percentage of don’t know values. By default, -888 is considered as don’t know."}
             {typeID === "6" &&
               "Checks whether certain variables have a high percentage of refusal values. By default, -999 is considered as refusal."}
+            {typeID === "11" &&
+              "Checks whether certain variables have a high percentage of other values. By default, 99 is considered as other."}
           </p>
           <Radio.Group
             value={mode}
@@ -649,10 +652,12 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   <Form.Item
                     label={`Value is ${
                       typeID === "4"
-                        ? "missing"
+                        ? "'missing'"
                         : typeID === "5"
-                        ? "don't knows"
-                        : "refusal"
+                        ? "'don't knows'"
+                        : typeID === "6"
+                        ? "'refusal'"
+                        : "'other'"
                     } if value is:`}
                     tooltip="Value that is considered for checks"
                     required
@@ -667,7 +672,9 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                         ? "‘’, NA, NAN, NULL"
                         : typeID === "5"
                         ? "-888"
-                        : "-999"
+                        : typeID === "6"
+                        ? "-999"
+                        : "99"
                     }
                     value={checkValues}
                     options={[
