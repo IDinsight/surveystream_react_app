@@ -365,7 +365,7 @@ function DQFormSCTOQuestion() {
             <Col span={4}>
               <FormItemLabel>
                 <span style={{ color: "red" }}>*</span> Enumerator ID{" "}
-                <Tooltip title="Select the variable that is used to track the ID of the enumerator filling the data quality form.">
+                <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
                   <QuestionCircleOutlined />
                 </Tooltip>{" "}
                 :
@@ -389,8 +389,8 @@ function DQFormSCTOQuestion() {
           <Row align="middle" style={{ marginBottom: 6, marginTop: 12 }}>
             <Col span={4}>
               <FormItemLabel>
-                <span style={{ color: "red" }}>*</span> DQ enumerator ID{" "}
-                <Tooltip title="Select the variable that is used to track the ID of the enumerator being checked in the data quality form.">
+                <span style={{ color: "red" }}>*</span> Monitor ID{" "}
+                <Tooltip title="Select the variable that is used to track the ID of the enumerator filling out the data quality form.">
                   <QuestionCircleOutlined />
                 </Tooltip>{" "}
                 :
@@ -475,7 +475,7 @@ function DQFormSCTOQuestion() {
             Cancel
           </Button>
           <CustomBtn
-            style={{ marginTop: 24, marginLeft: 20 }}
+            style={{ marginTop: 24, marginLeft: 20, marginBottom: 20 }}
             onClick={handleFormSubmit}
             disabled={!canUserWrite}
           >
