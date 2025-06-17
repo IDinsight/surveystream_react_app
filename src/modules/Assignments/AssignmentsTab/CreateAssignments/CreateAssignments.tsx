@@ -363,10 +363,6 @@ function CreateAssignments() {
     }
   };
 
-  useEffect(() => {
-    console.log("assignmentsResponseData", assignmentResponseData);
-  }, [assignmentResponseData]);
-
   const handleDismiss = (): void => {
     navigate(-1);
   };
@@ -589,7 +585,7 @@ function CreateAssignments() {
                 Select surveyors to assign/re-assign the targets
               </p>
               <Table
-                rowKey={(record: any) => record.email}
+                rowKey={(record: any) => record["enumerator_uid"]}
                 rowSelection={rowSelection}
                 columns={surveyorsTableColumns}
                 dataSource={surveyorsDataSource}
