@@ -72,7 +72,7 @@ function DQFormHome() {
                 />
               ))}
               <CustomBtn
-                style={{ marginTop: 24 }}
+                style={{ marginTop: 20, marginBottom: 20 }}
                 disabled={!canUserWrite}
                 onClick={addFormClickHandler}
               >

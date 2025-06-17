@@ -4,10 +4,9 @@ import { Button, Checkbox, Col, Row, Select, Form, message, Alert } from "antd";
 import { Title } from "../../../../shared/Nav.styled";
 import {
   DescriptionContainer,
-  ErrorTable,
   HeadingText,
-  WarningTable,
   TargetsRemapFormWrapper,
+  DescriptionText,
 } from "./TargetsRemap.styled";
 import {
   CloseOutlined,
@@ -42,7 +41,7 @@ import { StyledBreadcrumb } from "../TargetsReupload/TargetsReupload.styled";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
-import { use } from "chai";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 interface CSVError {
   type: string;
   count: number;
@@ -127,42 +126,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
   const targetsColumnMapping = useAppSelector(
     (state: RootState) => state.targets.targetsColumnMapping
   );
-
-  const errorTableColumn = [
-    {
-      title: "Error type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of errors",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with error",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in original csv) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const csvHeaderOptions = csvHeaders.map((item, idx) => {
     return { label: item, value: item };
@@ -570,11 +533,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       <GlobalStyle />
       <TargetsRemapFormWrapper>
         <div style={{ display: "flex" }}>
-          <Title>Add new targets</Title>
           <Button
             style={{
-              borderRadius: 2,
-              color: "#1D39C4",
               marginLeft: "auto",
               marginRight: 48,
             }}
@@ -589,30 +549,17 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           <div>
             {!mappingErrorStatus && !hasWarning ? (
               <>
-                <StyledBreadcrumb
-                  separator=">"
-                  items={[
-                    { title: "Upload csv" },
-                    { title: "Map csv columns", className: "active" },
-                    { title: "Update targets" },
-                  ]}
-                />
+                <div>
+                  <DescriptionText>
+                    Select the column from your .csv file that corresponds to
+                    each standard field{" "}
+                  </DescriptionText>
+                </div>
                 <Form
                   form={targetMappingForm}
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
-                    {/* 
-                  TODO: show alerts here
-                <Alert
-                  message="Mandatory columns: Target Name and Language (p) not found, please map them. Custom columns: Number of household members not found, please map them."
-                  type="error"
-                  showIcon
-                  style={{ width: 754, marginBottom: 20 }}
-                /> */}
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -678,7 +625,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -742,16 +688,18 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                         )}
                       </>
                     ) : null}
-
                     {customHeader ? (
                       <>
-                        <HeadingText>Custom columns</HeadingText>
-                        <Alert
-                          message={`Custom columns: ${extraCSVHeader.length} new custom columns found`}
-                          type="warning"
-                          showIcon
-                          style={{ width: 375, marginBottom: 20 }}
-                        />
+                        <p
+                          style={{
+                            color: "#434343",
+                            fontFamily: "Lato",
+                            fontSize: 14,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {`Custom columns: ${extraCSVHeader.length} new custom columns found`}
+                        </p>
                         {extraCSVHeader.map((item: any, idx: any) => {
                           return (
                             <Form.Item
@@ -791,7 +739,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                     <DislikeOutlined />
                                   )
                                 }
-                                style={{ borderRadius: 0 }}
+                                style={{ borderRadius: 0, marginLeft: "10px" }}
                                 onClick={() => {
                                   setCustomHeaderSelection((prev: any) => {
                                     return {
@@ -882,9 +830,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     ) : (
                       <>
                         <HeadingText>
-                          Want to map more columns, which are custom to your
-                          survey and present in the csv? Click on the button
-                          below after mapping the mandatory columns!
+                          Click below to map other columns which are present in
+                          your .csv file!
                         </HeadingText>
                         <Button
                           type="primary"
@@ -919,9 +866,9 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                   <StyledBreadcrumb
                     separator=">"
                     items={[
-                      { title: "Upload csv" },
-                      { title: "Map csv columns" },
-                      { title: "Update enumerators", className: "active" },
+                      { title: "Upload CSV" },
+                      { title: "Map CSV Columns" },
+                      { title: "Update Targets", className: "active" },
                     ]}
                   />
                   <br />
@@ -964,73 +911,29 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {mappingErrorStatus ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Errors table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <ErrorTable
-                          dataSource={mappingErrorList}
-                          columns={errorTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
-                {hasWarning ? (
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={warningList}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={mappingErrorList}
+                  warningList={warningList}
+                  showErrorTable={mappingErrorStatus}
+                  showWarningTable={hasWarning}
+                />
                 <div style={{ display: "flex" }}>
                   <CSVLink
                     data={[...mappingErrorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
-                      type="primary"
-                      icon={<CloudDownloadOutlined />}
-                      style={{ backgroundColor: "#2f54eB" }}
-                    >
-                      Download errors and warnings
-                    </Button>
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
                   </CSVLink>
-                  <Button
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ marginLeft: 35, backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload corrected CSV
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}

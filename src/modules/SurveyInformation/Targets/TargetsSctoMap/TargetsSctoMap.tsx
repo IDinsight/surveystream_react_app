@@ -11,16 +11,9 @@ import Container from "../../../../components/Layout/Container";
 import {
   DescriptionContainer,
   DescriptionText,
-  HeadingText,
-  WarningTable,
   TargetsSctoMapFormWrapper,
-  SCTOQuestionsButton,
 } from "./TargetsSctoMap.styled";
-import {
-  CloudDownloadOutlined,
-  ProductOutlined,
-  ReconciliationOutlined,
-} from "@ant-design/icons";
+import { CloudDownloadOutlined } from "@ant-design/icons";
 import { CSVLink } from "react-csv";
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
@@ -43,7 +36,7 @@ import { useState, useEffect } from "react";
 
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import DynamicTargetFilter from "../../../../components/DynamicTargetFilter";
-import { set } from "lodash";
+import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 interface CSVError {
   type: string;
   count: number;
@@ -103,24 +96,6 @@ function TargetsSctoMap() {
   );
 
   const [csvHeaderOptions, setCSVHeadersOptions] = useState<any>([]);
-
-  const warningTableColumn = [
-    {
-      title: "Warning type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Count of warning",
-      dataIndex: "count",
-      key: "count",
-    },
-    {
-      title: "Rows (in surveycto data) with warning",
-      dataIndex: "rows",
-      key: "rows",
-    },
-  ];
 
   const moveToModulePage = () => {
     navigate(`/survey-configuration/${survey_uid}`);
@@ -198,7 +173,7 @@ function TargetsSctoMap() {
       message.success("Column configuration updated successfully");
       return true;
     } else {
-      message.error("Error updating scto column configuration");
+      message.error("Error updating SurveyCTO column configuration");
       return false;
     }
   };
@@ -482,7 +457,7 @@ function TargetsSctoMap() {
             `/survey-information/targets/scto_map/${survey_uid}/${form_uid}`
           );
         } else {
-          message.error("Kindly configure SCTO Form to proceed");
+          message.error("Kindly configure SurveyCTO Form to proceed");
           navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
         dispatch(setLoading(false));
@@ -651,7 +626,7 @@ function TargetsSctoMap() {
       <GlobalStyle />
       <Container surveyPage={true} />
       <HeaderContainer>
-        <Title>Targets: SCTO Mapping</Title>
+        <Title>Targets: SurveyCTO Mapping</Title>
         {!(isLoading || quesLoading || locLoading || targetLoading) ? (
           <div
             style={{
@@ -661,9 +636,8 @@ function TargetsSctoMap() {
               color: "#2F54EB",
             }}
           >
-            <Button
+            <CustomBtn
               type="primary"
-              icon={<ProductOutlined />}
               style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
               onClick={() =>
                 navigate(
@@ -672,23 +646,23 @@ function TargetsSctoMap() {
               }
             >
               Change Target Configuration
-            </Button>
+            </CustomBtn>
             {!hasError && !hasWarning ? (
-              <SCTOQuestionsButton
+              <CustomBtn
+                type="primary"
                 onClick={() => loadFormQuestions()}
                 disabled={form_uid == undefined}
               >
-                Load questions from SCTO form
-              </SCTOQuestionsButton>
+                Load questions from SurveyCTO form
+              </CustomBtn>
             ) : (
-              <Button
+              <CustomBtn
                 type="primary"
-                icon={<ReconciliationOutlined />}
                 style={{ marginRight: 15, backgroundColor: "#2f54eB" }}
                 onClick={() => window.location.reload()}
               >
-                Edit SCTO Column Mapping
-              </Button>
+                Edit SurveyCTO Column Mapping
+              </CustomBtn>
             )}
           </div>
         ) : null}
@@ -704,9 +678,10 @@ function TargetsSctoMap() {
             {!hasError && !hasWarning ? (
               <>
                 <div>
-                  <Title>Targets: Map SCTO columns</Title>
+                  <Title>Map SurveyCTO columns</Title>
                   <DescriptionText>
-                    Select corresponding column for the label on the left
+                    Select the column from your SurveyCTO input that corresponds
+                    to each standard field
                   </DescriptionText>
                 </div>
                 <Form
@@ -714,9 +689,6 @@ function TargetsSctoMap() {
                   requiredMark={customRequiredMarker}
                 >
                   <div>
-                    <HeadingText style={{ marginBottom: 22 }}>
-                      Mandatory columns
-                    </HeadingText>
                     {mandatoryDetailsField.map((item: any, idx: any) => {
                       return (
                         <Form.Item
@@ -789,7 +761,6 @@ function TargetsSctoMap() {
                     })}
                     {locationDetailsField.length > 0 ? (
                       <>
-                        <HeadingText>Location ID</HeadingText>
                         {locationDetailsField.map(
                           (
                             item: {
@@ -857,7 +828,7 @@ function TargetsSctoMap() {
                     ) : null}
 
                     <Form.Item
-                      label="Custom columns"
+                      label="Custom Columns"
                       name="custom_columns"
                       labelCol={{ span: 5 }}
                       labelAlign="left"
@@ -880,9 +851,9 @@ function TargetsSctoMap() {
                       />
                     </Form.Item>
 
-                    <Button onClick={() => setOpenModal(true)}>
+                    <CustomBtn onClick={() => setOpenModal(true)}>
                       Add Filters
-                    </Button>
+                    </CustomBtn>
                     <DynamicTargetFilter
                       open={openModal}
                       setOpen={setOpenModal}
@@ -894,15 +865,7 @@ function TargetsSctoMap() {
                     />
                   </div>
                 </Form>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 32,
-                    marginRight: "90%",
-                  }}
-                >
+                <div style={{ marginTop: "25px" }}>
                   <CustomBtn
                     onClick={async () => {
                       await toggleSaveMode("save");
@@ -910,7 +873,7 @@ function TargetsSctoMap() {
                     }}
                     loading={isLoading}
                   >
-                    Save Config
+                    Save
                   </CustomBtn>
                   <CustomBtn
                     onClick={async () => {
@@ -918,7 +881,9 @@ function TargetsSctoMap() {
                       await handleTargetIDChange("preview");
                     }}
                     loading={targetLoading}
-                    style={{ marginLeft: "5%" }}
+                    style={{
+                      marginLeft: "10px",
+                    }}
                   >
                     Preview Data
                   </CustomBtn>
@@ -940,8 +905,9 @@ function TargetsSctoMap() {
                 >
                   <p>
                     We have detected changes to target id. Do you want to delete
-                    existing targets data?
+                    existing targets data?̀
                   </p>
+                  ̀
                 </Modal>
               </>
             ) : (
@@ -972,8 +938,8 @@ function TargetsSctoMap() {
                         <span style={{ fontWeight: 700 }}>
                           Correct and Re-Submit
                         </span>
-                        : Once you are done with changes on SCTO Data, resubmit
-                        the configuration
+                        : Once you are done with changes on SurveyCTO Data,
+                        resubmit the configuration
                       </li>
                       <li>
                         <span style={{ fontWeight: 700 }}>Manage</span>: The
@@ -983,29 +949,12 @@ function TargetsSctoMap() {
                     </ol>
                   </DescriptionContainer>
                 </div>
-                {hasError || hasWarning ? (
-                  <div style={{ marginTop: 22 }}>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        lineHeight: "22px",
-                      }}
-                    >
-                      Warnings table
-                    </p>
-                    <Row>
-                      <Col span={23}>
-                        <WarningTable
-                          dataSource={[...errorList, ...warningList]}
-                          columns={warningTableColumn}
-                          pagination={false}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
+                <ErrorWarningTable
+                  errorList={errorList}
+                  warningList={warningList}
+                  showErrorTable={hasError}
+                  showWarningTable={hasWarning}
+                />
                 <div
                   style={{
                     display: "flex",
@@ -1017,13 +966,13 @@ function TargetsSctoMap() {
                     data={[...errorList, ...warningList]}
                     filename={"target-error-list.csv"}
                   >
-                    <Button
+                    <CustomBtn
                       type="primary"
                       icon={<CloudDownloadOutlined />}
                       style={{ backgroundColor: "#2f54eB" }}
                     >
-                      Download errors and warnings
-                    </Button>
+                      Download rows that caused errors
+                    </CustomBtn>
                   </CSVLink>
                   {correctRecords > 0 && (
                     <CustomBtn

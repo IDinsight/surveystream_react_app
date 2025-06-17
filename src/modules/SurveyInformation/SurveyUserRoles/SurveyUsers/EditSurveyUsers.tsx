@@ -206,7 +206,6 @@ function EditSurveyUsers() {
       }
     });
     if (lowestRole) {
-      console.log("resolveSurveyNotification");
       dispatch(
         resolveSurveyNotification({
           survey_uid: survey_uid,

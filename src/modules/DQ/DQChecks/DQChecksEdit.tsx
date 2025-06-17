@@ -72,7 +72,9 @@ function DQChecksEdit() {
           <div style={{ display: "flex" }}>
             <SideMenu></SideMenu>
             <DQFormWrapper>
-              {["Missing", "Don't know", "Refusal"].includes(checkName) && (
+              {["Missing", "Don't know", "Refusal", "Other"].includes(
+                checkName
+              ) && (
                 <DQCheckGroup1
                   surveyUID={survey_uid || ""}
                   formUID={form_uid || ""}
