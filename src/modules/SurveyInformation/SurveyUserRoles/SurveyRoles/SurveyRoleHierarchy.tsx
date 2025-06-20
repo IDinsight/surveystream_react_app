@@ -105,7 +105,7 @@ function SurveyRoleHierarchy() {
         <StyledFormItem
           key={index}
           required
-          labelCol={{ span: 11 }}
+          labelCol={{ span: 8 }}
           wrapperCol={{ span: 11 }}
           name={`role_${index}`}
           label={role.role_name ? role?.role_name : ""}

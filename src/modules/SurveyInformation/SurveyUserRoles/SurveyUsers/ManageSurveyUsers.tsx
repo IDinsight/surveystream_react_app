@@ -1,4 +1,4 @@
-import { Button, Dropdown, MenuProps, Modal, message } from "antd";
+import { Button, Dropdown, MenuProps, Modal, message, Tooltip } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   DescriptionText,
@@ -15,6 +15,7 @@ import {
   ExclamationCircleFilled,
   FileAddOutlined,
   SearchOutlined,
+  ClearOutlined,
 } from "@ant-design/icons";
 import {
   BackArrow,
@@ -41,6 +42,8 @@ import { setEditUser } from "../../../../redux/userManagement/userManagementSlic
 import { getSupervisorRoles } from "../../../../redux/userRoles/userRolesActions";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import UsersCountBox from "../../../../components/UsersCountBox";
+import { CustomBtn } from "../../../../shared/Global.styled";
 
 function ManageSurveyUsers() {
   const navigate = useNavigate();
@@ -65,6 +68,12 @@ function ManageSurveyUsers() {
   const [locationDetailsField, setLocationDetailsField] = useState<any>([]);
   const [surveyPrimeGeoLocation, setSurveyPrimeGeoLocation] =
     useState<any>("no_location");
+
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
+  const [sortedInfo, setSortedInfo] = useState<Record<string, any>>({});
+
+  const [activeUsersCount, setActiveUsersCount] = useState<number>(0);
+  const [inactiveUsersCount, setInactiveUsersCount] = useState<number>(0);
 
   const [loading, setLoading] = useState(false);
   const [isUsersLoading, setisUsersLoading] = useState<boolean>(false);
@@ -101,10 +110,27 @@ function ManageSurveyUsers() {
           key: index.toString(),
           active: user?.status === "Active" ? true : false,
           supervisor: findUserName(user.supervisor_uid, usersRes.payload),
+          role_name:
+            user.user_admin_survey_names &&
+            user.user_admin_survey_names.length > 0
+              ? "Survey Admin"
+              : user.user_survey_role_names &&
+                user.user_survey_role_names.length > 0
+              ? user.user_survey_role_names[0]["role_name"]
+              : "",
         })
       );
+
+      const activeUsersCount = usersWithKeys.filter(
+        (user: any) => user?.status === "Active"
+      ).length;
+      const inactiveUsersCount = usersWithKeys.filter(
+        (user: any) => user?.status !== "Active"
+      ).length;
       setUserTableDataSource(usersWithKeys);
       setFilteredUserTableData(usersWithKeys);
+      setActiveUsersCount(activeUsersCount);
+      setInactiveUsersCount(inactiveUsersCount);
     }
     setisUsersLoading(false);
   };
@@ -345,26 +371,15 @@ function ManageSurveyUsers() {
       render: (text: any, record: any) => {
         return `${record.first_name} ${record.last_name}`;
       },
+      sorter: (a: any, b: any) =>
+        `${a.first_name} ${a.last_name}`.localeCompare(
+          `${b.first_name} ${b.last_name}`
+        ),
     },
     {
       title: "Roles",
-      key: "user_survey_role_names",
-      dataIndex: "user_survey_role_names",
-      render: (text: any, record: any) => {
-        if (
-          record.user_admin_survey_names &&
-          record.user_admin_survey_names.length > 0
-        ) {
-          return <>{`Survey Admin`}</>;
-        } else if (
-          record.user_survey_role_names &&
-          record.user_survey_role_names.length > 0
-        ) {
-          return <>{record.user_survey_role_names[0]["role_name"]}</>;
-        } else {
-          return <>{``}</>;
-        }
-      },
+      key: "role_name",
+      dataIndex: "role_name",
     },
     {
       title: "Supervisor Name",
@@ -386,10 +401,14 @@ function ManageSurveyUsers() {
           {
             title: locationDetailsField[0]?.title,
             key: locationDetailsField[0]?.key,
-            dataIndex: locationDetailsField[0]?.key,
+            dataIndex: "location_names",
             render: (text: any, record: any) => {
               return record.location_names.join(", ") || "";
             },
+            sorter: (a: any, b: any) =>
+              a.location_names
+                .join(", ")
+                .localeCompare(b.location_names.join(", ")),
             width: 200,
           },
         ]
@@ -403,6 +422,8 @@ function ManageSurveyUsers() {
             render: (text: any, record: any) => {
               return record.languages.join(", ");
             },
+            sorter: (a: any, b: any) =>
+              a.languages.join(", ").localeCompare(b.languages.join(", ")),
             width: 150,
           },
         ]
@@ -469,6 +490,15 @@ function ManageSurveyUsers() {
     setisSupervisorRolesLoading(false);
   };
 
+  const handleClearFiltersAndSort = async () => {
+    setFilteredInfo({});
+    setSortedInfo({});
+    setSearchText("");
+    if (survey_uid) {
+      await fetchAllUsers();
+    }
+  };
+
   useEffect(() => {
     fetchAllUsers();
     fetchSupervisorRoles();
@@ -514,6 +544,10 @@ function ManageSurveyUsers() {
       </NavWrapper>
       <HeaderContainer>
         <Title>Users</Title>
+        <UsersCountBox
+          active={activeUsersCount}
+          inactive={inactiveUsersCount}
+        />
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
@@ -532,48 +566,59 @@ function ManageSurveyUsers() {
               filterTableData(value);
             }}
           />
+
           <Dropdown menu={{ items: addUserOptions }} placement="bottomLeft">
-            {!hasSelected ? (
-              <Button
-                type="primary"
-                icon={<FileAddOutlined />}
-                style={{
-                  marginLeft: "25px",
-                  backgroundColor: "#2F54EB",
-                }}
-                onClick={() =>
-                  navigate(`/survey-information/survey-users/add/${survey_uid}`)
-                }
-              >
-                Add new user
-              </Button>
-            ) : (
-              <>
-                <Button
-                  type="primary"
-                  icon={<EditOutlined />}
-                  style={{
-                    marginLeft: "25px",
-                    backgroundColor: "#2F54EB",
-                  }}
-                  onClick={handleEditUser}
-                >
-                  Edit user
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<DeleteOutlined />}
-                  style={{
-                    marginLeft: "25px",
-                    backgroundColor: "#2F54EB",
-                  }}
-                  onClick={onDeleteUser}
-                >
-                  Remove User
-                </Button>
-              </>
-            )}
+            <CustomBtn
+              style={{
+                marginLeft: "20px",
+              }}
+              onClick={() =>
+                navigate(`/survey-information/survey-users/add/${survey_uid}`)
+              }
+            >
+              Add
+            </CustomBtn>
           </Dropdown>
+          <>
+            <CustomBtn
+              style={{
+                marginLeft: "15px",
+                backgroundColor: "#2F54EB",
+              }}
+              disabled={!hasSelected}
+              onClick={handleEditUser}
+            >
+              Edit
+            </CustomBtn>
+            <CustomBtn
+              style={{
+                marginLeft: "15px",
+                backgroundColor: "#2F54EB",
+              }}
+              disabled={!hasSelected}
+              onClick={onDeleteUser}
+            >
+              Remove
+            </CustomBtn>
+            <Tooltip title="Clear sort and filters">
+              <Button
+                onClick={handleClearFiltersAndSort}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: 15,
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                }}
+                disabled={
+                  Object.keys(filteredInfo).length === 0 &&
+                  Object.keys(sortedInfo).length === 0 &&
+                  searchText === ""
+                }
+                icon={<ClearOutlined />}
+              />
+            </Tooltip>
+          </>
         </div>
       </HeaderContainer>
       {isuserManagementLoading || isLoading ? (
@@ -586,6 +631,7 @@ function ManageSurveyUsers() {
               <UsersTable
                 dataSource={filteredUserTableData}
                 rowSelection={rowSelection}
+                bordered={true}
                 pagination={{
                   position: ["topRight"],
                   pageSize: paginationPageSize,
@@ -595,6 +641,10 @@ function ManageSurveyUsers() {
                   onShowSizeChange: (_, size) => setPaginationPageSize(size),
                   style: { color: "#2F54EB" },
                 }}
+                onChange={(pagination, filters, sorter) => {
+                  setFilteredInfo(filters);
+                  setSortedInfo(sorter);
+                }}
               >
                 {usersTableColumn.map((column) => (
                   <Column
@@ -603,18 +653,63 @@ function ManageSurveyUsers() {
                     dataIndex={column.dataIndex}
                     render={column.render}
                     width={column?.width}
-                    sorter={{
-                      compare: (a: any, b: any) =>
-                        a[column.dataIndex] - b[column.dataIndex],
-                    }}
-                    onFilter={(value, record: any) =>
-                      record[column.dataIndex] === value
+                    sorter={
+                      column?.sorter
+                        ? column.sorter
+                        : (a: any, b: any) =>
+                            a[column.dataIndex].localeCompare(
+                              b[column.dataIndex]
+                            )
                     }
-                    filterIcon={(filtered) => (
-                      <SearchOutlined
-                        style={{ color: filtered ? "#1890ff" : undefined }}
-                      />
-                    )}
+                    filterSearch={true}
+                    onFilter={(value, record: any) => {
+                      if (
+                        column.dataIndex === "location_names" &&
+                        record[column.dataIndex] &&
+                        Array.isArray(record[column.dataIndex])
+                      ) {
+                        return record[column.dataIndex]
+                          .map((v: any) => v.trim())
+                          .includes(value);
+                      } else if (column.dataIndex === "languages") {
+                        return record[column.dataIndex]
+                          .map((v: any) => v.trim())
+                          .includes(value);
+                      } else if (column.dataIndex === "name") {
+                        return (
+                          `${record.first_name} ${record.last_name}` === value
+                        );
+                      } else {
+                        return record[column.dataIndex] === value;
+                      }
+                    }}
+                    filters={Array.from(
+                      new Set(
+                        userTableDataSource
+                          .flatMap((item: any) => {
+                            if (
+                              ["location_names", "languages"].includes(
+                                column.dataIndex
+                              ) &&
+                              item[column.dataIndex]
+                            ) {
+                              return item[column.dataIndex].map((v: any) =>
+                                v.trim()
+                              );
+                            }
+                            if (column.dataIndex === "name")
+                              return [`${item.first_name} ${item.last_name}`];
+                            return item[column.dataIndex];
+                          })
+                          .filter(
+                            (item: any) =>
+                              item !== null && item !== undefined && item !== ""
+                          )
+                      )
+                    ).map((value: any) => ({
+                      text: value,
+                      value: value,
+                    }))}
                   />
                 ))}
               </UsersTable>

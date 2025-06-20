@@ -35,6 +35,7 @@ import {
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { CustomBtn } from "../../../../shared/Global.styled";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -795,16 +796,15 @@ function EditSurveyUsers() {
                         )
                       }
                     >
-                      Dismiss
+                      Cancel
                     </Button>
-                    <Button
+                    <CustomBtn
                       loading={loading}
-                      type="primary"
                       htmlType="submit"
                       style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                     >
-                      Update user
-                    </Button>
+                      Save
+                    </CustomBtn>
                   </Form.Item>
                 </Form>
               </div>

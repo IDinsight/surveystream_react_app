@@ -39,6 +39,7 @@ import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { CustomBtn } from "../../../../shared/Global.styled";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -498,13 +499,12 @@ function AddSurveyUsers() {
                       >
                         Cancel
                       </Button>
-                      <Button
-                        type="primary"
+                      <CustomBtn
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                       >
                         Check for user
-                      </Button>
+                      </CustomBtn>
                     </Form.Item>
                   </Form>
                 ) : (
@@ -875,15 +875,13 @@ function AddSurveyUsers() {
                       >
                         Cancel
                       </Button>
-                      <Button
+                      <CustomBtn
                         loading={loading}
-                        type="primary"
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                       >
-                        {isExistingUser && <>Update User</>}
-                        {!isExistingUser && <>Add User</>}
-                      </Button>
+                        Save
+                      </CustomBtn>
                     </Form.Item>
                   </Form>
                 )}

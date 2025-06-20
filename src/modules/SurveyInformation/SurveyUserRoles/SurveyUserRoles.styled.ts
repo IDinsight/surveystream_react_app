@@ -68,6 +68,10 @@ export const SearchBox = styled(Input.Search)`
     background-color: #2f54eb;
     font-family: "Lato", sans-serif;
   }
+  & button:hover {
+    background-color: #2f54eb !important;
+    color: white !important;
+  }
 `;
 
 export const StyledTooltip = styled(Tooltip)`

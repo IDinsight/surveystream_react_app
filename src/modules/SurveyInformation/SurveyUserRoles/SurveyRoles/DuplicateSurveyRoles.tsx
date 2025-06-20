@@ -240,7 +240,6 @@ function DuplicateSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionTitle>Roles</DescriptionTitle>
               <DescriptionText>
                 <>Duplicate selected role</>
               </DescriptionText>
@@ -248,7 +247,7 @@ function DuplicateSurveyRoles() {
               <div style={{ display: "flex" }}></div>
 
               <Form form={duplicateRolesForm}>
-                <Row gutter={36} style={{ marginBottom: "30px" }}>
+                <Row gutter={36} style={{ marginBottom: "20px" }}>
                   <Col span={12}>
                     <StyledFormItem
                       label="Role name"
@@ -281,7 +280,7 @@ function DuplicateSurveyRoles() {
               </Form>
               <div>
                 <Button
-                  style={{ marginTop: 0, marginRight: 24 }}
+                  style={{ marginTop: 0, marginRight: 24, marginBottom: 48 }}
                   onClick={() =>
                     navigate(
                       `/survey-information/survey-roles/roles/${survey_uid}`
