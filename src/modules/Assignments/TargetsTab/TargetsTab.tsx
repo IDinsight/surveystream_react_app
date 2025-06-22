@@ -46,7 +46,16 @@ function TargetsTab({
         columns={targetTableColumns}
         dataSource={mainData}
         bordered={true}
-        scroll={{ x: 2500, y: "calc(100vh - 380px)" }}
+        scroll={{
+          x:
+            targetTableColumns.length > 0
+              ? 180 *
+                targetTableColumns
+                  .map((col: any) => col.children?.length || 1)
+                  .reduce((acc: number, count: number) => acc + count, 0)
+              : 2500,
+          y: "calc(100vh - 380px)",
+        }}
         onChange={handleTableChange}
         pagination={{
           pageSize: paginationPageSize,

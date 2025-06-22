@@ -96,7 +96,16 @@ function AssignmentsTab({
         columns={mainTableColumns}
         dataSource={mainData}
         bordered={true}
-        scroll={{ x: 2500, y: "calc(100vh - 380px)" }}
+        scroll={{
+          x:
+            mainTableColumns.length > 0
+              ? 180 *
+                mainTableColumns
+                  .map((col: any) => col.children?.length || 1)
+                  .reduce((acc: number, count: number) => acc + count, 0)
+              : 2500,
+          y: "calc(100vh - 380px)",
+        }}
         onChange={handleTableChange}
         rowClassName={(record: any) =>
           !record.target_assignable ? "disabled-row" : ""
