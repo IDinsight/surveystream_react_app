@@ -25,6 +25,7 @@ import SideMenu from "../../SideMenu";
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -45,6 +46,9 @@ function AddSurveyRoles() {
 
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
+  );
+  const isuserRolesLoading = useAppSelector(
+    (state: RootState) => state.userRoles.loading
   );
   const isuserManagementLoading = useAppSelector(
     (state: RootState) => state.userManagement.loading
@@ -104,10 +108,10 @@ function AddSurveyRoles() {
   };
 
   const handleAddRole = async () => {
+    setLoading(true);
     try {
       const formValues = addRolesForm.getFieldsValue();
 
-      setLoading(true);
       if (survey_uid == undefined) {
         message.error(
           "Please check that the survey_uid is provided on the url!"
@@ -183,7 +187,7 @@ function AddSurveyRoles() {
     fetchAllPermissions();
   }, [dispatch]);
 
-  const isLoading = isuserManagementLoading || loading || isSideMenuLoading;
+  const isLoading = loading || isuserRolesLoading || isSideMenuLoading;
 
   return (
     <>
@@ -213,11 +217,20 @@ function AddSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText style={{ marginRight: "auto" }}>
-                Create a new role
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                Add a new role to the survey.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#role" />
+              </DescriptionText>
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                In the next step, you will be asked to define the hierarchy for
+                the newly added role.
               </DescriptionText>
 
-              <div style={{ display: "flex" }}></div>
+              <div style={{ display: "flex", marginTop: "10px" }}></div>
 
               <Form form={addRolesForm}>
                 <Row gutter={36} style={{ marginBottom: "20px" }}>
@@ -242,8 +255,9 @@ function AddSurveyRoles() {
 
                 <DescriptionTitle>Role permissions</DescriptionTitle>
                 <DescriptionText style={{ marginRight: "auto" }}>
-                  Please select the respective permission by selecting edit,
-                  view or none against the permission{" "}
+                  Please select the permission level - edit, view or none - for
+                  each module.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#role-permissions" />
                 </DescriptionText>
 
                 <PermissionsTable

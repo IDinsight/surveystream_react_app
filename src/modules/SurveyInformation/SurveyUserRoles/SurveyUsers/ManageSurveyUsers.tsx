@@ -54,7 +54,7 @@ function ManageSurveyUsers() {
   };
   const [userTableDataSource, setUserTableDataSource] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [hasSelected, setHasSelected] = useState<boolean>(false);
   const [searchText, setSearchText] = useState("");
   const [filteredUserTableData, setFilteredUserTableData] =
@@ -657,9 +657,13 @@ function ManageSurveyUsers() {
                       column?.sorter
                         ? column.sorter
                         : (a: any, b: any) =>
-                            a[column.dataIndex].localeCompare(
-                              b[column.dataIndex]
-                            )
+                            a[column.dataIndex] && b[column.dataIndex]
+                              ? a[column.dataIndex].localeCompare(
+                                  b[column.dataIndex]
+                                )
+                              : a[column.dataIndex]
+                              ? -1
+                              : 1
                     }
                     filterSearch={true}
                     onFilter={(value, record: any) => {

@@ -127,7 +127,8 @@ function MappingManage() {
                       >
                         <Col span={5}>
                           <FormItemLabel>
-                            <span style={{ color: "red" }}>*</span> SCTO form ID{" "}
+                            <span style={{ color: "red" }}>*</span> SurveyCTO
+                            form ID{" "}
                             <Tooltip title="Select the SurveyCTO main form ID">
                               <QuestionCircleOutlined />
                             </Tooltip>{" "}

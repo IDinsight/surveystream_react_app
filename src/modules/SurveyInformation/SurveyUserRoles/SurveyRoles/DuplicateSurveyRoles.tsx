@@ -26,6 +26,7 @@ import SideMenu from "../../SideMenu";
 import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -136,10 +137,10 @@ function DuplicateSurveyRoles() {
   };
 
   const handleDuplicateRole = async () => {
+    setLoading(true);
     try {
       const formValues = duplicateRolesForm.getFieldsValue();
 
-      setLoading(true);
       if (survey_uid == undefined) {
         message.error(
           "Please check that the survey_uid is provided on the url!"
@@ -240,8 +241,17 @@ function DuplicateSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText>
-                <>Duplicate selected role</>
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                Add a new role to the survey by duplicating an existing role.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#other-actions-on-roles" />
+              </DescriptionText>
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                In the next step, you will be asked to define the hierarchy for
+                the newly added role.
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
@@ -269,8 +279,9 @@ function DuplicateSurveyRoles() {
 
                 <DescriptionTitle>Role permissions</DescriptionTitle>
                 <DescriptionText style={{ marginRight: "auto" }}>
-                  Please select the respective permission by selecting edit,
-                  view or none against the permission{" "}
+                  Please select the permission level - edit, view or none - for
+                  each module.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#role-permissions" />
                 </DescriptionText>
 
                 <PermissionsTable
