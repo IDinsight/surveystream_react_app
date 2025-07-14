@@ -565,6 +565,8 @@ function ManageSurveyUsers() {
               setSearchText(value);
               filterTableData(value);
             }}
+            allowClear
+            value={searchText}
           />
 
           <Dropdown menu={{ items: addUserOptions }} placement="bottomLeft">
