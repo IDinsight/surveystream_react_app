@@ -39,6 +39,8 @@ import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { CustomBtn } from "../../../../shared/Global.styled";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 function AddSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -460,9 +462,15 @@ function AddSurveyUsers() {
             <SideMenu />
             <BodyWrapper>
               <DescriptionText>
-                Add users for the survey. Pro tip: Start with users with the top
-                most role in the survey, in order to be able to select them as
-                supervisors for their reportees when adding them.
+                Add users for the survey.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#process" />
+              </DescriptionText>
+              <DescriptionText style={{ marginBottom: "20px" }}>
+                <i>
+                  Pro tip: Start with users with the top most role in the
+                  survey, in order to be able to select them as supervisors for
+                  their reportees when adding them.
+                </i>
               </DescriptionText>
               <div>
                 {!isVerified ? (
@@ -498,13 +506,12 @@ function AddSurveyUsers() {
                       >
                         Cancel
                       </Button>
-                      <Button
-                        type="primary"
+                      <CustomBtn
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                       >
                         Check for user
-                      </Button>
+                      </CustomBtn>
                     </Form.Item>
                   </Form>
                 ) : (
@@ -512,8 +519,8 @@ function AddSurveyUsers() {
                     form={updateUserForm}
                     labelCol={{ span: 6 }}
                     labelAlign="left"
-                    wrapperCol={{ span: 12 }}
-                    style={{ maxWidth: 600 }}
+                    wrapperCol={{ span: 10 }}
+                    style={{ maxWidth: 825 }}
                     onFinish={handleUpdateUser}
                   >
                     <Form.Item
@@ -734,7 +741,8 @@ function AddSurveyUsers() {
                         The user is assigned the smallest field supervisor role.
                         The following fields will be used for mapping
                         supervisors to surveyors or targets as per the mapping
-                        criteria selected under module questionnaire.
+                        criteria selected under module questionnaire.{" "}
+                        <DescriptionLink link="https://docs.surveystream.idinsight.io/background_details#module-questionnaire" />
                       </DescriptionText>
                     )}
 
@@ -865,7 +873,7 @@ function AddSurveyUsers() {
                           />
                         </Form.Item>
                       )}
-                    <Form.Item style={{ marginTop: 20 }}>
+                    <Form.Item style={{ marginTop: 30 }}>
                       <Button
                         onClick={() =>
                           navigate(
@@ -875,15 +883,13 @@ function AddSurveyUsers() {
                       >
                         Cancel
                       </Button>
-                      <Button
+                      <CustomBtn
                         loading={loading}
-                        type="primary"
                         htmlType="submit"
                         style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                       >
-                        {isExistingUser && <>Update User</>}
-                        {!isExistingUser && <>Add User</>}
-                      </Button>
+                        Save
+                      </CustomBtn>
                     </Form.Item>
                   </Form>
                 )}
