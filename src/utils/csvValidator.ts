@@ -159,14 +159,18 @@ export const classifyErrorsForColumns = (
   return Object.values(errorSummaryMap);
 };
 
-export const validateCSVData = async (file: File) => {
+export const validateCSVData = async (
+  file: File,
+  checkEmptyColumns = true,
+  emptyColumnCheckList?: string[]
+) => {
   const text = await readFileAsText(file);
   const parsedCsv: ParseResult<string[]> = Papa.parse(text, {
     skipEmptyLines: true,
   });
   const headers = parsedCsv?.data[0];
   const emptyRows: number[] = [];
-  const emptyColumns: string[] = [];
+  const emptyColumns: Set<string> = new Set();
 
   const headerResults = validateHeaders(headers);
   if (headerResults.length > 0) {
@@ -186,11 +190,16 @@ export const validateCSVData = async (file: File) => {
     const isEmptyRow = line.every((cell: string) => cell.trim() === "");
     if (isEmptyRow) {
       emptyRows.push(i + 1); // Adding 1 to convert to 1-based index
-    } else {
+    } else if (checkEmptyColumns) {
       for (let j = 0; j < line.length; j++) {
         const column = line[j];
-        if (column.trim() === "") {
-          emptyColumns.push(headers[j]);
+        const header = headers[j];
+        // If emptyColumnCheckList is provided, only check those columns
+        if (
+          column.trim() === "" &&
+          (!emptyColumnCheckList || emptyColumnCheckList.includes(header))
+        ) {
+          emptyColumns.add(header);
         }
       }
     }
@@ -202,9 +211,10 @@ export const validateCSVData = async (file: File) => {
     isHeaderNameOptional: false,
     isColumnIndexAlphabetic: true,
   };
+  console.log(validationConfig);
 
   try {
-    if (emptyRows.length > 0 || emptyColumns.length > 0) {
+    if (emptyRows.length > 0 || emptyColumns.size > 0) {
       const validationErrors: string[] = [];
 
       if (emptyRows.length > 0) {
@@ -213,9 +223,11 @@ export const validateCSVData = async (file: File) => {
         );
       }
 
-      if (emptyColumns.length > 0) {
+      if (emptyColumns.size > 0) {
         validationErrors.push(
-          `Empty fields found in column(s): ${emptyColumns.join(", ")}`
+          `Empty fields found in column(s): ${Array.from(emptyColumns).join(
+            ", "
+          )}`
         );
       }
 

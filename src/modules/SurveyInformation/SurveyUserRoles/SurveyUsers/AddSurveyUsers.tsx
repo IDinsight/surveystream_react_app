@@ -639,6 +639,7 @@ function AddSurveyUsers() {
                               location_ids: [],
                               location_names: [],
                               languages: [],
+                              roles: [],
                             }));
                           } else {
                             setUserDetails((prev: any) => ({

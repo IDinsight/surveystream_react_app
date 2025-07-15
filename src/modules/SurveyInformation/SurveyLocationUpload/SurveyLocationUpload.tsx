@@ -47,6 +47,8 @@ import {
 } from "../../../redux/notifications/notificationActions";
 import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink";
 import LocationsCountBox from "../../../components/LocationsCountBox";
+import ErrorWarningTable from "../../../components/ErrorWarningTable";
+import RowCountBox from "../../../components/RowCountBox";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -58,6 +60,7 @@ function SurveyLocationUpload() {
   const [columnMatch, setColumnMatch] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>({});
+  const [errorList, setErrorList] = useState<any[]>([]); // <-- Add errorList state
   const [locationsCount, setLocationsCount] = useState<number>(0);
   const [smallestLocationLevelName, setSmallestLocationLevelName] =
     useState<string>("");
@@ -93,6 +96,7 @@ function SurveyLocationUpload() {
   const [addLocationsModal, setAddLocationsModal] = useState(false);
   const [locationsAddMode, setLocationsAddMode] = useState("overwrite");
   const [selectedRecord, setSelectedRecord] = useState<any>(null); // State to hold the selected record
+  const [csvTotalRows, setCSVTotalRows] = useState<number>(0);
 
   const resetFilters = async () => {
     fetchSurveyLocations();
@@ -241,6 +245,17 @@ function SurveyLocationUpload() {
     // Access the file upload results
     setCSVColumnNames(columnNames);
     setCSVBase64Data(base64Data);
+    // Try to count rows in the file
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text) {
+        // Split by newlines, filter out empty lines
+        const rows = text.split(/\r?\n/).filter((row) => row.trim() !== "");
+        setCSVTotalRows(rows.length);
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleOnChange = (value: string, itemName: string) => {
@@ -465,7 +480,7 @@ function SurveyLocationUpload() {
                     surveyUid: survey_uid,
                   })
                 );
-
+          console.log("mappingsRes", mappingsRes);
           if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
             setLoading(false);
@@ -473,6 +488,18 @@ function SurveyLocationUpload() {
             setHasError(true);
             setColumnMatch(true);
             setFileUploaded(true);
+            // Transform error response for ErrorWarningTable
+            const summary =
+              mappingsRes.payload.errors.record_errors?.summary_by_error_type ||
+              [];
+            const formattedErrors = summary.map((err: any) => ({
+              type: err.error_type,
+              count: err.error_count,
+              message: err.error_message,
+              rows: err.row_numbers_with_errors?.join(", ") || "",
+            }));
+            setErrorList(formattedErrors);
+            console.log(formattedErrors);
             return;
           }
           message.success("Survey locations uploaded successfully.");
@@ -517,7 +544,6 @@ function SurveyLocationUpload() {
   return (
     <>
       <GlobalStyle />
-
       <Container surveyPage={true} />
       <HeaderContainer>
         {!hasError && fileUploaded && columnMatch ? (
@@ -604,7 +630,6 @@ function SurveyLocationUpload() {
         <>
           <div style={{ display: "flex" }}>
             <SideMenu />
-
             <SurveyLocationUploadFormWrapper>
               {!fileUploaded ? (
                 <>
@@ -664,7 +689,84 @@ function SurveyLocationUpload() {
                           />
                         </>
                       ) : (
-                        <>{renderLocationUploadErrors()}</>
+                        <div>
+                          <Title>Locations</Title>
+                          <br />
+                          <RowCountBox
+                            total={csvTotalRows}
+                            correct={Math.max(
+                              0,
+                              csvTotalRows -
+                                errorList.reduce(
+                                  (acc, err) => acc + (err.count || 0),
+                                  0
+                                )
+                            )}
+                            error={errorList.reduce(
+                              (acc, err) => acc + (err.count || 0),
+                              0
+                            )}
+                            warning={0}
+                          />
+                          <DescriptionText>
+                            <ol style={{ paddingLeft: "15px" }}>
+                              <li>
+                                <span style={{ fontWeight: 700 }}>
+                                  Download
+                                </span>
+                                : A csv is ready with all the error rows. Use
+                                the button below to download the csv.
+                              </li>
+                              <li>
+                                <span style={{ fontWeight: 700 }}>
+                                  View errors
+                                </span>
+                                : The table below has the list of all the errors
+                                and the corresponding row numbers. The original
+                                row numbers are present as a column in the csv.
+                                Use this to edit the csv.
+                              </li>
+                              <li>
+                                <span style={{ fontWeight: 700 }}>
+                                  Correct and upload
+                                </span>
+                                : Once you are done with corrections, upload the
+                                csv again.
+                              </li>
+                              <li>
+                                <span style={{ fontWeight: 700 }}>Manage</span>:
+                                The final list of targets is present in a table
+                                and that can also be downloaded.
+                              </li>
+                            </ol>
+                          </DescriptionText>
+                          <p
+                            style={{
+                              fontFamily: "Lato",
+                              fontSize: "14px",
+                              fontWeight: "700",
+                              lineHeight: "22px",
+                            }}
+                          >
+                            Errors table
+                          </p>
+                          <ErrorWarningTable
+                            errorList={errorList}
+                            showErrorTable={true}
+                            showWarningTable={false}
+                          />
+                          <CustomBtn
+                            style={{ marginTop: 24 }}
+                            onClick={() => {
+                              setFileUploaded(false);
+                              setColumnMatch(false);
+                              setHasError(false);
+                              setErrorList([]);
+                            }}
+                          >
+                            Re-upload CSV
+                          </CustomBtn>
+                        </div>
                       )}
                     </>
                   )}
@@ -716,7 +818,7 @@ function SurveyLocationUpload() {
               selectedRecord={selectedRecord}
               dataTable={longformedData}
               geoLevels={surveyLocationGeoLevels}
-              surveyUID={survey_uid!}
+              surveyUID={survey_uid || ""}
               loading={loading}
               setLoading={setLoading}
             />

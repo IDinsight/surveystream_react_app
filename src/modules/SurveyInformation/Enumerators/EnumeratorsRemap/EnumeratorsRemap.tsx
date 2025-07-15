@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Alert, Button, Checkbox, Col, Form, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import {
   DescriptionContainer,
   EnumeratorsRemapFormWrapper,
@@ -12,10 +12,7 @@ import { Title } from "../../../../shared/Nav.styled";
 import { CustomBtn, DescriptionText } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
-import {
-  postEnumeratorsMapping,
-  updateEnumeratorColumnConfig,
-} from "../../../../redux/enumerators/enumeratorsActions";
+import { postEnumeratorsMapping } from "../../../../redux/enumerators/enumeratorsActions";
 import { EnumeratorMapping } from "../../../../redux/enumerators/types";
 import {
   CloseOutlined,
@@ -39,7 +36,7 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
-import { fetchSurveyModuleQuestionnaire } from "@/redux/surveyConfig/apiService";
+import { validateCSVData } from "../../../../utils/csvValidator";
 
 interface CSVError {
   type: string;
@@ -112,6 +109,14 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const moduleQuestionnaire = useAppSelector(
     (state: RootState) => state.surveyConfig.moduleQuestionnaire
   );
+
+  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const handleCheckboxChange = (name: any) => {
+    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+      ...prevValues,
+      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+    }));
+  };
 
   const errorTableColumn = [
     {
@@ -254,6 +259,57 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
               field_label: column_name,
             });
           }
+        }
+      }
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...personalDetailsField
+          .filter((item) => item.key !== "home_address")
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationBatchField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter(
+            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
+          )
+          .map((field: any) => field.column_name),
+      ];
+
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          dispatch(setMappingErrorStatus(true));
+          dispatch(
+            setMappingErrorList(
+              (validationResult.inValidData as string[]).map((msg) => ({
+                type: "Validation Error",
+                count: 1,
+                rows: msg,
+              }))
+            )
+          );
+          dispatch(setMappingErrorCount(csvRows.length - 1));
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -499,13 +555,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                           rules={[
                             {
                               required:
-                                (item.key === "language" &&
-                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
-                                    "Language"
-                                  )) ||
-                                item.key === "home_address"
-                                  ? false
-                                  : true,
+                                item.key === "home_address" ? false : true,
                               message: "Kindly select column to map value!",
                             },
                             {
@@ -666,8 +716,19 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                               >
                                 Ignore
                               </Button>
-                              <Checkbox style={{ marginLeft: 10 }}>
-                                Mandatory
+                              <Checkbox
+                                style={{ marginLeft: 10 }}
+                                name={`${item}_allow_null`}
+                                checked={
+                                  checkboxValues?.[`${item}_allow_null`]
+                                    ? checkboxValues?.[`${item}_allow_null`]
+                                    : false
+                                }
+                                onChange={() =>
+                                  handleCheckboxChange(`${item}_allow_null`)
+                                }
+                              >
+                                Accept null values
                               </Checkbox>
                             </Form.Item>
                           );

@@ -100,7 +100,6 @@ function EnumeratorsHome() {
     if (survey.payload.prime_geo_level_uid !== undefined) {
       setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid);
     } else {
-      console.log("No prime_geo_level_uid found, setting to 0");
       setPrimeGeoLevelUID(0);
     }
   };
@@ -230,7 +229,6 @@ function EnumeratorsHome() {
 
       if (enumeratorRes.payload.status == 200) {
         const originalData = enumeratorRes.payload.data.data;
-
         // Handle empty data case immediately
         if (!originalData || originalData.length == 0) {
           setTableLoading(false); // Stop loading before navigation
@@ -657,25 +655,17 @@ function EnumeratorsHome() {
 
       try {
         // Only start loading when we're actually going to fetch data
-        if (!form_uid || !PrimeGeoLevelUID) {
-          if (!form_uid) {
-            await handleFormUID();
-            return;
-          }
-
-          if (!PrimeGeoLevelUID) {
-            const survey = await dispatch(
-              getSurveyBasicInformation({ survey_uid })
-            );
-            setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid ?? 0);
-            return;
-          }
-        }
-
         // Only set loading and fetch data when we have all prerequisites
-        if (form_uid && PrimeGeoLevelUID) {
+        if (form_uid) {
+          if (!PrimeGeoLevelUID) {
+            await fetchSurveyInfo();
+          }
           setTableLoading(true);
           await getEnumeratorsList(form_uid);
+          return;
+        } else {
+          await handleFormUID();
+          return;
         }
       } catch (error) {
         console.error("Error fetching data:", error);

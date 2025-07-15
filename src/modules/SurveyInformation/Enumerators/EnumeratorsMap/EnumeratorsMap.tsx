@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Col, Form, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 
 import {
   HeaderContainer,
@@ -40,6 +40,7 @@ import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/sur
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import Container from "../../../../components/Layout/Container";
+import { validateCSVData } from "../../../../utils/csvValidator";
 
 interface CSVError {
   type: string;
@@ -103,6 +104,14 @@ function EnumeratorsMap() {
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
+
+  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const handleCheckboxChange = (name: any) => {
+    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+      ...prevValues,
+      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+    }));
+  };
 
   const errorTableColumn = [
     {
@@ -255,6 +264,56 @@ function EnumeratorsMap() {
               field_label: column_name,
             });
           }
+        }
+      }
+
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...personalDetailsField
+          .filter((item) => item.key !== "home_address")
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationBatchField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter(
+            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
+          )
+          .map((field: any) => field.column_name),
+      ];
+
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          setHasError(true);
+          setErrorList(
+            (validationResult.inValidData as string[]).map((msg) => ({
+              type: "Validation Error",
+              count: 1,
+              rows: msg,
+            }))
+          );
+          setErrorCount(csvRows.length - 1);
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -648,6 +707,20 @@ function EnumeratorsMap() {
                               >
                                 Ignore
                               </Button>
+                              <Checkbox
+                                style={{ marginLeft: 10 }}
+                                name={`${item}_allow_null`}
+                                checked={
+                                  checkboxValues?.[`${item}_allow_null`]
+                                    ? checkboxValues?.[`${item}_allow_null`]
+                                    : false
+                                }
+                                onChange={() =>
+                                  handleCheckboxChange(`${item}_allow_null`)
+                                }
+                              >
+                                Accept null values
+                              </Checkbox>
                             </Form.Item>
                           );
                         })}
