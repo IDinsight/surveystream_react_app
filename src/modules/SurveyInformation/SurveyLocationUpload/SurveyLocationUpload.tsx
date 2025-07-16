@@ -480,7 +480,6 @@ function SurveyLocationUpload() {
                     surveyUid: survey_uid,
                   })
                 );
-          console.log("mappingsRes", mappingsRes);
           if (mappingsRes.payload.success === false) {
             message.error(mappingsRes.payload.message);
             setLoading(false);
@@ -499,7 +498,6 @@ function SurveyLocationUpload() {
               rows: err.row_numbers_with_errors?.join(", ") || "",
             }));
             setErrorList(formattedErrors);
-            console.log(formattedErrors);
             return;
           }
           message.success("Survey locations uploaded successfully.");

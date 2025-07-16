@@ -211,7 +211,6 @@ export const validateCSVData = async (
     isHeaderNameOptional: false,
     isColumnIndexAlphabetic: true,
   };
-  console.log(validationConfig);
 
   try {
     if (emptyRows.length > 0 || emptyColumns.size > 0) {

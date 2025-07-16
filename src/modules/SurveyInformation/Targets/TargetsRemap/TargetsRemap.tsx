@@ -193,7 +193,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           true,
           columnsToCheck
         );
-        console.log(columnsToCheck, validationResult);
         if (
           validationResult &&
           "isValid" in validationResult &&
@@ -506,13 +505,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         );
 
         const locationData = locationRes?.payload;
-        console.log("Location data for target mapping:", locationData);
 
         const lowestGeoLevel = findLowestGeoLevel(locationData);
-        console.log(
-          "Lowest geo level for target mapping location:",
-          lowestGeoLevel
-        );
 
         if (lowestGeoLevel?.geo_level_name) {
           setLocationDetailsField([

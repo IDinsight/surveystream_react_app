@@ -177,7 +177,6 @@ function TargetsMap() {
           true,
           columnsToCheck
         );
-        console.log(columnsToCheck, validationResult);
         if (
           validationResult &&
           "isValid" in validationResult &&
