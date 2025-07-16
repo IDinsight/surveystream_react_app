@@ -733,8 +733,8 @@ function SurveyLocationUpload() {
                               </li>
                               <li>
                                 <span style={{ fontWeight: 700 }}>Manage</span>:
-                                The final list of targets is present in a table
-                                and that can also be downloaded.
+                                The final list of locations is present in a
+                                table and that can also be downloaded.
                               </li>
                             </ol>
                           </DescriptionText>

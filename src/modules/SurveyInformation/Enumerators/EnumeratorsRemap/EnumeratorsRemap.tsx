@@ -114,7 +114,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   const handleCheckboxChange = (name: any) => {
     setCheckboxValues((prevValues: { [x: string]: any }) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+      [name]: prevValues?.[name] ? !prevValues?.[name] : true,
     }));
   };
 

@@ -376,7 +376,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
             return {
               column_name: columnName,
-              column_type: "custom_field",
+              column_type: "custom_fields",
               column_source: columnName,
             };
           });
