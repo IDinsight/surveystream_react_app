@@ -5,11 +5,13 @@ import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { DescriptionText } from "../../shared/Global.styled";
 import { BodyContainer, CustomBtn } from "./MediaAudits.styled";
 import MediaForm from "../../components/MediaForm";
 import { RootState } from "../../redux/store";
 import { getMediaAuditsConfigs } from "../../redux/mediaAudits/mediaAuditsActions";
 import { userHasPermission } from "../../utils/helper";
+import DescriptionLink from "../../components/DescriptionLink/DescriptionLink";
 
 function MediaAuditsHome() {
   const navigate = useNavigate();
@@ -56,10 +58,11 @@ function MediaAuditsHome() {
             <Title>Media Audits</Title>
           </HeaderContainer>
           <BodyContainer>
-            <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
+            <DescriptionText>
               Please add all the media audit configurations for this survey
-              here.
-            </p>
+              here.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/media_audits_configuration" />
+            </DescriptionText>
             {mediaAuditsConfig.map((config: any) => (
               <MediaForm
                 key={config.media_files_config_uid}
