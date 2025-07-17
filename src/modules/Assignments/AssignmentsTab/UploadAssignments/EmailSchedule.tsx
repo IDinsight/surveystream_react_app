@@ -211,11 +211,20 @@ function EmailSchedule({
             }}
           >
             Do you want to send emails to the surveyors whose assignments have
-            been changed before the given schedule? Note that the emails set up
-            using this option will be sent only to the surveyors whose
-            assignments have changed. If you want to change the existing email
-            schedule for all surveyors, kindly visit the email configuration
-            module.
+            been changed before the given schedule?
+          </p>
+          <p
+            style={{
+              color: "#434343",
+              fontFamily: "Lato",
+              fontSize: "14px",
+              lineHeight: "24px",
+            }}
+          >
+            Note that the emails set up using this option will be sent only to
+            the surveyors whose assignments have changed. If you want to change
+            the existing email schedule for all surveyors, kindly visit the
+            email configuration module.
           </p>
           <Radio.Group
             onChange={(e) => setEmailMode(e.target.value)}

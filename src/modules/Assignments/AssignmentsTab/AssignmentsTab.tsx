@@ -110,11 +110,12 @@ function AssignmentsTab({
         }}
         footer={() => (
           <p style={{ margin: 0, color: "#8c8c8c", fontStyle: "italic" }}>
-            <span style={{ color: "red" }}>*</span> red background color in
-            supervisor columns indicate either the target is not mapped to a
-            supervisor (if value is missing in lowest level supervisor column)
-            or the user hierarchy for a supervisor is incomplete. This could
-            mean that this target is not visible to the required supervisors.
+            <span style={{ color: "red" }}>*</span> Red background in supervisor
+            columns indicates either the target is not mapped to a supervisor
+            (if value is missing in lowest level supervisor column) or the user
+            hierarchy for a supervisor is incomplete. This could mean that this
+            target is not visible to the required supervisors. Kindly update the
+            mapping in the supervisor mapping module.
           </p>
         )}
       />

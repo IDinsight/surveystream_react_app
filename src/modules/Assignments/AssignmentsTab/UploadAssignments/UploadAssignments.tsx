@@ -371,7 +371,8 @@ function UploadAssignments() {
                             lineHeight: "22px",
                           }}
                         >
-                          Errors and warnings table
+                          Please review the following issues found in your file
+                          upload
                         </p>
                         <Row>
                           <Col span={23}>
