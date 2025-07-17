@@ -76,7 +76,7 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
         style={{ backgroundColor: "#FAFAFA", padding: 24, marginBottom: 24 }}
       >
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
+          <Col span={5}>
             <FormItemLabel>SurveyCTO form ID:</FormItemLabel>
           </Col>
           <Col span={8}>
@@ -92,8 +92,8 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
-            <FormItemLabel>Media audit type:</FormItemLabel>
+          <Col span={5}>
+            <FormItemLabel>Media type:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select disabled value={data.file_type} style={{ width: "100%" }}>
@@ -104,8 +104,8 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
-            <FormItemLabel>Media audit source:</FormItemLabel>
+          <Col span={5}>
+            <FormItemLabel>Source:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select disabled value={data.source} style={{ width: "100%" }}>
@@ -114,7 +114,7 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
+          <Col span={5}>
             <FormItemLabel>
               Outputs{" "}
               <Tooltip
