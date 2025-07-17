@@ -20,7 +20,11 @@ import {
   SelectItem,
   SurveyLocationUploadFormWrapper,
 } from "./SurveyLocationUpload.styled";
-import { ClearOutlined } from "@ant-design/icons";
+import {
+  ClearOutlined,
+  CloudDownloadOutlined,
+  CloudUploadOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import LocationTable from "./LocationTable";
 import FileUpload from "./FileUpload";
@@ -30,7 +34,7 @@ import {
   getSurveyLocationGeoLevels,
   getSurveyLocations,
   postSurveyLocations,
-  puturveyLocations,
+  putSurveyLocations,
   getSurveyLocationsLong,
 } from "../../../redux/surveyLocations/surveyLocationsActions";
 import { resetSurveyLocations } from "../../../redux/surveyLocations/surveyLocationsSlice";
@@ -49,6 +53,7 @@ import DescriptionLink from "../../../components/DescriptionLink/DescriptionLink
 import LocationsCountBox from "../../../components/LocationsCountBox";
 import ErrorWarningTable from "../../../components/ErrorWarningTable";
 import RowCountBox from "../../../components/RowCountBox";
+import { CSVLink } from "react-csv";
 
 function SurveyLocationUpload() {
   const dispatch = useAppDispatch();
@@ -366,45 +371,6 @@ function SurveyLocationUpload() {
     }
   };
 
-  const renderLocationUploadErrors = () => {
-    const fileErrorList = uploadErrors.file.map(
-      (item: string, index: number) => <li key={index}>{item}</li>
-    );
-    const geoErrorList = uploadErrors.geo_level_mapping.map(
-      (item: string, index: number) => <li key={index}>{item}</li>
-    );
-
-    return (
-      <>
-        <Alert
-          message="File parsing error,please upload the file again after making the corrections."
-          description={
-            <>
-              <p>
-                The csv file could not be uploaded because of the following
-                errors:
-              </p>
-
-              <ol>{fileErrorList}</ol>
-              <ol>{geoErrorList}</ol>
-            </>
-          }
-          type="error"
-          style={{ marginRight: "80px" }}
-        />
-        <CustomBtn
-          style={{ marginTop: 24 }}
-          onClick={() => {
-            setFileUploaded(false);
-            setColumnMatch(false);
-            setHasError(false);
-          }}
-        >
-          Re-upload CSV
-        </CustomBtn>
-      </>
-    );
-  };
   const createNotification = async (notification_input: string[]) => {
     if (notification_input.length > 0) {
       for (const notification of notification_input) {
@@ -474,7 +440,7 @@ function SurveyLocationUpload() {
                   })
                 )
               : await dispatch(
-                  puturveyLocations({
+                  putSurveyLocations({
                     getLevelMappingData: requestData.geo_level_mapping,
                     csvFile: requestData.file,
                     surveyUid: survey_uid,
@@ -489,8 +455,7 @@ function SurveyLocationUpload() {
             setFileUploaded(true);
             // Transform error response for ErrorWarningTable
             const summary =
-              mappingsRes.payload.errors.record_errors?.summary_by_error_type ||
-              [];
+              mappingsRes.payload.record_errors?.summary_by_error_type || [];
             const formattedErrors = summary.map((err: any) => ({
               type: err.error_type,
               count: err.error_count,
@@ -753,17 +718,32 @@ function SurveyLocationUpload() {
                             showErrorTable={true}
                             showWarningTable={false}
                           />
-                          <CustomBtn
-                            style={{ marginTop: 24 }}
-                            onClick={() => {
-                              setFileUploaded(false);
-                              setColumnMatch(false);
-                              setHasError(false);
-                              setErrorList([]);
-                            }}
-                          >
-                            Re-upload CSV
-                          </CustomBtn>
+
+                          <div style={{ display: "flex", marginTop: 20 }}>
+                            <CSVLink
+                              data={[...errorList]}
+                              filename={"location-error-list.csv"}
+                            >
+                              <CustomBtn
+                                type="primary"
+                                icon={<CloudDownloadOutlined />}
+                              >
+                                Download rows that caused errors
+                              </CustomBtn>
+                            </CSVLink>
+                            <CustomBtn
+                              onClick={() => {
+                                setFileUploaded(false);
+                                setColumnMatch(false);
+                                setHasError(false);
+                                setErrorList([]);
+                              }}
+                              type="primary"
+                              style={{ marginLeft: 35 }}
+                            >
+                              Reupload CSV
+                            </CustomBtn>
+                          </div>
                         </div>
                       )}
                     </>

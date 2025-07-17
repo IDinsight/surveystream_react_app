@@ -22,6 +22,7 @@ import {
   DislikeOutlined,
   SelectOutlined,
   CloudUploadOutlined,
+  CloudDownloadOutlined,
 } from "@ant-design/icons";
 import RowCountBox from "../../../../components/RowCountBox";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
@@ -37,6 +38,7 @@ import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import { validateCSVData } from "../../../../utils/csvValidator";
+import { CSVLink } from "react-csv";
 
 interface CSVError {
   type: string;
@@ -841,14 +843,22 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                   </div>
                 )}
                 <div style={{ display: "flex" }}>
-                  <Button
+                  <CSVLink
+                    data={[...mappingErrorList]}
+                    filename={"enumerator-error-list.csv"}
+                  >
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
+                  </CSVLink>
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload CSV again
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}

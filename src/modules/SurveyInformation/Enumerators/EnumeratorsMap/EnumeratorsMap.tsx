@@ -18,6 +18,7 @@ import {
   HeadingText,
 } from "./EnumeratorsMap.styled";
 import {
+  CloudDownloadOutlined,
   CloudUploadOutlined,
   DislikeFilled,
   DislikeOutlined,
@@ -41,6 +42,7 @@ import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import Container from "../../../../components/Layout/Container";
 import { validateCSVData } from "../../../../utils/csvValidator";
+import { CSVLink } from "react-csv";
 
 interface CSVError {
   type: string;
@@ -836,23 +838,22 @@ function EnumeratorsMap() {
                 )}
 
                 <div style={{ display: "flex" }}>
-                  <Button
-                    onClick={() =>
-                      navigate(
-                        `/survey-information/enumerators/${survey_uid}/${form_uid}`
-                      )
-                    }
+                  <CSVLink
+                    data={[...errorList]}
+                    filename={"enumerator-error-list.csv"}
                   >
-                    Cancel
-                  </Button>
-                  <Button
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
+                  </CSVLink>
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ backgroundColor: "#2f54eB", marginLeft: 20 }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload CSV again
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}
