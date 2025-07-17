@@ -72,11 +72,11 @@ function MediaAuditsHome() {
               />
             ))}
             <CustomBtn
-              style={{ marginTop: 24 }}
+              style={{ marginTop: 10 }}
               disabled={!canUserWrite}
               onClick={addFormClickHandler}
             >
-              Add Media Audit Config
+              Add
             </CustomBtn>
           </BodyContainer>
         </>
