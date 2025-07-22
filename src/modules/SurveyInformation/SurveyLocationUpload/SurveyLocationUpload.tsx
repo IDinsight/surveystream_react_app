@@ -66,6 +66,7 @@ function SurveyLocationUpload() {
   const [hasError, setHasError] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>({});
   const [errorList, setErrorList] = useState<any[]>([]); // <-- Add errorList state
+  const [errorRecords, setErrorRecords] = useState<any[]>([]); // <-- Add errorRecords state
   const [locationsCount, setLocationsCount] = useState<number>(0);
   const [smallestLocationLevelName, setSmallestLocationLevelName] =
     useState<string>("");
@@ -152,6 +153,10 @@ function SurveyLocationUpload() {
       setLongformedData(allGeoLevelData.flat());
     }
   };
+
+  const [totalRows, setTotalRows] = useState<number>(0);
+  const [correctRows, setCorrectRows] = useState<number>(0);
+  const [errorRows, setErrorRows] = useState<number>(0);
 
   useEffect(() => {
     const updataData = async () => {
@@ -447,6 +452,7 @@ function SurveyLocationUpload() {
                   })
                 );
           if (mappingsRes.payload.success === false) {
+            console.log("Mappings response:", mappingsRes.payload);
             message.error(mappingsRes.payload.message);
             setLoading(false);
             setUploadErrors(mappingsRes.payload.errors);
@@ -463,6 +469,19 @@ function SurveyLocationUpload() {
               rows: err.row_numbers_with_errors?.join(", ") || "",
             }));
             setErrorList(formattedErrors);
+
+            // Set error records from invalid_records
+            setErrorRecords(
+              mappingsRes.payload.record_errors?.invalid_records?.records || []
+            );
+
+            // Set row counts from summary data
+            const summaryData = mappingsRes.payload.record_errors?.summary;
+            if (summaryData) {
+              setTotalRows(summaryData.total_rows);
+              setCorrectRows(summaryData.total_correct_rows);
+              setErrorRows(summaryData.total_rows_with_errors);
+            }
             return;
           }
           message.success("Survey locations uploaded successfully.");
@@ -657,18 +676,8 @@ function SurveyLocationUpload() {
                           <br />
                           <RowCountBox
                             total={csvTotalRows}
-                            correct={Math.max(
-                              0,
-                              csvTotalRows -
-                                errorList.reduce(
-                                  (acc, err) => acc + (err.count || 0),
-                                  0
-                                )
-                            )}
-                            error={errorList.reduce(
-                              (acc, err) => acc + (err.count || 0),
-                              0
-                            )}
+                            correct={correctRows}
+                            error={errorRows}
                             warning={0}
                           />
                           <DescriptionText>
@@ -721,7 +730,7 @@ function SurveyLocationUpload() {
 
                           <div style={{ display: "flex", marginTop: 20 }}>
                             <CSVLink
-                              data={[...errorList]}
+                              data={[...errorRecords]}
                               filename={"location-error-list.csv"}
                             >
                               <CustomBtn
