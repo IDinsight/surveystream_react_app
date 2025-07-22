@@ -30,7 +30,11 @@ import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  ClearOutlined,
+  DeleteOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import MappingError from "../../../components/MappingError";
 import Container from "../../../components/Layout/Container";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
@@ -38,6 +42,8 @@ import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
+import { properCase } from "../../../utils/helper";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 const { Option } = Select;
 
@@ -64,6 +70,7 @@ const SurveyorMapping = ({
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
+  const [originalMappingData, setOriginalMappingData] = useState<any>(null);
 
   const [loadingMappingConfig, setLoadingMappingConfig] =
     useState<boolean>(false);
@@ -722,6 +729,16 @@ const SurveyorMapping = ({
       key: "surveyorID",
       sorter: (a: any, b: any) => a.surveyorID.localeCompare(b.surveyorID),
       width: 100,
+      filters: [
+        ...Array.from(
+          new Set(mappingData?.map((surveyor: any) => surveyor.surveyor_id))
+        ),
+      ].map((id) => ({
+        text: id,
+        value: id,
+      })),
+      onFilter: (value: any, record: { surveyorID: string }) =>
+        record.surveyorID.indexOf(value) === 0,
     },
     {
       title: "Surveyor Name",
@@ -729,6 +746,16 @@ const SurveyorMapping = ({
       key: "surveyorName",
       sorter: (a: any, b: any) => a.surveyorName.localeCompare(b.surveyorName),
       width: 100,
+      filters: [
+        ...Array.from(
+          new Set(mappingData?.map((surveyor: any) => surveyor.surveyor_name))
+        ),
+      ].map((name) => ({
+        text: name,
+        value: name,
+      })),
+      onFilter: (value: any, record: { surveyorName: string }) =>
+        record.surveyorName.indexOf(value) === 0,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -1213,6 +1240,7 @@ const SurveyorMapping = ({
         fetchSurveyorsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
+            setOriginalMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
             setLoadMappingDataError("");
           } else {
@@ -1272,6 +1300,9 @@ const SurveyorMapping = ({
     loadingMappingData ||
     mappingLoading ||
     isSideMenuLoading;
+
+  // State to force table refresh
+  const [tableKey, setTableKey] = useState(0);
 
   if (loading) {
     return <FullScreenLoader />;
@@ -1342,21 +1373,30 @@ const SurveyorMapping = ({
                 />
               ) : (
                 <div>
-                  <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
+                  <p>
+                    Review the mapping of Surveyors to Supervisors based on{" "}
+                    {criteria.join(" and ")}{" "}
+                    <Tooltip title="As per mapping criteria selected under module questionnaire">
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                    {" : "}
+                    <DescriptionLink link="https://docs.surveystream.idinsight.io/supervisor_mapping" />
+                  </p>
                   <div>
                     <MappingTable
                       columns={mappedPairsColumns}
                       dataSource={mappedPairsData}
-                      //scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
                       scroll={{ x: "max-content" }}
                       pagination={false}
+                      bordered={true}
                     />
                   </div>
                   {unmappedSurveyors?.length > 0 && (
                     <>
-                      <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                        There is no mapping available for below listed Surveyor,
-                        please map them manually:
+                      <p style={{ marginTop: "36px" }}>
+                        Surveyors with the following {criteria.join(" and ")}{" "}
+                        criteria couldn’t be mapped to a supervisor, please
+                        select alternative mapping values :
                       </p>
                       <MappingTable
                         columns={unmappedColumns}
@@ -1366,6 +1406,7 @@ const SurveyorMapping = ({
                           y: "calc(100vh - 380px)",
                         }}
                         pagination={false}
+                        bordered={true}
                       />
                     </>
                   )}
@@ -1445,6 +1486,18 @@ const SurveyorMapping = ({
               >
                 Edit
               </CustomBtn>
+              {mappingTableData?.length > 0 && (
+                <Button
+                  onClick={() => {
+                    // Reset the mapping data to original state
+                    setMappingData([...originalMappingData]);
+                    // Force table reload by updating key
+                    setTableKey((prev) => prev + 1);
+                  }}
+                  icon={<ClearOutlined />}
+                  style={{ marginLeft: 16 }}
+                />
+              )}
             </div>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
@@ -1460,6 +1513,7 @@ const SurveyorMapping = ({
                 <>
                   <div>
                     <MappingTable
+                      key={tableKey}
                       columns={surveyorsMappingColumns}
                       dataSource={mappingTableData}
                       rowSelection={rowSelection}
@@ -1474,6 +1528,7 @@ const SurveyorMapping = ({
                         onShowSizeChange: (_, size) => setTablePageSize(size),
                         style: { color: "#2F54EB" },
                       }}
+                      bordered={true}
                     />
                     {selectedSurveyorRows.length > 0 && (
                       <Drawer

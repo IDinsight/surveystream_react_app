@@ -6,7 +6,7 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import { getSurveyCTOForm } from "../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../../redux/store";
-import { Col, Row, Select, Tag, Tooltip } from "antd";
+import { Col, Row, Tag, Tooltip, message } from "antd";
 import { properCase, userHasPermission } from "../../../utils/helper";
 import { FormItemLabel } from "./Mapping.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
@@ -17,6 +17,7 @@ import TargetMapping from "./TargetMapping";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
 import MappingError from "../../../components/MappingError";
+import { use } from "chai";
 
 function MappingManage() {
   const navigate = useNavigate();
@@ -55,14 +56,25 @@ function MappingManage() {
     (state: RootState) => state.surveyConfig
   );
 
-  const [formUID, setFormUID] = useState<null | string>(null);
   const [criteria, setCriteria] = useState<string[]>([]);
 
-  const handleLoadButton = () => {
-    if (formUID) {
-      navigate(
-        `/survey-information/mapping/${mapping_name}/${survey_uid}?form_uid=${formUID}&page=1`
-      );
+  const handleFormUID = async () => {
+    if (form_uid == "" || form_uid == undefined || form_uid == "undefined") {
+      try {
+        const sctoForm = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        if (sctoForm?.payload[0]?.form_uid) {
+          navigate(
+            `/survey-information/mapping/${mapping_name}/${survey_uid}?form_uid=${sctoForm?.payload[0]?.form_uid}&page=1`
+          );
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
+        }
+      } catch (error) {
+        console.log("Error fetching sctoForm:", error);
+      }
     }
   };
 
@@ -70,6 +82,10 @@ function MappingManage() {
     dispatch(getSurveyCTOForm({ survey_uid }));
     dispatch(getSurveyModuleQuestionnaire({ survey_uid }));
   }, [dispatch, survey_uid]);
+
+  useEffect(() => {
+    handleFormUID();
+  }, [dispatch, survey_uid, form_uid]);
 
   useEffect(() => {
     if (moduleQuestionnaire) {
@@ -121,40 +137,8 @@ function MappingManage() {
                           ))
                         }
                       </p>
-                      <Row
-                        align="middle"
-                        style={{ marginBottom: 6, marginTop: 12 }}
-                      >
-                        <Col span={5}>
-                          <FormItemLabel>
-                            <span style={{ color: "red" }}>*</span> SurveyCTO
-                            form ID{" "}
-                            <Tooltip title="Select the SurveyCTO main form ID">
-                              <QuestionCircleOutlined />
-                            </Tooltip>{" "}
-                            :
-                          </FormItemLabel>
-                        </Col>
-                        <Col span={8}>
-                          <Select
-                            style={{ width: "100%" }}
-                            placeholder="Select the SCTO form"
-                            value={formUID}
-                            disabled={!canUserWrite}
-                            onSelect={(val) => {
-                              setFormUID(val as string);
-                            }}
-                          >
-                            {surveyCTOForm?.scto_form_id && (
-                              <Select.Option value={surveyCTOForm?.form_uid}>
-                                {surveyCTOForm?.scto_form_id}
-                              </Select.Option>
-                            )}
-                          </Select>
-                        </Col>
-                      </Row>
                       <Row style={{ marginTop: 12 }}>
-                        <CustomBtn onClick={handleLoadButton}>Load</CustomBtn>
+                        <CustomBtn onClick={handleFormUID}>Load</CustomBtn>
                       </Row>
                     </MappingWrapper>
                   </div>

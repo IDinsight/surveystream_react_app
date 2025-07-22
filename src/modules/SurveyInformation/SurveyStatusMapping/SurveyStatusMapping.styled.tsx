@@ -60,7 +60,7 @@ export const CustomBtn = styled(Button)`
   }
 `;
 
-export const TargetMappingTable = styled(Table)`
+export const StatusMappingTable = styled(Table)`
   margin-bottom: 30px;
   width: 100%;
   & th {

@@ -30,15 +30,19 @@ import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  ClearOutlined,
+  DeleteOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import MappingError from "../../../components/MappingError";
-import Container from "../../../components/Layout/Container";
-import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import { HeaderContainer } from "../../../shared/Nav.styled";
 import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
-import { setLoading } from "@/redux/enumerators/enumeratorsSlice";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
+import { properCase } from "../../../utils/helper";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 const { Option } = Select;
 
@@ -65,6 +69,7 @@ const TargetMapping = ({
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
+  const [originalMappingData, setOriginalMappingData] = useState<any>(null);
 
   const [loadingMappingConfig, setLoadingMappingConfig] =
     useState<boolean>(false);
@@ -339,7 +344,7 @@ const TargetMapping = ({
       title: "Supervisor Count",
       dataIndex: "supervisorCount",
       key: "supervisorCount",
-      width: 100,
+      width: 101,
     },
     {
       title: "Mapping Status",
@@ -713,6 +718,13 @@ const TargetMapping = ({
       key: "targetID",
       sorter: (a: any, b: any) => a.targetID - b.targetID,
       width: 100,
+      filters: [
+        ...new Set(mappingData?.map((target: any) => target.target_id)),
+      ].map((id) => ({
+        text: id,
+        value: id,
+      })),
+      onFilter: (value: any, record: any) => record.targetID === value,
     },
     ...(criteria.includes("Location") || criteria.includes("Manual")
       ? [
@@ -1133,6 +1145,7 @@ const TargetMapping = ({
         fetchTargetsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
+            setOriginalMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
             setLoadMappingDataError("");
           } else {
@@ -1192,6 +1205,9 @@ const TargetMapping = ({
     loadingMappingData ||
     mappingLoading ||
     isSideMenuLoading;
+
+  // State to force table refresh
+  const [tableKey, setTableKey] = useState(0);
 
   if (loading) {
     return <FullScreenLoader />;
@@ -1262,18 +1278,28 @@ const TargetMapping = ({
                 />
               ) : (
                 <div>
-                  <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
+                  <p>
+                    Review the mapping of Targets to Supervisors based on{" "}
+                    {criteria.join(" and ")}{" "}
+                    <Tooltip title="As per mapping criteria selected under module questionnaire">
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                    {" : "}
+                    <DescriptionLink link="https://docs.surveystream.idinsight.io/supervisor_mapping" />
+                  </p>
                   <MappingTable
                     columns={mappedPairsColumns}
                     dataSource={mappedPairsData}
                     scroll={{ x: "max-content" }}
                     pagination={false}
+                    bordered={true}
                   />
                   {unmappedTargets?.length > 0 && (
                     <>
-                      <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                        There is no mapping available for below listed Target,
-                        please map them manually:
+                      <p style={{ marginTop: "36px" }}>
+                        Targets with the following {criteria.join(" and ")}{" "}
+                        criteria couldn’t be mapped to a supervisor, please
+                        select alternative mapping values :
                       </p>
                       <MappingTable
                         columns={unmappedColumns}
@@ -1283,6 +1309,7 @@ const TargetMapping = ({
                           y: "calc(100vh - 380px)",
                         }}
                         pagination={false}
+                        bordered={true}
                       />
                     </>
                   )}
@@ -1362,6 +1389,18 @@ const TargetMapping = ({
                 Edit
               </CustomBtn>
             </div>
+            {mappingTableData?.length > 0 && (
+              <Button
+                onClick={() => {
+                  // Reset the mapping data to original state
+                  setMappingData([...originalMappingData]);
+                  // Force table reload by updating key
+                  setTableKey((prev) => prev + 1);
+                }}
+                icon={<ClearOutlined />}
+                style={{ marginLeft: 16 }}
+              />
+            )}
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />
@@ -1375,10 +1414,12 @@ const TargetMapping = ({
               ) : (
                 <div>
                   <MappingTable
+                    key={tableKey}
                     columns={targetsMappingColumns}
                     dataSource={mappingTableData}
                     rowSelection={rowSelection}
                     scroll={{ x: "max-content" }}
+                    bordered={true}
                     pagination={{
                       position: ["topRight"],
                       pageSize: tablePageSize,
