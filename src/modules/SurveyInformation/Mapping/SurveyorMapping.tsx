@@ -721,7 +721,6 @@ const SurveyorMapping = ({
       setLoadingMappingConfig(false);
     });
   };
-
   const surveyorsMappingColumns: any = [
     {
       title: "Surveyor ID",
@@ -731,7 +730,7 @@ const SurveyorMapping = ({
       width: 100,
       filters: [
         ...Array.from(
-          new Set(mappingData?.map((surveyor: any) => surveyor.surveyor_id))
+          new Set(mappingData?.map((surveyor: any) => surveyor.enumerator_id))
         ),
       ].map((id) => ({
         text: id,
@@ -748,7 +747,7 @@ const SurveyorMapping = ({
       width: 100,
       filters: [
         ...Array.from(
-          new Set(mappingData?.map((surveyor: any) => surveyor.surveyor_name))
+          new Set(mappingData?.map((surveyor: any) => surveyor.name))
         ),
       ].map((name) => ({
         text: name,
