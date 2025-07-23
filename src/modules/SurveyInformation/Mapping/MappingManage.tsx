@@ -17,7 +17,6 @@ import TargetMapping from "./TargetMapping";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
 import MappingError from "../../../components/MappingError";
-import { use } from "chai";
 
 function MappingManage() {
   const navigate = useNavigate();
@@ -112,37 +111,7 @@ function MappingManage() {
           {criteria.length > 0 ? (
             <>
               {!form_uid ? (
-                <>
-                  <HeaderContainer>
-                    <Title>
-                      {mapping_name === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </Title>
-                  </HeaderContainer>
-                  <div style={{ display: "flex" }}>
-                    <SideMenu />
-                    <MappingWrapper>
-                      <p>
-                        Map {mapping_name}s to supervisors based on{" "}
-                        <Tooltip title="As per mapping criteria selected under module questionnaire">
-                          <QuestionCircleOutlined />
-                        </Tooltip>{" "}
-                        :{" "}
-                        {
-                          // Display in tag format
-                          criteria.map((c) => (
-                            <Tag key={c}>{properCase(c)}</Tag>
-                          ))
-                        }
-                      </p>
-                      <Row style={{ marginTop: 12 }}>
-                        <CustomBtn onClick={handleFormUID}>Load</CustomBtn>
-                      </Row>
-                    </MappingWrapper>
-                  </div>
-                </>
+                <FullScreenLoader />
               ) : mapping_name === "surveyor" ? (
                 <SurveyorMapping
                   formUID={form_uid ?? ""}
