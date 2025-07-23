@@ -855,6 +855,23 @@ const SurveyorMapping = ({
         ]
       : []),
     {
+      title: "Mapping Status",
+      dataIndex: "mappingStatus",
+      key: "mappingStatus",
+      render: (status: any) => (
+        <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
+      ),
+      width: 100,
+      filters: [
+        { text: "Complete", value: "Complete" },
+        { text: "Pending", value: "Pending" },
+      ],
+      onFilter: (value: any, record: any) =>
+        record.mappingStatus.indexOf(value) === 0,
+      sorter: (a: any, b: any) =>
+        a.mappingStatus.localeCompare(b.mappingStatus),
+    },
+    {
       title: "Supervisor Email",
       dataIndex: "supervisorEmail",
       key: "supervisorEmail",
@@ -1004,6 +1021,8 @@ const SurveyorMapping = ({
         : surveyor?.location_name,
       surveyorLanguage: surveyor?.language,
       surveyorGender: surveyor?.gender,
+      mappingStatus:
+        surveyor.supervisor_email !== null ? "Complete" : "Pending",
       supervisorEmail:
         surveyor.supervisor_email !== null
           ? surveyor.supervisor_email
@@ -1402,7 +1421,10 @@ const SurveyorMapping = ({
                         dataSource={unmappedPairData}
                         scroll={{
                           x: "max-content",
-                          y: "calc(100vh - 380px)",
+                          y:
+                            unmappedPairData?.length > 5
+                              ? "calc(100vh - 400px)"
+                              : undefined,
                         }}
                         pagination={false}
                         bordered={true}
