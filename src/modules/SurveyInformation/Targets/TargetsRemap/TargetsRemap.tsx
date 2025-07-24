@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Button, Checkbox, Col, Row, Select, Form, message, Alert } from "antd";
-import { Title } from "../../../../shared/Nav.styled";
+import { Button, Checkbox, Select, Form, message } from "antd";
 import {
   DescriptionContainer,
   HeadingText,
@@ -27,7 +26,6 @@ import {
   setMappingErrorStatus,
   setMappingErrorCount,
 } from "../../../../redux/targets/targetSlice";
-import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { TargetMapping } from "../../../../redux/targets/types";
 import {
@@ -155,10 +153,12 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
         column_mapping.custom_fields = [];
+        const mappedValues = Object.values(column_mapping);
+
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
@@ -181,9 +181,7 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
         // Add custom fields where allow_null is not true
         ...(column_mapping.custom_fields || [])
-          .filter(
-            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
-          )
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
           .map((field: any) => field.column_name),
       ];
       // Validate CSV for empty columns (only for columnsToCheck)
@@ -344,10 +342,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     }
   };
 
-  const handleCheckboxChange = (name: any) => {
-    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -358,8 +356,13 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     //auto configure columns for users setting personal as non_batch and the rest as batch
     //use the column mapping to do this
 
-    const customConfig = Object.keys(column_mapping).map((key) => {
-      if (key !== null && key !== "" && key !== undefined) {
+    const customConfig = Object.keys(column_mapping).flatMap((key) => {
+      if (
+        key !== null &&
+        key !== "" &&
+        key !== undefined &&
+        column_mapping[key] !== undefined
+      ) {
         const personal = ["target_id"].includes(key);
         const custom = ["gender", "language"].includes(key);
 
@@ -368,28 +371,23 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           ["location_id_column"].includes(key);
 
         if (key === "custom_fields") {
-          //loop through the custom fields checking for pii
-          const customFields: any = column_mapping[key];
+          // Loop through the custom fields checking for PII
+          const customFields = column_mapping[key];
 
-          const fieldsConfig = Object.keys(customFields).map((customKey) => {
+          return Object.keys(customFields).map((customKey) => {
             const columnName = column_mapping[key][customKey]["column_name"];
 
             return {
               column_name: columnName,
               column_type: "custom_fields",
+              contains_pii: true,
               column_source: columnName,
+              allow_null_values: checkboxValues[columnName],
             };
           });
         }
 
         return {
-          bulk_editable: personal
-            ? false
-            : location
-            ? true
-            : custom
-            ? true
-            : true,
           column_name:
             key == "location_id_column" ? "bottom_geo_level_location" : key,
           column_type:
@@ -397,9 +395,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
               ? "basic_details"
               : location
               ? "location"
-              : "custom_field",
-          contains_pii: true, //TODO: fix
+              : "custom_fields",
+          contains_pii: true,
           column_source: column_mapping[key],
+          allow_null_values: false,
         };
       }
     });
@@ -411,7 +410,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         config !== undefined &&
         config.column_name !== `custom_fields`
     );
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
@@ -458,6 +456,16 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     });
 
     setExtraCSVHeader(extraHeaders);
+    // Set allow_null as checked (true) by default for new custom columns
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const fetchModuleQuestionnaire = async () => {
@@ -798,18 +806,15 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                     }}
                                   >
                                     <Checkbox
-                                      name={`${item}_allow_null`}
+                                      name={`${item}`}
                                       checked={
-                                        checkboxValues?.[`${item}_allow_null`]
-                                          ? checkboxValues?.[
-                                              `${item}_allow_null`
-                                            ]
-                                          : false
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
                                       }
                                       onChange={() =>
-                                        handleCheckboxChange(
-                                          `${item}_allow_null`
-                                        )
+                                        handleCheckboxChange(`${item}`)
                                       }
                                     >
                                       Allow null values?

@@ -108,10 +108,10 @@ function EnumeratorsMap() {
   );
 
   const [checkboxValues, setCheckboxValues] = useState<any>();
-  const handleCheckboxChange = (name: any) => {
-    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? !prevValues?.[name] : true,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -254,6 +254,7 @@ function EnumeratorsMap() {
       column_mapping.custom_fields = [];
       if (customHeaderSelection) {
         const mappedValues = Object.values(column_mapping);
+
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
@@ -284,9 +285,7 @@ function EnumeratorsMap() {
 
         // Add custom fields where allow_null is not true
         ...(column_mapping.custom_fields || [])
-          .filter(
-            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
-          )
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
           .map((field: any) => field.column_name),
       ];
 
@@ -340,16 +339,11 @@ function EnumeratorsMap() {
           if (mappingsRes?.payload?.errors || mappingsRes?.payload?.message) {
             const transformedErrors: CSVError[] = [];
 
-            console.log("mappingsRes.payload", mappingsRes.payload);
-
             const errorList = mappingsRes.payload.errors
               ? mappingsRes.payload.errors
               : mappingsRes?.payload?.message;
 
-            console.log("errorList", errorList);
-
             for (const errorKey in errorList) {
-              console.log("errorKey", errorKey);
               let errorObj = errorList[errorKey];
 
               if (errorKey === "record_errors") {
@@ -419,22 +413,34 @@ function EnumeratorsMap() {
             ...column_mapping,
             ...column_mapping.custom_fields,
           };
+
           delete flattenedColumnMapping.custom_fields;
 
           const customConfig = Object.keys(flattenedColumnMapping).map(
-            (key) => {
+            (key: any) => {
               if (key && flattenedColumnMapping[key] !== undefined) {
                 const personal = personalBatchField.includes(key);
                 const location = locationBatchField.includes(key);
                 const bulkEditable = bulkEditableFields.includes(key);
+
+                let columnName = key;
+                if (!(personal || location || bulkEditable)) {
+                  columnName = flattenedColumnMapping[key]["column_name"];
+                }
+
                 return {
                   bulk_editable: bulkEditable ? true : location ? true : false,
-                  column_name: key,
+                  column_name: columnName,
                   column_type: personal
                     ? "personal_details"
                     : location
                     ? "location"
                     : "custom_fields",
+                  allow_null_values: personal
+                    ? false
+                    : location
+                    ? false
+                    : checkboxValues[columnName],
                 };
               }
             }
@@ -492,6 +498,16 @@ function EnumeratorsMap() {
     });
 
     setExtraCSVHeader(extraHeaders);
+
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -709,20 +725,33 @@ function EnumeratorsMap() {
                               >
                                 Ignore
                               </Button>
-                              <Checkbox
-                                style={{ marginLeft: 10 }}
-                                name={`${item}_allow_null`}
-                                checked={
-                                  checkboxValues?.[`${item}_allow_null`]
-                                    ? checkboxValues?.[`${item}_allow_null`]
-                                    : false
-                                }
-                                onChange={() =>
-                                  handleCheckboxChange(`${item}_allow_null`)
-                                }
-                              >
-                                Accept null values
-                              </Checkbox>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}`}
+                                      checked={
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}`)
+                                      }
+                                    >
+                                      Allow Null Values
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
                             </Form.Item>
                           );
                         })}

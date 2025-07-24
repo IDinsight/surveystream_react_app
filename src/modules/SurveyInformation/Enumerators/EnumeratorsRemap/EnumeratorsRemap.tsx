@@ -12,7 +12,10 @@ import { Title } from "../../../../shared/Nav.styled";
 import { CustomBtn, DescriptionText } from "../../../../shared/Global.styled";
 import { RootState } from "../../../../redux/store";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
-import { postEnumeratorsMapping } from "../../../../redux/enumerators/enumeratorsActions";
+import {
+  postEnumeratorsMapping,
+  updateEnumeratorColumnConfig,
+} from "../../../../redux/enumerators/enumeratorsActions";
 import { EnumeratorMapping } from "../../../../redux/enumerators/types";
 import {
   CloseOutlined,
@@ -113,10 +116,10 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
   );
 
   const [checkboxValues, setCheckboxValues] = useState<any>();
-  const handleCheckboxChange = (name: any) => {
-    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? !prevValues?.[name] : true,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -181,6 +184,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     "mobile_primary",
     "home_address",
   ];
+  const bulkEditableFields = ["language", "gender", "enumerator_type"];
 
   const csvHeaderOptions = csvHeaders.map((item) => {
     return { label: item, value: item };
@@ -238,6 +242,16 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     });
 
     setExtraCSVHeader(extraHeaders);
+
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const handleEnumeratorUploadMapping = async () => {
@@ -278,9 +292,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
 
         // Add custom fields where allow_null is not true
         ...(column_mapping.custom_fields || [])
-          .filter(
-            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
-          )
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
           .map((field: any) => field.column_name),
       ];
 
@@ -401,9 +413,56 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         if (mappingsRes.payload.success) {
           message.success("Enumerators uploaded and mapped successfully.");
 
-          //auto configure columns for users setting personal as non_batch and the rest as batch
-          //use the column mapping to do this
-          //TODO: add column config here if needed on merge
+          const flattenedColumnMapping = {
+            ...column_mapping,
+            ...column_mapping.custom_fields,
+          };
+
+          delete flattenedColumnMapping.custom_fields;
+
+          const customConfig = Object.keys(flattenedColumnMapping).map(
+            (key: any) => {
+              if (key && flattenedColumnMapping[key] !== undefined) {
+                const personal = personalBatchField.includes(key);
+                const location = locationBatchField.includes(key);
+                const bulkEditable = bulkEditableFields.includes(key);
+
+                let columnName = key;
+                if (!(personal || location || bulkEditable)) {
+                  columnName = flattenedColumnMapping[key]["column_name"];
+                }
+
+                return {
+                  bulk_editable: bulkEditable ? true : location ? true : false,
+                  column_name: columnName,
+                  column_type: personal
+                    ? "personal_details"
+                    : location
+                    ? "location"
+                    : "custom_fields",
+                  allow_null_values: personal
+                    ? false
+                    : location
+                    ? false
+                    : checkboxValues[columnName],
+                };
+              }
+            }
+          );
+
+          const filteredCustomConfig = customConfig.filter(
+            (config: any) =>
+              config != null &&
+              config !== undefined &&
+              config.column_name !== `custom_fields`
+          );
+
+          dispatch(
+            updateEnumeratorColumnConfig({
+              formUID: form_uid,
+              columnConfig: filteredCustomConfig,
+            })
+          );
 
           dispatch(setMappingErrorStatus(false));
 
@@ -718,20 +777,33 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                               >
                                 Ignore
                               </Button>
-                              <Checkbox
-                                style={{ marginLeft: 10 }}
-                                name={`${item}_allow_null`}
-                                checked={
-                                  checkboxValues?.[`${item}_allow_null`]
-                                    ? checkboxValues?.[`${item}_allow_null`]
-                                    : false
-                                }
-                                onChange={() =>
-                                  handleCheckboxChange(`${item}_allow_null`)
-                                }
-                              >
-                                Accept null values
-                              </Checkbox>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}`}
+                                      checked={
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}`)
+                                      }
+                                    >
+                                      Allow Null Values
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
                             </Form.Item>
                           );
                         })}

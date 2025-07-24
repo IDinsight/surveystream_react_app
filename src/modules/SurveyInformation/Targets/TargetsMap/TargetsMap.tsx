@@ -9,7 +9,6 @@ import {
   DescriptionText,
   TargetsMapFormWrapper,
   HeadingText,
-  OptionText,
 } from "./TargetsMap.styled";
 import {
   CloudDownloadOutlined,
@@ -41,7 +40,6 @@ import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import ErrorWarningTable from "../../../../components/ErrorWarningTable";
 import { validateCSVData } from "../../../../utils/csvValidator";
-import { set } from "lodash";
 
 interface CSVError {
   type: string;
@@ -70,7 +68,7 @@ function TargetsMap() {
   const [warningList, setWarningList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
-  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const [checkboxValues, setCheckboxValues] = useState<any>({});
   const [extraCSVHeader, setExtraCSVHeader] = useState<any>();
 
   const [mandatoryDetailsField, setMandatoryDetailsField] = useState<any>([
@@ -139,10 +137,11 @@ function TargetsMap() {
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
         column_mapping.custom_fields = [];
+        const mappedValues = Object.values(column_mapping);
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
@@ -165,9 +164,7 @@ function TargetsMap() {
 
         // Add custom fields where allow_null is not true
         ...(column_mapping.custom_fields || [])
-          .filter(
-            (field: any) => !checkboxValues?.[`${field.column_name}_allow_null`]
-          )
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
           .map((field: any) => field.column_name),
       ];
       // Validate CSV for empty columns (only for columnsToCheck)
@@ -326,7 +323,7 @@ function TargetsMap() {
   const handleCheckboxChange = (name: string) => {
     setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: !prevValues?.[name],
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -358,7 +355,9 @@ function TargetsMap() {
             return {
               column_name: columnName,
               column_type: "custom_fields",
+              contains_pii: true,
               column_source: columnName,
+              allow_null_values: checkboxValues[columnName],
             };
           });
         }
@@ -372,7 +371,9 @@ function TargetsMap() {
               : location
               ? "location"
               : "custom_fields",
+          contains_pii: true,
           column_source: column_mapping[key],
+          allow_null_values: false,
         };
       }
     });
@@ -383,7 +384,6 @@ function TargetsMap() {
         config !== undefined &&
         config.column_name !== `custom_fields`
     );
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
@@ -446,14 +446,21 @@ function TargetsMap() {
 
   const updateCustomColumns = (value: string) => {
     const formValues = targetMappingForm.getFieldsValue();
-
     const valuesArray = Object.values(formValues);
-
     const extraHeaders = csvHeaders.filter((item: any) => {
       return !valuesArray.includes(item);
     });
-
     setExtraCSVHeader(extraHeaders);
+    // Set allow_null as checked (true) by default for new custom columns
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const handleFormUID = async () => {
@@ -737,18 +744,15 @@ function TargetsMap() {
                                     }}
                                   >
                                     <Checkbox
-                                      name={`${item}_allow_null`}
+                                      name={`${item}`}
                                       checked={
-                                        checkboxValues?.[`${item}_allow_null`]
-                                          ? checkboxValues?.[
-                                              `${item}_allow_null`
-                                            ]
-                                          : false
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
                                       }
                                       onChange={() =>
-                                        handleCheckboxChange(
-                                          `${item}_allow_null`
-                                        )
+                                        handleCheckboxChange(`${item}`)
                                       }
                                     >
                                       Allow Null Values
