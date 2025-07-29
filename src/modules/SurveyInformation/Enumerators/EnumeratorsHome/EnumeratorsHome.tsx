@@ -139,7 +139,6 @@ function EnumeratorsHome() {
     // Pre-filter fields
     const fieldsToExclude = [
       "status",
-      "custom_fields",
       "enumerator_uid",
       "monitor_locations",
       "surveyor_locations",
@@ -149,10 +148,29 @@ function EnumeratorsHome() {
 
     const filteredFields = Object.keys({ ...selectedRows[0] })
       .filter((field) => !fieldsToExclude.includes(field))
-      .map((field) => ({
-        labelKey: field,
-        label: field,
-      }));
+      .flatMap((field) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            const customFields = selectedRows[0][field];
+            return Object.keys(customFields)
+              .filter((key) => key !== "column_mapping")
+              .map((key) => ({
+                labelKey: key,
+                label: `custom_fields.${key}`,
+              }));
+          }
+          return [];
+        }
+        return [
+          {
+            labelKey: field,
+            label: field,
+          },
+        ];
+      });
 
     // Add location only if surveyor_locations exist
     if (hasSurveyorLocations) {

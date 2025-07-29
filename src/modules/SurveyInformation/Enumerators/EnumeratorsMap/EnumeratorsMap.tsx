@@ -436,11 +436,14 @@ function EnumeratorsMap() {
                     : location
                     ? "location"
                     : "custom_fields",
-                  allow_null_values: personal
-                    ? false
-                    : location
-                    ? false
-                    : checkboxValues[columnName],
+                  allow_null_values:
+                    key === "home_address"
+                      ? true
+                      : personal
+                      ? false
+                      : location
+                      ? false
+                      : checkboxValues[columnName],
                 };
               }
             }
