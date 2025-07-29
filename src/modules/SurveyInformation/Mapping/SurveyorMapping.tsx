@@ -44,6 +44,7 @@ import { MappingWrapper } from "./Mapping.styled";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 import { properCase } from "../../../utils/helper";
 import DescriptionLink from "../../../components/DescriptionLink";
+import { DescriptionText } from "../SurveyInformation.styled";
 
 const { Option } = Select;
 
@@ -108,74 +109,85 @@ const SurveyorMapping = ({
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
-            width: 100,
+            title: "Location",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorLocation",
+                key: "surveyorLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
-            width: 100,
+            title: "Language",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorLanguage",
+                key: "surveyorLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
-            width: 100,
+            title: "Gender",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorGender",
+                key: "surveyorGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
     {
-      title: "Surveyor Count",
-      dataIndex: "surveyorCount",
-      key: "surveyorCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 100,
+      title: "Count",
+      children: [
+        {
+          title: "Surveyor",
+          dataIndex: "surveyorCount",
+          key: "surveyorCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 100,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -219,133 +231,146 @@ const SurveyorMapping = ({
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Surveyor Count",
-      dataIndex: "surveyorCount",
-      key: "surveyorCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select location"
-                onChange={(value) =>
-                  handleMappingConfigChange("Location", value, record)
-                }
-              >
-                {[
-                  ...new Map(
-                    userLocations?.map((item: any) => [
-                      item.location_uid,
-                      {
-                        location_uid: item.location_uid,
-                        location_name: item.location_name,
-                      },
-                    ])
-                  ).values(),
-                ]?.map((location: any) => (
-                  <Option
-                    key={location.location_uid}
-                    value={location.location_uid}
+            title: "Location",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorLocation",
+                key: "surveyorLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select location"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Location", value, record)
+                    }
                   >
-                    {location.location_name}
-                  </Option>
-                ))}
-              </Select>
-            ),
+                    {[
+                      ...new Map(
+                        userLocations?.map((item: any) => [
+                          item.location_uid,
+                          {
+                            location_uid: item.location_uid,
+                            location_name: item.location_name,
+                          },
+                        ])
+                      ).values(),
+                    ]?.map((location: any) => (
+                      <Option
+                        key={location.location_uid}
+                        value={location.location_uid}
+                      >
+                        {location.location_name}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select language"
-                onChange={(value) =>
-                  handleMappingConfigChange("Language", value, record)
-                }
-              >
-                {[
-                  ...new Set(userLanguages?.map((item: any) => item.language)),
-                ]?.map((lang: any) => (
-                  <Option key={lang} value={lang}>
-                    {lang}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Language",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorLanguage",
+                key: "surveyorLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select language"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Language", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(
+                        userLanguages?.map((item: any) => item.language)
+                      ),
+                    ]?.map((lang: any) => (
+                      <Option key={lang} value={lang}>
+                        {lang}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select gender"
-                onChange={(value) =>
-                  handleMappingConfigChange("Gender", value, record)
-                }
-              >
-                {[
-                  ...new Set(userGenders?.map((item: any) => item.gender)),
-                ]?.map((gender: any) => (
-                  <Option key={gender} value={gender}>
-                    {gender}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Gender",
+            children: [
+              {
+                title: "Surveyor",
+                dataIndex: "surveyorGender",
+                key: "surveyorGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select gender"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Gender", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(userGenders?.map((item: any) => item.gender)),
+                    ]?.map((gender: any) => (
+                      <Option key={gender} value={gender}>
+                        {gender}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
     {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 100,
+      title: "Count",
+      children: [
+        {
+          title: "Surveyor",
+          dataIndex: "surveyorCount",
+          key: "surveyorCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 101,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -1032,24 +1057,21 @@ const SurveyorMapping = ({
           ? surveyor.supervisor_name
           : "Not mapped",
       supervisorUID: surveyor.supervisor_uid,
-      supervisorLocation: Array.isArray(
-        surveyor.supervisor_mapping_criteria_values.criteria
-      )
-        ? surveyor.supervisor_mapping_criteria_values.criteria
-            .map((loc: any) => loc.Location)
-            .join(", ")
-        : surveyor.supervisor_mapping_criteria_values.other?.location_name,
+      supervisorLocation: surveyor.surveyor_mapping_criteria_values
+        .map((item: any) => item.other?.location_name)
+        .filter((name: any) => !!name)
+        .join(", "),
       supervisorLocationUID: Array.isArray(
         surveyor.supervisor_mapping_criteria_values.criteria
       )
-        ? surveyor.supervisor_mapping_criteria_values.criteria.map(
-            (loc: any) => loc.Location
-          )
+        ? surveyor.supervisor_mapping_criteria_values.criteria[0]?.Location
         : surveyor.supervisor_mapping_criteria_values.criteria?.Location,
-      supervisorLanguage:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Language,
-      supervisorGender:
-        surveyor.supervisor_mapping_criteria_values.criteria?.Gender,
+      supervisorLanguage: surveyor.surveyor_mapping_criteria_values
+        .map((item: any) => item.criteria?.Language)
+        .filter((name: any) => !!name)[0],
+      supervisorGender: surveyor.surveyor_mapping_criteria_values
+        .map((item: any) => item.criteria?.Gender)
+        .filter((name: any) => !!name)[0],
     };
   });
 
@@ -1391,15 +1413,15 @@ const SurveyorMapping = ({
                 />
               ) : (
                 <div>
-                  <p>
+                  <DescriptionText>
                     Review the mapping of Surveyors to Supervisors based on{" "}
                     {criteria.join(" and ")}{" "}
                     <Tooltip title="As per mapping criteria selected under module questionnaire">
                       <QuestionCircleOutlined />
                     </Tooltip>
-                    {" : "}
+                    {" . "}
                     <DescriptionLink link="https://docs.surveystream.idinsight.io/supervisor_mapping" />
-                  </p>
+                  </DescriptionText>
                   <div>
                     <MappingTable
                       columns={mappedPairsColumns}
@@ -1411,11 +1433,11 @@ const SurveyorMapping = ({
                   </div>
                   {unmappedSurveyors?.length > 0 && (
                     <>
-                      <p style={{ marginTop: "36px" }}>
+                      <DescriptionText style={{ marginTop: "36px" }}>
                         Surveyors with the following {criteria.join(" and ")}{" "}
                         criteria couldn’t be mapped to a supervisor, please
-                        select alternative mapping values :
-                      </p>
+                        select alternative mapping values.
+                      </DescriptionText>
                       <MappingTable
                         columns={unmappedColumns}
                         dataSource={unmappedPairData}
@@ -1479,7 +1501,6 @@ const SurveyorMapping = ({
                       Mapping
                     </>
                   ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
                 },
                 {
                   title: "Configuration",

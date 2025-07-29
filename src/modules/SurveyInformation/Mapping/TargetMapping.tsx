@@ -43,6 +43,7 @@ import { MappingWrapper } from "./Mapping.styled";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
 import { properCase } from "../../../utils/helper";
 import DescriptionLink from "../../../components/DescriptionLink";
+import { DescriptionText } from "../SurveyInformation.styled";
 
 const { Option } = Select;
 
@@ -101,80 +102,93 @@ const TargetMapping = ({
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
-
   // Columns for mapped Pairs Table
   const mappedPairsColumns = [
+    // Location group
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            width: 100,
+            title: "Location",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
+    // Language group
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            width: 100,
+            title: "Language",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
+    // Gender group
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            width: 100,
+            title: "Gender",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+    // Count group
     {
-      title: "Target Count",
-      dataIndex: "targetCount",
-      key: "targetCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 100,
+      title: "Count",
+      children: [
+        {
+          title: "Target",
+          dataIndex: "targetCount",
+          key: "targetCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 100,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -193,7 +207,6 @@ const TargetMapping = ({
       ),
       key: "action",
       render: (_: any, record: any) =>
-        // show delete icon if the mapping columns don't match
         record.targetLocation !== record.supervisorLocation ||
         record.targetLanguage !== record.supervisorLanguage ||
         record.targetGender !== record.supervisorGender ? (
@@ -215,136 +228,151 @@ const TargetMapping = ({
 
   // Columns for Unmapped Pairs Table
   const unmappedColumns = [
+    // Location group
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Target Count",
-      dataIndex: "targetCount",
-      key: "targetCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select location"
-                onChange={(value) =>
-                  handleMappingConfigChange("Location", value, record)
-                }
-              >
-                {[
-                  ...new Map(
-                    userLocations?.map((item: any) => [
-                      item.location_uid,
-                      {
-                        location_uid: item.location_uid,
-                        location_name: item.location_name,
-                      },
-                    ])
-                  ).values(),
-                ]?.map((location: any) => (
-                  <Option
-                    key={location.location_uid}
-                    value={location.location_uid}
+            title: "Location",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select location"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Location", value, record)
+                    }
                   >
-                    {location.location_name}
-                  </Option>
-                ))}
-              </Select>
-            ),
+                    {[
+                      ...new Map(
+                        userLocations?.map((item: any) => [
+                          item.location_uid,
+                          {
+                            location_uid: item.location_uid,
+                            location_name: item.location_name,
+                          },
+                        ])
+                      ).values(),
+                    ]?.map((location: any) => (
+                      <Option
+                        key={location.location_uid}
+                        value={location.location_uid}
+                      >
+                        {location.location_name}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
+    // Language group
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select language"
-                onChange={(value) =>
-                  handleMappingConfigChange("Language", value, record)
-                }
-              >
-                {[
-                  ...new Set(userLanguages?.map((item: any) => item.language)),
-                ]?.map((lang: any) => (
-                  <Option key={lang} value={lang}>
-                    {lang}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Language",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select language"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Language", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(
+                        userLanguages?.map((item: any) => item.language)
+                      ),
+                    ]?.map((lang: any) => (
+                      <Option key={lang} value={lang}>
+                        {lang}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
+    // Gender group
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select gender"
-                onChange={(value) =>
-                  handleMappingConfigChange("Gender", value, record)
-                }
-              >
-                {[
-                  ...new Set(userGenders?.map((item: any) => item.gender)),
-                ]?.map((gender: any) => (
-                  <Option key={gender} value={gender}>
-                    {gender}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Gender",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select gender"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Gender", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(userGenders?.map((item: any) => item.gender)),
+                    ]?.map((gender: any) => (
+                      <Option key={gender} value={gender}>
+                        {gender}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
     {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 101,
+      title: "Count",
+      children: [
+        {
+          title: "Target",
+          dataIndex: "targetCount",
+          key: "targetCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 101,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -1249,7 +1277,6 @@ const TargetMapping = ({
                       Mapping
                     </>
                   ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
                 },
                 {
                   title: "Configuration",
@@ -1296,15 +1323,15 @@ const TargetMapping = ({
                 />
               ) : (
                 <div>
-                  <p>
+                  <DescriptionText>
                     Review the mapping of Targets to Supervisors based on{" "}
                     {criteria.join(" and ")}{" "}
                     <Tooltip title="As per mapping criteria selected under module questionnaire">
                       <QuestionCircleOutlined />
                     </Tooltip>
-                    {" : "}
+                    {" . "}
                     <DescriptionLink link="https://docs.surveystream.idinsight.io/supervisor_mapping" />
-                  </p>
+                  </DescriptionText>
                   <MappingTable
                     columns={mappedPairsColumns}
                     dataSource={mappedPairsData}
@@ -1314,11 +1341,11 @@ const TargetMapping = ({
                   />
                   {unmappedTargets?.length > 0 && (
                     <>
-                      <p style={{ marginTop: "36px" }}>
+                      <DescriptionText style={{ marginTop: "36px" }}>
                         Targets with the following {criteria.join(" and ")}{" "}
                         criteria couldn’t be mapped to a supervisor, please
-                        select alternative mapping values :
-                      </p>
+                        select alternative mapping values.
+                      </DescriptionText>
                       <MappingTable
                         columns={unmappedColumns}
                         dataSource={unmappedPairData}
@@ -1382,7 +1409,6 @@ const TargetMapping = ({
                       Mapping
                     </>
                   ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
                 },
                 {
                   title: "Configuration",
