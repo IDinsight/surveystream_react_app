@@ -741,96 +741,106 @@ const TargetMapping = ({
 
   const targetsMappingColumns: any = [
     {
-      title: "Target ID",
-      dataIndex: "targetID",
-      key: "targetID",
-      sorter: (a: any, b: any) => a.targetID - b.targetID,
-      width: 100,
-      filters: [
-        ...new Set(mappingData?.map((target: any) => target.target_id)),
-      ].map((id) => ({
-        text: id,
-        value: id,
-      })),
-      onFilter: (value: any, record: any) => record.targetID === value,
+      title: "Target",
+      children: [
+        {
+          title: "ID",
+          dataIndex: "targetID",
+          key: "targetID",
+          sorter: (a: any, b: any) => a.targetID - b.targetID,
+          width: 100,
+          filters: [
+            ...new Set(mappingData?.map((target: any) => target.target_id)),
+          ].map((id) => ({
+            text: id,
+            value: id,
+          })),
+          onFilter: (value: any, record: any) => record.targetID === value,
+        },
+        ...(criteria.includes("Location") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Location ID",
+                dataIndex: "targetLocationID",
+                key: "targetLocationID",
+                sorter: (a: any, b: any) =>
+                  a.targetLocationID - b.targetLocationID,
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target.location_id)
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLocationID === value,
+                width: 150,
+              },
+              {
+                title: "Location",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                sorter: (a: any, b: any) =>
+                  a.targetLocation.localeCompare(b.targetLocation),
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target.location_name)
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLocation.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                sorter: (a: any, b: any) =>
+                  a.targetLanguage.localeCompare(b.targetLanguage),
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target?.language)
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLanguage.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                sorter: (a: any, b: any) =>
+                  a.targetGender.localeCompare(b.targetGender),
+                filters: [
+                  ...new Set(mappingData?.map((target: any) => target?.gender)),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetGender.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
     },
-    ...(criteria.includes("Location") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Location ID",
-            dataIndex: "targetLocationID",
-            key: "targetLocationID",
-            sorter: (a: any, b: any) => a.targetLocationID - b.targetLocationID,
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target.location_id)),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLocationID === value,
-            width: 150,
-          },
-          {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            sorter: (a: any, b: any) =>
-              a.targetLocation.localeCompare(b.targetLocation),
-            filters: [
-              ...new Set(
-                mappingData?.map((target: any) => target.location_name)
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLocation.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            sorter: (a: any, b: any) =>
-              a.targetLanguage.localeCompare(b.targetLanguage),
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target?.language)),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLanguage.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            sorter: (a: any, b: any) =>
-              a.targetGender.localeCompare(b.targetGender),
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target?.gender)),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetGender.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
     {
       title: "Mapping Status",
       dataIndex: "mappingStatus",
@@ -849,125 +859,132 @@ const TargetMapping = ({
         a.mappingStatus.localeCompare(b.mappingStatus),
     },
     {
-      title: "Supervisor Email",
-      dataIndex: "supervisorEmail",
-      key: "supervisorEmail",
-      filters: [
-        ...new Set(
-          mappingData?.map((target: any) =>
-            target.supervisor_email !== null
-              ? target.supervisor_email
-              : "Not mapped"
-          )
-        ),
-      ].map((email) => ({
-        text: email,
-        value: email,
-      })),
-      onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorEmail?.indexOf(value) === 0,
-      width: 100,
+      title: "Supervisor",
+      children: [
+        {
+          title: "Email",
+          dataIndex: "supervisorEmail",
+          key: "supervisorEmail",
+          filters: [
+            ...new Set(
+              mappingData?.map((target: any) =>
+                target.supervisor_email !== null
+                  ? target.supervisor_email
+                  : "Not mapped"
+              )
+            ),
+          ].map((email) => ({
+            text: email,
+            value: email,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorEmail?.indexOf(value) === 0,
+          width: 100,
+        },
+        {
+          title: "Name",
+          dataIndex: "supervisorName",
+          key: "supervisorName",
+          sorter: (a: any, b: any) =>
+            a.supervisorName.localeCompare(b.supervisorName),
+          filters: [
+            ...new Set(
+              mappingData?.map((target: any) =>
+                target.supervisor_name !== null
+                  ? target.supervisor_name
+                  : "Not mapped"
+              )
+            ),
+          ].map((name) => ({
+            text: name,
+            value: name,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorName?.indexOf(value) === 0,
+          width: 100,
+        },
+        ...(criteria.includes("Location") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Location",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLocation.localeCompare(b.supervisorLocation),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values?.other
+                          ?.location_name
+                    )
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLocation?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLanguage.localeCompare(b.supervisorLanguage),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values.criteria
+                          ?.Language
+                    )
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLanguage?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                sorter: (a: any, b: any) =>
+                  a.supervisorGender.localeCompare(b.supervisorGender),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values.criteria
+                          ?.Gender
+                    )
+                  ),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorGender?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
     },
-    {
-      title: "Supervisor Name",
-      dataIndex: "supervisorName",
-      key: "supervisorName",
-      sorter: (a: any, b: any) =>
-        a.supervisorName.localeCompare(b.supervisorName),
-      filters: [
-        ...new Set(
-          mappingData?.map((target: any) =>
-            target.supervisor_name !== null
-              ? target.supervisor_name
-              : "Not mapped"
-          )
-        ),
-      ].map((name) => ({
-        text: name,
-        value: name,
-      })),
-      onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorName?.indexOf(value) === 0,
-      width: 100,
-    },
-    ...(criteria.includes("Location") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            sorter: (a: any, b: any) =>
-              a.supervisorLocation.localeCompare(b.supervisorLocation),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values?.other
-                      ?.location_name
-                )
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLocation?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            sorter: (a: any, b: any) =>
-              a.supervisorLanguage.localeCompare(b.supervisorLanguage),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values.criteria?.Language
-                )
-              ),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLanguage?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            sorter: (a: any, b: any) =>
-              a.supervisorGender.localeCompare(b.supervisorGender),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values.criteria?.Gender
-                )
-              ),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorGender?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
   ];
 
   const mappingTableData = mappingData?.map((target: any) => {
@@ -1269,17 +1286,7 @@ const TargetMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                },
-                {
-                  title: "Configuration",
+                  title: "Targets <> Supervisors Mapping Configuration",
                 },
               ]}
             />
@@ -1401,17 +1408,7 @@ const TargetMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                },
-                {
-                  title: "Configuration",
+                  title: "Targets <> Supervisors Mapping Configuration",
                   href: `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=1`,
                 },
                 {

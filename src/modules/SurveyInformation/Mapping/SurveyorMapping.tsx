@@ -748,137 +748,149 @@ const SurveyorMapping = ({
   };
   const surveyorsMappingColumns: any = [
     {
-      title: "Surveyor ID",
-      dataIndex: "surveyorID",
-      key: "surveyorID",
-      sorter: (a: any, b: any) => a.surveyorID.localeCompare(b.surveyorID),
-      width: 100,
-      filters: [
-        ...Array.from(
-          new Set(mappingData?.map((surveyor: any) => surveyor.enumerator_id))
-        ),
-      ].map((id) => ({
-        text: id,
-        value: id,
-      })),
-      onFilter: (value: any, record: { surveyorID: string }) =>
-        record.surveyorID.indexOf(value) === 0,
+      title: "Surveyor",
+      children: [
+        {
+          title: "ID",
+          dataIndex: "surveyorID",
+          key: "surveyorID",
+          sorter: (a: any, b: any) => a.surveyorID.localeCompare(b.surveyorID),
+          width: 100,
+          filters: [
+            ...Array.from(
+              new Set(
+                mappingData?.map((surveyor: any) => surveyor.enumerator_id)
+              )
+            ),
+          ].map((id) => ({
+            text: id,
+            value: id,
+          })),
+          onFilter: (value: any, record: { surveyorID: string }) =>
+            record.surveyorID.indexOf(value) === 0,
+        },
+        {
+          title: "Name",
+          dataIndex: "surveyorName",
+          key: "surveyorName",
+          sorter: (a: any, b: any) =>
+            a.surveyorName.localeCompare(b.surveyorName),
+          width: 100,
+          filters: [
+            ...Array.from(
+              new Set(mappingData?.map((surveyor: any) => surveyor.name))
+            ),
+          ].map((name) => ({
+            text: name,
+            value: name,
+          })),
+          onFilter: (value: any, record: { surveyorName: string }) =>
+            record.surveyorName.indexOf(value) === 0,
+        },
+        ...(criteria.includes("Location") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Location ID",
+                dataIndex: "surveyorLocationID",
+                key: "surveyorLocationID",
+                sorter: (a: any, b: any) =>
+                  a.surveyorLocationID.localeCompare(b.surveyorLocationID),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: any) => surveyor.location_id?.[0]
+                      )
+                    )
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (
+                  value: any,
+                  record: { surveyorLocationID: string }
+                ) => record.surveyorLocationID.indexOf(value) === 0,
+                width: 150,
+              },
+              {
+                title: "Location",
+                dataIndex: "surveyorLocation",
+                key: "surveyorLocation",
+                sorter: (a: any, b: any) =>
+                  a.surveyorLocation.localeCompare(b.surveyorLocation),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: any) => surveyor.location_name?.[0]
+                      )
+                    )
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: { surveyorLocation: string }) =>
+                  record.surveyorLocation.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "surveyorLanguage",
+                key: "surveyorLanguage",
+                sorter: (a: any, b: any) =>
+                  a.surveyorLanguage.localeCompare(b.surveyorLanguage),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: { language: string }) => surveyor.language
+                      )
+                    )
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: { surveyorLanguage: string }) =>
+                  record.surveyorLanguage.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "surveyorGender",
+                key: "surveyorGender",
+                sorter: (a: any, b: any) =>
+                  a.surveyorGender.localeCompare(b.surveyorGender),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: { gender: string }) => surveyor.gender
+                      )
+                    )
+                  ),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: { surveyorGender: string }) =>
+                  record.surveyorGender.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
     },
-    {
-      title: "Surveyor Name",
-      dataIndex: "surveyorName",
-      key: "surveyorName",
-      sorter: (a: any, b: any) => a.surveyorName.localeCompare(b.surveyorName),
-      width: 100,
-      filters: [
-        ...Array.from(
-          new Set(mappingData?.map((surveyor: any) => surveyor.name))
-        ),
-      ].map((name) => ({
-        text: name,
-        value: name,
-      })),
-      onFilter: (value: any, record: { surveyorName: string }) =>
-        record.surveyorName.indexOf(value) === 0,
-    },
-    ...(criteria.includes("Location") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Surveyor Location ID",
-            dataIndex: "surveyorLocationID",
-            key: "surveyorLocationID",
-            sorter: (a: any, b: any) =>
-              a.surveyorLocationID.localeCompare(b.surveyorLocationID),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map((surveyor: any) => surveyor.location_id?.[0])
-                )
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: { surveyorLocationID: string }) =>
-              record.surveyorLocationID.indexOf(value) === 0,
-            width: 150,
-          },
-          {
-            title: "Surveyor Location",
-            dataIndex: "surveyorLocation",
-            key: "surveyorLocation",
-            sorter: (a: any, b: any) =>
-              a.surveyorLocation.localeCompare(b.surveyorLocation),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: any) => surveyor.location_name?.[0]
-                  )
-                )
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: { surveyorLocation: string }) =>
-              record.surveyorLocation.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Surveyor Language",
-            dataIndex: "surveyorLanguage",
-            key: "surveyorLanguage",
-            sorter: (a: any, b: any) =>
-              a.surveyorLanguage.localeCompare(b.surveyorLanguage),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: { language: string }) => surveyor.language
-                  )
-                )
-              ),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: { surveyorLanguage: string }) =>
-              record.surveyorLanguage.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Surveyor Gender",
-            dataIndex: "surveyorGender",
-            key: "surveyorGender",
-            sorter: (a: any, b: any) =>
-              a.surveyorGender.localeCompare(b.surveyorGender),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: { gender: string }) => surveyor.gender
-                  )
-                )
-              ),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: { surveyorGender: string }) =>
-              record.surveyorGender.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
     {
       title: "Mapping Status",
       dataIndex: "mappingStatus",
@@ -897,139 +909,144 @@ const SurveyorMapping = ({
         a.mappingStatus.localeCompare(b.mappingStatus),
     },
     {
-      title: "Supervisor Email",
-      dataIndex: "supervisorEmail",
-      key: "supervisorEmail",
-      sorter: (a: any, b: any) =>
-        a.supervisorEmail.localeCompare(b.supervisorEmail),
-      filters: [
-        ...Array.from(
-          new Set(
-            mappingData?.map((surveyor: { supervisor_email: string }) =>
-              surveyor.supervisor_email !== null
-                ? surveyor.supervisor_email
-                : "Not mapped"
-            )
-          )
-        ),
-      ].map((email) => ({
-        text: email,
-        value: email,
-      })),
-      onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorEmail?.indexOf(value) === 0,
-      width: 100,
+      title: "Supervisor",
+      children: [
+        {
+          title: "Email",
+          dataIndex: "supervisorEmail",
+          key: "supervisorEmail",
+          sorter: (a: any, b: any) =>
+            a.supervisorEmail.localeCompare(b.supervisorEmail),
+          filters: [
+            ...Array.from(
+              new Set(
+                mappingData?.map((surveyor: { supervisor_email: string }) =>
+                  surveyor.supervisor_email !== null
+                    ? surveyor.supervisor_email
+                    : "Not mapped"
+                )
+              )
+            ),
+          ].map((email) => ({
+            text: email,
+            value: email,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorEmail?.indexOf(value) === 0,
+          width: 100,
+        },
+        {
+          title: "Name",
+          dataIndex: "supervisorName",
+          key: "supervisorName",
+          sorter: (a: any, b: any) =>
+            a.supervisorName.localeCompare(b.supervisorName),
+          filters: [
+            ...Array.from(
+              new Set(
+                mappingData?.map((surveyor: any) =>
+                  surveyor.supervisor_name !== null
+                    ? surveyor.supervisor_name
+                    : "Not mapped"
+                )
+              )
+            ),
+          ].map((name) => ({
+            text: name,
+            value: name,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorName?.indexOf(value) === 0,
+          width: 100,
+        },
+        ...(criteria.includes("Location") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Location",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLocation.localeCompare(b.supervisorLocation),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: any) =>
+                          surveyor.supervisor_mapping_criteria_values.other
+                            ?.location_name
+                      )
+                    )
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLocation.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLanguage.localeCompare(b.supervisorLanguage),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: any) =>
+                          surveyor.supervisor_mapping_criteria_values.criteria
+                            ?.Language
+                      )
+                    )
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLanguage.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                sorter: (a: any, b: any) =>
+                  a.supervisorGender.localeCompare(b.supervisorGender),
+                filters: [
+                  ...Array.from(
+                    new Set(
+                      mappingData?.map(
+                        (surveyor: any) =>
+                          surveyor.supervisor_mapping_criteria_values.criteria
+                            ?.Gender
+                      )
+                    )
+                  ),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorGender.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
     },
-    {
-      title: "Supervisor Name",
-      dataIndex: "supervisorName",
-      key: "supervisorName",
-      sorter: (a: any, b: any) =>
-        a.supervisorName.localeCompare(b.supervisorName),
-      filters: [
-        ...Array.from(
-          new Set(
-            mappingData?.map((surveyor: any) =>
-              surveyor.supervisor_name !== null
-                ? surveyor.supervisor_name
-                : "Not mapped"
-            )
-          )
-        ),
-      ].map((name) => ({
-        text: name,
-        value: name,
-      })),
-      onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorName?.indexOf(value) === 0,
-      width: 100,
-    },
-    ...(criteria.includes("Location") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            sorter: (a: any, b: any) =>
-              a.supervisorLocation.localeCompare(b.supervisorLocation),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: any) =>
-                      surveyor.supervisor_mapping_criteria_values.other
-                        ?.location_name
-                  )
-                )
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLocation.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            sorter: (a: any, b: any) =>
-              a.supervisorLanguage.localeCompare(b.supervisorLanguage),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: any) =>
-                      surveyor.supervisor_mapping_criteria_values.criteria
-                        ?.Language
-                  )
-                )
-              ),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLanguage.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            sorter: (a: any, b: any) =>
-              a.supervisorGender.localeCompare(b.supervisorGender),
-            filters: [
-              ...Array.from(
-                new Set(
-                  mappingData?.map(
-                    (surveyor: any) =>
-                      surveyor.supervisor_mapping_criteria_values.criteria
-                        ?.Gender
-                  )
-                )
-              ),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorGender.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
   ];
 
   const mappingTableData = mappingData?.map((surveyor: any) => {
@@ -1358,18 +1375,7 @@ const SurveyorMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
-                },
-                {
-                  title: "Configuration",
+                  title: "Surveyors <> Supervisors Mapping Configuration",
                 },
               ]}
             />
@@ -1493,17 +1499,7 @@ const SurveyorMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                },
-                {
-                  title: "Configuration",
+                  title: "Surveyors <> Supervisors Mapping Configuration",
                   href: `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=1`,
                 },
                 {
