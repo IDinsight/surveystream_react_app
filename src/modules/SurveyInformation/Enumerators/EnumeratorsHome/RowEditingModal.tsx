@@ -77,6 +77,7 @@ function RowEditingModal({
   const [hadSurveyorRole, setHadSurveyorRole] = useState(false);
   const [originalStatus, setOriginalStatus] = useState<string>("");
   const [nullableFields, setNullableFields] = useState<string[]>([]);
+  const [customFields, setCustomFields] = useState<string[]>([]);
 
   const cancelHandler = () => {
     onCancel();
@@ -109,6 +110,7 @@ function RowEditingModal({
       }
       if (originalData.length > 1 && form_uid) {
         const { location, ...fieldsToUpdate } = updateData;
+
         fieldsToUpdate.enumerator_type = Array.isArray(
           fieldsToUpdate.enumerator_type
         )
@@ -144,15 +146,11 @@ function RowEditingModal({
             ...originalData[indexToUpdate],
             ...updateData,
           };
-
           const { custom_fields, ...rest } = updatedRow;
           const removedCustomFields: any = {};
-          for (const key in rest) {
-            if (key.startsWith("custom_fields.")) {
-              const fieldName = key.split("custom_fields.")[1];
-              removedCustomFields[fieldName] = rest[key];
-              delete rest[key];
-            }
+          for (const key in customFields) {
+            removedCustomFields[customFields[key]] = rest[customFields[key]];
+            delete rest[customFields[key]];
           }
 
           rest.custom_fields = {
@@ -304,6 +302,12 @@ function RowEditingModal({
 
     initialData.enumerator_type = enumerator_type;
     initialData.enumerator_status = enumerator_status;
+
+    setCustomFields(
+      fields
+        .filter((field) => field.label.startsWith("custom_fields"))
+        .map((field) => field.labelKey)
+    );
 
     fields.forEach((field) => {
       if (field?.label?.startsWith("custom_fields")) {
