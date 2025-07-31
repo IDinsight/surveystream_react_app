@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Col, Form, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 
 import {
   HeaderContainer,
@@ -18,6 +18,7 @@ import {
   HeadingText,
 } from "./EnumeratorsMap.styled";
 import {
+  CloudDownloadOutlined,
   CloudUploadOutlined,
   DislikeFilled,
   DislikeOutlined,
@@ -40,6 +41,8 @@ import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/sur
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import Container from "../../../../components/Layout/Container";
+import { validateCSVData } from "../../../../utils/csvValidator";
+import { CSVLink } from "react-csv";
 
 interface CSVError {
   type: string;
@@ -103,6 +106,14 @@ function EnumeratorsMap() {
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
+
+  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
+      ...prevValues,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
+    }));
+  };
 
   const errorTableColumn = [
     {
@@ -243,6 +254,7 @@ function EnumeratorsMap() {
       column_mapping.custom_fields = [];
       if (customHeaderSelection) {
         const mappedValues = Object.values(column_mapping);
+
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
@@ -255,6 +267,54 @@ function EnumeratorsMap() {
               field_label: column_name,
             });
           }
+        }
+      }
+
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...personalDetailsField
+          .filter((item) => item.key !== "home_address")
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationBatchField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
+          .map((field: any) => field.column_name),
+      ];
+
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          setHasError(true);
+          setErrorList(
+            (validationResult.inValidData as string[]).map((msg) => ({
+              type: "Validation Error",
+              count: 1,
+              rows: msg,
+            }))
+          );
+          setErrorCount(csvRows.length - 1);
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -279,16 +339,11 @@ function EnumeratorsMap() {
           if (mappingsRes?.payload?.errors || mappingsRes?.payload?.message) {
             const transformedErrors: CSVError[] = [];
 
-            console.log("mappingsRes.payload", mappingsRes.payload);
-
             const errorList = mappingsRes.payload.errors
               ? mappingsRes.payload.errors
               : mappingsRes?.payload?.message;
 
-            console.log("errorList", errorList);
-
             for (const errorKey in errorList) {
-              console.log("errorKey", errorKey);
               let errorObj = errorList[errorKey];
 
               if (errorKey === "record_errors") {
@@ -358,22 +413,37 @@ function EnumeratorsMap() {
             ...column_mapping,
             ...column_mapping.custom_fields,
           };
+
           delete flattenedColumnMapping.custom_fields;
 
           const customConfig = Object.keys(flattenedColumnMapping).map(
-            (key) => {
+            (key: any) => {
               if (key && flattenedColumnMapping[key] !== undefined) {
                 const personal = personalBatchField.includes(key);
                 const location = locationBatchField.includes(key);
                 const bulkEditable = bulkEditableFields.includes(key);
+
+                let columnName = key;
+                if (!(personal || location || bulkEditable)) {
+                  columnName = flattenedColumnMapping[key]["column_name"];
+                }
+
                 return {
                   bulk_editable: bulkEditable ? true : location ? true : false,
-                  column_name: key,
+                  column_name: columnName,
                   column_type: personal
                     ? "personal_details"
                     : location
                     ? "location"
                     : "custom_fields",
+                  allow_null_values:
+                    key === "home_address"
+                      ? true
+                      : personal
+                      ? false
+                      : location
+                      ? false
+                      : checkboxValues[columnName],
                 };
               }
             }
@@ -431,6 +501,16 @@ function EnumeratorsMap() {
     });
 
     setExtraCSVHeader(extraHeaders);
+
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -648,6 +728,33 @@ function EnumeratorsMap() {
                               >
                                 Ignore
                               </Button>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}`}
+                                      checked={
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}`)
+                                      }
+                                    >
+                                      Allow Null Values
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
                             </Form.Item>
                           );
                         })}
@@ -763,23 +870,22 @@ function EnumeratorsMap() {
                 )}
 
                 <div style={{ display: "flex" }}>
-                  <Button
-                    onClick={() =>
-                      navigate(
-                        `/survey-information/enumerators/${survey_uid}/${form_uid}`
-                      )
-                    }
+                  <CSVLink
+                    data={[...errorList]}
+                    filename={"enumerator-error-list.csv"}
                   >
-                    Cancel
-                  </Button>
-                  <Button
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
+                  </CSVLink>
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ backgroundColor: "#2f54eB", marginLeft: 20 }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload CSV again
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}

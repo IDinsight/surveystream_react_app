@@ -117,7 +117,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
         </DescriptionText>
         <TwoColumnForm form={form} onValuesChange={handleFormValuesChange}>
           <Row gutter={36}>
-            <Col span={10}>
+            <Col span={12}>
               <StyledFormItem
                 required
                 label={
@@ -211,7 +211,7 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
               </StyledFormItem>
             </Col>
 
-            <Col span={10}>
+            <Col span={12}>
               <StyledFormItem
                 required
                 labelCol={{ span: 24 }}
@@ -219,13 +219,32 @@ const BasicInformationForm: React.FC<BasicInformationFormProps> = ({
                 label={
                   <span>
                     Survey ID&nbsp;
-                    <StyledTooltip title="It has to be a unique ID. Naming convention is ‘survey name + round name’. Ex: adp2.0_r1. It is used to name the prod tracker and dq tracker tables. Please limit the ID to 25 characters.">
+                    <StyledTooltip title="It has to be a unique ID, alphanumeric with underscores. Naming convention is 'survey name + round name'. Ex: adp2.0_r1. It is used to name the prod tracker and dq tracker tables. Please limit the ID to 25 characters.">
                       <QuestionCircleOutlined />
                     </StyledTooltip>
                   </span>
                 }
                 name="survey_id"
                 style={{ display: "block" }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter a survey ID",
+                  },
+                  {
+                    pattern: /^[a-zA-Z0-9_]+$/,
+                    message: (
+                      <div style={{ maxWidth: "220px", whiteSpace: "normal" }}>
+                        Survey ID can only contain letters, numbers, and
+                        underscores
+                      </div>
+                    ),
+                  },
+                  {
+                    max: 25,
+                    message: "Survey ID cannot exceed 25 characters",
+                  },
+                ]}
               >
                 <Input
                   id="basic-information-survey-id"

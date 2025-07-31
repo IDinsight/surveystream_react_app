@@ -568,6 +568,7 @@ function EditSurveyUsers() {
                             location_ids: [],
                             location_names: [],
                             languages: [],
+                            roles: [],
                           }));
                         } else {
                           //this will run incase user does not select survey Admin

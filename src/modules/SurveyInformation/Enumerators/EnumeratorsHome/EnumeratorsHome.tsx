@@ -100,7 +100,6 @@ function EnumeratorsHome() {
     if (survey.payload.prime_geo_level_uid !== undefined) {
       setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid);
     } else {
-      console.log("No prime_geo_level_uid found, setting to 0");
       setPrimeGeoLevelUID(0);
     }
   };
@@ -140,7 +139,6 @@ function EnumeratorsHome() {
     // Pre-filter fields
     const fieldsToExclude = [
       "status",
-      "custom_fields",
       "enumerator_uid",
       "monitor_locations",
       "surveyor_locations",
@@ -150,10 +148,29 @@ function EnumeratorsHome() {
 
     const filteredFields = Object.keys({ ...selectedRows[0] })
       .filter((field) => !fieldsToExclude.includes(field))
-      .map((field) => ({
-        labelKey: field,
-        label: field,
-      }));
+      .flatMap((field) => {
+        if (field === "custom_fields") {
+          if (
+            selectedRows[0][field] &&
+            typeof selectedRows[0][field] === "object"
+          ) {
+            const customFields = selectedRows[0][field];
+            return Object.keys(customFields)
+              .filter((key) => key !== "column_mapping")
+              .map((key) => ({
+                labelKey: key,
+                label: `custom_fields.${key}`,
+              }));
+          }
+          return [];
+        }
+        return [
+          {
+            labelKey: field,
+            label: field,
+          },
+        ];
+      });
 
     // Add location only if surveyor_locations exist
     if (hasSurveyorLocations) {
@@ -230,7 +247,6 @@ function EnumeratorsHome() {
 
       if (enumeratorRes.payload.status == 200) {
         const originalData = enumeratorRes.payload.data.data;
-
         // Handle empty data case immediately
         if (!originalData || originalData.length == 0) {
           setTableLoading(false); // Stop loading before navigation
@@ -657,25 +673,17 @@ function EnumeratorsHome() {
 
       try {
         // Only start loading when we're actually going to fetch data
-        if (!form_uid || !PrimeGeoLevelUID) {
-          if (!form_uid) {
-            await handleFormUID();
-            return;
-          }
-
-          if (!PrimeGeoLevelUID) {
-            const survey = await dispatch(
-              getSurveyBasicInformation({ survey_uid })
-            );
-            setPrimeGeoLevelUID(survey.payload.prime_geo_level_uid ?? 0);
-            return;
-          }
-        }
-
         // Only set loading and fetch data when we have all prerequisites
-        if (form_uid && PrimeGeoLevelUID) {
+        if (form_uid) {
+          if (!PrimeGeoLevelUID) {
+            await fetchSurveyInfo();
+          }
           setTableLoading(true);
           await getEnumeratorsList(form_uid);
+          return;
+        } else {
+          await handleFormUID();
+          return;
         }
       } catch (error) {
         console.error("Error fetching data:", error);

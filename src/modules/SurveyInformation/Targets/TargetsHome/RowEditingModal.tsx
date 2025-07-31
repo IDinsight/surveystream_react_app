@@ -9,6 +9,7 @@ import {
 } from "../../../../redux/targets/targetActions";
 import { useAppDispatch } from "../../../../redux/hooks";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
+import { set } from "lodash";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -32,6 +33,7 @@ interface ConfigField {
   bulk_editable: boolean;
   column_name: string;
   column_type: string;
+  allow_null_values: boolean;
 }
 
 function RowEditingModal({
@@ -58,6 +60,7 @@ function RowEditingModal({
   const [bulkFieldsToExclude, setBulkFieldsToExclude] = useState<any>([
     "target_id",
   ]);
+  const [nullableFields, setNullableFields] = useState<string[]>([]);
   const cancelHandler = () => {
     // Write code here for any cleanup
     onCancel();
@@ -205,6 +208,11 @@ function RowEditingModal({
           .filter((field: ConfigField) => !field.bulk_editable)
           .map((field: ConfigField) => field.column_name);
 
+        const allow_null_fields = configData
+          .filter((field: ConfigField) => field.allow_null_values)
+          .map((field: ConfigField) => field.column_name);
+        setNullableFields(allow_null_fields);
+
         //remove fields not defined on the custom config
         fields.forEach((field: Field) => {
           if (
@@ -226,11 +234,12 @@ function RowEditingModal({
     let filteredFields = fields.filter(
       (field: Field) => !fieldsToExclude.includes(field.labelKey)
     );
+    if (form_uid) {
+      await fetchTargetColumnConfig(form_uid);
+    }
 
     if (form_uid && data.length > 1) {
       //must wait for config before fields filtering
-      await fetchTargetColumnConfig(form_uid);
-
       //exclude bulk non editable as well as the personal fields
       filteredFields = fields.filter(
         (field: Field) =>
@@ -303,7 +312,6 @@ function RowEditingModal({
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
-                  required
                   key={field.label}
                   id={`${field.label}-id`}
                   name={field.label}
@@ -330,7 +338,7 @@ function RowEditingModal({
                   }
                   rules={[
                     {
-                      required: true,
+                      required: !nullableFields.includes(field.labelKey),
                       message: `Please enter ${field.labelKey}`,
                     },
                   ]}
@@ -425,7 +433,6 @@ function RowEditingModal({
                     </span>
                   </div>
                 );
-                // In bulk mode, only render input if checked; in single mode, always render
                 if (isBulk && !isSelected) {
                   return (
                     <Form.Item
@@ -446,7 +453,7 @@ function RowEditingModal({
                     labelAlign="left"
                     rules={[
                       {
-                        required: true,
+                        required: !nullableFields.includes(field.labelKey),
                         message: `Please enter ${field.labelKey}`,
                       },
                     ]}

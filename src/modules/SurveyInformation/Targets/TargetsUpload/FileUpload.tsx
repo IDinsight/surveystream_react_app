@@ -47,7 +47,7 @@ function FileUpload({
     setErrorList([]);
 
     const basicChecks = await basicCSVValidations(file);
-    const result = await validateCSVData(file);
+    const result = await validateCSVData(file, false);
 
     const handleValidationResult = (validationResult: any) => {
       if (
