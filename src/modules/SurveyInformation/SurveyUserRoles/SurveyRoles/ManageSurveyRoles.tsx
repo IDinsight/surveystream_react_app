@@ -29,6 +29,8 @@ import SideMenu from "../../SideMenu";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import RolesCountBox from "../../../../components/RolesCountBox";
+import { CustomBtn } from "../../../../shared/Global.styled";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -58,6 +60,8 @@ function ManageSurveyRoles() {
   const supervisorRoles = useAppSelector(
     (state: RootState) => state.userRoles.supervisorRoles
   );
+
+  const [rolesCount, setRolesCount] = useState<number>(0);
 
   const [rolesTableData, setRolesTableData] = useState<any>([]);
 
@@ -110,6 +114,7 @@ function ManageSurveyRoles() {
       }));
 
       setRolesTableData(transformedData);
+      setRolesCount(transformedData.length);
     } else {
       setRolesTableData([]);
     }
@@ -293,32 +298,20 @@ function ManageSurveyRoles() {
       </NavWrapper>
       <HeaderContainer>
         <Title>Roles</Title>
+        <RolesCountBox rolesCount={rolesCount} />
         <div
           style={{ display: "flex", marginLeft: "auto", marginBottom: "15px" }}
         ></div>
         <div style={{ float: "right", marginTop: "0px" }}>
-          <Button
-            type="primary"
-            icon={<FileAddOutlined />}
-            style={{
-              marginLeft: "50px",
-              backgroundColor: "#2F54EB",
-            }}
-            onClick={() => handleAddNewRole()}
-          >
-            Add new role{" "}
-          </Button>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
+          <CustomBtn onClick={() => handleAddNewRole()}>Add</CustomBtn>
+          <CustomBtn
             style={{
               marginLeft: "15px",
-              backgroundColor: "#2F54EB",
             }}
             onClick={() => handleEditRoleHierarchy()}
           >
             Edit role hierarchy{" "}
-          </Button>
+          </CustomBtn>
         </div>
       </HeaderContainer>
       {isLoading ? (
@@ -331,6 +324,7 @@ function ManageSurveyRoles() {
               <RolesTable
                 columns={rolesTableColumn}
                 dataSource={rolesTableData}
+                bordered={true}
                 pagination={{
                   position: ["topRight"],
                   pageSize: paginationPageSize,

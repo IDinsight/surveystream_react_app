@@ -385,11 +385,12 @@ function EmailTableModel({
       }}
       onOk={handleSubmit}
       okText="Save"
+      bodyStyle={{ height: "70vh", overflowY: "auto" }}
     >
       {loading ? (
         <FullScreenLoader />
       ) : (
-        <div style={{ height: "350px", overflowY: "auto" }}>
+        <div style={{ overflowY: "auto", marginBottom: 16 }}>
           <div style={{ marginBottom: 16 }}>
             <Row>
               <Col span={12}>
@@ -399,6 +400,8 @@ function EmailTableModel({
                   style={{ width: "50%" }}
                   value={selectedTable}
                   onChange={(val) => setSelectedTable(val)}
+                  showSearch={true}
+                  allowClear={true}
                 >
                   {tableCatelog.map((table) => (
                     <Option key={table.table_name} value={table.table_name}>
@@ -534,6 +537,8 @@ function EmailTableModel({
                                       val
                                     )
                                   }
+                                  showSearch={true}
+                                  allowClear={true}
                                 >
                                   {availableColumns.map((col) => (
                                     <Option
@@ -558,6 +563,8 @@ function EmailTableModel({
                                       val
                                     )
                                   }
+                                  showSearch={true}
+                                  allowClear={true}
                                 >
                                   {validateOperator.map((op) => (
                                     <Option key={op} value={op}>
@@ -653,6 +660,8 @@ function EmailTableModel({
                         onChange={(val) =>
                           handleSortChange(val, index, "column")
                         }
+                        showSearch={true}
+                        allowClear={true}
                       >
                         {availableColumns.map((col) => (
                           <Option key={col.column_name} value={col.column_name}>

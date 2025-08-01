@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Alert, Button, Checkbox, Col, Form, Row, Select, message } from "antd";
+import { Button, Checkbox, Col, Form, Row, Select, message } from "antd";
 import {
   DescriptionContainer,
   EnumeratorsRemapFormWrapper,
@@ -25,6 +25,7 @@ import {
   DislikeOutlined,
   SelectOutlined,
   CloudUploadOutlined,
+  CloudDownloadOutlined,
 } from "@ant-design/icons";
 import RowCountBox from "../../../../components/RowCountBox";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
@@ -39,7 +40,8 @@ import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyC
 import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
-import { fetchSurveyModuleQuestionnaire } from "@/redux/surveyConfig/apiService";
+import { validateCSVData } from "../../../../utils/csvValidator";
+import { CSVLink } from "react-csv";
 
 interface CSVError {
   type: string;
@@ -113,6 +115,14 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     (state: RootState) => state.surveyConfig.moduleQuestionnaire
   );
 
+  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
+      ...prevValues,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
+    }));
+  };
+
   const errorTableColumn = [
     {
       title: "Error type",
@@ -174,6 +184,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     "mobile_primary",
     "home_address",
   ];
+  const bulkEditableFields = ["language", "gender", "enumerator_type"];
 
   const csvHeaderOptions = csvHeaders.map((item) => {
     return { label: item, value: item };
@@ -231,6 +242,16 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
     });
 
     setExtraCSVHeader(extraHeaders);
+
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const handleEnumeratorUploadMapping = async () => {
@@ -254,6 +275,55 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
               field_label: column_name,
             });
           }
+        }
+      }
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...personalDetailsField
+          .filter((item) => item.key !== "home_address")
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationBatchField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
+          .map((field: any) => field.column_name),
+      ];
+
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          dispatch(setMappingErrorStatus(true));
+          dispatch(
+            setMappingErrorList(
+              (validationResult.inValidData as string[]).map((msg) => ({
+                type: "Validation Error",
+                count: 1,
+                rows: msg,
+              }))
+            )
+          );
+          dispatch(setMappingErrorCount(csvRows.length - 1));
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -343,9 +413,59 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
         if (mappingsRes.payload.success) {
           message.success("Enumerators uploaded and mapped successfully.");
 
-          //auto configure columns for users setting personal as non_batch and the rest as batch
-          //use the column mapping to do this
-          //TODO: add column config here if needed on merge
+          const flattenedColumnMapping = {
+            ...column_mapping,
+            ...column_mapping.custom_fields,
+          };
+
+          delete flattenedColumnMapping.custom_fields;
+
+          const customConfig = Object.keys(flattenedColumnMapping).map(
+            (key: any) => {
+              if (key && flattenedColumnMapping[key] !== undefined) {
+                const personal = personalBatchField.includes(key);
+                const location = locationBatchField.includes(key);
+                const bulkEditable = bulkEditableFields.includes(key);
+
+                let columnName = key;
+                if (!(personal || location || bulkEditable)) {
+                  columnName = flattenedColumnMapping[key]["column_name"];
+                }
+
+                return {
+                  bulk_editable: bulkEditable ? true : location ? true : false,
+                  column_name: columnName,
+                  column_type: personal
+                    ? "personal_details"
+                    : location
+                    ? "location"
+                    : "custom_fields",
+                  allow_null_values:
+                    key === "home_address"
+                      ? true
+                      : personal
+                      ? false
+                      : location
+                      ? false
+                      : checkboxValues[columnName],
+                };
+              }
+            }
+          );
+
+          const filteredCustomConfig = customConfig.filter(
+            (config: any) =>
+              config != null &&
+              config !== undefined &&
+              config.column_name !== `custom_fields`
+          );
+
+          dispatch(
+            updateEnumeratorColumnConfig({
+              formUID: form_uid,
+              columnConfig: filteredCustomConfig,
+            })
+          );
 
           dispatch(setMappingErrorStatus(false));
 
@@ -499,13 +619,7 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                           rules={[
                             {
                               required:
-                                (item.key === "language" &&
-                                  !moduleQuestionnaire?.surveyor_mapping_criteria.includes(
-                                    "Language"
-                                  )) ||
-                                item.key === "home_address"
-                                  ? false
-                                  : true,
+                                item.key === "home_address" ? false : true,
                               message: "Kindly select column to map value!",
                             },
                             {
@@ -666,9 +780,33 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                               >
                                 Ignore
                               </Button>
-                              <Checkbox style={{ marginLeft: 10 }}>
-                                Mandatory
-                              </Checkbox>
+                              {customHeaderSelection[item] !== null &&
+                              customHeaderSelection[item] === true ? (
+                                <div style={{ display: "inline-block" }}>
+                                  <div
+                                    style={{
+                                      display: "inline-block",
+                                      alignItems: "center",
+                                      marginLeft: 30,
+                                    }}
+                                  >
+                                    <Checkbox
+                                      name={`${item}`}
+                                      checked={
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(`${item}`)
+                                      }
+                                    >
+                                      Allow Null Values
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              ) : null}
                             </Form.Item>
                           );
                         })}
@@ -780,14 +918,22 @@ function EnumeratorsRemap({ setScreenMode }: IEnumeratorsReupload) {
                   </div>
                 )}
                 <div style={{ display: "flex" }}>
-                  <Button
+                  <CSVLink
+                    data={[...mappingErrorList]}
+                    filename={"enumerator-error-list.csv"}
+                  >
+                    <CustomBtn type="primary" icon={<CloudDownloadOutlined />}>
+                      Download rows that caused errors
+                    </CustomBtn>
+                  </CSVLink>
+                  <CustomBtn
                     onClick={moveToUpload}
                     type="primary"
                     icon={<CloudUploadOutlined />}
-                    style={{ backgroundColor: "#2f54eB" }}
+                    style={{ marginLeft: 35 }}
                   >
-                    Upload CSV again
-                  </Button>
+                    Reupload CSV
+                  </CustomBtn>
                 </div>
               </>
             )}

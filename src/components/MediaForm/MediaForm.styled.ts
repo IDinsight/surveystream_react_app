@@ -18,3 +18,12 @@ export const OutputsBtn = styled(Button)`
     color: green !important;
   }
 `;
+
+export const IconText = styled.span`
+  margin-left: 6px;
+  font-family: "Lato", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+`;

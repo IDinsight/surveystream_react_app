@@ -1,5 +1,6 @@
-import { Button, Table } from "antd";
+import { Table, Button } from "antd";
 import styled from "styled-components";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 export const BodyContainer = styled.div`
   padding: 48px;
@@ -24,25 +25,7 @@ export const FormItemLabel = styled.p`
   line-height: 22px,
 `;
 
-export const CustomBtn = styled(Button)<{ disabled?: boolean }>`
-  background-color: ${({ disabled }) => (disabled ? "#d9d9d9" : "#2f54eb")};
-  color: ${({ disabled }) => (disabled ? "#bfbfbf" : "white")};
-  border-radius: 8px !important;
-  min-width: 94px !important;
-
-  &:hover {
-    background-color: ${({ disabled }) =>
-      disabled ? "#d9d9d9" : "#2f54eb"} !important;
-    color: ${({ disabled }) => (disabled ? "#bfbfbf" : "white")} !important;
-  }
-`;
-
-export const ResetButton = styled(Button)`
-  &:hover {
-    color: red !important;
-    border-color: red !important;
-  }
-`;
+export const ResetButton = styled(CustomBtn)``;
 
 export const DeleteButton = styled(Button)`
   &:hover {
@@ -52,14 +35,18 @@ export const DeleteButton = styled(Button)`
 
 export const MappingTable = styled(Table)`
   margin-bottom: 30px;
+  margin-top: 0px;
   width: 100%;
   & th {
     color: #434343 !important;
     background-color: #d6e4ff !important;
+    height: 40px;
+    font-family: "Lato", sans-serif;
   }
   & th::before {
     background-color: #595959 !important;
   }
   & td {
+    font-family: "Lato", sans-serif;
   }
 `;

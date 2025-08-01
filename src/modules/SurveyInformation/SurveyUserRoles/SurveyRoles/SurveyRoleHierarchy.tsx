@@ -40,6 +40,7 @@ import { getSurveyBasicInformation } from "../../../../redux/surveyConfig/survey
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import HandleBackButton from "../../../../components/HandleBackButton";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 function SurveyRoleHierarchy() {
   const [form] = Form.useForm();
@@ -105,7 +106,7 @@ function SurveyRoleHierarchy() {
         <StyledFormItem
           key={index}
           required
-          labelCol={{ span: 11 }}
+          labelCol={{ span: 8 }}
           wrapperCol={{ span: 11 }}
           name={`role_${index}`}
           label={role.role_name ? role?.role_name : ""}
@@ -285,7 +286,13 @@ function SurveyRoleHierarchy() {
           <SideMenu />
           <SurveyRoleHierarchyFormWrapper>
             <SurveyRoleHierarchyDescriptionText>
-              Update or add role hierarchy for this survey
+              Define the role hierarchy for your survey.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#reporting-role" />
+            </SurveyRoleHierarchyDescriptionText>
+
+            <SurveyRoleHierarchyDescriptionText>
+              For each role, select the role it reports to. For the top level,
+              select <i>Highest hierarchy level</i>.
             </SurveyRoleHierarchyDescriptionText>
             <div style={{ marginTop: "30px" }}>
               <DynamicItemsForm form={form}>

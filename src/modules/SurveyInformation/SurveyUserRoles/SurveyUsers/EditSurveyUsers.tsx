@@ -35,6 +35,8 @@ import {
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
+import { CustomBtn } from "../../../../shared/Global.styled";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 function EditSurveyUsers() {
   const { survey_uid } = useParams<{ survey_uid?: string }>() ?? {
@@ -455,17 +457,20 @@ function EditSurveyUsers() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText>
-                Edit existing user in the survey.
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                Edit existing user in the survey.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#other-actions-on-users" />
               </DescriptionText>
               <div>
                 <Form
                   labelCol={{ span: 6 }}
                   form={updateUserForm}
                   labelAlign="left"
-                  wrapperCol={{ span: 12 }}
+                  wrapperCol={{ span: 10 }}
+                  style={{ maxWidth: 825 }}
                   onFinish={handleUpdateUser}
-                  style={{ maxWidth: 600 }}
                 >
                   <Form.Item
                     initialValue={userDetails.email}
@@ -563,6 +568,7 @@ function EditSurveyUsers() {
                             location_ids: [],
                             location_names: [],
                             languages: [],
+                            roles: [],
                           }));
                         } else {
                           //this will run incase user does not select survey Admin
@@ -669,7 +675,8 @@ function EditSurveyUsers() {
                       The user is assigned the smallest field supervisor role.
                       The following fields will be used for mapping supervisors
                       to surveyors or targets as per the mapping criteria
-                      selected under module questionnaire.
+                      selected under module questionnaire.{" "}
+                      <DescriptionLink link="https://docs.surveystream.idinsight.io/background_details#module-questionnaire" />
                     </DescriptionText>
                   )}
 
@@ -787,7 +794,7 @@ function EditSurveyUsers() {
                         />
                       </Form.Item>
                     )}
-                  <Form.Item style={{ marginTop: 20 }}>
+                  <Form.Item style={{ marginTop: 30 }}>
                     <Button
                       onClick={() =>
                         navigate(
@@ -795,16 +802,15 @@ function EditSurveyUsers() {
                         )
                       }
                     >
-                      Dismiss
+                      Cancel
                     </Button>
-                    <Button
+                    <CustomBtn
                       loading={loading}
-                      type="primary"
                       htmlType="submit"
                       style={{ backgroundColor: "#2F54EB", marginLeft: 20 }}
                     >
-                      Update user
-                    </Button>
+                      Save
+                    </CustomBtn>
                   </Form.Item>
                 </Form>
               </div>

@@ -9,6 +9,7 @@ import {
 } from "../../../../redux/enumerators/enumeratorsActions";
 import { useAppDispatch } from "../../../../redux/hooks";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
+import { get } from "lodash";
 
 interface IRowEditingModal {
   data: DataItem[];
@@ -33,6 +34,7 @@ interface ConfigField {
   bulk_editable: boolean;
   column_name: string;
   column_type: string;
+  allow_null_values: boolean;
 }
 
 function RowEditingModal({
@@ -74,6 +76,8 @@ function RowEditingModal({
   );
   const [hadSurveyorRole, setHadSurveyorRole] = useState(false);
   const [originalStatus, setOriginalStatus] = useState<string>("");
+  const [nullableFields, setNullableFields] = useState<string[]>([]);
+  const [customFields, setCustomFields] = useState<string[]>([]);
 
   const cancelHandler = () => {
     onCancel();
@@ -106,6 +110,7 @@ function RowEditingModal({
       }
       if (originalData.length > 1 && form_uid) {
         const { location, ...fieldsToUpdate } = updateData;
+
         fieldsToUpdate.enumerator_type = Array.isArray(
           fieldsToUpdate.enumerator_type
         )
@@ -141,15 +146,11 @@ function RowEditingModal({
             ...originalData[indexToUpdate],
             ...updateData,
           };
-
           const { custom_fields, ...rest } = updatedRow;
           const removedCustomFields: any = {};
-          for (const key in rest) {
-            if (key.startsWith("custom_fields.")) {
-              const fieldName = key.split("custom_fields.")[1];
-              removedCustomFields[fieldName] = rest[key];
-              delete rest[key];
-            }
+          for (const key in customFields) {
+            removedCustomFields[customFields[key]] = rest[customFields[key]];
+            delete rest[customFields[key]];
           }
 
           rest.custom_fields = {
@@ -261,8 +262,31 @@ function RowEditingModal({
     .split(",")
     .map((loc: string) => loc.trim());
 
+  const fetchEnumeratorColumnConfig = async (form_uid: string) => {
+    const configRes = await dispatch(
+      getEnumeratorsColumnConfig({ formUID: form_uid })
+    );
+    if (configRes.payload.status == 200) {
+      const configData = configRes.payload?.data?.data?.file_columns;
+      if (configData) {
+        const allow_null_fields = configData
+          .filter((field: ConfigField) => field.allow_null_values)
+          .map((field: ConfigField) => field.column_name);
+        if (!allow_null_fields.includes("home_address")) {
+          allow_null_fields.push("home_address");
+        }
+        setNullableFields(allow_null_fields);
+      }
+    }
+    return;
+  };
+
   const setupFormData = () => {
     const initialData: DataItem = {};
+
+    if (form_uid) {
+      fetchEnumeratorColumnConfig(form_uid);
+    }
 
     let enumerator_type: string | string[] = "";
     if (data[0].surveyor_status !== null && data[0].monitor_status !== null) {
@@ -279,9 +303,15 @@ function RowEditingModal({
     initialData.enumerator_type = enumerator_type;
     initialData.enumerator_status = enumerator_status;
 
+    setCustomFields(
+      fields
+        .filter((field) => field.label.startsWith("custom_fields"))
+        .map((field) => field.labelKey)
+    );
+
     fields.forEach((field) => {
       if (field?.label?.startsWith("custom_fields")) {
-        initialData[field.label] =
+        initialData[field.labelKey] =
           data[0]["custom_fields"][field.labelKey] || "";
       } else if (field.labelKey === "location") {
         initialData.location = locationList;
@@ -381,7 +411,9 @@ function RowEditingModal({
             >
               {updatedFields.map((field: Field, idx: number) => (
                 <Form.Item
-                  required={field.labelKey !== "home_address"}
+                  required={
+                    nullableFields.includes(field.labelKey) ? false : true
+                  }
                   key={idx}
                   name={field.labelKey}
                   initialValue={
@@ -406,7 +438,9 @@ function RowEditingModal({
                   }
                   rules={[
                     {
-                      required: field.labelKey !== "home_address",
+                      required: nullableFields.includes(field.labelKey)
+                        ? false
+                        : true,
                       message: `Please enter ${field.labelKey
                         .split("_")
                         .map(

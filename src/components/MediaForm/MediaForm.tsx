@@ -7,6 +7,7 @@ import {
   Row,
   Select,
   message,
+  Tooltip,
 } from "antd";
 import { FormItemLabel } from "../../modules/MediaAudits/MediaAudits.styled";
 import {
@@ -14,6 +15,9 @@ import {
   EditOutlined,
   ExclamationCircleOutlined,
   DownOutlined,
+  EyeOutlined,
+  LinkOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useAppDispatch } from "../../redux/hooks";
 import {
@@ -21,7 +25,7 @@ import {
   getMediaAuditsConfigs,
 } from "../../redux/mediaAudits/mediaAuditsActions";
 import { Link, useNavigate } from "react-router-dom";
-import { DeleteBtn, OutputsBtn } from "./MediaForm.styled";
+import { DeleteBtn, OutputsBtn, IconText } from "./MediaForm.styled";
 
 interface MediaFormProps {
   data: any;
@@ -66,57 +70,14 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
     }
   };
 
-  const addUserOptions: MenuProps["items"] = [
-    ...(data.google_sheet_key
-      ? [
-          {
-            key: "1",
-            label: (
-              <Link
-                to={`https://docs.google.com/spreadsheets/d/${data.google_sheet_key}`}
-                target="_blank"
-              >
-                Main Audit Google Sheet
-              </Link>
-            ),
-          },
-        ]
-      : []),
-    ...(data.mapping_criteria && data.mapping_google_sheet_key
-      ? [
-          {
-            key: "2",
-            label: (
-              <Link
-                to={`https://docs.google.com/spreadsheets/d/${data.mapping_google_sheet_key}`}
-                target="_blank"
-              >
-                Master Mapping Google Sheet
-              </Link>
-            ),
-          },
-        ]
-      : []),
-    ...(!data.google_sheet_key && !data.mapping_google_sheet_key
-      ? [
-          {
-            key: "3",
-            label:
-              "Output links will be available here once the google sheets are created. This can take a few minutes. If it has been more than 15 minutes, please contact the SurveyStream team.",
-            disabled: true,
-          },
-        ]
-      : []),
-  ];
-
   return (
     <>
       <div
         style={{ backgroundColor: "#FAFAFA", padding: 24, marginBottom: 24 }}
       >
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
-            <FormItemLabel>Form ID:</FormItemLabel>
+          <Col span={5}>
+            <FormItemLabel>SurveyCTO form ID:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select
@@ -131,8 +92,8 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
-            <FormItemLabel>Media Audit type:</FormItemLabel>
+          <Col span={5}>
+            <FormItemLabel>Media type:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select disabled value={data.file_type} style={{ width: "100%" }}>
@@ -143,8 +104,8 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           </Col>
         </Row>
         <Row align="middle" style={{ marginBottom: 6 }}>
-          <Col span={6}>
-            <FormItemLabel>Media Audit source:</FormItemLabel>
+          <Col span={5}>
+            <FormItemLabel>Source:</FormItemLabel>
           </Col>
           <Col span={8}>
             <Select disabled value={data.source} style={{ width: "100%" }}>
@@ -152,14 +113,85 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
             </Select>
           </Col>
         </Row>
+        <Row align="middle" style={{ marginBottom: 6 }}>
+          <Col span={5}>
+            <FormItemLabel>
+              Outputs{" "}
+              <Tooltip
+                title="Link to the output Google Sheet/s will be shown here once they are
+                created. This can take a few minutes. If it has been more than
+                15 minutes, kindly contact the SurveyStream team."
+              >
+                <InfoCircleOutlined />
+              </Tooltip>{" "}
+              :
+            </FormItemLabel>
+          </Col>
+          {data.google_sheet_key ? (
+            <Col span={4}>
+              <div
+                style={{
+                  marginLeft: "auto",
+                  color: "#2F54EB",
+                }}
+              >
+                <LinkOutlined style={{ fontSize: "20px" }} />
+                <IconText
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    window.open(
+                      `https://docs.google.com/spreadsheets/d/${data.google_sheet_key}`,
+                      "__blank"
+                    )
+                  }
+                >
+                  Main Google Sheet output
+                </IconText>
+              </div>
+            </Col>
+          ) : null}
+          {data.mapping_google_sheet_key ? (
+            <Col span={10}>
+              <div
+                style={{
+                  marginLeft: "auto",
+                  color: "#2F54EB",
+                }}
+              >
+                <LinkOutlined style={{ fontSize: "20px" }} />
+                <IconText
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    window.open(
+                      `https://docs.google.com/spreadsheets/d/${data.mapping_google_sheet_key}`,
+                      "__blank"
+                    )
+                  }
+                >
+                  Master mapping Google Sheet{" "}
+                  <Tooltip title="Contains links to language/location level sheets since multiple sheet creation option was selected in this configuration.">
+                    <InfoCircleOutlined
+                      style={{ fontSize: "15px", marginLeft: "2px" }}
+                    />
+                  </Tooltip>{" "}
+                </IconText>
+              </div>
+            </Col>
+          ) : null}
+        </Row>
+
         <Row>
           <Button
             style={{ marginTop: 24 }}
             size="small"
-            icon={<EditOutlined />}
+            icon={editable ? <EditOutlined /> : <EyeOutlined />}
             onClick={editHandler}
           >
-            {editable ? "View / Edit" : "View"}
+            {editable ? "Edit" : "View"}
           </Button>
           <DeleteBtn
             size="small"
@@ -169,15 +201,6 @@ function MediaForm({ data, editable, surveyUID }: MediaFormProps) {
           >
             Delete
           </DeleteBtn>
-          <Dropdown
-            menu={{ items: addUserOptions }}
-            placement="bottomLeft"
-            arrow
-          >
-            <OutputsBtn size="small" icon={<DownOutlined />} iconPosition="end">
-              Outputs
-            </OutputsBtn>
-          </Dropdown>
         </Row>
         {contextHolder}
       </div>

@@ -30,15 +30,20 @@ import { MappingTable, DeleteButton, ResetButton } from "./Mapping.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { useAppDispatch } from "./../../../redux/hooks";
 import { updateMappingStatsSuccess } from "./../../../redux/mapping/mappingSlice";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  ClearOutlined,
+  DeleteOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import MappingError from "../../../components/MappingError";
-import Container from "../../../components/Layout/Container";
-import { HeaderContainer, Title } from "../../../shared/Nav.styled";
+import { HeaderContainer } from "../../../shared/Nav.styled";
 import MappingStats from "../../../components/MappingStats";
 import SideMenu from "../SideMenu";
 import { MappingWrapper } from "./Mapping.styled";
-import { setLoading } from "@/redux/enumerators/enumeratorsSlice";
 import { resolveSurveyNotification } from "../../../redux/notifications/notificationActions";
+import { properCase } from "../../../utils/helper";
+import DescriptionLink from "../../../components/DescriptionLink";
+import { DescriptionText } from "../SurveyInformation.styled";
 
 const { Option } = Select;
 
@@ -65,6 +70,7 @@ const TargetMapping = ({
   // State for mapping config and data
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingData, setMappingData] = useState<any>(null);
+  const [originalMappingData, setOriginalMappingData] = useState<any>(null);
 
   const [loadingMappingConfig, setLoadingMappingConfig] =
     useState<boolean>(false);
@@ -96,80 +102,93 @@ const TargetMapping = ({
   const { loading: isSideMenuLoading } = useAppSelector(
     (state: RootState) => state.surveyConfig
   );
-
   // Columns for mapped Pairs Table
   const mappedPairsColumns = [
+    // Location group
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            width: 100,
+            title: "Location",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
+    // Language group
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            width: 100,
+            title: "Language",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+
+    // Gender group
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            width: 100,
+            title: "Gender",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                width: 100,
+              },
+            ],
           },
         ]
       : []),
+    // Count group
     {
-      title: "Target Count",
-      dataIndex: "targetCount",
-      key: "targetCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 100,
+      title: "Count",
+      children: [
+        {
+          title: "Target",
+          dataIndex: "targetCount",
+          key: "targetCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 100,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -188,7 +207,6 @@ const TargetMapping = ({
       ),
       key: "action",
       render: (_: any, record: any) =>
-        // show delete icon if the mapping columns don't match
         record.targetLocation !== record.supervisorLocation ||
         record.targetLanguage !== record.supervisorLanguage ||
         record.targetGender !== record.supervisorGender ? (
@@ -210,136 +228,151 @@ const TargetMapping = ({
 
   // Columns for Unmapped Pairs Table
   const unmappedColumns = [
+    // Location group
     ...(criteria.includes("Location")
       ? [
           {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language")
-      ? [
-          {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender")
-      ? [
-          {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            width: 100,
-          },
-        ]
-      : []),
-    {
-      title: "Target Count",
-      dataIndex: "targetCount",
-      key: "targetCount",
-      width: 100,
-    },
-    ...(criteria.includes("Location")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select location"
-                onChange={(value) =>
-                  handleMappingConfigChange("Location", value, record)
-                }
-              >
-                {[
-                  ...new Map(
-                    userLocations?.map((item: any) => [
-                      item.location_uid,
-                      {
-                        location_uid: item.location_uid,
-                        location_name: item.location_name,
-                      },
-                    ])
-                  ).values(),
-                ]?.map((location: any) => (
-                  <Option
-                    key={location.location_uid}
-                    value={location.location_uid}
+            title: "Location",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select location"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Location", value, record)
+                    }
                   >
-                    {location.location_name}
-                  </Option>
-                ))}
-              </Select>
-            ),
+                    {[
+                      ...new Map(
+                        userLocations?.map((item: any) => [
+                          item.location_uid,
+                          {
+                            location_uid: item.location_uid,
+                            location_name: item.location_name,
+                          },
+                        ])
+                      ).values(),
+                    ]?.map((location: any) => (
+                      <Option
+                        key={location.location_uid}
+                        value={location.location_uid}
+                      >
+                        {location.location_name}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
+    // Language group
     ...(criteria.includes("Language")
       ? [
           {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select language"
-                onChange={(value) =>
-                  handleMappingConfigChange("Language", value, record)
-                }
-              >
-                {[
-                  ...new Set(userLanguages?.map((item: any) => item.language)),
-                ]?.map((lang: any) => (
-                  <Option key={lang} value={lang}>
-                    {lang}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Language",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select language"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Language", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(
+                        userLanguages?.map((item: any) => item.language)
+                      ),
+                    ]?.map((lang: any) => (
+                      <Option key={lang} value={lang}>
+                        {lang}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
+
+    // Gender group
     ...(criteria.includes("Gender")
       ? [
           {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            render: (_: any, record: any) => (
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select gender"
-                onChange={(value) =>
-                  handleMappingConfigChange("Gender", value, record)
-                }
-              >
-                {[
-                  ...new Set(userGenders?.map((item: any) => item.gender)),
-                ]?.map((gender: any) => (
-                  <Option key={gender} value={gender}>
-                    {gender}
-                  </Option>
-                ))}
-              </Select>
-            ),
+            title: "Gender",
+            children: [
+              {
+                title: "Target",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                width: 100,
+              },
+              {
+                title: "Supervisor",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                render: (_: any, record: any) => (
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Select gender"
+                    onChange={(value) =>
+                      handleMappingConfigChange("Gender", value, record)
+                    }
+                  >
+                    {[
+                      ...new Set(userGenders?.map((item: any) => item.gender)),
+                    ]?.map((gender: any) => (
+                      <Option key={gender} value={gender}>
+                        {gender}
+                      </Option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ],
           },
         ]
       : []),
     {
-      title: "Supervisor Count",
-      dataIndex: "supervisorCount",
-      key: "supervisorCount",
-      width: 100,
+      title: "Count",
+      children: [
+        {
+          title: "Target",
+          dataIndex: "targetCount",
+          key: "targetCount",
+          width: 100,
+        },
+        {
+          title: "Supervisor",
+          dataIndex: "supervisorCount",
+          key: "supervisorCount",
+          width: 101,
+        },
+      ],
     },
     {
       title: "Mapping Status",
@@ -708,209 +741,250 @@ const TargetMapping = ({
 
   const targetsMappingColumns: any = [
     {
-      title: "Target ID",
-      dataIndex: "targetID",
-      key: "targetID",
-      sorter: (a: any, b: any) => a.targetID - b.targetID,
-      width: 100,
+      title: "Target",
+      children: [
+        {
+          title: "ID",
+          dataIndex: "targetID",
+          key: "targetID",
+          sorter: (a: any, b: any) => a.targetID - b.targetID,
+          width: 100,
+          filters: [
+            ...new Set(mappingData?.map((target: any) => target.target_id)),
+          ].map((id) => ({
+            text: id,
+            value: id,
+          })),
+          onFilter: (value: any, record: any) => record.targetID === value,
+        },
+        ...(criteria.includes("Location") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Location ID",
+                dataIndex: "targetLocationID",
+                key: "targetLocationID",
+                sorter: (a: any, b: any) =>
+                  a.targetLocationID - b.targetLocationID,
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target.location_id)
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLocationID === value,
+                width: 150,
+              },
+              {
+                title: "Location",
+                dataIndex: "targetLocation",
+                key: "targetLocation",
+                sorter: (a: any, b: any) =>
+                  a.targetLocation.localeCompare(b.targetLocation),
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target.location_name)
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLocation.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "targetLanguage",
+                key: "targetLanguage",
+                sorter: (a: any, b: any) =>
+                  a.targetLanguage.localeCompare(b.targetLanguage),
+                filters: [
+                  ...new Set(
+                    mappingData?.map((target: any) => target?.language)
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetLanguage.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") || criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "targetGender",
+                key: "targetGender",
+                sorter: (a: any, b: any) =>
+                  a.targetGender.localeCompare(b.targetGender),
+                filters: [
+                  ...new Set(mappingData?.map((target: any) => target?.gender)),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.targetGender.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
     },
-    ...(criteria.includes("Location") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Location ID",
-            dataIndex: "targetLocationID",
-            key: "targetLocationID",
-            sorter: (a: any, b: any) => a.targetLocationID - b.targetLocationID,
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target.location_id)),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLocationID === value,
-            width: 150,
-          },
-          {
-            title: "Target Location",
-            dataIndex: "targetLocation",
-            key: "targetLocation",
-            sorter: (a: any, b: any) =>
-              a.targetLocation.localeCompare(b.targetLocation),
-            filters: [
-              ...new Set(
-                mappingData?.map((target: any) => target.location_name)
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLocation.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Language",
-            dataIndex: "targetLanguage",
-            key: "targetLanguage",
-            sorter: (a: any, b: any) =>
-              a.targetLanguage.localeCompare(b.targetLanguage),
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target?.language)),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetLanguage.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") || criteria.includes("Manual")
-      ? [
-          {
-            title: "Target Gender",
-            dataIndex: "targetGender",
-            key: "targetGender",
-            sorter: (a: any, b: any) =>
-              a.targetGender.localeCompare(b.targetGender),
-            filters: [
-              ...new Set(mappingData?.map((target: any) => target?.gender)),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.targetGender.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
     {
-      title: "Supervisor Email",
-      dataIndex: "supervisorEmail",
-      key: "supervisorEmail",
+      title: "Mapping Status",
+      dataIndex: "mappingStatus",
+      key: "mappingStatus",
+      render: (status: any) => (
+        <Tag color={status === "Complete" ? "green" : "red"}>{status}</Tag>
+      ),
+      width: 100,
       filters: [
-        ...new Set(
-          mappingData?.map((target: any) =>
-            target.supervisor_email !== null
-              ? target.supervisor_email
-              : "Not mapped"
-          )
-        ),
-      ].map((email) => ({
-        text: email,
-        value: email,
-      })),
+        { text: "Complete", value: "Complete" },
+        { text: "Pending", value: "Pending" },
+      ],
       onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorEmail?.indexOf(value) === 0,
-      width: 100,
-    },
-    {
-      title: "Supervisor Name",
-      dataIndex: "supervisorName",
-      key: "supervisorName",
+        record.mappingStatus.indexOf(value) === 0,
       sorter: (a: any, b: any) =>
-        a.supervisorName.localeCompare(b.supervisorName),
-      filters: [
-        ...new Set(
-          mappingData?.map((target: any) =>
-            target.supervisor_name !== null
-              ? target.supervisor_name
-              : "Not mapped"
-          )
-        ),
-      ].map((name) => ({
-        text: name,
-        value: name,
-      })),
-      onFilter: (value: any, record: any) =>
-        typeof value === "string" &&
-        record.supervisorName?.indexOf(value) === 0,
-      width: 100,
+        a.mappingStatus.localeCompare(b.mappingStatus),
     },
-    ...(criteria.includes("Location") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Location",
-            dataIndex: "supervisorLocation",
-            key: "supervisorLocation",
-            sorter: (a: any, b: any) =>
-              a.supervisorLocation.localeCompare(b.supervisorLocation),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values?.other
-                      ?.location_name
-                )
-              ),
-            ].map((location) => ({
-              text: location,
-              value: location,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLocation?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Language") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Language",
-            dataIndex: "supervisorLanguage",
-            key: "supervisorLanguage",
-            sorter: (a: any, b: any) =>
-              a.supervisorLanguage.localeCompare(b.supervisorLanguage),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values.criteria?.Language
-                )
-              ),
-            ].map((language) => ({
-              text: language,
-              value: language,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorLanguage?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
-    ...(criteria.includes("Gender") && !criteria.includes("Manual")
-      ? [
-          {
-            title: "Supervisor Gender",
-            dataIndex: "supervisorGender",
-            key: "supervisorGender",
-            sorter: (a: any, b: any) =>
-              a.supervisorGender.localeCompare(b.supervisorGender),
-            filters: [
-              ...new Set(
-                mappingData?.map(
-                  (target: any) =>
-                    target.supervisor_mapping_criteria_values.criteria?.Gender
-                )
-              ),
-            ].map((gender) => ({
-              text: gender,
-              value: gender,
-            })),
-            onFilter: (value: any, record: any) =>
-              record.supervisorGender?.indexOf(value) === 0,
-            width: 100,
-          },
-        ]
-      : []),
+    {
+      title: "Supervisor",
+      children: [
+        {
+          title: "Email",
+          dataIndex: "supervisorEmail",
+          key: "supervisorEmail",
+          filters: [
+            ...new Set(
+              mappingData?.map((target: any) =>
+                target.supervisor_email !== null
+                  ? target.supervisor_email
+                  : "Not mapped"
+              )
+            ),
+          ].map((email) => ({
+            text: email,
+            value: email,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorEmail?.indexOf(value) === 0,
+          width: 100,
+        },
+        {
+          title: "Name",
+          dataIndex: "supervisorName",
+          key: "supervisorName",
+          sorter: (a: any, b: any) =>
+            a.supervisorName.localeCompare(b.supervisorName),
+          filters: [
+            ...new Set(
+              mappingData?.map((target: any) =>
+                target.supervisor_name !== null
+                  ? target.supervisor_name
+                  : "Not mapped"
+              )
+            ),
+          ].map((name) => ({
+            text: name,
+            value: name,
+          })),
+          onFilter: (value: any, record: any) =>
+            typeof value === "string" &&
+            record.supervisorName?.indexOf(value) === 0,
+          width: 100,
+        },
+        ...(criteria.includes("Location") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Location",
+                dataIndex: "supervisorLocation",
+                key: "supervisorLocation",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLocation.localeCompare(b.supervisorLocation),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values?.other
+                          ?.location_name
+                    )
+                  ),
+                ].map((location) => ({
+                  text: location,
+                  value: location,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLocation?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Language") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Language",
+                dataIndex: "supervisorLanguage",
+                key: "supervisorLanguage",
+                sorter: (a: any, b: any) =>
+                  a.supervisorLanguage.localeCompare(b.supervisorLanguage),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values.criteria
+                          ?.Language
+                    )
+                  ),
+                ].map((language) => ({
+                  text: language,
+                  value: language,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorLanguage?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+        ...(criteria.includes("Gender") && !criteria.includes("Manual")
+          ? [
+              {
+                title: "Gender",
+                dataIndex: "supervisorGender",
+                key: "supervisorGender",
+                sorter: (a: any, b: any) =>
+                  a.supervisorGender.localeCompare(b.supervisorGender),
+                filters: [
+                  ...new Set(
+                    mappingData?.map(
+                      (target: any) =>
+                        target.supervisor_mapping_criteria_values.criteria
+                          ?.Gender
+                    )
+                  ),
+                ].map((gender) => ({
+                  text: gender,
+                  value: gender,
+                })),
+                onFilter: (value: any, record: any) =>
+                  record.supervisorGender?.indexOf(value) === 0,
+                width: 100,
+              },
+            ]
+          : []),
+      ],
+    },
   ];
 
   const mappingTableData = mappingData?.map((target: any) => {
@@ -922,6 +996,7 @@ const TargetMapping = ({
       targetLocation: target?.location_name,
       targetLanguage: target?.language,
       targetGender: target?.gender,
+      mappingStatus: target.supervisor_email !== null ? "Complete" : "Pending",
       supervisorEmail:
         target.supervisor_email !== null
           ? target.supervisor_email
@@ -1133,6 +1208,7 @@ const TargetMapping = ({
         fetchTargetsMapping(formUID).then((res: any) => {
           if (res?.data?.success) {
             setMappingData(res?.data?.data);
+            setOriginalMappingData(res?.data?.data);
             populateMappingStats(res?.data?.data);
             setLoadMappingDataError("");
           } else {
@@ -1193,6 +1269,9 @@ const TargetMapping = ({
     mappingLoading ||
     isSideMenuLoading;
 
+  // State to force table refresh
+  const [tableKey, setTableKey] = useState(0);
+
   if (loading) {
     return <FullScreenLoader />;
   }
@@ -1207,18 +1286,7 @@ const TargetMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
-                },
-                {
-                  title: "Configuration",
+                  title: "Targets <> Supervisors Mapping Configuration",
                 },
               ]}
             />
@@ -1262,27 +1330,41 @@ const TargetMapping = ({
                 />
               ) : (
                 <div>
-                  <p style={{ fontWeight: "bold" }}>Mapped Pairs:</p>
+                  <DescriptionText>
+                    Review the mapping of Targets to Supervisors based on{" "}
+                    {criteria.join(" and ")}{" "}
+                    <Tooltip title="As per mapping criteria selected under module questionnaire">
+                      <QuestionCircleOutlined />
+                    </Tooltip>
+                    {" . "}
+                    <DescriptionLink link="https://docs.surveystream.idinsight.io/supervisor_mapping" />
+                  </DescriptionText>
                   <MappingTable
                     columns={mappedPairsColumns}
                     dataSource={mappedPairsData}
                     scroll={{ x: "max-content" }}
                     pagination={false}
+                    bordered={true}
                   />
                   {unmappedTargets?.length > 0 && (
                     <>
-                      <p style={{ marginTop: "36px", fontWeight: "bold" }}>
-                        There is no mapping available for below listed Target,
-                        please map them manually:
-                      </p>
+                      <DescriptionText style={{ marginTop: "36px" }}>
+                        Targets with the following {criteria.join(" and ")}{" "}
+                        criteria couldn’t be mapped to a supervisor, please
+                        select alternative mapping values.
+                      </DescriptionText>
                       <MappingTable
                         columns={unmappedColumns}
                         dataSource={unmappedPairData}
                         scroll={{
                           x: "max-content",
-                          y: "calc(100vh - 380px)",
+                          y:
+                            unmappedPairData?.length > 5
+                              ? "calc(100vh - 400px)"
+                              : undefined,
                         }}
                         pagination={false}
+                        bordered={true}
                       />
                     </>
                   )}
@@ -1326,18 +1408,7 @@ const TargetMapping = ({
               style={{ fontSize: "16px", color: "#000" }}
               items={[
                 {
-                  title: (
-                    <>
-                      {mappingName === "surveyor"
-                        ? "Surveyors <> Supervisors"
-                        : "Targets <> Supervisors"}{" "}
-                      Mapping
-                    </>
-                  ),
-                  href: `/survey-information/mapping/${mappingName}/${SurveyUID}`,
-                },
-                {
-                  title: "Configuration",
+                  title: "Targets <> Supervisors Mapping Configuration",
                   href: `/survey-information/mapping/${mappingName}/${SurveyUID}?form_uid=${formUID}&page=1`,
                 },
                 {
@@ -1362,6 +1433,18 @@ const TargetMapping = ({
                 Edit
               </CustomBtn>
             </div>
+            {mappingTableData?.length > 0 && (
+              <Button
+                onClick={() => {
+                  // Reset the mapping data to original state
+                  setMappingData([...originalMappingData]);
+                  // Force table reload by updating key
+                  setTableKey((prev) => prev + 1);
+                }}
+                icon={<ClearOutlined />}
+                style={{ marginLeft: 16 }}
+              />
+            )}
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />
@@ -1375,10 +1458,12 @@ const TargetMapping = ({
               ) : (
                 <div>
                   <MappingTable
+                    key={tableKey}
                     columns={targetsMappingColumns}
                     dataSource={mappingTableData}
                     rowSelection={rowSelection}
                     scroll={{ x: "max-content" }}
+                    bordered={true}
                     pagination={{
                       position: ["topRight"],
                       pageSize: tablePageSize,

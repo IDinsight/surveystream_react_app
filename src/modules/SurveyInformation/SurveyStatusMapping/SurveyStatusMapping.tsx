@@ -21,9 +21,8 @@ import { RootState } from "../../../redux/store";
 import {
   TargetStatusFormWrapper,
   BodyContainer,
-  EditingModel,
   FormItemLabel,
-  TargetMappingTable,
+  StatusMappingTable,
 } from "./SurveyStatusMapping.styled";
 import { CustomBtn } from "../../../shared/Global.styled";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
@@ -34,6 +33,7 @@ import {
 import { getSurveyBasicInformation } from "../../../redux/surveyConfig/surveyConfigActions";
 import { HeaderContainer, Title } from "../../../shared/Nav.styled";
 import SurveyStatusCount from "../../../components/SurveyStatusCount";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 function SurveyStatusMapping() {
   const navigate = useNavigate();
@@ -145,13 +145,30 @@ function SurveyStatusMapping() {
     onChange: onSelectChange,
   };
 
-  const onConfirmClick = () => {
-    if (!sctoForm.form_uid) return;
+  const handleFormUID = async () => {
+    if (!sctoForm.form_uid) {
+      try {
+        const sctoFormResponse = await dispatch(
+          getSurveyCTOForm({ survey_uid: survey_uid })
+        );
+        const fetchedFormUID = sctoFormResponse?.payload[0]?.form_uid;
+        const fetchedFormName = sctoFormResponse?.payload[0]?.scto_form_id;
 
-    dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
-    setIsFormConfirmed(true);
+        if (fetchedFormUID) {
+          setFormIdName(fetchedFormName);
+          dispatch(getTargetStatusMapping({ formUID: fetchedFormUID }));
+          setIsFormConfirmed(true);
+        } else {
+          message.error("Kindly configure SCTO Form to proceed");
+        }
+      } catch (error) {
+        console.error("Error fetching sctoForm:", error);
+      }
+    } else {
+      dispatch(getTargetStatusMapping({ formUID: sctoForm.form_uid }));
+      setIsFormConfirmed(true);
+    }
   };
-
   const onAddClick = () => {
     setEditingMode("add");
   };
@@ -293,6 +310,7 @@ function SurveyStatusMapping() {
 
     dispatch(getSurveyCTOForm({ survey_uid: survey_uid }));
     dispatch(getSurveyBasicInformation({ survey_uid: survey_uid }));
+    handleFormUID();
   }, [dispatch, survey_uid]);
 
   return (
@@ -300,144 +318,64 @@ function SurveyStatusMapping() {
       {isLoading ||
       isMappingLoading ||
       isBasicInfoLoading ||
-      isSideMenuLoading ? (
+      isSideMenuLoading ||
+      !isFormConfirmed ? (
         <FullScreenLoader />
       ) : (
         <>
           <Container surveyPage={true} />
           <HeaderContainer>
             <Title>Survey Status for Targets</Title>
-            {isFormConfirmed ? (
-              <>
-                <SurveyStatusCount
-                  surveyStatusCount={targetStatusMapping.length}
-                />
-                <BodyContainer>
-                  <CustomBtn
-                    icon={<PlusOutlined />}
-                    style={{ marginLeft: "auto" }}
-                    onClick={onAddClick}
-                  >
-                    Add
-                  </CustomBtn>
-                  <CustomBtn
-                    icon={<EditOutlined />}
-                    style={{ marginLeft: 10 }}
-                    onClick={onEditClick}
-                    disabled={selectedRowKeys.length !== 1}
-                  >
-                    Edit
-                  </CustomBtn>
-                  <CustomBtn
-                    icon={<DeleteOutlined />}
-                    style={{ marginLeft: 10 }}
-                    onClick={onDeleteMapping}
-                    disabled={selectedRowKeys.length === 0}
-                  >
-                    Delete
-                  </CustomBtn>
-                </BodyContainer>
-              </>
-            ) : null}
+            <SurveyStatusCount surveyStatusCount={targetStatusMapping.length} />
+            <BodyContainer>
+              <CustomBtn style={{ marginLeft: "auto" }} onClick={onAddClick}>
+                Add
+              </CustomBtn>
+              <CustomBtn
+                style={{ marginLeft: 10 }}
+                onClick={onEditClick}
+                disabled={selectedRowKeys.length !== 1}
+              >
+                Edit
+              </CustomBtn>
+              <CustomBtn
+                style={{ marginLeft: 10 }}
+                onClick={onDeleteMapping}
+                disabled={selectedRowKeys.length === 0}
+              >
+                Delete
+              </CustomBtn>
+            </BodyContainer>
           </HeaderContainer>
           <div style={{ display: "flex" }}>
             <SideMenu />
-
             <TargetStatusFormWrapper>
-              {isFormConfirmed ? (
-                <>
-                  <p
-                    style={{
-                      color: "#8C8C8C",
-                      fontSize: 14,
-                      marginBottom: 0,
-                    }}
-                  >
-                    Add or edit all possible survey status values for the
-                    selected form with form ID: {formIdName}. If nothing is
-                    configured, the default values as per survey modality is
-                    shown below.
-                  </p>
-                  <TargetMappingTable
-                    columns={tableColumns}
-                    dataSource={tableDataSources}
-                    rowSelection={rowSelection}
-                    pagination={{ position: ["topRight"] }}
-                    bordered
-                  />
-                </>
-              ) : (
-                <>
-                  <p
-                    style={{
-                      color: "#8C8C8C",
-                      fontSize: 14,
-                      marginBottom: 20,
-                      marginRight: 60,
-                    }}
-                  >
-                    Target status mapping is used to determine the status
-                    (completed, refused, pending etc.) of a target for
-                    productivity calculations and assignments, based on the
-                    value recorded in the survey_status variable in its
-                    SurveyCTO submissions.
-                  </p>
-                  <p
-                    style={{
-                      color: "#8C8C8C",
-                      fontSize: 14,
-                      marginBottom: 20,
-                    }}
-                  >
-                    Kindly select the SCTO form ID to proceed
-                  </p>
-                  <Form form={form} wrapperCol={{ span: 6 }}>
-                    <Form.Item
-                      label="SCTO form ID"
-                      name="scto-form-id"
-                      required
-                      tooltip="Select the SurveyCTO main form"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please select the form id!",
-                        },
-                      ]}
-                    >
-                      <Select
-                        placeholder="Select SCTO form ID"
-                        onSelect={(e) => setFormIdName(e)}
-                        style={{ marginLeft: 11 }}
-                      >
-                        {sctoForm && Object.keys(sctoForm).length > 0 ? (
-                          <Select.Option value={sctoForm.scto_form_id}>
-                            {sctoForm.scto_form_id}
-                          </Select.Option>
-                        ) : null}
-                      </Select>
-                    </Form.Item>
-
-                    {formIdName != "" ? (
-                      <>
-                        <Form.Item
-                          label="Survey modality"
-                          name="survey-modality"
-                          required
-                          tooltip="Configured in the Basic Information module"
-                        >
-                          <Input
-                            defaultValue={basicInfo.surveying_method}
-                            disabled
-                          />
-                        </Form.Item>
-                        <Form.Item shouldUpdate>
-                          <CustomBtn onClick={onConfirmClick}>Load</CustomBtn>
-                        </Form.Item>
-                      </>
-                    ) : null}
-                  </Form>
-                </>
-              )}
+              <>
+                <p
+                  style={{
+                    color: "#8C8C8C",
+                    fontSize: 14,
+                    marginBottom: 0,
+                  }}
+                >
+                  Target status mapping is used to determine the status
+                  (completed, refused, pending etc.) of a target for
+                  productivity calculations and assignments, based on the value
+                  recorded in the survey_status variable in its SurveyCTO
+                  submissions. <br /> Add or edit all possible survey status
+                  values for the selected form with form ID: {formIdName}. If
+                  nothing is configured, the default values as per survey
+                  modality is shown below.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/target_status" />
+                </p>
+                <StatusMappingTable
+                  columns={tableColumns}
+                  dataSource={tableDataSources}
+                  rowSelection={rowSelection}
+                  pagination={{ position: ["topRight"] }}
+                  bordered={true}
+                />
+              </>
 
               {editingMode ? (
                 <Drawer
@@ -446,8 +384,8 @@ function SurveyStatusMapping() {
                   onClose={() => setEditingMode(null)}
                   title={
                     editingMode === "add"
-                      ? "Add survey status"
-                      : "Edit survey status"
+                      ? "Add Survey Status"
+                      : "Edit Survey Status"
                   }
                 >
                   <Row align="middle" style={{ marginBottom: 12 }}>

@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Button, Checkbox, Col, Row, Select, Form, message, Alert } from "antd";
-import { Title } from "../../../../shared/Nav.styled";
+import { Button, Checkbox, Select, Form, message } from "antd";
 import {
   DescriptionContainer,
   HeadingText,
@@ -27,7 +26,6 @@ import {
   setMappingErrorStatus,
   setMappingErrorCount,
 } from "../../../../redux/targets/targetSlice";
-import { getSurveyCTOForm } from "../../../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { getSurveyModuleQuestionnaire } from "../../../../redux/surveyConfig/surveyConfigActions";
 import { TargetMapping } from "../../../../redux/targets/types";
 import {
@@ -42,6 +40,8 @@ import FullScreenLoader from "../../../../components/Loaders/FullScreenLoader";
 import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import ErrorWarningTable from "../../../../components/ErrorWarningTable";
+import { validateCSVData } from "../../../../utils/csvValidator";
+
 interface CSVError {
   type: string;
   count: number;
@@ -148,22 +148,70 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
 
   const handleTargetsUploadMapping = async () => {
     try {
-      //start with an empty error count
       dispatch(setMappingErrorCount(0));
       const values = await targetMappingForm.validateFields();
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
         column_mapping.custom_fields = [];
+        const mappedValues = Object.values(column_mapping);
+
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
-            // Set the column_type to "custom_fields"
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
             });
           }
+        }
+      }
+
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...mandatoryDetailsField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationDetailsField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
+          .map((field: any) => field.column_name),
+      ];
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          dispatch(setMappingErrorStatus(true));
+          dispatch(
+            setMappingErrorList(
+              (validationResult.inValidData as string[]).map((msg) => ({
+                type: "Validation Error",
+                count: 1,
+                rows: msg,
+              }))
+            )
+          );
+          dispatch(setMappingErrorCount(csvRows.length - 1));
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -294,10 +342,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     }
   };
 
-  const handleCheckboxChange = (name: any) => {
-    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -308,8 +356,13 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     //auto configure columns for users setting personal as non_batch and the rest as batch
     //use the column mapping to do this
 
-    const customConfig = Object.keys(column_mapping).map((key) => {
-      if (key !== null && key !== "" && key !== undefined) {
+    const customConfig = Object.keys(column_mapping).flatMap((key) => {
+      if (
+        key !== null &&
+        key !== "" &&
+        key !== undefined &&
+        column_mapping[key] !== undefined
+      ) {
         const personal = ["target_id"].includes(key);
         const custom = ["gender", "language"].includes(key);
 
@@ -318,37 +371,23 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
           ["location_id_column"].includes(key);
 
         if (key === "custom_fields") {
-          //loop through the custom fields checking for pii
-          const customFields: any = column_mapping[key];
+          // Loop through the custom fields checking for PII
+          const customFields = column_mapping[key];
 
-          const fieldsConfig = Object.keys(customFields).map((customKey) => {
+          return Object.keys(customFields).map((customKey) => {
             const columnName = column_mapping[key][customKey]["column_name"];
 
-            const bulk = checkboxValues?.[`${customKey}_bulk`]
-              ? checkboxValues?.[`${customKey}_bulk`]
-              : true;
-            const pii = checkboxValues?.[`${customKey}_pii`]
-              ? checkboxValues?.[`${customKey}_pii`]
-              : true;
-
             return {
-              bulk_editable: bulk,
               column_name: columnName,
-              column_type: "custom_field",
-              contains_pii: pii,
+              column_type: "custom_fields",
+              contains_pii: true,
               column_source: columnName,
+              allow_null_values: checkboxValues[columnName],
             };
           });
         }
 
         return {
-          bulk_editable: personal
-            ? false
-            : location
-            ? true
-            : custom
-            ? true
-            : true,
           column_name:
             key == "location_id_column" ? "bottom_geo_level_location" : key,
           column_type:
@@ -356,9 +395,10 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
               ? "basic_details"
               : location
               ? "location"
-              : "custom_field",
-          contains_pii: true, //TODO: fix
+              : "custom_fields",
+          contains_pii: true,
           column_source: column_mapping[key],
+          allow_null_values: false,
         };
       }
     });
@@ -370,7 +410,6 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         config !== undefined &&
         config.column_name !== `custom_fields`
     );
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
@@ -417,6 +456,16 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
     });
 
     setExtraCSVHeader(extraHeaders);
+    // Set allow_null as checked (true) by default for new custom columns
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const fetchModuleQuestionnaire = async () => {
@@ -464,13 +513,8 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
         );
 
         const locationData = locationRes?.payload;
-        console.log("Location data for target mapping:", locationData);
 
         const lowestGeoLevel = findLowestGeoLevel(locationData);
-        console.log(
-          "Lowest geo level for target mapping location:",
-          lowestGeoLevel
-        );
 
         if (lowestGeoLevel?.geo_level_name) {
           setLocationDetailsField([
@@ -762,63 +806,18 @@ function TargetsRemap({ setScreenMode }: ITargetsRemap) {
                                     }}
                                   >
                                     <Checkbox
-                                      name={`${item}_mandatory`}
+                                      name={`${item}`}
                                       checked={
-                                        checkboxValues?.[`${item}_mandatory`]
-                                          ? checkboxValues?.[
-                                              `${item}_mandatory`
-                                            ]
-                                          : false
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
                                       }
                                       onChange={() =>
-                                        handleCheckboxChange(
-                                          `${item}_mandatory`
-                                        )
+                                        handleCheckboxChange(`${item}`)
                                       }
                                     >
-                                      Is mandatory?
-                                    </Checkbox>
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "inline-block",
-                                      alignItems: "center",
-                                      marginLeft: 30,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      name={`${item}_bulk`}
-                                      checked={
-                                        checkboxValues?.[`${item}_bulk`]
-                                          ? checkboxValues?.[`${item}_bulk`]
-                                          : false
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(`${item}_bulk`)
-                                      }
-                                    >
-                                      Bulk edit?
-                                    </Checkbox>
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "inline-block",
-                                      alignItems: "center",
-                                      marginLeft: 30,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      name={`${item}_pii`}
-                                      checked={
-                                        checkboxValues?.[`${item}_pii`]
-                                          ? checkboxValues?.[`${item}_pii`]
-                                          : false
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(`${item}_pii`)
-                                      }
-                                    >
-                                      PII?
+                                      Allow null values?
                                     </Checkbox>
                                   </div>
                                 </div>

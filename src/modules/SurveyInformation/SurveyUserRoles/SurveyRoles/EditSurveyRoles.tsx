@@ -31,6 +31,7 @@ import PermissionsTable from "../../../../components/PermissionsTable";
 import { GlobalStyle } from "../../../../shared/Global.styled";
 import HandleBackButton from "../../../../components/HandleBackButton";
 import { setRolePermissions } from "../../../../redux/userRoles/userRolesSlice";
+import DescriptionLink from "../../../../components/DescriptionLink/DescriptionLink";
 
 interface OriginalRolesData {
   reporting_role_uid: number | null;
@@ -249,14 +250,17 @@ function EditSurveyRoles() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <BodyWrapper>
-              <DescriptionText>
-                <>Edit selected role</>
+              <DescriptionText
+                style={{ marginRight: "auto", marginBottom: "20px" }}
+              >
+                Edit a selected role in the survey.{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#other-actions-on-roles" />
               </DescriptionText>
 
               <div style={{ display: "flex" }}></div>
 
               <Form form={editRolesForm}>
-                <Row gutter={36} style={{ marginBottom: "30px" }}>
+                <Row gutter={36} style={{ marginBottom: "20px" }}>
                   <Col span={12}>
                     <StyledFormItem
                       label="Role name"
@@ -343,8 +347,9 @@ function EditSurveyRoles() {
 
                 <DescriptionTitle>Role permissions</DescriptionTitle>
                 <DescriptionText style={{ marginRight: "auto" }}>
-                  Please select the respective permission by selecting edit,
-                  view or none against the permission{" "}
+                  Please select the permission level - edit, view or none - for
+                  each module.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/user_management#role-permissions" />
                 </DescriptionText>
 
                 <PermissionsTable
@@ -354,7 +359,7 @@ function EditSurveyRoles() {
               </Form>
               <div>
                 <Button
-                  style={{ marginTop: 0, marginRight: 24 }}
+                  style={{ marginTop: 0, marginRight: 24, marginBottom: 48 }}
                   onClick={() =>
                     navigate(
                       `/survey-information/survey-roles/roles/${survey_uid}`
