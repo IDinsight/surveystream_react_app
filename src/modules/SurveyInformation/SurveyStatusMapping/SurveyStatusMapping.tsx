@@ -160,6 +160,7 @@ function SurveyStatusMapping() {
           setIsFormConfirmed(true);
         } else {
           message.error("Kindly configure SCTO Form to proceed");
+          navigate(`/survey-information/survey-cto-information/${survey_uid}`);
         }
       } catch (error) {
         console.error("Error fetching sctoForm:", error);

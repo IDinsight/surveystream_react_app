@@ -269,6 +269,33 @@ function NewSurveyConfig() {
         });
         return;
       }
+
+      // Check survey_id format
+      if (
+        basicformData.survey_id &&
+        !/^[a-zA-Z0-9_]+$/.test(basicformData.survey_id)
+      ) {
+        messageApi.open({
+          type: "error",
+          content:
+            "Survey ID can only contain letters, numbers, and underscores",
+        });
+        return;
+      }
+      // Check if planned end date is earlier than planned start date
+      if (basicformData.planned_end_date && basicformData.planned_start_date) {
+        const endDate = new Date(basicformData.planned_end_date);
+        const startDate = new Date(basicformData.planned_start_date);
+
+        if (endDate < startDate) {
+          messageApi.open({
+            type: "error",
+            content: "Survey end date cannot be earlier than survey start date",
+          });
+          return;
+        }
+      }
+
       const validationRules = [
         { key: "survey_name", message: "Please fill in the Survey name" },
         { key: "survey_id", message: "Please fill in the Survey ID" },
@@ -320,7 +347,6 @@ function NewSurveyConfig() {
           content: "Survey basic information saved successfully.",
         });
 
-        // TODO: Check why response.payload have two different format
         let newSurveyUid;
         if (basicformData.survey_uid == null) {
           newSurveyUid = response.payload.survey.survey_uid;
@@ -335,8 +361,6 @@ function NewSurveyConfig() {
         window.history.replaceState(null, "", newURL);
         setSurveyUid(newSurveyUid);
 
-        // After saving the basic information, we need to update user profile
-        // because it contains the list of surveys the user has created as survey admin
         dispatch(performGetUserProfile());
 
         if (stepIndex["sidebar"] < 1) {
@@ -354,7 +378,6 @@ function NewSurveyConfig() {
         });
       }
     } catch (error) {
-      // Handle any error
       messageApi.open({
         type: "error",
         content: showError.payload.message,
