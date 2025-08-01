@@ -9,7 +9,6 @@ import {
   DescriptionText,
   TargetsMapFormWrapper,
   HeadingText,
-  OptionText,
 } from "./TargetsMap.styled";
 import {
   CloudDownloadOutlined,
@@ -40,6 +39,7 @@ import { CustomBtn, GlobalStyle } from "../../../../shared/Global.styled";
 import Container from "../../../../components/Layout/Container";
 import { resolveSurveyNotification } from "../../../../redux/notifications/notificationActions";
 import ErrorWarningTable from "../../../../components/ErrorWarningTable";
+import { validateCSVData } from "../../../../utils/csvValidator";
 
 interface CSVError {
   type: string;
@@ -68,7 +68,7 @@ function TargetsMap() {
   const [warningList, setWarningList] = useState<CSVError[]>([]);
   const [customHeader, setCustomHeader] = useState<boolean>(false);
   const [customHeaderSelection, setCustomHeaderSelection] = useState<any>({});
-  const [checkboxValues, setCheckboxValues] = useState<any>();
+  const [checkboxValues, setCheckboxValues] = useState<any>({});
   const [extraCSVHeader, setExtraCSVHeader] = useState<any>();
 
   const [mandatoryDetailsField, setMandatoryDetailsField] = useState<any>([
@@ -132,22 +132,67 @@ function TargetsMap() {
 
   const handleTargetsUploadMapping = async () => {
     try {
-      //start with an empty error count
       setErrorCount(0);
       const values = await targetMappingForm.validateFields();
       const column_mapping = targetMappingForm.getFieldsValue();
       if (customHeaderSelection) {
         column_mapping.custom_fields = [];
+        const mappedValues = Object.values(column_mapping);
         for (const [column_name, shouldInclude] of Object.entries(
           customHeaderSelection
         )) {
-          if (shouldInclude) {
-            // Set the column_type to "custom_fields"
+          if (shouldInclude && !mappedValues.includes(column_name)) {
             column_mapping.custom_fields.push({
               column_name: column_name,
               field_label: column_name,
             });
           }
+        }
+      }
+
+      // Build list of columns to check for empty values
+      const columnsToCheck: string[] = [
+        // Add all mandatory fields
+        ...mandatoryDetailsField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add all location fields
+        ...locationDetailsField
+          .map((item: any) => column_mapping[item.key])
+          .filter(Boolean),
+
+        // Add custom fields where allow_null is not true
+        ...(column_mapping.custom_fields || [])
+          .filter((field: any) => !checkboxValues?.[`${field.column_name}`])
+          .map((field: any) => field.column_name),
+      ];
+      // Validate CSV for empty columns (only for columnsToCheck)
+      if (columnsToCheck.length > 0) {
+        const validationResult = await validateCSVData(
+          new File([atob(csvBase64Data)], "data.csv"),
+          true,
+          columnsToCheck
+        );
+        if (
+          validationResult &&
+          "isValid" in validationResult &&
+          validationResult.isValid === false &&
+          validationResult.inValidData?.length > 0
+        ) {
+          setHasError(true);
+          setErrorList(
+            (validationResult.inValidData as string[]).map((msg) => ({
+              type: "Validation Error",
+              count: 1,
+              rows: msg,
+            }))
+          );
+          setErrorCount(csvRows.length - 1);
+          message.error(
+            "Empty values found in required columns. Please fix and try again."
+          );
+          return;
         }
       }
 
@@ -275,10 +320,10 @@ function TargetsMap() {
     }
   };
 
-  const handleCheckboxChange = (name: any) => {
-    setCheckboxValues((prevValues: { [x: string]: any }) => ({
+  const handleCheckboxChange = (name: string) => {
+    setCheckboxValues((prevValues: any) => ({
       ...prevValues,
-      [name]: prevValues?.[name] ? prevValues?.[name] : true,
+      [name]: prevValues?.[name] === undefined ? false : !prevValues[name],
     }));
   };
 
@@ -307,27 +352,17 @@ function TargetsMap() {
           return Object.keys(customFields).map((customKey) => {
             const columnName = column_mapping[key][customKey]["column_name"];
 
-            const bulk = checkboxValues?.[`${columnName}_bulk`] ?? true;
-            const pii = checkboxValues?.[`${columnName}_pii`] ?? true;
-
             return {
-              bulk_editable: bulk,
               column_name: columnName,
               column_type: "custom_fields",
-              contains_pii: pii,
+              contains_pii: true,
               column_source: columnName,
+              allow_null_values: checkboxValues[columnName],
             };
           });
         }
 
         return {
-          bulk_editable: personal
-            ? false
-            : location
-            ? true
-            : custom
-            ? true
-            : true,
           column_name:
             key == "location_id_column" ? "bottom_geo_level_location" : key,
           column_type:
@@ -336,8 +371,9 @@ function TargetsMap() {
               : location
               ? "location"
               : "custom_fields",
-          contains_pii: true, // TODO: fix
+          contains_pii: true,
           column_source: column_mapping[key],
+          allow_null_values: false,
         };
       }
     });
@@ -348,7 +384,6 @@ function TargetsMap() {
         config !== undefined &&
         config.column_name !== `custom_fields`
     );
-
     dispatch(
       updateTargetsColumnConfig({
         formUID: formUID,
@@ -411,14 +446,21 @@ function TargetsMap() {
 
   const updateCustomColumns = (value: string) => {
     const formValues = targetMappingForm.getFieldsValue();
-
     const valuesArray = Object.values(formValues);
-
     const extraHeaders = csvHeaders.filter((item: any) => {
       return !valuesArray.includes(item);
     });
-
     setExtraCSVHeader(extraHeaders);
+    // Set allow_null as checked (true) by default for new custom columns
+    setCheckboxValues((prev: any) => {
+      const updated = { ...prev };
+      extraHeaders.forEach((header: string) => {
+        if (updated[`${header}`] === undefined) {
+          updated[`${header}`] = true;
+        }
+      });
+      return updated;
+    });
   };
 
   const handleFormUID = async () => {
@@ -702,42 +744,18 @@ function TargetsMap() {
                                     }}
                                   >
                                     <Checkbox
-                                      name={`${item}_mandatory`}
+                                      name={`${item}`}
                                       checked={
-                                        checkboxValues?.[`${item}_mandatory`]
-                                          ? checkboxValues?.[
-                                              `${item}_mandatory`
-                                            ]
-                                          : false
+                                        checkboxValues?.[`${item}`] !==
+                                        undefined
+                                          ? checkboxValues?.[`${item}`]
+                                          : true
                                       }
                                       onChange={() =>
-                                        handleCheckboxChange(
-                                          `${item}_mandatory`
-                                        )
+                                        handleCheckboxChange(`${item}`)
                                       }
                                     >
-                                      Is mandatory?
-                                    </Checkbox>
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "inline-block",
-                                      alignItems: "center",
-                                      marginLeft: 30,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      name={`${item}_bulk`}
-                                      checked={
-                                        checkboxValues?.[`${item}_bulk`]
-                                          ? checkboxValues?.[`${item}_bulk`]
-                                          : false
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(`${item}_bulk`)
-                                      }
-                                    >
-                                      Bulk edit?
+                                      Allow Null Values
                                     </Checkbox>
                                   </div>
                                 </div>

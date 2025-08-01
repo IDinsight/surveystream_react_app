@@ -9,6 +9,7 @@ import styled from "styled-components";
 
 export const BodyContainer = styled.div`
   padding: 48px;
+  padding-top: 10px;
 `;
 
 export const FormItemLabel = styled.p`

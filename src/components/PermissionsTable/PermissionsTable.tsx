@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Checkbox, Table } from "antd";
-import { StyledTable } from "./PermissionsTable.styled";
+import { StyledTable, CommonTable } from "./PermissionsTable.styled";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -217,10 +217,11 @@ const PermissionsTable: React.FC<IPermissionsTableProps> = ({
   return (
     <>
       <GlobalStyle />
-      <StyledTable
+      <CommonTable
         columns={columns}
         dataSource={localPermissions}
         pagination={false}
+        bordered={true}
       />
     </>
   );

@@ -5,6 +5,7 @@ import Container from "../../components/Layout/Container";
 import FullScreenLoader from "../../components/Loaders/FullScreenLoader";
 
 import { HeaderContainer, Title } from "../../shared/Nav.styled";
+import { DescriptionText } from "../../shared/Global.styled";
 import { BodyContainer, CustomBtn, FormItemLabel } from "./MediaAudits.styled";
 import { getSurveyCTOForm } from "../../redux/surveyCTOInformation/surveyCTOInformationActions";
 import { RootState } from "../../redux/store";
@@ -20,6 +21,7 @@ import {
 import { userHasPermission } from "../../utils/helper";
 import { resolveSurveyNotification } from "../../redux/notifications/notificationActions";
 import { getTargetsColumnConfig } from "../../redux/targets/targetActions";
+import DescriptionLink from "../../components/DescriptionLink/DescriptionLink";
 
 const { Option } = Select;
 
@@ -290,34 +292,35 @@ function MediaAuditsManage() {
           </HeaderContainer>
           <BodyContainer>
             {mediaConfigUID ? (
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
-                  Edit the media audit configuration below. Kindly note that any
-                  changes made will take a few minutes to reflect on the output
-                  Google Sheets.
-                </p>
+              <div style={{ marginBottom: 10 }}>
+                <DescriptionText>
+                  Edit the media audit configuration below.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/media_audits_configuration#edit-a-media-audit-config" />
+                </DescriptionText>
+                <DescriptionText>
+                  Kindly note that any changes made will take a few minutes to
+                  reflect on the output Google Sheets.
+                </DescriptionText>
               </div>
             ) : (
-              <div style={{ marginBottom: 30 }}>
-                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
-                  Please provide all the details below to create a media audit
-                  configuration for generating Google Sheets with links to media
-                  files from SurveyCTO or Exotel.
-                </p>{" "}
-                <span style={{ display: "inline-block" }}></span>
-                <p style={{ color: "#8C8C8C", fontSize: 14, marginTop: -20 }}>
-                  Links to the Google Sheet outputs will be available on the
-                  home page as soon as they are created. Survey Admins will also
-                  receive an email notification granting them access to the
-                  Google Drive folder containing the sheets.
-                </p>
+              <div style={{ marginBottom: 10 }}>
+                <DescriptionText>
+                  Please fill out the details below to create a media audit
+                  configuration.{" "}
+                  <DescriptionLink link="https://docs.surveystream.idinsight.io/media_audits_configuration#add-a-media-audit-config" />
+                </DescriptionText>
+                <DescriptionText>
+                  Kindly note that Survey Admins will receive an email
+                  notification granting them access to the Google Drive folder
+                  containing the output sheets as soon as they are created.
+                </DescriptionText>
               </div>
             )}
 
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select form ID{" "}
+                  <span style={{ color: "red" }}>*</span> SurveyCTO form ID{" "}
                   <Tooltip title="Dropdown contains main forms and admin forms added for the survey">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
@@ -327,7 +330,7 @@ function MediaAuditsManage() {
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="SCTO Form"
+                  placeholder="Select SurveyCTO form"
                   value={formFieldsData?.form_uid}
                   disabled={!canUserWrite}
                   onSelect={(val) => {
@@ -353,13 +356,13 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select media type:
+                  <span style={{ color: "red" }}>*</span> Media type:
                 </FormItemLabel>
               </Col>
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Photo / Audio"
+                  placeholder="Select type"
                   value={formFieldsData?.file_type}
                   disabled={!canUserWrite}
                   onSelect={(val: any) => {
@@ -377,13 +380,17 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select audit source:
+                  <span style={{ color: "red" }}>*</span> SurveyCTO or Exotel{" "}
+                  <Tooltip title="Exotel option is only available when media type is audio.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
                 </FormItemLabel>
               </Col>
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="SCTO form / Exotel"
+                  placeholder="Select source"
                   value={formFieldsData?.source}
                   disabled={!canUserWrite}
                   onSelect={(val) => {
@@ -399,7 +406,7 @@ function MediaAuditsManage() {
                     }
                   }}
                 >
-                  <Select.Option value="SurveyCTO">SCTO form</Select.Option>
+                  <Select.Option value="SurveyCTO">SurveyCTO</Select.Option>
                   {formFieldsData.file_type === "audio" ? (
                     <Select.Option value="Exotel">Exotel</Select.Option>
                   ) : null}
@@ -409,39 +416,8 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select output type{" "}
-                  <Tooltip title="Long format is 1 row per media file. Wide format is 1 row per submission.">
-                    <InfoCircleOutlined />
-                  </Tooltip>{" "}
-                  :
-                </FormItemLabel>
-              </Col>
-              <Col span={8}>
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="Long / Wide"
-                  value={formFieldsData?.format}
-                  disabled={
-                    !canUserWrite || formFieldsData?.source !== "SurveyCTO"
-                  }
-                  onSelect={(val: any) => {
-                    setFormFieldsData((prev: any) => ({
-                      ...prev,
-                      format: val,
-                    }));
-                  }}
-                >
-                  <Select.Option value="long">Long</Select.Option>
-                  <Select.Option value="wide">Wide</Select.Option>
-                </Select>
-              </Col>
-            </Row>
-            <Row align="middle" style={{ marginBottom: 6 }}>
-              <Col span={6}>
-                <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select column
-                  variables{" "}
-                  <Tooltip title="The columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                  <span style={{ color: "red" }}>*</span> Additional form fields{" "}
+                  <Tooltip title="Select additional fields to be added from the form to the Google Sheet apart from the media fields. The columns on the Google Sheet will be displayed in the same order as the variables are selected.">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
                   :
@@ -450,7 +426,7 @@ function MediaAuditsManage() {
               <Col span={8} style={{ display: "flex" }}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Multi select"
+                  placeholder="Select additional form fields"
                   options={questions.filter(
                     (q) => !formFieldsData?.media_fields?.includes(q.value)
                   )}
@@ -477,8 +453,38 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  <span style={{ color: "red" }}>*</span> Select media variables{" "}
-                  <Tooltip title="Select variables containing media fields, the columns on the Google Sheet will be displayed in the same order as the variables are selected.">
+                  <span style={{ color: "red" }}>*</span> Output type{" "}
+                  <Tooltip title="If output format is 'Long', the output has 1 row per media file. If output format is 'Wide', the output has 1 row per submission.">
+                    <InfoCircleOutlined />
+                  </Tooltip>{" "}
+                  :
+                </FormItemLabel>
+              </Col>
+              <Col span={8}>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Select output type"
+                  value={formFieldsData?.format || "long"}
+                  disabled={
+                    !canUserWrite || formFieldsData?.source !== "SurveyCTO"
+                  }
+                  onSelect={(val: any) => {
+                    setFormFieldsData((prev: any) => ({
+                      ...prev,
+                      format: val,
+                    }));
+                  }}
+                >
+                  <Select.Option value="long">Long (default)</Select.Option>
+                  <Select.Option value="wide">Wide</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+            <Row align="middle" style={{ marginBottom: 6 }}>
+              <Col span={6}>
+                <FormItemLabel>
+                  <span style={{ color: "red" }}>*</span> Media fields{" "}
+                  <Tooltip title="Select variables containing media files when output type is 'Wide'. The columns on the Google Sheet will be displayed in the same order as the variables are selected. When output type is 'Long', all media fields will be included in the output.">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
                   :
@@ -487,7 +493,7 @@ function MediaAuditsManage() {
               <Col span={8} style={{ display: "flex" }}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Multi select"
+                  placeholder="Select media fields"
                   options={questionWithMediaFields.filter(
                     (q) => !formFieldsData?.scto_fields?.includes(q.value)
                   )}
@@ -518,8 +524,8 @@ function MediaAuditsManage() {
             <Row align="middle" style={{ marginBottom: 6 }}>
               <Col span={6}>
                 <FormItemLabel>
-                  Select mapping criteria{" "}
-                  <Tooltip title="Mapping criteria will be used to create multiple Google Sheets - one per prime geo location or language as per selection. If location/language level Google Sheets are not required, kindly select 'Not required'. This option is not available for admin forms. ">
+                  Multiple sheet creation criteria{" "}
+                  <Tooltip title="Can be used to create multiple Google Sheets - one per prime geo location or language - based on presence of location/language in targets dataset uploaded on SurveyStream. This option is not available for admin forms. ">
                     <InfoCircleOutlined />
                   </Tooltip>{" "}
                   :
@@ -528,8 +534,8 @@ function MediaAuditsManage() {
               <Col span={8}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Location / Language"
-                  value={formFieldsData?.mapping_criteria}
+                  placeholder="Select criteria for multiple sheet creation"
+                  value={formFieldsData?.mapping_criteria || null}
                   disabled={
                     !canUserWrite ||
                     // Disable if form_uid is in adminForms. Admin forms are not allowed to have mapping criteria since mapping is done using target location and language details.
@@ -544,7 +550,9 @@ function MediaAuditsManage() {
                     }))
                   }
                 >
-                  <Select.Option value={null}>Not required</Select.Option>
+                  <Select.Option value={null}>
+                    Use single sheet (default)
+                  </Select.Option>
                   {mappingOPtions.map((option) => (
                     <Select.Option key={option.value} value={option.value}>
                       {option.label}

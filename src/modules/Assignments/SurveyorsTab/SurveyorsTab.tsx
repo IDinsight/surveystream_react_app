@@ -67,7 +67,16 @@ function SurveyorsTab({
         rowKey={(record: any) => record["enumerator_uid"]}
         columns={enumeratorTableColumns}
         dataSource={mainData}
-        scroll={{ x: 2200, y: "calc(100vh - 380px)" }}
+        scroll={{
+          x:
+            enumeratorTableColumns.length > 0
+              ? 180 *
+                enumeratorTableColumns
+                  .map((col: any) => col.children?.length || 1)
+                  .reduce((acc: number, count: number) => acc + count, 0)
+              : 2200,
+          y: "calc(100vh - 380px)",
+        }}
         bordered={true}
         onChange={handleTableChange}
         pagination={{

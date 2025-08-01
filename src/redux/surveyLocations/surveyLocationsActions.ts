@@ -131,6 +131,7 @@ export const postSurveyLocations = createAsyncThunk(
           ? response.message
           : "Failed to update survey locations.",
         success: false,
+        record_errors: response.response.data.record_errors,
       };
       dispatch(postSurveyLocationsFailure(error));
       return error;
@@ -142,7 +143,7 @@ export const postSurveyLocations = createAsyncThunk(
   }
 );
 
-export const puturveyLocations = createAsyncThunk(
+export const putSurveyLocations = createAsyncThunk(
   "surveyLocations/putSurveyLocations",
   async (
     {
@@ -174,6 +175,7 @@ export const puturveyLocations = createAsyncThunk(
           ? response.message
           : "Failed to update survey locations.",
         success: false,
+        record_errors: response.response.data.record_errors,
       };
       dispatch(putSurveyLocationsFailure(error));
       return error;
