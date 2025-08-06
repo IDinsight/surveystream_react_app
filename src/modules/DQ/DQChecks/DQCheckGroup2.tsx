@@ -13,13 +13,15 @@ import {
   fetchModuleName,
   getDQChecks,
   postDQChecks,
+  postDQChecksBulk,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawerGroup2 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup2";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { CustomBtn } from "../../../shared/Global.styled";
+import { ClearOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -53,6 +55,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
   const [variablesValues, setVariablesValues] = useState<string[]>([]);
+  const [drawerMode, setDrawerMode] = useState<"single" | "bulk">("single");
 
   const showAddManualDrawer = () => {
     setIsAddManualDrawerVisible(true);
@@ -64,33 +67,45 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   const columns = [
     {
-      title: "Variable name",
+      title: "Variable Name",
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      filters: dqCheckData?.map((record: any) => ({
+        text: record.question_name + (record.is_repeat_group ? "_*" : ""),
+        value: record.question_name,
+      })),
+      onFilter: (value: any, record: any) =>
+        record.questionName.indexOf(value) === 0,
       render: (questionName: any, record: any) =>
         questionName + (record.isRepeatGroup ? "_*" : ""),
     },
     ...(dqConfig?.group_by_module_name
       ? [
           {
-            title: "Module name",
+            title: "Module Name",
             dataIndex: "moduleName",
             key: "moduleName",
             sorter: (a: any, b: any) =>
               (a.moduleName || "").localeCompare(b.moduleName || ""),
+            filters: availableModuleNames.map((name: string) => ({
+              text: name,
+              value: name,
+            })),
+            onFilter: (value: any, record: any) =>
+              (record.moduleName || "").indexOf(value) === 0,
           },
         ]
       : []),
     {
-      title: "Flag description",
+      title: "Flag Description",
       dataIndex: "flagDescription",
       key: "flagDescription",
     },
     {
       title: (
         <Tooltip title="Click on edit to view the filter conditions">
-          Filter applied
+          Filter Applied
         </Tooltip>
       ),
       dataIndex: "filterData",
@@ -180,13 +195,23 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
 
   // Handlers to save, add, edit, mark active, mark inactive, delete checks
   const handleAddCheck = () => {
+    setDrawerMode("single");
+    showAddManualDrawer();
+    setDrawerData(null);
+  };
+
+  // Handlers to bulk add checks
+  const handleBulkAddCheck = () => {
+    setDrawerMode("bulk");
     showAddManualDrawer();
     setDrawerData(null);
   };
 
   const handleEditCheck = () => {
+    setDrawerMode("single");
     setDrawerData(selectedVariableRows[0]);
     showAddManualDrawer();
+    setDrawerData(null);
   };
 
   const handleDuplicate = () => {
@@ -334,7 +359,6 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       active: data.is_active,
       check_components: checkComponents,
     };
-
     if (data.dq_check_id) {
       setLoading(true);
       putDQChecks(data.dq_check_id, formData).then((res: any) => {
@@ -353,20 +377,41 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       });
     } else {
       setLoading(true);
-      postDQChecks(formUID, typeID, formData).then((res: any) => {
-        if (res?.data?.success) {
-          closeAddManualDrawer();
-          message.success("DQ added successfully", 1, () => {
-            loadDQChecks();
-            setDataLoading(true);
-            setSelectedVariableRows([]);
+      if (
+        data.variable_name &&
+        Array.isArray(data.variable_name) &&
+        data.variable_name.length > 1
+      ) {
+        postDQChecksBulk(formUID, typeID, formData).then((res: any) => {
+          if (res?.data?.success) {
+            closeAddManualDrawer();
+            message.success("DQ checks added successfully", 1, () => {
+              loadDQChecks();
+              setDataLoading(true);
+              setSelectedVariableRows([]);
+              setLoading(false);
+            });
+          } else {
+            message.error("Failed to add DQ Checks");
             setLoading(false);
-          });
-        } else {
-          message.error("Failed to add DQ Check");
-          setLoading(false);
-        }
-      });
+          }
+        });
+      } else {
+        postDQChecks(formUID, typeID, formData).then((res: any) => {
+          if (res?.data?.success) {
+            closeAddManualDrawer();
+            message.success("DQ added successfully", 1, () => {
+              loadDQChecks();
+              setDataLoading(true);
+              setSelectedVariableRows([]);
+              setLoading(false);
+            });
+          } else {
+            message.error("Failed to add DQ Check");
+            setLoading(false);
+          }
+        });
+      }
     }
   };
 
@@ -380,6 +425,18 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
     onSelectAll: (selected: boolean, selectedRows: any, changeRows: any) => {
       setSelectedVariableRows(selectedRows);
     },
+  };
+
+  // Table sort and filter state
+  const [tableSortInfo, setTableSortInfo] = useState<any>(null);
+  const [tableFilterInfo, setTableFilterInfo] = useState<any>(null);
+
+  // Clear function to reset table state
+  const handleClear = () => {
+    setSelectedVariableRows([]);
+    setTableSortInfo(null);
+    setTableFilterInfo(null);
+    loadDQChecks(); // reload original data
   };
 
   // Fetch DQ checks
@@ -478,13 +535,26 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         <FullScreenLoader />
       ) : (
         <>
-          <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            {typeID === "2" &&
-              "This check verifies that continuous variables fall within soft and hard constraints. A soft constraint is a range that most values should fall within, but it is not logically impossible to encounter values outside this range (e.g. # of children 0 - 10). A hard constraint is a range that all values should fall within and anything outside is highly dubious (e.g. age 0 - 130)."}
-            {typeID === "3" &&
-              "This check verifies whether certain continuous variables contain outliers, where an outlier is defined to be a certain multiple of the IQR or SD or as values beyond a given percentile"}
-          </p>
-
+          <DescriptionText>
+            {typeID === "2" ? (
+              <>
+                This check verifies that continuous variables fall within soft
+                and hard constraints. A soft constraint is a range that most
+                values should fall within, but it is not logically impossible to
+                encounter values outside this range (e.g. # of children 0 - 10).
+                A hard constraint is a range that all values should fall within
+                and anything outside is highly dubious (e.g. age 0 - 130).{" "}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#constraint" />
+              </>
+            ) : typeID === "3" ? (
+              <>
+                This check verifies whether certain continuous variables contain
+                outliers, where an outlier is defined to be a certain multiple
+                of the IQR or SD or as values beyond a given percentile.{""}
+                <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#outlier" />
+              </>
+            ) : null}
+          </DescriptionText>
           <>
             <div style={{ display: "flex", marginTop: 24 }}>
               <div>
@@ -508,7 +578,12 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                 <CustomBtn style={{ marginLeft: 16 }} onClick={handleAddCheck}>
                   Add
                 </CustomBtn>
-
+                <CustomBtn
+                  style={{ marginLeft: 16 }}
+                  onClick={handleBulkAddCheck}
+                >
+                  Add bulk
+                </CustomBtn>
                 <CustomBtn
                   style={{ marginLeft: 16 }}
                   onClick={handleEditCheck}
@@ -537,7 +612,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   >
                     Mark active
                   </CustomBtn>
-                  <Button
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkInactive}
                     disabled={
@@ -548,7 +623,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     }
                   >
                     Mark inactive
-                  </Button>
+                  </CustomBtn>
                   <Popconfirm
                     title="Are you sure you want to delete checks?"
                     onConfirm={(e: any) => {
@@ -559,20 +634,33 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button
+                    <CustomBtn
                       style={{ marginLeft: 16 }}
                       onClick={(e) => e.stopPropagation()}
                       disabled={selectedVariableRows.length === 0}
                     >
                       Delete
-                    </Button>
+                    </CustomBtn>
                   </Popconfirm>
+                  <Button
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: 15,
+                      padding: "8px 16px",
+                      borderRadius: "5px",
+                      fontSize: "14px",
+                    }}
+                    onClick={handleClear}
+                    disabled={!(tableSortInfo || tableFilterInfo)}
+                    icon={<ClearOutlined />}
+                  />
                 </>
               </div>
             </div>
             <ChecksTable
               style={{ marginTop: 16 }}
               columns={columns}
+              bordered={true}
               dataSource={selectVariableData}
               pagination={{
                 pageSize: tablePageSize,
@@ -585,9 +673,14 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               rowClassName={(record: any) =>
                 record.isDeleted ? "greyed-out-row" : ""
               }
+              onChange={(pagination, filters, sorter) => {
+                setTableSortInfo(sorter);
+                setTableFilterInfo(filters);
+              }}
             />
             <DQCheckDrawerGroup2
               visible={isAddManualDrawerVisible}
+              drawerMode={drawerMode}
               questions={availableQuestions}
               typeID={typeID}
               showModuleName={dqConfig?.group_by_module_name}

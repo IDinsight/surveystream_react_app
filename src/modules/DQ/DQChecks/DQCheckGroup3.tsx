@@ -13,15 +13,16 @@ import {
   fetchModuleName,
   getDQChecks,
   postDQChecks,
+  postDQChecksBulk,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawerGroup3 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup3";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { getDQForms } from "../../../redux/dqForm/dqFormActions";
-import { CustomBtn } from "../../../shared/Global.styled";
-
+import { ClearOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
+import DescriptionLink from "../../../components/DescriptionLink";
 interface IDQCheckGroup3Props {
   surveyUID: string;
   formUID: string;
@@ -60,6 +61,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     useState(false);
   const [drawerData, setDrawerData] = useState<any>(null);
   const [variablesValues, setVariablesValues] = useState<string[]>([]);
+  const [drawerMode, setDrawerMode] = useState<string>("single");
 
   const showAddManualDrawer = () => {
     setIsAddManualDrawerVisible(true);
@@ -72,7 +74,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
   // Table columns for mode selected
   const columns = [
     {
-      title: "DQ form ID",
+      title: "DQ Form ID",
       dataIndex: "dq_scto_form_uid",
       key: "dq_scto_form_uid",
       width: 150,
@@ -87,44 +89,60 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       onFilter: (value: any, record: any) => record.dq_scto_form_uid === value,
     },
     {
-      title: "Variable name",
+      title: "Variable Name",
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
-      render: (questionName: any, record: any) =>
-        questionName + (record.isRepeatGroup ? "_*" : ""),
+      rfilters: dqCheckData?.map((record: any) => ({
+        text: record.question_name + (record.is_repeat_group ? "_*" : ""),
+        value: record.question_name,
+      })),
+      onFilter: (value: any, record: any) =>
+        record.questionName.indexOf(value) === 0,
     },
     ...(typeID === "9"
       ? [
           {
-            title: "Score name",
+            title: "Score Name",
             dataIndex: "spotcheck_score_name",
             key: "spotcheck_score_name",
             sorter: (a: any, b: any) =>
               a.spotcheck_score_name.localeCompare(b.spotcheck_score_name),
+            filters: availableScoreNames.map((name: string) => ({
+              text: name,
+              value: name,
+            })),
+            onFilter: (value: any, record: any) =>
+              (record.spotcheck_score_name || "").indexOf(value) === 0,
           },
         ]
       : []),
     ...(dqConfig?.group_by_module_name
       ? [
           {
-            title: "Module name",
+            title: "Module Name",
             dataIndex: "moduleName",
             key: "moduleName",
             sorter: (a: any, b: any) =>
               (a.moduleName || "").localeCompare(b.moduleName || ""),
+            filters: availableModuleNames.map((name: string) => ({
+              text: name,
+              value: name,
+            })),
+            onFilter: (value: any, record: any) =>
+              (record.moduleName || "").indexOf(value) === 0,
           },
         ]
       : []),
     {
-      title: "Flag description",
+      title: "Flag Description",
       dataIndex: "flagDescription",
       key: "flagDescription",
     },
     {
       title: (
         <Tooltip title="Click on edit to view the filter conditions">
-          Filter applied
+          Filter Applied
         </Tooltip>
       ),
       dataIndex: "filterData",
@@ -174,13 +192,23 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
 
   // Handlers to save, add, edit, mark active, mark inactive, delete checks
   const handleAddCheck = () => {
+    setDrawerMode("single");
+    showAddManualDrawer();
+    setDrawerData(null);
+  };
+
+  // Handlers to bulk add checks
+  const handleBulkAddCheck = () => {
+    setDrawerMode("bulk");
     showAddManualDrawer();
     setDrawerData(null);
   };
 
   const handleEditCheck = () => {
+    setDrawerMode("single");
     setDrawerData(selectedVariableRows[0]);
     showAddManualDrawer();
+    setDrawerData(null);
   };
 
   const handleDuplicate = () => {
@@ -336,20 +364,41 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       });
     } else {
       setLoading(true);
-      postDQChecks(formUID, typeID, formData).then((res: any) => {
-        if (res?.data?.success) {
-          closeAddManualDrawer();
-          message.success("DQ added successfully", 1, () => {
-            loadDQChecks();
-            setDataLoading(true);
-            setSelectedVariableRows([]);
+      if (
+        data.variable_name &&
+        Array.isArray(data.variable_name) &&
+        data.variable_name.length > 1
+      ) {
+        postDQChecksBulk(formUID, typeID, formData).then((res: any) => {
+          if (res?.data?.success) {
+            closeAddManualDrawer();
+            message.success("DQ checks added successfully", 1, () => {
+              loadDQChecks();
+              setDataLoading(true);
+              setSelectedVariableRows([]);
+              setLoading(false);
+            });
+          } else {
+            message.error("Failed to add DQ Checks");
             setLoading(false);
-          });
-        } else {
-          message.error("Failed to add DQ Check");
-          setLoading(false);
-        }
-      });
+          }
+        });
+      } else {
+        postDQChecks(formUID, typeID, formData).then((res: any) => {
+          if (res?.data?.success) {
+            closeAddManualDrawer();
+            message.success("DQ added successfully", 1, () => {
+              loadDQChecks();
+              setDataLoading(true);
+              setSelectedVariableRows([]);
+              setLoading(false);
+            });
+          } else {
+            message.error("Failed to add DQ Check");
+            setLoading(false);
+          }
+        });
+      }
     }
   };
 
@@ -363,6 +412,17 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     onSelectAll: (selected: boolean, selectedRows: any, changeRows: any) => {
       setSelectedVariableRows(selectedRows);
     },
+  };
+  // Table sort and filter state
+  const [tableSortInfo, setTableSortInfo] = useState<any>(null);
+  const [tableFilterInfo, setTableFilterInfo] = useState<any>(null);
+
+  // Clear function to reset table state
+  const handleClear = () => {
+    setSelectedVariableRows([]);
+    setTableSortInfo(null);
+    setTableFilterInfo(null);
+    loadDQChecks(); // reload original data
   };
 
   const loadDQChecks = () => {
@@ -484,14 +544,45 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
         <FullScreenLoader />
       ) : (
         <>
-          <p style={{ color: "#8C8C8C", fontSize: 14 }}>
-            {typeID === "7" &&
-              "Checks that a variable value in the main form matches the value of the same variable recorded in a data quality form (backcheck/ audioaudit/ spotcheck form). Kindly note that the variable name in the two forms have to be the same."}
-            {typeID === "8" &&
-              "Checks if a protocol has been violated. For all protocol questions, calculations assume that the value 0 indicates a violation, while the value 1 indicates no violation."}
-            {typeID === "9" &&
-              "Averages the spotcheck scores recorded in data quality forms. Multiple variables can be aggregated to one score using the 'Score name' input."}
-          </p>
+          <DescriptionText>
+            {typeID === "7" && (
+              <>
+                Checks that a variable value in the main form matches the value
+                of the same variable recorded in a data quality form (backcheck/
+                audioaudit/ spotcheck form). Kindly note that the variable name
+                in the two forms have to be the same.{" "}
+                <DescriptionLink
+                  link={
+                    "https://docs.surveystream.idinsight.io/hfc_configuration#mismatch"
+                  }
+                />
+              </>
+            )}
+            {typeID === "8" && (
+              <>
+                Checks if a protocol has been violated. For all protocol
+                questions, calculations assume that the value 0 indicates a
+                violation, while the value 1 indicates no violation.{" "}
+                <DescriptionLink
+                  link={
+                    "https://docs.surveystream.idinsight.io/hfc_configuration#protocol-violation"
+                  }
+                />
+              </>
+            )}
+            {typeID === "9" && (
+              <>
+                Averages the spotcheck scores recorded in data quality forms.
+                Multiple variables can be aggregated to one score using the
+                Score name input.{" "}
+                <DescriptionLink
+                  link={
+                    "https://docs.surveystream.idinsight.io/hfc_configuration#spotcheck-score"
+                  }
+                />
+              </>
+            )}
+          </DescriptionText>
           <>
             <div style={{ display: "flex", marginTop: 24 }}>
               <div style={{ marginTop: 16 }}>
@@ -515,7 +606,14 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 <CustomBtn style={{ marginLeft: 16 }} onClick={handleAddCheck}>
                   Add
                 </CustomBtn>
-
+                {typeID !== "9" && (
+                  <CustomBtn
+                    style={{ marginLeft: 16 }}
+                    onClick={handleBulkAddCheck}
+                  >
+                    Add Bulk
+                  </CustomBtn>
+                )}
                 <CustomBtn
                   type="primary"
                   style={{ marginLeft: 16 }}
@@ -531,7 +629,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 >
                   Duplicate
                 </CustomBtn>
-
                 <CustomBtn
                   style={{ marginLeft: 16 }}
                   onClick={handleMarkActive}
@@ -544,7 +641,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                 >
                   Mark active
                 </CustomBtn>
-                <Button
+                <CustomBtn
                   style={{ marginLeft: 16 }}
                   onClick={handleMarkInactive}
                   disabled={
@@ -555,7 +652,7 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                   }
                 >
                   Mark inactive
-                </Button>
+                </CustomBtn>
                 <Popconfirm
                   title="Are you sure you want to delete checks?"
                   onConfirm={(e: any) => {
@@ -566,19 +663,32 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={(e) => e.stopPropagation()}
                     disabled={selectedVariableRows.length === 0}
                   >
                     Delete
-                  </Button>
+                  </CustomBtn>
                 </Popconfirm>
+                <Button
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: 15,
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                  }}
+                  onClick={handleClear}
+                  disabled={!(tableSortInfo || tableFilterInfo)}
+                  icon={<ClearOutlined />}
+                />
               </div>
             </div>
             <ChecksTable
               style={{ marginTop: 16 }}
               columns={columns}
+              bordered={true}
               dataSource={selectVariableData}
               pagination={{
                 pageSize: tablePageSize,
@@ -591,9 +701,14 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
               rowClassName={(record: any) =>
                 record.isDeleted ? "greyed-out-row" : ""
               }
+              onChange={(pagination, filters, sorter) => {
+                setTableSortInfo(sorter);
+                setTableFilterInfo(filters);
+              }}
             />
             <DQCheckDrawerGroup3
               visible={isAddManualDrawerVisible}
+              drawerMode={drawerMode}
               parentFormQuestions={availableQuestions}
               typeID={typeID}
               dqForms={selectedDqForms}
