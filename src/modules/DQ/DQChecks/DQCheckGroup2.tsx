@@ -550,7 +550,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               <>
                 This check verifies whether certain continuous variables contain
                 outliers, where an outlier is defined to be a certain multiple
-                of the IQR or SD or as values beyond a given percentile.{""}
+                of the IQR or SD or as values beyond a given percentile.{" "}
                 <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#outlier" />
               </>
             ) : null}
