@@ -93,7 +93,9 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
-      rfilters: dqCheckData?.map((record: any) => ({
+      render: (questionName: any, record: any) =>
+        questionName + (record.isRepeatGroup ? "_*" : ""),
+      filters: dqCheckData?.map((record: any) => ({
         text: record.question_name + (record.is_repeat_group ? "_*" : ""),
         value: record.question_name,
       })),
