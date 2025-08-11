@@ -45,7 +45,7 @@ jobs:
           ECR_REPOSITORY: web-callisto-ecr-repository
           IMAGE_TAG: frontend
         run: |
-          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.STAGING_BUILD_ENV }} --rm --platform=linux/amd64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} . 
+          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.STAGING_BUILD_ENV }} --rm --platform=linux/arm64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} . 
           docker tag ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -129,7 +129,7 @@ jobs:
           ECR_REPOSITORY: web-callisto-ecr-repository
           IMAGE_TAG: frontend
         run: |
-          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.PROD_BUILD_ENV }} --rm --platform=linux/amd64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} . 
+          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.PROD_BUILD_ENV }} --rm --platform=linux/arm64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} . 
           docker tag ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -198,4 +198,4 @@ jobs:
       - name: Build Docker Image
         id: build-image
         run: |
-          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.STAGING_BUILD_ENV }} --rm --platform=linux/amd64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} .
+          docker build -f Dockerfile.client --build-arg BUILD_ENV=${{ env.STAGING_BUILD_ENV }} --rm --platform=linux/arm64 -t  ${{ env.FRONTEND_NAME }}:${{ env.VERSION }} .

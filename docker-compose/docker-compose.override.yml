@@ -8,7 +8,7 @@ networks:
           gateway: 169.254.170.1
 services:
   ecs-local-endpoints:
-    image: amazon/amazon-ecs-local-container-endpoints:latest-amd64
+    image: amazon/amazon-ecs-local-container-endpoints:latest-arm64
     volumes:
       - /var/run:/var/run
       - $HOME/.aws/:/home/.aws/

@@ -13,10 +13,10 @@ login:
 	@aws sso login --profile surveystream_dev
 
 image:
-	@docker build -f Dockerfile.client --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.client --build-arg BUILD_ENV="development" --rm --platform=linux/arm64 -t $(FRONTEND_NAME):$(VERSION) . 
 
 image-test:
-	@docker build -f Dockerfile.test --build-arg BUILD_ENV="development" --rm --platform=linux/arm64/v8 -t $(FRONTEND_NAME):$(VERSION) . 
+	@docker build -f Dockerfile.test --build-arg BUILD_ENV="development" --rm --platform=linux/amd64 -t $(FRONTEND_NAME):$(VERSION) . 
 
 
 web-db-tunnel:
