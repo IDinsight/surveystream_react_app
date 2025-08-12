@@ -121,7 +121,7 @@ function DQCheckDrawer({
         data
           ? "Edit DQ Check"
           : drawerMode === "bulk"
-          ? "Add Bulk DQ Checks"
+          ? "Add DQ Checks in Bulk"
           : "Add DQ Check"
       }
       width={800}

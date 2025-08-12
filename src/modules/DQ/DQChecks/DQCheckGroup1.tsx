@@ -875,7 +875,7 @@ function DQCheckGroup1({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     style={{ marginLeft: 16 }}
                     onClick={handleBulkAddCheck}
                   >
-                    Add Bulk
+                    Bulk Add
                   </CustomBtn>
                   <CustomBtn
                     style={{ marginLeft: 16 }}
