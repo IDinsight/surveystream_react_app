@@ -58,7 +58,7 @@ function CreateAssignments() {
   }
 
   // State variables for component
-  const [paginationPageSize, setPaginationPageSize] = useState<number>(25);
+  const [paginationPageSize, setPaginationPageSize] = useState<number>(10);
   const [stepIndex, setStepIndex] = useState<number>(0);
   const [selectedSurveyorRows, setSelectedSurveyorRows] = useState<any>([]);
   const [targetAssignments, setTargetAssignments] = useState<any[]>([]);
@@ -396,6 +396,8 @@ function CreateAssignments() {
     setShowWarnings(false);
     if (selectedAssignmentRows?.length > 0 && selectedSurveyorRows.length > 0) {
       let sIndex = 0;
+      let hasShowedWarning = false;
+
       selectedAssignmentRows.forEach((item: any, index: number) => {
         if (!selectedSurveyorRows[sIndex]) {
           sIndex = 0;
@@ -422,7 +424,11 @@ function CreateAssignments() {
           ) {
             warning =
               "Selected surveyors/targets are either not mapped or are not mapped to the same supervisor";
-            message.warning(warning);
+
+            if (!hasShowedWarning) {
+              message.warning(warning);
+              hasShowedWarning = true;
+            }
             setShowWarnings(true);
           }
 
@@ -655,7 +661,13 @@ function CreateAssignments() {
                     : reviewAssignmentTableColumn
                 }
                 dataSource={targetAssignments}
-                pagination={false}
+                pagination={{
+                  pageSize: paginationPageSize,
+                  pageSizeOptions: [10, 25, 50, 100],
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                }}
                 style={{ marginBottom: 20 }}
               />
             </>
