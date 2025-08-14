@@ -12,7 +12,7 @@ import {
   Row,
   Select,
 } from "antd";
-import { CustomBtn } from "../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
@@ -141,6 +141,10 @@ function DQCheckDrawer4({
           checkedChildren="ACTIVE"
           unCheckedChildren="INACTIVE"
         />
+        <DescriptionText>
+          <span style={{ color: "#ff4d4f" }}>*</span> indicates required fields.
+          All other fields are optional.
+        </DescriptionText>
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
@@ -270,10 +274,10 @@ function DQCheckDrawer4({
           </Checkbox>
         )}
         <div>
-          <Button style={{ marginTop: 20 }} onClick={onClose}>
+          <Button style={{ marginTop: 16 }} onClick={onClose}>
             Cancel
           </Button>
-          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
+          <CustomBtn style={{ marginLeft: 16 }} onClick={handleSave}>
             Save
           </CustomBtn>
         </div>
