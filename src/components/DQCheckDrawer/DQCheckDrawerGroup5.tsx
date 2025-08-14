@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { ChecksSwitch } from "../../modules/DQ/DQChecks/DQChecks.styled";
 import DQChecksFilter from "../../modules/DQ/DQChecks/DQChecksFilter";
 import { Button, Col, Drawer, Form, Input, message, Row, Select } from "antd";
-import { CustomBtn } from "../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../shared/Global.styled";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import DQChecksAssertion from "../../modules/DQ/DQChecks/DQChecksAssertion";
 import validateExpression from "./../../utils/parser";
+import DescriptionLink from "../DescriptionLink";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
@@ -219,6 +220,10 @@ function DQCheckDrawer5({
           checkedChildren="ACTIVE"
           unCheckedChildren="INACTIVE"
         />
+        <DescriptionText>
+          <span style={{ color: "#ff4d4f" }}>*</span> indicates required fields.
+          All other fields are optional.
+        </DescriptionText>
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
@@ -242,11 +247,12 @@ function DQCheckDrawer5({
             <span style={{ marginLeft: 24, marginTop: 6 }}>Alias: A</span>
           </Col>
         </Row>
-        <Row style={{ marginTop: 8 }}>
+        <Row>
           <Col>
             <Form.Item
               label="Select other variables needed for the check:"
               tooltip="Choose other variable from SCTO question list for logic checks"
+              style={{ marginBottom: 8 }}
             />
           </Col>
         </Row>
@@ -308,7 +314,16 @@ function DQCheckDrawer5({
             <Form.Item
               label="Assertions:"
               tooltip="Assertions conditions for logic checks"
+              style={{ marginBottom: 0 }}
             />
+            <DescriptionText style={{ marginTop: 0 }}>
+              Kindly note that assert conditions are conditions that must
+              evaluate to True for the check to pass. When Assert condition
+              evaluate to False, the submission is flagged. Ex- If assert
+              condition is age {">"} 30, then any submission with age less than
+              30 will be flagged.{" "}
+              <DescriptionLink link="https://docs.surveystream.idinsight.io/hfc_configuration#logic" />
+            </DescriptionText>
           </Col>
         </Row>
         <Row>
@@ -328,7 +343,7 @@ function DQCheckDrawer5({
           </Col>
           <Col span={12}>
             <Input
-              placeholder="Input flag description"
+              placeholder="Optional: Input flag description"
               value={localData.flag_description}
               onChange={(e) =>
                 handleFieldChange("flag_description", e.target.value)
@@ -391,10 +406,10 @@ function DQCheckDrawer5({
           </div>
         ) : null}
         <div>
-          <Button style={{ marginTop: 20 }} onClick={onClose}>
+          <Button style={{ marginTop: 16 }} onClick={onClose}>
             Cancel
           </Button>
-          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
+          <CustomBtn style={{ marginLeft: 16 }} onClick={handleSave}>
             Save
           </CustomBtn>
         </div>

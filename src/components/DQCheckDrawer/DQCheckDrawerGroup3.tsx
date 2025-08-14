@@ -15,10 +15,11 @@ import {
 import { getSurveyCTOFormDefinition } from "../../redux/surveyCTOQuestions/apiService";
 import { useAppDispatch } from "../../redux/hooks";
 import { LoadingOutlined } from "@ant-design/icons";
-import { CustomBtn } from "../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerGroup3Props {
   visible: boolean;
+  drawerMode: string; // Added drawerMode prop
   onClose: any;
   onSave: any;
   data: any;
@@ -32,6 +33,7 @@ interface IDQCheckDrawerGroup3Props {
 
 function DQCheckDrawerGroup3({
   visible,
+  drawerMode,
   onClose,
   onSave,
   data,
@@ -211,7 +213,13 @@ function DQCheckDrawerGroup3({
 
   return (
     <Drawer
-      title={data ? "Edit DQ Check" : "Add New DQ Check"}
+      title={
+        data
+          ? "Edit DQ Check"
+          : drawerMode === "bulk"
+          ? "Add DQ Checks in Bulk"
+          : "Add DQ Check"
+      }
       width={800}
       onClose={onClose}
       open={visible}
@@ -225,7 +233,10 @@ function DQCheckDrawerGroup3({
           checkedChildren="ACTIVE"
           unCheckedChildren="INACTIVE"
         />
-
+        <DescriptionText>
+          <span style={{ color: "#ff4d4f" }}>*</span> indicates required fields.
+          All other fields are optional.
+        </DescriptionText>
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
@@ -265,8 +276,17 @@ function DQCheckDrawerGroup3({
             <Select
               style={{ width: "100%" }}
               showSearch
+              mode={
+                typeID === "9" || (localData && localData.dq_check_id)
+                  ? undefined
+                  : "multiple"
+              }
               placeholder="Select variable"
-              value={localData.variable_name}
+              value={
+                typeID === "9" || (localData && localData.dq_check_id)
+                  ? localData.variable_name
+                  : localData.variable_name || []
+              }
               options={finalQuestions.map((question: any) => ({
                 value: question.name,
                 label: question.label,
@@ -326,7 +346,7 @@ function DQCheckDrawerGroup3({
           </Col>
           <Col span={12}>
             <Input
-              placeholder="Input flag description"
+              placeholder="Optional: Input flag description"
               value={localData.flag_description}
               onChange={(e) =>
                 handleFieldChange("flag_description", e.target.value)
@@ -364,7 +384,7 @@ function DQCheckDrawerGroup3({
               <Col span={10}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Select or input an option"
+                  placeholder="Optional: Select or input an option"
                   showSearch
                   allowClear
                   value={localData.module_name}
@@ -389,10 +409,10 @@ function DQCheckDrawerGroup3({
           </div>
         ) : null}
         <div>
-          <Button style={{ marginTop: 20 }} onClick={onClose}>
+          <Button style={{ marginTop: 16 }} onClick={onClose}>
             Cancel
           </Button>
-          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
+          <CustomBtn style={{ marginLeft: 16 }} onClick={handleSave}>
             Save
           </CustomBtn>
         </div>

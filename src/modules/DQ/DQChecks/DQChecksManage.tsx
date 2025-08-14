@@ -27,6 +27,8 @@ import {
 } from "../../../redux/dqChecks/dqChecksActions";
 import { EditOutlined } from "@ant-design/icons";
 import SideMenu from "./../SideMenu";
+import { DescriptionText } from "../../../shared/Global.styled";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 function DQChecksManage() {
   const navigate = useNavigate();
@@ -173,19 +175,19 @@ function DQChecksManage() {
 
   const tableColumns = [
     {
-      title: "Check type",
+      title: "Check Type",
       dataIndex: "type_name",
       key: "type_name",
       width: 120,
     },
     {
-      title: "Number of checks configured",
+      title: "Number of Checks Configured",
       dataIndex: "num_configured",
       key: "num_configured",
       width: 150,
     },
     {
-      title: "Number of active checks",
+      title: "Number of Active Checks",
       dataIndex: "num_active",
       key: "num_active",
       width: 150,
@@ -233,10 +235,13 @@ function DQChecksManage() {
           <div style={{ display: "flex" }}>
             <SideMenu />
             <DQFormWrapper>
-              <p style={{ color: "#8C8C8C", fontSize: 14 }}>
+              <DescriptionText>
                 Configure data quality checks for the form with form ID:{" "}
-                {surveyCTOForm?.scto_form_id}
-              </p>
+                {surveyCTOForm?.scto_form_id}{" "}
+                <DescriptionLink
+                  link={`https://docs.surveystream.idinsight.io/hfc_configuration`}
+                />
+              </DescriptionText>
               <Collapse
                 ghost
                 defaultActiveKey={dqConfig ? ["2"] : ["1"]}
@@ -253,7 +258,7 @@ function DQChecksManage() {
                           <Col span={5}>
                             <FormItemLabel>
                               <span style={{ color: "red" }}>*</span> Select
-                              survey status values{" "}
+                              Survey Status Values{" "}
                               <Tooltip title="Checks will run only on submissions with the selected survey status values. Dropdown contains all the survey status values configured under Target status mapping module and by default, the ones with completed flag 'true' are selected.">
                                 <QuestionCircleOutlined />
                               </Tooltip>{" "}
@@ -301,7 +306,7 @@ function DQChecksManage() {
                                   }));
                                 }}
                               >
-                                Group DQ check outputs by module name
+                                Group DQ Check Outputs by Module Name
                               </CheckboxDQ>
                               <Tooltip title="Selecting this option will enable 'Module Name' input on all checks. This column will then be included in the outputs and can be used to filter and group the results.">
                                 <QuestionCircleOutlined />
@@ -322,7 +327,7 @@ function DQChecksManage() {
                                   }));
                                 }}
                               >
-                                Drop duplicates by target ID
+                                Drop Duplicates by Target ID
                               </CheckboxDQ>
                               <Tooltip title="Selecting this option will drop duplicates by target ID before running the checks, keeping just the last submission with the selected survey status for each target. This is useful when you want to run the checks only on the latest submission for each target.">
                                 <QuestionCircleOutlined />
