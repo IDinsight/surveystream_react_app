@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { ChecksSwitch } from "../../modules/DQ/DQChecks/DQChecks.styled";
 import DQChecksFilter from "../../modules/DQ/DQChecks/DQChecksFilter";
 import { Button, Col, Drawer, Form, Input, message, Row, Select } from "antd";
-import { CustomBtn } from "../../shared/Global.styled";
+import { CustomBtn, DescriptionText } from "../../shared/Global.styled";
 
 interface IDQCheckDrawerProps {
   visible: boolean;
+  drawerMode: string;
   typeID: string;
   onClose: any;
   onSave: any;
@@ -17,6 +18,7 @@ interface IDQCheckDrawerProps {
 
 function DQCheckDrawer({
   visible,
+  drawerMode,
   typeID,
   onClose,
   data,
@@ -150,7 +152,13 @@ function DQCheckDrawer({
 
   return (
     <Drawer
-      title={data ? "Edit DQ Check" : "Add New DQ Check"}
+      title={
+        data
+          ? "Edit DQ Check"
+          : drawerMode === "bulk"
+          ? "Add DQ Checks in Bulk"
+          : "Add DQ Check"
+      }
       width={800}
       onClose={onClose}
       open={visible}
@@ -164,11 +172,16 @@ function DQCheckDrawer({
           checkedChildren="ACTIVE"
           unCheckedChildren="INACTIVE"
         />
-
+        <DescriptionText>
+          <span style={{ color: "#ff4d4f" }}>*</span> indicates required fields.
+          All other fields are optional.
+        </DescriptionText>
         <Row style={{ marginTop: 16 }}>
           <Col span={8}>
             <Form.Item
-              label="Select variable"
+              label={
+                drawerMode === "bulk" ? "Select Variables" : "Select Variable"
+              }
               tooltip="Choose variable from SCTO question list"
               required
             />
@@ -176,9 +189,14 @@ function DQCheckDrawer({
           <Col span={12}>
             <Select
               style={{ width: "100%" }}
+              mode={drawerMode === "bulk" ? "multiple" : undefined}
               showSearch
               placeholder="Select variable"
-              value={localData.variable_name}
+              value={
+                drawerMode === "bulk"
+                  ? localData.variable_name || []
+                  : localData.variable_name
+              }
               options={questions
                 // Remove multi-select questions since they are not applicable for outlier and constraint checks
                 .filter((question: any) => question.is_multi_select !== true)
@@ -190,7 +208,7 @@ function DQCheckDrawer({
             />
           </Col>
         </Row>
-        <Row>
+        <Row style={{ marginTop: 8 }}>
           <Col span={8}>
             <Form.Item
               label="Flag description:"
@@ -199,7 +217,7 @@ function DQCheckDrawer({
           </Col>
           <Col span={12}>
             <Input
-              placeholder="Input flag description"
+              placeholder="Optional: Input flag description"
               value={localData.flag_description}
               onChange={(e) =>
                 handleFieldChange("flag_description", e.target.value)
@@ -359,7 +377,7 @@ function DQCheckDrawer({
               <Col span={10}>
                 <Select
                   style={{ width: "100%" }}
-                  placeholder="Select or input an option"
+                  placeholder="Optional: Select or input an option"
                   showSearch
                   allowClear
                   value={localData.module_name}
@@ -384,10 +402,10 @@ function DQCheckDrawer({
           </div>
         ) : null}
         <div>
-          <Button style={{ marginTop: 20 }} onClick={onClose}>
+          <Button style={{ marginTop: 16 }} onClick={onClose}>
             Cancel
           </Button>
-          <CustomBtn style={{ marginLeft: 20 }} onClick={handleSave}>
+          <CustomBtn style={{ marginLeft: 16 }} onClick={handleSave}>
             Save
           </CustomBtn>
         </div>

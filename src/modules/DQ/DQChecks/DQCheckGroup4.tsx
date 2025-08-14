@@ -16,8 +16,9 @@ import {
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
 import { getSurveyCTOFormDefinition } from "../../../redux/surveyCTOQuestions/apiService";
 import DQCheckDrawerGroup4 from "../../../components/DQCheckDrawer/DQCheckDrawerGroup4";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { CustomBtn } from "../../../shared/Global.styled";
+import { ClearOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { CustomBtn, DescriptionText } from "../../../shared/Global.styled";
+import DescriptionLink from "../../../components/DescriptionLink";
 
 interface IDQCheckGroup1Props {
   surveyUID: string;
@@ -65,15 +66,21 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         gpsType === "point2point" ? "Point to Point" : "Point to Shape",
     },
     {
-      title: "Variable name",
+      title: "Variable Name",
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
+      filters: dqCheckData?.map((record: any) => ({
+        text: record.question_name + (record.is_repeat_group ? "_*" : ""),
+        value: record.question_name,
+      })),
+      onFilter: (value: any, record: any) =>
+        record.questionName.indexOf(value) === 0,
       render: (questionName: any, record: any) =>
         questionName + (record.isRepeatGroup ? "_*" : ""),
     },
     {
-      title: "Grid ID variable",
+      title: "Grid ID Variable",
       dataIndex: "gridIDVariable",
       key: "gridIDVariable",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
@@ -83,7 +90,7 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
           : "",
     },
     {
-      title: "Expected GPS variable",
+      title: "Expected GPS Variable",
       dataIndex: "gpsVariable",
       key: "gpsVariable",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
@@ -93,7 +100,7 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
           : "",
     },
     {
-      title: "Threshold distance (m)",
+      title: "Threshold Distance (m)",
       dataIndex: "threshold",
       key: "threshold",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
@@ -338,6 +345,17 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
       setSelectedVariableRows(selectedRows);
     },
   };
+  // Table sort and filter state
+  const [tableSortInfo, setTableSortInfo] = useState<any>(null);
+  const [tableFilterInfo, setTableFilterInfo] = useState<any>(null);
+
+  // Clear function to reset table state
+  const handleClear = () => {
+    setSelectedVariableRows([]);
+    setTableSortInfo(null);
+    setTableFilterInfo(null);
+    loadDQChecks(); // reload original data
+  };
 
   const loadDQChecks = () => {
     if (typeID) {
@@ -409,11 +427,16 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         <FullScreenLoader />
       ) : (
         <>
-          <p style={{ color: "#8C8C8C", fontSize: 14 }}>
+          <DescriptionText>
             This check verifies if GPS location of the household is within the
             expected grid cell or shape boundary/the household surveyed is the
-            correct sampled household.
-          </p>
+            correct sampled household.{" "}
+            <DescriptionLink
+              link={
+                "https://docs.surveystream.idinsight.io/hfc_configuration#gps"
+              }
+            />
+          </DescriptionText>
 
           <>
             <div style={{ display: "flex", marginTop: 24 }}>
@@ -467,7 +490,7 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                   >
                     Mark active
                   </CustomBtn>
-                  <Button
+                  <CustomBtn
                     style={{ marginLeft: 16 }}
                     onClick={handleMarkInactive}
                     disabled={
@@ -478,7 +501,7 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     }
                   >
                     Mark inactive
-                  </Button>
+                  </CustomBtn>
                   <Popconfirm
                     title="Are you sure you want to delete checks?"
                     onConfirm={(e: any) => {
@@ -489,20 +512,33 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button
+                    <CustomBtn
                       style={{ marginLeft: 16 }}
                       onClick={(e) => e.stopPropagation()}
                       disabled={selectedVariableRows.length === 0}
                     >
                       Delete
-                    </Button>
+                    </CustomBtn>
                   </Popconfirm>
+                  <Button
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: 15,
+                      padding: "8px 16px",
+                      borderRadius: "5px",
+                      fontSize: "14px",
+                    }}
+                    onClick={handleClear}
+                    disabled={!(tableSortInfo || tableFilterInfo)}
+                    icon={<ClearOutlined />}
+                  />
                 </>
               </div>
             </div>
             <ChecksTable
               style={{ marginTop: 16 }}
               columns={columns}
+              bordered={true}
               dataSource={selectVariableData}
               pagination={{
                 pageSize: tablePageSize,
@@ -515,6 +551,10 @@ function DQCheckGroup4({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
               rowClassName={(record: any) =>
                 record.isDeleted ? "greyed-out-row" : ""
               }
+              onChange={(pagination, filters, sorter) => {
+                setTableSortInfo(sorter);
+                setTableFilterInfo(filters);
+              }}
             />
             <DQCheckDrawerGroup4
               visible={isAddManualDrawerVisible}
