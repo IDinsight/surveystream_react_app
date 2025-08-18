@@ -13,7 +13,6 @@ import {
   fetchModuleName,
   getDQChecks,
   postDQChecks,
-  postDQChecksBulk,
   putDQChecks,
 } from "../../../redux/dqChecks/apiService";
 import { getDQConfig } from "../../../redux/dqChecks/dqChecksActions";
@@ -366,41 +365,20 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
       });
     } else {
       setLoading(true);
-      if (
-        data.variable_name &&
-        Array.isArray(data.variable_name) &&
-        data.variable_name.length > 1
-      ) {
-        postDQChecksBulk(formUID, typeID, formData).then((res: any) => {
-          if (res?.data?.success) {
-            closeAddManualDrawer();
-            message.success("DQ checks added successfully", 1, () => {
-              loadDQChecks();
-              setDataLoading(true);
-              setSelectedVariableRows([]);
-              setLoading(false);
-            });
-          } else {
-            message.error("Failed to add DQ Checks");
+      postDQChecks(formUID, typeID, formData).then((res: any) => {
+        if (res?.data?.success) {
+          closeAddManualDrawer();
+          message.success("DQ added successfully", 1, () => {
+            loadDQChecks();
+            setDataLoading(true);
+            setSelectedVariableRows([]);
             setLoading(false);
-          }
-        });
-      } else {
-        postDQChecks(formUID, typeID, formData).then((res: any) => {
-          if (res?.data?.success) {
-            closeAddManualDrawer();
-            message.success("DQ added successfully", 1, () => {
-              loadDQChecks();
-              setDataLoading(true);
-              setSelectedVariableRows([]);
-              setLoading(false);
-            });
-          } else {
-            message.error("Failed to add DQ Check");
-            setLoading(false);
-          }
-        });
-      }
+          });
+        } else {
+          message.error("Failed to add DQ Check");
+          setLoading(false);
+        }
+      });
     }
   };
 

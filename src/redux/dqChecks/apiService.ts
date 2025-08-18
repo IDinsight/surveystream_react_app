@@ -126,33 +126,6 @@ export const postDQChecks = async (
   }
 };
 
-export const postDQChecksBulk = async (
-  form_uid: string,
-  type_id: string,
-  formData: any
-) => {
-  try {
-    await getCSRFToken();
-    const csrfToken = await getCookie("CSRF-TOKEN");
-    const url = `${API_BASE_URL}/dq/checks_bulk?form_uid=${form_uid}&type_id=${type_id}`;
-
-    const res = await axios.post(
-      url,
-      { ...formData },
-      {
-        headers: {
-          "X-CSRF-Token": csrfToken,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
-    return res;
-  } catch (error) {
-    return error;
-  }
-};
-
 export const putDQChecks = async (dq_check_uid: number, formData: any) => {
   try {
     await getCSRFToken();
@@ -250,5 +223,4 @@ export const api = {
   getDQChecks,
   postDQChecks,
   deleteDQChecks,
-  postDQChecksBulk,
 };
