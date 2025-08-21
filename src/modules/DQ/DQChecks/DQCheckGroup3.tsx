@@ -209,7 +209,6 @@ function DQCheckGroup3({ surveyUID, formUID, typeID }: IDQCheckGroup3Props) {
     setDrawerMode("single");
     setDrawerData(selectedVariableRows[0]);
     showAddManualDrawer();
-    setDrawerData(null);
   };
 
   const handleDuplicate = () => {
