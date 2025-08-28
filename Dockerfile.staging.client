@@ -20,4 +20,9 @@ RUN npm run build:${BUILD_ENV}
 # Build step #2: build an nginx container
 FROM nginx:stable-alpine
 COPY --from=build-step /build /usr/share/nginx/html
-COPY ./nginx.staging.conf /etc/nginx/conf.d/default.conf
+# Copy the nginx config template
+COPY ./nginx.staging.conf.template /etc/nginx/conf.d/default.conf.template
+# Install envsubst for variable substitution
+RUN apk add --no-cache gettext
+# Entrypoint to substitute env vars and start nginx
+CMD envsubst '$ALB_BASE_URL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
