@@ -755,6 +755,7 @@ const TargetMapping = ({
             text: id,
             value: id,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: any) => record.targetID === value,
         },
         ...(criteria.includes("Location") || criteria.includes("Manual")
@@ -773,6 +774,7 @@ const TargetMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.targetLocationID === value,
                 width: 150,
@@ -791,6 +793,7 @@ const TargetMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.targetLocation.indexOf(value) === 0,
                 width: 100,
@@ -813,6 +816,7 @@ const TargetMapping = ({
                   text: language,
                   value: language,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.targetLanguage.indexOf(value) === 0,
                 width: 100,
@@ -833,6 +837,7 @@ const TargetMapping = ({
                   text: gender,
                   value: gender,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.targetGender.indexOf(value) === 0,
                 width: 100,
@@ -853,6 +858,7 @@ const TargetMapping = ({
         { text: "Complete", value: "Complete" },
         { text: "Pending", value: "Pending" },
       ],
+      filterSearch: true,
       onFilter: (value: any, record: any) =>
         record.mappingStatus.indexOf(value) === 0,
       sorter: (a: any, b: any) =>
@@ -877,6 +883,7 @@ const TargetMapping = ({
             text: email,
             value: email,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: any) =>
             typeof value === "string" &&
             record.supervisorEmail?.indexOf(value) === 0,
@@ -900,6 +907,7 @@ const TargetMapping = ({
             text: name,
             value: name,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: any) =>
             typeof value === "string" &&
             record.supervisorName?.indexOf(value) === 0,
@@ -925,6 +933,7 @@ const TargetMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorLocation?.indexOf(value) === 0,
                 width: 100,
@@ -951,6 +960,7 @@ const TargetMapping = ({
                   text: language,
                   value: language,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorLanguage?.indexOf(value) === 0,
                 width: 100,
@@ -977,6 +987,7 @@ const TargetMapping = ({
                   text: gender,
                   value: gender,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorGender?.indexOf(value) === 0,
                 width: 100,
