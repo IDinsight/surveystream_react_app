@@ -766,6 +766,7 @@ const SurveyorMapping = ({
             text: id,
             value: id,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: { surveyorID: string }) =>
             record.surveyorID.indexOf(value) === 0,
         },
@@ -784,6 +785,7 @@ const SurveyorMapping = ({
             text: name,
             value: name,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: { surveyorName: string }) =>
             record.surveyorName.indexOf(value) === 0,
         },
@@ -807,6 +809,7 @@ const SurveyorMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (
                   value: any,
                   record: { surveyorLocationID: string }
@@ -831,6 +834,7 @@ const SurveyorMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: { surveyorLocation: string }) =>
                   record.surveyorLocation.indexOf(value) === 0,
                 width: 100,
@@ -857,6 +861,7 @@ const SurveyorMapping = ({
                   text: language,
                   value: language,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: { surveyorLanguage: string }) =>
                   record.surveyorLanguage.indexOf(value) === 0,
                 width: 100,
@@ -883,6 +888,7 @@ const SurveyorMapping = ({
                   text: gender,
                   value: gender,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: { surveyorGender: string }) =>
                   record.surveyorGender.indexOf(value) === 0,
                 width: 100,
@@ -903,6 +909,7 @@ const SurveyorMapping = ({
         { text: "Complete", value: "Complete" },
         { text: "Pending", value: "Pending" },
       ],
+      filterSearch: true,
       onFilter: (value: any, record: any) =>
         record.mappingStatus.indexOf(value) === 0,
       sorter: (a: any, b: any) =>
@@ -931,6 +938,7 @@ const SurveyorMapping = ({
             text: email,
             value: email,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: any) =>
             typeof value === "string" &&
             record.supervisorEmail?.indexOf(value) === 0,
@@ -956,6 +964,7 @@ const SurveyorMapping = ({
             text: name,
             value: name,
           })),
+          filterSearch: true,
           onFilter: (value: any, record: any) =>
             typeof value === "string" &&
             record.supervisorName?.indexOf(value) === 0,
@@ -983,6 +992,7 @@ const SurveyorMapping = ({
                   text: location,
                   value: location,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorLocation.indexOf(value) === 0,
                 width: 100,
@@ -1011,6 +1021,7 @@ const SurveyorMapping = ({
                   text: language,
                   value: language,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorLanguage.indexOf(value) === 0,
                 width: 100,
@@ -1039,6 +1050,7 @@ const SurveyorMapping = ({
                   text: gender,
                   value: gender,
                 })),
+                filterSearch: true,
                 onFilter: (value: any, record: any) =>
                   record.supervisorGender.indexOf(value) === 0,
                 width: 100,
