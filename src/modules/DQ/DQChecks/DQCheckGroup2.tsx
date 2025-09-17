@@ -64,17 +64,24 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
   const closeAddManualDrawer = () => {
     setIsAddManualDrawerVisible(false);
   };
-
   const columns = [
     {
       title: "Variable Name",
       dataIndex: "questionName",
       key: "questionName",
       sorter: (a: any, b: any) => a.questionName.localeCompare(b.questionName),
-      filters: dqCheckData?.map((record: any) => ({
-        text: record.question_name + (record.is_repeat_group ? "_*" : ""),
-        value: record.question_name,
+      filters: Array.from(
+        new Set(
+          dqCheckData?.map(
+            (record: any) =>
+              record.question_name + (record.is_repeat_group ? "_*" : "")
+          ) || []
+        )
+      ).map((name) => ({
+        text: name as string,
+        value: (name as string).replace(/_\*$/, ""), // filter value is just the question_name
       })),
+      filterSearch: true,
       onFilter: (value: any, record: any) =>
         record.questionName.indexOf(value) === 0,
       render: (questionName: any, record: any) =>
@@ -88,10 +95,13 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
             key: "moduleName",
             sorter: (a: any, b: any) =>
               (a.moduleName || "").localeCompare(b.moduleName || ""),
-            filters: availableModuleNames.map((name: string) => ({
-              text: name,
-              value: name,
-            })),
+            filters: Array.from(new Set(availableModuleNames)).map(
+              (name: string) => ({
+                text: name,
+                value: name,
+              })
+            ),
+            filterSearch: true,
             onFilter: (value: any, record: any) =>
               (record.moduleName || "").indexOf(value) === 0,
           },
@@ -156,6 +166,7 @@ function DQCheckGroup2({ surveyUID, formUID, typeID }: IDQCheckGroup1Props) {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
+      filterSearch: true,
       onFilter: (value: any, record: any) => record.status.indexOf(value) === 0,
       render: (status: any, record: any) => (
         <>

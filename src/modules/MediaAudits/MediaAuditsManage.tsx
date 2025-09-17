@@ -66,7 +66,7 @@ function MediaAuditsManage() {
     form_uid: null,
     file_type: null,
     source: null,
-    format: null,
+    format: "long",
     scto_fields: [],
     media_fields: [],
     mapping_criteria: "",
@@ -129,9 +129,14 @@ function MediaAuditsManage() {
         const mediaTypeQuestions: any = [];
         repeatGroupRes.payload?.questions.forEach((question: any) => {
           if (
-            !["image", "audio", "video", "file", "audio_audit"].includes(
-              question.question_type
-            )
+            ![
+              "image",
+              "audio",
+              "video",
+              "file",
+              "audio_audit",
+              "audio audit",
+            ].includes(question.question_type)
           ) {
             return;
           }
