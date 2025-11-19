@@ -21,6 +21,7 @@ import EmailTableCard from "../../../components/EmailTableCard";
 import ReactQuill from "react-quill";
 import React from "react";
 import { getEmailTemplates } from "../../../redux/emails/apiService";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const { Option } = Select;
 
@@ -651,11 +652,9 @@ const EmailTemplateForm = ({
           Skip
         </Button>
 
-        <Button
+        <CustomBtn
           type="primary"
           style={{
-            backgroundColor: "#597EF7",
-            color: "white",
             marginLeft: "auto",
             marginRight: "5$",
           }}
@@ -663,7 +662,7 @@ const EmailTemplateForm = ({
           onClick={handleSubmit}
         >
           Continue
-        </Button>
+        </CustomBtn>
       </div>
       {currentFormIndex !== null && (
         <EmailTableModel

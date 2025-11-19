@@ -144,12 +144,8 @@ function ConfigureEmails() {
         />
         <Title>Survey email configuration</Title>
         <div style={{ display: "flex", marginLeft: "auto" }}>
-          <Button
-            onClick={() => navigate(-1)}
-            style={{ marginLeft: 20 }}
-            icon={<CloseCircleOutlined />}
-          >
-            Dismiss
+          <Button onClick={() => navigate(-1)} style={{ marginLeft: 20 }}>
+            Cancel
           </Button>
         </div>
       </HeaderContainer>

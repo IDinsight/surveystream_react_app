@@ -154,14 +154,20 @@ const EmailTemplates = ({
         <EmailTemplatesTable
           dataSource={templatesData}
           columns={templateColumns}
-          pagination={{
-            pageSize: paginationPageSize,
-            pageSizeOptions: [10, 25, 50, 100],
-            showSizeChanger: true,
-            showQuickJumper: true,
-            onShowSizeChange: (_, size) => setPaginationPageSize(size),
-          }}
+          pagination={
+            templatesData.length > 10
+              ? {
+                  position: ["topRight"],
+                  pageSize: paginationPageSize,
+                  pageSizeOptions: [10, 25, 50, 100],
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                }
+              : false
+          }
           rowKey={(record: any) => record.config_type}
+          bordered={true}
         />
       ) : (
         <div

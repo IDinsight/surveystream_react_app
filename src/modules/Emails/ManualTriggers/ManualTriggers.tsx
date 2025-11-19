@@ -44,6 +44,15 @@ function ManualTriggers({
     };
     return new Date(date).toLocaleDateString("en-US", options);
   };
+
+  const format12HourTime = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const hour = parseInt(hours, 10);
+    const period = hour >= 12 ? "PM" : "AM";
+    const adjustedHour = hour % 12 || 12;
+    return `${adjustedHour}:${minutes} ${period}`;
+  };
+
   const handleDeleteTrigger = async (trigger: any) => {
     try {
       const result = await dispatch(
@@ -96,11 +105,11 @@ function ManualTriggers({
       sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
     },
     {
-      title: "Trigger Time(UTC)",
+      title: "Trigger Time",
       dataIndex: "date",
       render: (text: any, record: any) => (
         <span>
-          {formatDate(record.date)} {record.time}
+          {formatDate(record.date)} {format12HourTime(record.time)}
         </span>
       ),
       sorter: (a: any, b: any) => {
@@ -145,8 +154,10 @@ function ManualTriggers({
           <Modal
             style={{
               fontFamily: "Lato",
-              overflowY: "scroll",
-              maxHeight: "500px",
+              ...(deliveryReportData?.length > 10 && {
+                overflowY: "scroll",
+                maxHeight: "500px",
+              }),
             }}
             width={"80%"}
             height={"80%"}
@@ -180,7 +191,9 @@ function ManualTriggers({
               type="link"
               icon={<EditOutlined />}
               onClick={() => handleEditTrigger(record)}
-            />
+            >
+              Edit
+            </Button>
           </Tooltip>
           <Popconfirm
             title="Are you sure you want to delete this trigger?"
@@ -189,7 +202,9 @@ function ManualTriggers({
             cancelText="No"
           >
             <Tooltip title="Delete">
-              <Button type="link" icon={<DeleteOutlined />} danger />
+              <Button type="link" icon={<DeleteOutlined />} danger>
+                Delete
+              </Button>
             </Tooltip>
           </Popconfirm>
         </div>
@@ -203,14 +218,20 @@ function ManualTriggers({
         <ManualTriggersTable
           dataSource={data}
           columns={manualTriggerColumns}
-          pagination={{
-            pageSize: paginationPageSize,
-            pageSizeOptions: [10, 25, 50, 100],
-            showSizeChanger: true,
-            showQuickJumper: true,
-            onShowSizeChange: (_, size) => setPaginationPageSize(size),
-          }}
+          pagination={
+            data.length > 10
+              ? {
+                  position: ["topRight"],
+                  pageSize: paginationPageSize,
+                  pageSizeOptions: [10, 25, 50, 100],
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                }
+              : false
+          }
           rowKey={(record: any) => record.manual_email_trigger_uid}
+          bordered={true}
         />
       ) : (
         <div

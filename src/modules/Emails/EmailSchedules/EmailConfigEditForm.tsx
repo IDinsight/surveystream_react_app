@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
+import { CustomBtn } from "../../../shared/Global.styled";
 const { Option } = Select;
 
 const EmailConfigEditForm = ({
@@ -158,7 +159,7 @@ const EmailConfigEditForm = ({
     <Form form={form} layout="vertical" initialValues={initialValues}>
       <Form.Item
         name="form_uid"
-        label="SCTO form ID"
+        label="SCTO Form ID"
         tooltip="Select the SCTO form to be used for the email configuration"
         rules={[
           {
@@ -237,7 +238,7 @@ const EmailConfigEditForm = ({
       </Form.Item>
       <Form.Item
         name="email_source"
-        label="Select the source of Emails"
+        label="Select the Email Source"
         rules={[
           { required: true, message: "Please select the source of Emails" },
         ]}
@@ -388,19 +389,9 @@ const EmailConfigEditForm = ({
           )}
         </>
       )}
-      <Button
-        type="primary"
-        style={{
-          display: "flex",
-          backgroundColor: "#597EF7",
-          color: "white",
-          float: "right",
-        }}
-        loading={loading}
-        onClick={handleSubmit}
-      >
-        Continue
-      </Button>
+      <CustomBtn type="primary" loading={loading} onClick={handleSubmit}>
+        Save
+      </CustomBtn>
     </Form>
   );
 };

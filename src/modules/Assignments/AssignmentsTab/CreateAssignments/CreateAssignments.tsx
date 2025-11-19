@@ -762,7 +762,9 @@ function CreateAssignments() {
                           >
                             Email configuration: <b>{email.config_name}</b>,
                             Date: <b>{email.schedule_time}</b>, Time:{" "}
-                            <b>{email.time}</b>
+                            <b>
+                              {dayjs(email.time, "HH:mm").format("hh:mm A")}
+                            </b>
                           </li>
                         )
                       )}
@@ -917,6 +919,9 @@ function CreateAssignments() {
                               size="middle"
                               format="YYYY-MM-DD"
                               style={{ width: 250 }}
+                              disabledDate={(current) =>
+                                current && current < dayjs().startOf("day")
+                              }
                               onChange={handleDateChange}
                             />
                           </Form.Item>
@@ -933,7 +938,7 @@ function CreateAssignments() {
                           >
                             <TimePicker
                               placeholder="Select Time"
-                              format="HH:mm"
+                              format="hh:mm A"
                               minuteStep={30}
                               style={{ width: 250 }}
                               showNow={false}
