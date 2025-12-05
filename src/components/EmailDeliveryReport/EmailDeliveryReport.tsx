@@ -55,7 +55,7 @@ function EmailDeliveryReport({
         // Find the matching delivery report and extract enumerator_status
         const matchingReport = responseData.find(
           (report: any) =>
-            report.email_delivery_report_uid.toString() === reportUID
+            report.email_delivery_report_uid.toString() == reportUID
         );
         setEnumeratorData(matchingReport?.enumerator_status || []);
       } else {
@@ -77,6 +77,11 @@ function EmailDeliveryReport({
       fetchEnumeratorData(selectedReportUID);
     }
   }, [selectedReportUID, selectedReport]);
+  useEffect(() => {
+    if (deliveryReportData.length > 0 && selectedReportUID) {
+      fetchEnumeratorData(selectedReportUID);
+    }
+  }, []);
 
   const columns: ColumnType<EnumeratorStatus>[] = [
     {
