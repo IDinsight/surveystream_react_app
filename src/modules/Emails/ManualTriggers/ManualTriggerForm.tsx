@@ -6,6 +6,7 @@ import {
 } from "../../../redux/emails/emailsActions";
 import { useAppDispatch } from "../../../redux/hooks";
 import dayjs from "dayjs";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const { Option } = Select;
 
@@ -172,10 +173,11 @@ const ManualEmailTriggerForm = ({
         rules={[{ required: true, message: "Please select the time" }]}
       >
         <TimePicker
-          format="HH:mm"
+          format="hh:mm A"
           minuteStep={30}
           showNow={false}
           needConfirm={false}
+          use12Hours={true}
         />
       </Form.Item>
       <Form.Item
@@ -197,9 +199,9 @@ const ManualEmailTriggerForm = ({
         </Select>
       </Form.Item>
       <Form.Item>
-        <Button type="primary" onClick={handleSubmit} loading={loading}>
-          {isEditMode ? "Update" : "Submit"}
-        </Button>
+        <CustomBtn type="primary" onClick={handleSubmit} loading={loading}>
+          Save
+        </CustomBtn>
       </Form.Item>
     </Form>
   );

@@ -198,7 +198,8 @@ function EmailSchedule({
               }}
             >
               Email configuration: <b>{email.config_name}</b>, Date:{" "}
-              <b>{email.schedule_time}</b>, Time: <b>{email.time}</b>
+              <b>{email.schedule_time}</b>, Time:{" "}
+              <b> {dayjs(email.time, "HH:mm").format("hh:mm A")}</b>
             </li>
           ))}
           <p
@@ -338,6 +339,9 @@ function EmailSchedule({
                   size="middle"
                   style={{ width: 250 }}
                   onChange={handleDateChange}
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf("day")
+                  }
                 />
               </Form.Item>
               <Form.Item
@@ -352,8 +356,9 @@ function EmailSchedule({
                 tooltip="Time at which the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
               >
                 <TimePicker
+                  use12Hours={true}
                   placeholder="Select Time"
-                  format="HH:mm"
+                  format="hh:mm A"
                   minuteStep={30}
                   style={{ width: 250 }}
                   showNow={false}

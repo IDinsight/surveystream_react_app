@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getAllUsers } from "../../../redux/userManagement/userManagementActions";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import { set } from "lodash";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const { Option } = Select;
 
@@ -527,19 +528,16 @@ const EmailConfigForm = ({ handleContinue, configNames, sctoForms }: any) => {
           )}
         </>
       )}
-      <Button
+      <CustomBtn
         type="primary"
         style={{
-          display: "flex",
-          backgroundColor: "#597EF7",
-          color: "white",
           float: "right",
         }}
         loading={loading}
         onClick={handleSubmit}
       >
         Continue
-      </Button>
+      </CustomBtn>
     </Form>
   );
 };

@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import EmailScheduleFilter from "../../../components/EmailScheduleFilter";
 import EmailScheduleFilterCard from "../../../components/EmailScheduleFilterCard";
 import { getEmailSchedules } from "../../../redux/emails/apiService";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const EmailScheduleForm = ({
   handleBack,
@@ -276,8 +277,9 @@ const EmailScheduleForm = ({
                         ]}
                       >
                         <TimePicker
+                          use12Hours={true}
                           placeholder="Select Time"
-                          format="HH:mm"
+                          format="hh:mm A"
                           minuteStep={30}
                           showNow={false}
                           needConfirm={false}
@@ -375,19 +377,17 @@ const EmailScheduleForm = ({
           Skip
         </Button>
 
-        <Button
+        <CustomBtn
           type="primary"
           style={{
             display: "flex",
-            backgroundColor: "#597EF7",
-            color: "white",
             float: "right",
           }}
           loading={loading}
           onClick={handleSubmit}
         >
           Continue
-        </Button>
+        </CustomBtn>
       </div>
     </Form>
   );

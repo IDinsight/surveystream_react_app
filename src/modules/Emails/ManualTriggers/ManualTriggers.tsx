@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Button, Drawer, Popconfirm, Tooltip, message, Tag } from "antd";
 import { Modal } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ReconciliationOutlined,
+} from "@ant-design/icons";
 import NotebooksImg from "../../../assets/notebooks.svg";
 import { ManualTriggersTable } from "./ManualTriggers.styled";
 import ManualEmailTriggerForm from "./ManualTriggerForm";
@@ -44,6 +48,15 @@ function ManualTriggers({
     };
     return new Date(date).toLocaleDateString("en-US", options);
   };
+
+  const format12HourTime = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const hour = parseInt(hours, 10);
+    const period = hour >= 12 ? "PM" : "AM";
+    const adjustedHour = hour % 12 || 12;
+    return `${adjustedHour}:${minutes} ${period}`;
+  };
+
   const handleDeleteTrigger = async (trigger: any) => {
     try {
       const result = await dispatch(
@@ -96,20 +109,31 @@ function ManualTriggers({
       sorter: (a: any, b: any) => a.config_name.localeCompare(b.config_name),
     },
     {
-      title: "Trigger Time(UTC)",
+      title: "Trigger Date",
       dataIndex: "date",
-      render: (text: any, record: any) => (
-        <span>
-          {formatDate(record.date)} {record.time}
-        </span>
-      ),
+      render: (text: any, record: any) => {
+        const options: Intl.DateTimeFormatOptions = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        };
+        const date = new Date(record.date);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      },
       sorter: (a: any, b: any) => {
         const dateA = a.date ? new Date(a.date).getTime() : 0;
         const dateB = b.date ? new Date(b.date).getTime() : 0;
-        if (dateA === dateB) {
-          return a.time.localeCompare(b.time);
-        } else return dateA - dateB;
+        return dateA - dateB;
       },
+    },
+    {
+      title: "Trigger Time",
+      dataIndex: "time",
+      render: (text: any) => format12HourTime(text),
+      sorter: (a: any, b: any) => a.time.localeCompare(b.time),
     },
     {
       title: "Status",
@@ -125,62 +149,64 @@ function ManualTriggers({
       },
       sorter: (a: any, b: any) => a.status.localeCompare(b.status),
     },
-    {
-      title: "Recipients",
-      dataIndex: "recipients",
-      render: (text: any, record: any) => (
-        <>
-          <Button
-            type="link"
-            onClick={() => {
-              fetchDeliveryReport(
-                record.email_config_uid,
-                record.manual_email_trigger_uid
-              );
-              handleShow(record.manual_email_trigger_uid);
-            }}
-          >
-            View Recipients
-          </Button>
-          <Modal
-            style={{
-              fontFamily: "Lato",
-              overflowY: "scroll",
-              maxHeight: "500px",
-            }}
-            width={"80%"}
-            height={"80%"}
-            open={showModal === record.manual_email_trigger_uid}
-            onOk={handleOk}
-            onCancel={handleClose}
-            key={record.manual_email_trigger_uid}
-          >
-            {deliveryReportData && deliveryReportData.length > 0 ? (
-              <EmailDeliveryReport
-                deliveryReportData={deliveryReportData}
-                slot_type="trigger"
-              />
-            ) : (
-              <p>
-                No Emails sent yet, delivery reports will be visible after
-                trigger time.
-              </p>
-            )}
-          </Modal>
-        </>
-      ),
-    },
+
     {
       title: "Action",
       key: "action",
       render: (text: any, record: any) => (
         <div>
+          <>
+            <Button
+              type="link"
+              icon={<ReconciliationOutlined />}
+              style={{ color: "green" }}
+              onClick={() => {
+                fetchDeliveryReport(
+                  record.email_config_uid,
+                  record.manual_email_trigger_uid
+                );
+                handleShow(record.manual_email_trigger_uid);
+              }}
+            >
+              View Delivery Report
+            </Button>
+            <Modal
+              style={{
+                fontFamily: "Lato",
+                ...(deliveryReportData?.length > 10 && {
+                  overflowY: "scroll",
+                  maxHeight: "500px",
+                }),
+              }}
+              width={"80%"}
+              height={"80%"}
+              open={showModal === record.manual_email_trigger_uid}
+              onOk={handleOk}
+              onCancel={handleClose}
+              key={record.manual_email_trigger_uid}
+            >
+              {deliveryReportData && deliveryReportData.length > 0 ? (
+                <EmailDeliveryReport
+                  deliveryReportData={deliveryReportData}
+                  slot_type="trigger"
+                  email_config_uid={record.email_config_uid}
+                />
+              ) : (
+                <p>
+                  No Emails sent yet, delivery reports will be visible after
+                  trigger time.
+                </p>
+              )}
+            </Modal>
+          </>
           <Tooltip title="Edit">
             <Button
               type="link"
               icon={<EditOutlined />}
               onClick={() => handleEditTrigger(record)}
-            />
+            >
+              Edit
+            </Button>
           </Tooltip>
           <Popconfirm
             title="Are you sure you want to delete this trigger?"
@@ -189,7 +215,9 @@ function ManualTriggers({
             cancelText="No"
           >
             <Tooltip title="Delete">
-              <Button type="link" icon={<DeleteOutlined />} danger />
+              <Button type="link" icon={<DeleteOutlined />} danger>
+                Delete
+              </Button>
             </Tooltip>
           </Popconfirm>
         </div>
@@ -203,14 +231,20 @@ function ManualTriggers({
         <ManualTriggersTable
           dataSource={data}
           columns={manualTriggerColumns}
-          pagination={{
-            pageSize: paginationPageSize,
-            pageSizeOptions: [10, 25, 50, 100],
-            showSizeChanger: true,
-            showQuickJumper: true,
-            onShowSizeChange: (_, size) => setPaginationPageSize(size),
-          }}
+          pagination={
+            data.length > 10
+              ? {
+                  position: ["topRight"],
+                  pageSize: paginationPageSize,
+                  pageSizeOptions: [10, 25, 50, 100],
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                }
+              : false
+          }
           rowKey={(record: any) => record.manual_email_trigger_uid}
+          bordered={true}
         />
       ) : (
         <div

@@ -610,6 +610,31 @@ export const getEmailDeliveryReportSchedule = async (
   }
 };
 
+export const getEmailDeliveryReportEnumerator = async (
+  email_config_uid: string,
+  email_delivery_report_uid: string
+) => {
+  try {
+    await getCSRFToken();
+    const csrfToken = await getCookie("CSRF-TOKEN");
+
+    const response = await axios.get(
+      `${API_BASE_URL}/emails/enumerator_report?email_config_uid=${email_config_uid}&email_delivery_report_uid=${email_delivery_report_uid}`,
+      {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getEmailDeliveryReportTrigger = async (
   email_config_uid: string,
   manual_email_trigger_uid: string
@@ -656,5 +681,6 @@ export const api = {
   getEmailTemplates,
   getEmailGsheetHeaders,
   getEmailDeliveryReportSchedule,
+  getEmailDeliveryReportEnumerator,
   getEmailDeliveryReportTrigger,
 };
