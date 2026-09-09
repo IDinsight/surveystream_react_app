@@ -8,6 +8,7 @@ import { getEmailTemplates } from "../../../redux/emails/apiService";
 import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import EmailTableModel from "../../../components/EmailTableModel";
 import { updateEmailTemplate } from "../../../redux/emails/emailsActions";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const { Option } = Select;
 
@@ -380,21 +381,9 @@ function EmailTemplateEditing({
         </Col>
       </Row>
       <div style={{ marginTop: 16 }}>
-        <Button loading={loading} onClick={() => setIsDrawerOpen(false)}>
-          Cancel
-        </Button>
-        <Button
-          type="primary"
-          style={{
-            backgroundColor: "#597EF7",
-            color: "white",
-            marginLeft: 8,
-          }}
-          loading={loading}
-          onClick={handleSubmit}
-        >
-          Save Changes
-        </Button>
+        <CustomBtn type="primary" loading={loading} onClick={handleSubmit}>
+          Save
+        </CustomBtn>
       </div>
 
       {insertTableModelOpen && (

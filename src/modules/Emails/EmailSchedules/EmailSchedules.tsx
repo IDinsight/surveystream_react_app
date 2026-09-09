@@ -115,42 +115,41 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
           }}
         >
           <p>
-            <span style={{ marginBottom: 10 }}>{record?.config_name}</span>
-            <span
-              style={{
-                position: "relative",
-                top: "5px",
-              }}
-            >
-              <Tooltip title="Edit Config">
-                <Button
-                  type="link"
-                  icon={<EditOutlined />}
-                  disabled={!record?.email_config_uid}
-                  onClick={() => handleEditConfig(record)}
-                >
-                  Edit Config
-                </Button>
-              </Tooltip>
-
-              <Tooltip title="Delete">
-                <Popconfirm
-                  title="Are you sure you want to delete this config type?"
-                  onConfirm={() => handleDeleteConfig(record?.email_config_uid)}
-                  okText="Yes"
-                  cancelText="No"
-                >
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ marginBottom: 10 }}>{record?.config_name}</span>
+              <span>
+                <Tooltip title="Edit Config">
                   <Button
-                    disabled={!record?.email_config_uid}
                     type="link"
-                    icon={<DeleteOutlined />}
-                    danger
+                    icon={<EditOutlined />}
+                    disabled={!record?.email_config_uid}
+                    onClick={() => handleEditConfig(record)}
                   >
-                    Delete Config
+                    Edit Config
                   </Button>
-                </Popconfirm>
-              </Tooltip>
-            </span>
+                </Tooltip>
+
+                <Tooltip title="Delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete this config type?"
+                    onConfirm={() =>
+                      handleDeleteConfig(record?.email_config_uid)
+                    }
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      disabled={!record?.email_config_uid}
+                      type="link"
+                      icon={<DeleteOutlined />}
+                      danger
+                    >
+                      Delete Config
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+              </span>
+            </div>
           </p>
         </div>
       ),
@@ -205,7 +204,9 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                 >
                   <div style={{ marginRight: "10px", width: "30%" }}>
                     <p>Schedule Name : {email_schedule_name}</p>
-                    <p>Time : {dayjs(`1970-01-01T${time}`).format("HH:mm")}</p>
+                    <p>
+                      Time : {dayjs(`1970-01-01T${time}`).format("hh:mm A")}
+                    </p>
                   </div>
                   <div
                     style={{
@@ -242,8 +243,10 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                         onCancel={() => setIsDeliveryReportModalVisible(-1)}
                         style={{
                           fontFamily: "Lato",
-                          overflowY: "scroll",
-                          maxHeight: "500px",
+                          ...(deliveryReportData?.length > 10 && {
+                            overflowY: "scroll",
+                            maxHeight: "500px",
+                          }),
                         }}
                         width={"80%"}
                         height={"80%"}
@@ -260,6 +263,7 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
                           <EmailDeliveryReport
                             deliveryReportData={deliveryReportData}
                             slot_type="schedule"
+                            email_config_uid={email_config_uid}
                           />
                         ) : (
                           <p>
@@ -381,13 +385,19 @@ function EmailSchedules({ data, fetchEmailSchedules, sctoForms }: any) {
         <SchedulesTable
           dataSource={data}
           columns={scheduleColumns}
-          pagination={{
-            pageSize: paginationPageSize,
-            pageSizeOptions: [10, 25, 50, 100],
-            showSizeChanger: true,
-            showQuickJumper: true,
-            onShowSizeChange: (_, size) => setPaginationPageSize(size),
-          }}
+          pagination={
+            data.length > 10
+              ? {
+                  position: ["topRight"],
+                  pageSize: paginationPageSize,
+                  pageSizeOptions: [10, 25, 50, 100],
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  onShowSizeChange: (_, size) => setPaginationPageSize(size),
+                }
+              : false
+          }
+          bordered={true}
         />
       ) : (
         <div

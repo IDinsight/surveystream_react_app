@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import {
   Form,
   Input,
-  Button,
   Select,
   message,
   DatePicker,
   TimePicker,
+  Button,
 } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { updateEmailSchedule } from "../../../redux/emails/emailsActions";
@@ -16,6 +16,7 @@ import FullScreenLoader from "../../../components/Loaders/FullScreenLoader";
 import EmailScheduleFilter from "../../../components/EmailScheduleFilter";
 import EmailScheduleFilterCard from "../../../components/EmailScheduleFilterCard";
 import dayjs from "dayjs";
+import { CustomBtn } from "../../../shared/Global.styled";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -99,6 +100,7 @@ const EmailScheduleEditForm = ({
       message.success("Email schedule updated successfully");
       fetchEmailSchedules();
     } catch (error) {
+      console.log("Error updating email schedule:", error);
       message.error("Failed to update email schedule");
     }
     setLoading(false);
@@ -113,6 +115,10 @@ const EmailScheduleEditForm = ({
       };
       if (initialValues.filter_list) {
         setTableList(initialValues.filter_list);
+        console.log(
+          "Filter list in EmailScheduleEditForm:",
+          initialValues.filter_list
+        );
       }
       setEmailConfigUID(initialValues.email_config_uid);
       form.setFieldsValue({ ...formValues });
@@ -168,8 +174,9 @@ const EmailScheduleEditForm = ({
         tooltip="Time the email will be sent, actual email delivery time will be after 10 minutes or more since the email is queued for delivery after surveycto data refreshes."
       >
         <TimePicker
+          use12Hours
           placeholder="Select Time"
-          format="HH:mm"
+          format="hh:mm A"
           minuteStep={30}
           showNow={false}
           needConfirm={false}
@@ -180,6 +187,10 @@ const EmailScheduleEditForm = ({
           setEditingIndex(null);
           setScheduleFilterOpen(true);
         }}
+        style={{
+          backgroundColor: "white",
+          color: "black",
+        }}
       >
         Add Filters for Schedule
       </Button>
@@ -189,20 +200,20 @@ const EmailScheduleEditForm = ({
         configUID={initialValues.email_config_uid}
         tableList={tableList}
         setTableList={(value: any) => {
-          setTableList(value);
+          setTableList([value]);
         }}
         editingIndex={editingIndex}
         setEditingIndex={setEditingIndex}
       />
 
       <div style={{ display: "flex", marginTop: "40px" }}>
-        <Button
+        <CustomBtn
           type="primary"
           onSubmit={() => form.validateFields()}
           onClick={handleSubmit}
         >
-          Submit
-        </Button>
+          Save
+        </CustomBtn>
       </div>
       <div style={{ display: "flex", marginTop: "10px" }}>
         <EmailScheduleFilterCard
