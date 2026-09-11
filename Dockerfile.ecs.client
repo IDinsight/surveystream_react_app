@@ -7,9 +7,9 @@ ARG BUILD_ENV
 WORKDIR  /
 ENV PATH=/node_modules/.bin:$PATH
 
-COPY package.json package-lock.json tailwind.config.js /tsconfig.json ./
-RUN npm ci
-RUN npx -y update-browserslist-db@latest
+COPY package.json tailwind.config.js /tsconfig.json ./
+RUN npm install --network-timeout=100000
+RUN npx browserslist@latest --update-db
 
 # Copying source code later so that we can avoid npm install everytime
 COPY src src
